@@ -2,11 +2,9 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
 venv/
 .env
 .ipynb_checkpoints/
-
 data/
 models/
 results/
@@ -16,12 +14,10 @@ logs/
 checkpoints/
 tensorboard/
 cache/
-
 *.bin
 *.idx
 *.pt
 *.pth
 *.ckpt
 *.safetensors
-
 .DS_Store
