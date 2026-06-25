@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:nvidia_h20:1
 #SBATCH --mem=80G
-#SBATCH --time=1-00:00:00
+#SBATCH --time=00:30:00
 #SBATCH --output=logs/%x_%j.out
 #SBATCH --error=logs/%x_%j.err
 
@@ -52,7 +52,11 @@ if torch.cuda.is_available():
 PY
 
 echo "==== git info ===="
-git log -1 --oneline || true
+if command -v git >/dev/null 2>&1; then
+    git log -1 --oneline || true
+else
+    echo "git not found after module purge"
+fi
 
 echo "==== start SSO test ===="
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-16}"
