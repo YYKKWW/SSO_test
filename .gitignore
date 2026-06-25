@@ -8,6 +8,7 @@ venv/
 data/
 models/
 results/
+outputs/
 wandb/
 runs/
 logs/
