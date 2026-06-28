@@ -14,7 +14,9 @@
 set -euo pipefail
 
 PROJECT_DIR="${PROJECT_DIR:-$HOME/projects/SSO_test}"
-ENV_DIR="${ENV_DIR:-$HOME/envs/sso_h20}"
+ENV_DIR="${ENV_DIR:-$HOME/envs/sso_h20_cu118}"
+PYTHON_MODULE="${PYTHON_MODULE:-python/3.12.1}"
+CUDA_MODULE="${CUDA_MODULE:-cuda/11.8}"
 
 cd "$PROJECT_DIR"
 mkdir -p logs outputs
@@ -27,8 +29,8 @@ pwd
 
 echo "==== modules ===="
 module purge
-module load python/3.12.1
-module load cuda/12.4
+module load "$PYTHON_MODULE"
+module load "$CUDA_MODULE"
 module list
 
 echo "==== GPU ===="
