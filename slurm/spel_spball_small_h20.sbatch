@@ -14,9 +14,9 @@
 set -euo pipefail
 
 PROJECT_DIR="${PROJECT_DIR:-$HOME/projects/SSO_test}"
-ENV_DIR="${ENV_DIR:-$HOME/envs/sso_h20_cu118}"
+ENV_DIR="${ENV_DIR:-$HOME/envs/sso_h20}"
 PYTHON_MODULE="${PYTHON_MODULE:-python/3.12.1}"
-CUDA_MODULE="${CUDA_MODULE:-cuda/11.8}"
+CUDA_MODULE="${CUDA_MODULE:-cuda/12.4}"
 
 cd "$PROJECT_DIR"
 mkdir -p logs outputs
