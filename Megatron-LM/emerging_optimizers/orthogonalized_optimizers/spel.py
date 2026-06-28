@@ -17,18 +17,20 @@
 
 SpEL combines:
 - Spectral Ball's hard retraction to spectral sphere
-- A tangent-plane projection of the momentum on that sphere
+- A spectral tangent-plane projection using the top singular vectors (u, v)
 - Muon's simple msign orthogonalization
 
 This skips the expensive Spectral Ball bisection solver while keeping the
-update direction tangent to the spectral sphere.
+update direction approximately tangent to the smooth spectral sphere stratum.
+The tangent projection assumes a simple top singular value.
 
 Algorithm:
 1. Power iteration: σ, u, v = power_iteration(W, steps)
 2. Retract W: W ← (R/σ) * W
-3. M = M - <W, M> W/||W||^2
+3. M ← M - <u v^T, M> u v^T
 4. Orthogonalize: Φ = msign(M)
-4. Update: W ← W - lr * scale * Φ
+5. Re-project Φ ← Φ - <u v^T, Φ> u v^T
+6. Update: W ← W - lr * scale * Φ
 """
 
 from typing import Any, Callable, Optional, Tuple
@@ -54,13 +56,53 @@ from .spectral_ball_utils import (
 __all__ = ["SpEL", "compute_spel_update", "project_to_tangent_plane"]
 
 
-def project_to_tangent_plane(W: torch.Tensor, M: torch.Tensor) -> torch.Tensor:
-    """Project M onto the tangent plane at W for the Frobenius sphere."""
-    W_fp32 = W.to(torch.float32)
+def _as_column_unit_vector(x: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
+    """Return x as a normalized column vector over the last matrix dimension."""
+    x_fp32 = x.to(torch.float32)
+    if x_fp32.ndim >= 2 and x_fp32.shape[-1] == 1:
+        col = x_fp32
+    else:
+        col = x_fp32.unsqueeze(-1)
+    return col / torch.linalg.norm(col, dim=-2, keepdim=True).clamp_min(eps)
+
+
+def project_to_tangent_plane(
+    M: torch.Tensor,
+    u: torch.Tensor,
+    v: torch.Tensor,
+    *,
+    eps: float = 1e-8,
+) -> torch.Tensor:
+    """Project M onto the smooth spectral-sphere tangent plane.
+
+    This is the Frobenius-orthogonal projection onto
+
+        {H : <u v^T, H> = 0},
+
+    where u and v are unit top left/right singular vectors.  This is the
+    correct tangent space only on the smooth stratum where the top singular
+    value is simple.  The implementation costs O(mn): one Mv product and one
+    rank-one subtraction; it does not compute a full SVD.
+    """
     M_fp32 = M.to(torch.float32)
-    inner = torch.sum(W_fp32 * M_fp32, dim=(-2, -1), keepdim=True)
-    denom = torch.sum(W_fp32 * W_fp32, dim=(-2, -1), keepdim=True).clamp_min(1e-8)
-    return M_fp32 - inner / denom * W_fp32
+    u_col = _as_column_unit_vector(u, eps=eps)
+    v_col = _as_column_unit_vector(v, eps=eps)
+
+    # Some power-iteration utilities return (sigma, v, u) or use row vectors.
+    # Accept the common accidental swap when dimensions determine it uniquely.
+    if u_col.shape[-2] != M_fp32.shape[-2] or v_col.shape[-2] != M_fp32.shape[-1]:
+        if u_col.shape[-2] == M_fp32.shape[-1] and v_col.shape[-2] == M_fp32.shape[-2]:
+            u_col, v_col = v_col, u_col
+        else:
+            raise ValueError(
+                "Top singular vector dimensions are incompatible with M: "
+                f"M.shape={tuple(M_fp32.shape)}, "
+                f"u.shape={tuple(u.shape)}, v.shape={tuple(v.shape)}"
+            )
+
+    # coeff = <u v^T, M> = u^T M v, with shape (..., 1, 1).
+    coeff = torch.matmul(u_col.transpose(-2, -1), torch.matmul(M_fp32, v_col))
+    return M_fp32 - coeff * torch.matmul(u_col, v_col.transpose(-2, -1))
 
 
 def compute_spel_update(
@@ -81,8 +123,11 @@ def compute_spel_update(
     Algorithm:
     1. Power iteration to get σ, u, v
     2. Retract W to spectral sphere: W ← (R/σ)W
-    3. Project momentum to the tangent plane at W
+    3. Project momentum to the spectral-sphere tangent plane:
+       M ← M - <u v^T, M> u v^T
     4. Orthogonalize: Φ = msign(M_projected)
+    5. Re-project Φ to the same tangent plane, because msign is nonlinear
+       and does not preserve <u v^T, ·> = 0 exactly.
 
     Args:
         W: Current weight matrix (modified in-place for retraction)
@@ -129,13 +174,21 @@ def compute_spel_update(
     )
 
     # 3. SpEL: project momentum onto the tangent plane of the spectral sphere.
-    M_projected = project_to_tangent_plane(W_work, M_work)
+    # For a simple top singular value, the tangent space is
+    #     {H : <u v^T, H> = 0}.
+    # The old W-based projection <W, M> W / ||W||_F^2 was the projection for
+    # a Frobenius sphere, not for the spectral sphere.
+    M_projected = project_to_tangent_plane(M_work, u, v)
     M_projected = M_projected / (
         torch.linalg.norm(M_projected, dim=(-2, -1), keepdim=True).clamp_min(1e-8)
     )
 
     # 4. Orthogonalize the projected momentum.
     Phi = msign(M_projected, steps=msign_steps)
+
+    # 5. Re-project after msign.  The map msign is nonlinear, so tangentness
+    # of M_projected does not imply tangentness of msign(M_projected).
+    Phi = project_to_tangent_plane(Phi, u, v)
 
     # Handle TP: split result and update local W
     if tp_enabled:
@@ -153,9 +206,10 @@ class SpEL(OrthogonalizedOptimizer):
     The algorithm:
     1. Power iteration to compute spectral norm σ and top singular vectors (u, v)
     2. Retraction to spectral sphere: W ← (R/σ) * W
-    3. Project momentum: M ← M - <W, M> W / ||W||^2
+    3. Project momentum: M ← M - <u v^T, M> u v^T
     4. Orthogonalize momentum: Φ = msign(M)
-    4. Update: W ← W - lr * Φ
+    5. Re-project Φ: Φ ← Φ - <u v^T, Φ> u v^T
+    6. Update: W ← W - lr * Φ
 
     Warning:
         - This optimizer requires that all parameters passed in are 2D.
@@ -346,9 +400,10 @@ class SpEL(OrthogonalizedOptimizer):
         The core algorithm:
         1. Power iteration: σ, u, v = power_iteration(W, steps)
         2. Retract W: W ← (R/σ) * W  [in-place modification]
-        3. Project M onto the tangent plane at W
+        3. Project M onto the smooth spectral-sphere tangent plane using u, v
         4. Orthogonalize: Φ = msign(M)
-        4. Return: Φ
+        5. Re-project Φ to the same tangent plane
+        6. Return: Φ
 
         Args:
             p: Parameter tensor (current weight matrix W)
