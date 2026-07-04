@@ -143,7 +143,7 @@ def patch_newton_schulz_to_torch_fallback() -> None:
 
 
 def import_smoke_optimizers():
-    """Import only SpEL and SpectralBall without package-level Triton imports."""
+    """Import smoke optimizers without package-level Triton imports."""
 
     install_absl_logging_fallback()
     install_emerging_optimizer_namespace()
@@ -151,11 +151,20 @@ def import_smoke_optimizers():
     patch_newton_schulz_to_torch_fallback()
     from emerging_optimizers.orthogonalized_optimizers.spectral_ball import SpectralBall
     from emerging_optimizers.orthogonalized_optimizers.spel import SpEL
+    from emerging_optimizers.orthogonalized_optimizers.spel_pgd_same_projection import (
+        SpELPGDSameProjection,
+    )
 
     package = sys.modules["emerging_optimizers.orthogonalized_optimizers"]
     package.SpectralBall = SpectralBall
     package.SpEL = SpEL
-    return SpectralBall, SpEL
+    package.SpELPGDSameProjection = SpELPGDSameProjection
+    return SpectralBall, SpEL, SpELPGDSameProjection
+
+
+def bare_optimizer_name(optimizer_name: str) -> str:
+    """Map legacy layer-wise names to the emerging optimizer registry key."""
+    return optimizer_name[: -len("_dist")] if optimizer_name.endswith("_dist") else optimizer_name
 
 
 class TinyMegatronLikeModel(nn.Module):
@@ -256,12 +265,19 @@ class TinyMegatronLikeModel(nn.Module):
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--device", default="cuda")
-    parser.add_argument("--mode", choices=["direct", "wrapper", "both"], default="both")
+    parser.add_argument("--mode", choices=["direct", "wrapper", "both"], default="direct")
     parser.add_argument(
         "--optimizers",
         nargs="+",
         default=["spectral_ball_dist", "spel"],
-        choices=["spectral_ball_dist", "spel"],
+        choices=[
+            "spectral_ball",
+            "spectral_ball_dist",
+            "spel",
+            "spel_dist",
+            "spel_pgd",
+            "spel_pgd_dist",
+        ],
     )
     parser.add_argument("--steps", type=int, default=3)
     parser.add_argument("--batch-size", type=int, default=2)
@@ -282,6 +298,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scale-mode", default="spectral_mup")
     parser.add_argument("--retract-mode", default="hard")
     parser.add_argument("--qkv-split-mode", default="head", choices=["component", "group", "head"])
+    parser.add_argument("--spel-pgd-branch-mode", default="auto", choices=["auto", "spel", "pgd"])
+    parser.add_argument("--spel-pgd-gap-threshold-rel", type=float, default=5e-3)
+    parser.add_argument("--spel-pgd-sigma2-power-iteration-steps", type=int, default=3)
+    parser.add_argument(
+        "--spel-pgd-direction-normalization",
+        default="none",
+        choices=["none", "fro"],
+    )
     parser.add_argument("--clip-grad", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=1234)
     parser.add_argument("--output", default="outputs/optimizer_compare_smoke.json")
@@ -398,7 +422,8 @@ def run_direct(
     args: argparse.Namespace,
     device: torch.device,
 ) -> dict[str, Any]:
-    SpectralBall, SpEL = import_smoke_optimizers()
+    SpectralBall, SpEL, SpELPGDSameProjection = import_smoke_optimizers()
+    bare_name = bare_optimizer_name(optimizer_name)
 
     set_seed(args.seed)
     model = make_model(args, device)
@@ -437,9 +462,18 @@ def run_direct(
         tp_mode="duplicated",
     )
     param_groups = [{"params": linear_params, "wd_mult": 0.0}]
-    if optimizer_name == "spel":
+    if bare_name == "spel":
         opt = SpEL(param_groups, **common)
-    else:
+    elif bare_name == "spel_pgd":
+        opt = SpELPGDSameProjection(
+            param_groups,
+            branch_mode=args.spel_pgd_branch_mode,
+            gap_threshold_rel=args.spel_pgd_gap_threshold_rel,
+            sigma2_power_iteration_steps=args.spel_pgd_sigma2_power_iteration_steps,
+            pgd_direction_normalization=args.spel_pgd_direction_normalization,
+            **common,
+        )
+    elif bare_name == "spectral_ball":
         opt = SpectralBall(
             param_groups,
             solver="bisection",
@@ -448,6 +482,8 @@ def run_direct(
             radius_scaler=1.0,
             **common,
         )
+    else:
+        raise ValueError(f"Unsupported optimizer for smoke test: {optimizer_name}")
     adam = torch.optim.AdamW(nonlinear_params, lr=args.lr, weight_decay=args.weight_decay)
 
     losses = []
@@ -479,8 +515,9 @@ def make_optimizer_config(optimizer_name: str, args: argparse.Namespace):
     install_optimizer_only_megatron_namespace()
     from megatron.core.optimizer.optimizer_config import OptimizerConfig
 
+    bare_name = bare_optimizer_name(optimizer_name)
     return OptimizerConfig(
-        optimizer=optimizer_name,
+        optimizer=bare_name,
         lr=args.lr,
         min_lr=args.min_lr,
         weight_decay=args.weight_decay,
@@ -490,6 +527,7 @@ def make_optimizer_config(optimizer_name: str, args: argparse.Namespace):
         fp16=False,
         bf16=False,
         use_distributed_optimizer=False,
+        use_layer_wise_distributed_optimizer=optimizer_name.endswith("_dist"),
         spectral_ball_momentum=args.momentum,
         spectral_ball_use_nesterov=True,
         spectral_ball_split_qkv=True,
@@ -516,6 +554,22 @@ def make_optimizer_config(optimizer_name: str, args: argparse.Namespace):
         spel_power_iteration_steps=args.power_iteration_steps,
         spel_scale_mode=args.scale_mode,
         spel_retract_mode=args.retract_mode,
+        spel_pgd_momentum=args.momentum,
+        spel_pgd_use_nesterov=True,
+        spel_pgd_split_qkv=True,
+        spel_pgd_qkv_split_mode=args.qkv_split_mode,
+        spel_pgd_split_fc1=True,
+        spel_pgd_split_moe_experts=False,
+        spel_pgd_msign_steps=args.msign_steps,
+        spel_pgd_radius_mode=args.radius_mode,
+        spel_pgd_power_iteration_steps=args.power_iteration_steps,
+        spel_pgd_scale_mode=args.scale_mode,
+        spel_pgd_retract_mode=args.retract_mode,
+        spel_pgd_use_pgd_fallback=True,
+        spel_pgd_branch_mode=args.spel_pgd_branch_mode,
+        spel_pgd_gap_threshold_rel=args.spel_pgd_gap_threshold_rel,
+        spel_pgd_sigma2_power_iteration_steps=args.spel_pgd_sigma2_power_iteration_steps,
+        spel_pgd_pgd_direction_normalization=args.spel_pgd_direction_normalization,
     )
 
 
@@ -527,23 +581,13 @@ def run_wrapper(
     import_smoke_optimizers()
     install_optimizer_only_megatron_namespace()
     init_distributed_for_wrapper()
-
-    if optimizer_name == "spel":
-        from megatron.core.optimizer.spel import get_megatron_spel_optimizer
-
-        builder = get_megatron_spel_optimizer
-    else:
-        from megatron.core.optimizer.spectral_ball_optimizer import (
-            get_megatron_spectral_ball_optimizer,
-        )
-
-        builder = get_megatron_spectral_ball_optimizer
+    from megatron.core.optimizer import _get_megatron_emerging_optimizer
 
     set_seed(args.seed)
     model = make_model(args, device)
     x, target = make_batch(args, device)
     config = make_optimizer_config(optimizer_name, args)
-    optimizer = builder(config, [model], use_gloo_process_groups=False)
+    optimizer = _get_megatron_emerging_optimizer(config, [model], config_overrides={})
 
     losses = []
     step_returns = []

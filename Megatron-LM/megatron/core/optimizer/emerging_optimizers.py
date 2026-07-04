@@ -33,6 +33,9 @@ try:
         OrthogonalizedOptimizer,
     )
     from emerging_optimizers.orthogonalized_optimizers.spel import SpEL
+    from emerging_optimizers.orthogonalized_optimizers.spel_pgd_same_projection import (
+        SpELPGDSameProjection,
+    )
     from emerging_optimizers.orthogonalized_optimizers.spectral_ball import SpectralBall
 
     try:
@@ -493,6 +496,28 @@ def _spel_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any
     return kwargs
 
 
+def _spel_pgd_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any]:
+    """Convert OptimizerConfig to SpEL-PGD constructor kwargs."""
+    model_cfg = model_chunks[0].config
+    kwargs = _kwargs_from_config(SpEL, "spel_pgd", config)
+    kwargs.update(_kwargs_from_config(SpELPGDSameProjection, "spel_pgd", config))
+    kwargs["momentum_beta"] = config.spel_pgd_momentum
+    kwargs["weight_decay_method"] = "decoupled" if config.decoupled_weight_decay else "l2"
+    kwargs["fp32_matmul_prec"] = "medium"
+    kwargs["is_qkv_fn"] = lambda p: getattr(p, "is_qkv", False)
+    kwargs["qkv_split_shapes"] = _get_qkv_split_shapes(model_cfg)
+    kwargs["is_fc1_fn"] = lambda p: getattr(p, "is_fc1", False)
+    kwargs["fc1_split_shapes"] = (
+        (model_cfg.ffn_hidden_size, model_cfg.ffn_hidden_size)
+        if getattr(model_cfg, "gated_linear_unit", False)
+        else None
+    )
+    kwargs["is_grouped_moe_fn"] = lambda p: getattr(p, "is_grouped_moe", False)
+    kwargs["pg_collection"] = pg_collection
+    kwargs["tp_mode"] = "duplicated"
+    return kwargs
+
+
 def _default_adam_based_eopt_config_to_kwargs(
     eopt_name, config, model_chunks, pg_collection
 ) -> Dict[str, Any]:
@@ -535,6 +560,18 @@ _EMERGING_OPTIMIZERS.update(
             optimizer_cls=SpEL,
             init_state_fn=_eopt_init_state_fn,
             config_to_kwargs=_spel_config_to_kwargs,
+            default_param_overrides={
+                ParamKey(
+                    predicate=ParamPredicate(
+                        name="nonlinear_or_embedding", fn=_is_nonlinear_or_embedding
+                    )
+                ): {'optimizer': 'adam'}
+            },
+        ),
+        "spel_pgd": EmergingOptimizerEntry(
+            optimizer_cls=SpELPGDSameProjection,
+            init_state_fn=_eopt_init_state_fn,
+            config_to_kwargs=_spel_pgd_config_to_kwargs,
             default_param_overrides={
                 ParamKey(
                     predicate=ParamPredicate(

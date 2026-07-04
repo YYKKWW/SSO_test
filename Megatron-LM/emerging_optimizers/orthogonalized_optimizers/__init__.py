@@ -15,6 +15,7 @@
 from emerging_optimizers.orthogonalized_optimizers.muon_ball import *
 from emerging_optimizers.orthogonalized_optimizers.orthogonalized_optimizer import *
 from emerging_optimizers.orthogonalized_optimizers.spel import *
+from emerging_optimizers.orthogonalized_optimizers.spel_pgd_same_projection import *
 from emerging_optimizers.orthogonalized_optimizers.spectral_ball import *
 from emerging_optimizers.orthogonalized_optimizers.spectral_ball_utils import *
 

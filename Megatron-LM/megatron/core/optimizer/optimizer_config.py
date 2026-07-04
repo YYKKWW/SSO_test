@@ -374,6 +374,58 @@ class OptimizerConfig:
     spel_retract_alpha: float = 0.05
     """Step size for dynamic SpEL retraction."""
 
+    # SpEL-PGD, a SpEL variant with PGD-style fallback.
+    spel_pgd_momentum: float = 0.9
+    """Momentum coefficient for SpEL-PGD optimizer."""
+
+    spel_pgd_use_nesterov: bool = True
+    """Whether to use Nesterov-style momentum in SpEL-PGD."""
+
+    spel_pgd_split_qkv: bool = True
+    """Whether to split QKV parameters for SpEL-PGD optimizer."""
+
+    spel_pgd_qkv_split_mode: str = "component"
+    """QKV split mode for SpEL-PGD optimizer: component, group, or head."""
+
+    spel_pgd_split_fc1: bool = True
+    """Whether to split FC1 gate/up projections for SpEL-PGD optimizer."""
+
+    spel_pgd_split_moe_experts: bool = True
+    """Whether to split grouped MoE expert weights for SpEL-PGD optimizer."""
+
+    spel_pgd_msign_steps: int = 8
+    """Number of Newton-Schulz iterations for the SpEL-PGD SpEL branch."""
+
+    spel_pgd_radius_mode: str = 'spectral_mup'
+    """Target spectral radius mode for SpEL-PGD."""
+
+    spel_pgd_power_iteration_steps: int = 10
+    """Power iteration steps used to estimate spectral norm in SpEL-PGD."""
+
+    spel_pgd_scale_mode: str = 'spectral_mup'
+    """Update scaling mode for SpEL-PGD."""
+
+    spel_pgd_retract_mode: str = 'hard'
+    """SpEL-PGD retraction mode: hard or dynamic."""
+
+    spel_pgd_retract_alpha: float = 0.05
+    """Step size for dynamic SpEL-PGD retraction."""
+
+    spel_pgd_use_pgd_fallback: bool = True
+    """Whether automatic SpEL-PGD mode may switch to the PGD branch."""
+
+    spel_pgd_branch_mode: str = "auto"
+    """Branch mode for SpEL-PGD: auto, spel, or pgd."""
+
+    spel_pgd_gap_threshold_rel: float = 5e-3
+    """Relative singular-value gap threshold for PGD fallback."""
+
+    spel_pgd_sigma2_power_iteration_steps: int = 3
+    """Power iteration steps used to estimate the second singular value."""
+
+    spel_pgd_pgd_direction_normalization: str = "none"
+    """PGD branch direction normalization mode: none or fro."""
+
     # Lion.
     lion_beta1: float = 0.95
     """First beta coefficient for Lion optimizer (used in sign update). Defaults to 0.95."""

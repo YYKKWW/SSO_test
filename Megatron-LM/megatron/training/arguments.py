@@ -3386,6 +3386,94 @@ def _add_regularization_args(parser):
         help='Retraction mode for SpEL',
     )
     group.add_argument('--spel-retract-alpha', type=float, default=0.05, help='Dynamic SpEL retraction step size')
+    group.add_argument('--spel-pgd-momentum', type=float, default=0.9, help='Momentum coefficient for SpEL-PGD optimizer')
+    group.add_argument('--spel-pgd-use-nesterov', action='store_true', default=True, help='Use Nesterov-style momentum in SpEL-PGD')
+    group.add_argument(
+        '--spel-pgd-no-split-qkv',
+        action='store_false',
+        default=True,
+        dest='spel_pgd_split_qkv',
+        help='Disable QKV splitting for SpEL-PGD optimizer',
+    )
+    group.add_argument(
+        '--spel-pgd-qkv-split-mode',
+        type=str,
+        default='component',
+        choices=['component', 'group', 'head'],
+        help='QKV split mode for SpEL-PGD: component, group, or head',
+    )
+    group.add_argument(
+        '--spel-pgd-no-split-fc1',
+        action='store_false',
+        default=True,
+        dest='spel_pgd_split_fc1',
+        help='Disable FC1 gate/up splitting for SpEL-PGD optimizer',
+    )
+    group.add_argument(
+        '--spel-pgd-no-split-moe-experts',
+        action='store_false',
+        default=True,
+        dest='spel_pgd_split_moe_experts',
+        help='Disable grouped MoE expert splitting for SpEL-PGD optimizer',
+    )
+    group.add_argument('--spel-pgd-msign-steps', type=int, default=8, help='Newton-Schulz iterations for the SpEL-PGD SpEL branch')
+    group.add_argument(
+        '--spel-pgd-radius-mode',
+        type=str,
+        default='spectral_mup',
+        choices=['spectral_mup', 'identity', 'initialize'],
+        help='Target radius mode for SpEL-PGD',
+    )
+    group.add_argument('--spel-pgd-power-iteration-steps', type=int, default=10, help='Power iteration steps for SpEL-PGD spectral norm')
+    group.add_argument(
+        '--spel-pgd-scale-mode',
+        type=str,
+        default='spectral_mup',
+        choices=['align_adamw_rms', 'spectral_mup', 'shape_scaling'],
+        help='Update scaling mode for SpEL-PGD',
+    )
+    group.add_argument(
+        '--spel-pgd-retract-mode',
+        type=str,
+        default='hard',
+        choices=['hard', 'dynamic'],
+        help='Retraction mode for SpEL-PGD',
+    )
+    group.add_argument('--spel-pgd-retract-alpha', type=float, default=0.05, help='Dynamic SpEL-PGD retraction step size')
+    group.add_argument(
+        '--spel-pgd-disable-pgd-fallback',
+        action='store_false',
+        default=True,
+        dest='spel_pgd_use_pgd_fallback',
+        help='Disable PGD fallback when SpEL-PGD branch mode is auto',
+    )
+    group.add_argument(
+        '--spel-pgd-branch-mode',
+        type=str,
+        default='auto',
+        choices=['auto', 'spel', 'pgd'],
+        help='SpEL-PGD branch mode: auto, spel, or pgd',
+    )
+    group.add_argument(
+        '--spel-pgd-gap-threshold-rel',
+        type=float,
+        default=5e-3,
+        help='Relative singular-value gap threshold for SpEL-PGD PGD fallback',
+    )
+    group.add_argument(
+        '--spel-pgd-sigma2-power-iteration-steps',
+        type=int,
+        default=3,
+        help='Power iteration steps used by SpEL-PGD to estimate the second singular value',
+    )
+    group.add_argument(
+        '--spel-pgd-direction-normalization',
+        type=str,
+        default='none',
+        choices=['none', 'fro'],
+        dest='spel_pgd_pgd_direction_normalization',
+        help='PGD branch direction normalization for SpEL-PGD',
+    )
     group.add_argument(
         '--lion-beta1',
         type=float,
@@ -3791,7 +3879,7 @@ def _add_training_args(parser):
         '--optimizer',
         type=str,
         default='adam',
-        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'spel', 'spel_dist', 'lion', 'soap', 'adaptive_muon'],
+        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'spel', 'spel_dist', 'spel_pgd', 'spel_pgd_dist', 'lion', 'soap', 'adaptive_muon'],
         help='Optimizer function. '
         'Note: dist_muon is deprecated; use --optimizer muon '
         'with --use-distributed-optimizer instead.',

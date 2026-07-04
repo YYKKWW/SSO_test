@@ -231,6 +231,19 @@ TRAINING_ARGS=(
   --spel-scale-mode spectral_mup
   --spel-retract-mode hard
   --spel-retract-alpha 0.05
+  --spel-pgd-momentum 0.9
+  --spel-pgd-use-nesterov
+  --spel-pgd-qkv-split-mode head
+  --spel-pgd-msign-steps "${SPEL_PGD_MSIGN_STEPS:-8}"
+  --spel-pgd-radius-mode spectral_mup
+  --spel-pgd-power-iteration-steps "${SPEL_PGD_POWER_ITERATION_STEPS:-10}"
+  --spel-pgd-scale-mode spectral_mup
+  --spel-pgd-retract-mode hard
+  --spel-pgd-retract-alpha "${SPEL_PGD_RETRACT_ALPHA:-0.05}"
+  --spel-pgd-branch-mode "${SPEL_PGD_BRANCH_MODE:-auto}"
+  --spel-pgd-gap-threshold-rel "${SPEL_PGD_GAP_THRESHOLD_REL:-5e-3}"
+  --spel-pgd-sigma2-power-iteration-steps "${SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS:-3}"
+  --spel-pgd-direction-normalization "${SPEL_PGD_DIRECTION_NORMALIZATION:-none}"
 )
 
 PARALLEL_ARGS=(
