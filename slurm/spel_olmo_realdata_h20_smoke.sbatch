@@ -14,7 +14,7 @@
 set -euo pipefail
 
 PROJECT_DIR="${PROJECT_DIR:-$HOME/projects/SSO_test}"
-MEGATRON_PATH="${MEGATRON_PATH:-$HOME/projects/Megatron-LM-active}"
+MEGATRON_PATH="${MEGATRON_PATH:-$PROJECT_DIR/Megatron-LM}"
 ENV_DIR="${ENV_DIR:-$HOME/envs/sso_h20}"
 DATA_ROOT="${DATA_ROOT:-$PROJECT_DIR/data/olmo_mix_1124_1b}"
 TOKENIZER_MODEL="${TOKENIZER_MODEL:-$DATA_ROOT/tokenizer/OLMo-2-1124-7B}"

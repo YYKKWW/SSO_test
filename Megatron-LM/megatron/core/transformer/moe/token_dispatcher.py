@@ -8,8 +8,6 @@ import torch
 
 from megatron.core import utils
 from megatron.core.config import is_experimental_enabled
-from megatron.core.fp4_utils import get_fp4_align_size
-from megatron.core.fp8_utils import get_fp8_align_size
 from megatron.core.fusions.fused_indices_converter import fused_indices_to_multihot
 from megatron.core.fusions.fused_pad_routing_map import fused_pad_routing_map
 from megatron.core.jit import jit_fuser
@@ -18,15 +16,21 @@ from megatron.core.tensor_parallel import (
     gather_from_sequence_parallel_region,
     reduce_scatter_to_sequence_parallel_region,
 )
+from megatron.core.transformer.enums import CudaGraphModule
 from megatron.core.transformer.moe.fused_a2a import (
+    HYBRIDEP_TOKEN_ALIGNMENT,
+    deepepv2_combine,
+    deepepv2_dispatch,
     fused_combine,
     fused_dispatch,
+    get_elastic_buffer,
     hybrid_ep_combine,
     hybrid_ep_dispatch,
     set_deepep_num_sms,
 )
 from megatron.core.transformer.moe.moe_utils import (
     ProcessGroupCollection,
+    get_align_size_for_quantization,
     get_capacity,
     maybe_move_tensor_to_cpu,
     pad_routing_map,
@@ -67,6 +71,8 @@ class MoETokenDispatcher:
         """
         self.config = config
         self.shared_experts: Optional[SharedExpertMLP] = None
+        # Whether to use NCCL stream for A2A communication, otherwise default stream is used.
+        self.use_nccl_stream = False  # Will be set to True when shared_experts is set.
 
         self.ep_group = pg_collection.ep
         # use pg_collection.expt_tp_group as tensor parallel group in this module.
@@ -76,11 +82,29 @@ class MoETokenDispatcher:
         self.tp_size = utils.get_pg_size(self.tp_group)
         self.tp_rank = utils.get_pg_rank(self.tp_group)
         self.ep_size = utils.get_pg_size(self.ep_group)
+        self.ep_rank = utils.get_pg_rank(self.ep_group)
 
         # Attributes that need to be captured in cudagraph. These attributes are returned
-        # as cudagraph outputs when the cuda_graph_scope contains moe_preprocess.
+        # as cudagraph outputs when the cuda_graph_modules contains moe_preprocess.
         self.cudagraph_attrs = []
         self.valid_cudagraph_attrs = None
+
+    def get_cudagraph_attr(self, attr_name: str):
+        """Resolve a cudagraph attribute path, including nested attributes."""
+        attr = self
+        for name in attr_name.split('.'):
+            attr = getattr(attr, name, None)
+            if attr is None:
+                return None
+        return attr
+
+    def set_cudagraph_attr(self, attr_name: str, value) -> None:
+        """Assign to a cudagraph attribute path, including nested attributes."""
+        hier_attr_name = attr_name.split('.')
+        attr = self
+        for name in hier_attr_name[:-1]:
+            attr = getattr(attr, name)
+        setattr(attr, hier_attr_name[-1], value)
 
     @abstractmethod
     def dispatch_preprocess(
@@ -203,14 +227,7 @@ class MoETokenDispatcher:
         """Set shared expert to the dispatcher."""
         assert self.config.moe_shared_expert_overlap
         self.shared_experts = shared_experts
-
-    def get_align_size_for_quantization(self):
-        """Get the alignment size for quantization."""
-        if self.config.fp8:
-            return get_fp8_align_size(self.config.fp8_recipe)
-        elif self.config.fp4:
-            return get_fp4_align_size(self.config.fp4_recipe)
-        return 16
+        self.use_nccl_stream = True
 
 
 class MoEAllGatherTokenDispatcher(MoETokenDispatcher):
@@ -248,7 +265,7 @@ class MoEAllGatherTokenDispatcher(MoETokenDispatcher):
         self.global_local_map = None
 
         # Attributes that need to be captured in cudagraph. These attributes are returned
-        # as cudagraph outputs when the cuda_graph_scope contains moe_preprocess.
+        # as cudagraph outputs when the cuda_graph_modules contains moe_preprocess.
         self.cudagraph_attrs = ['routing_map']
 
     def dispatch_preprocess(
@@ -302,11 +319,13 @@ class MoEAllGatherTokenDispatcher(MoETokenDispatcher):
 
         tokens_per_expert = self.local_map.sum(dim=0).long().cpu()
 
-        (permuted_local_hidden_states, _, self.reversed_local_input_permutation_mapping) = permute(
-            hidden_states,
-            self.local_map,
-            num_out_tokens=tokens_per_expert.sum(),
-            fused=self.config.moe_permute_fusion,
+        permuted_local_hidden_states, _, self.reversed_local_input_permutation_mapping, _, _ = (
+            permute(
+                hidden_states,
+                self.local_map,
+                num_out_tokens=tokens_per_expert.sum().item(),
+                fused=self.config.moe_permute_fusion,
+            )
         )
 
         self.local_probs = self.local_probs.T.contiguous().masked_select(
@@ -443,18 +462,17 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
             "before_finish": 3,
             "no_sync": 4,
         }
-        if (
-            config.cuda_graph_impl == "transformer_engine"
-            and 'moe_preprocess' in config.cuda_graph_scope
+        self.cuda_dtoh_point = "before_permutation_1"
+        if config.cuda_graph_impl != "none" and (
+            CudaGraphModule.moe_preprocess in config.cuda_graph_modules
+            or not self.config.cuda_graph_modules
         ):
             self.cuda_dtoh_point = "before_ep_alltoall"
-        else:
-            self.cuda_dtoh_point = "before_permutation_1"
         if MoEAlltoAllTokenDispatcher.cuda_dtoh_stream is None:
             MoEAlltoAllTokenDispatcher.cuda_dtoh_stream = torch.cuda.Stream()
 
         # Attributes that need to be captured in cudagraph. These attributes are returned
-        # as cudagraph outputs when the cuda_graph_scope contains moe_preprocess.
+        # as cudagraph outputs when the cuda_graph_modules contains moe_preprocess.
         self.cudagraph_attrs = [
             'tokens_per_expert',
             'input_splits',
@@ -474,6 +492,10 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
         if shared_experts.use_shared_expert_gate:
             self.cudagraph_attrs.append('shared_experts.gate_score')
         self.cudagraph_attrs.append('shared_experts.cached_fc1_input')
+
+    def _local_expert_chunk_sort_is_identity(self) -> bool:
+        """Return true when permutation 2 would only copy already grouped local chunks."""
+        return self.tp_size == 1 and self.ep_size == 1
 
     def preprocess(self, routing_map: torch.Tensor) -> torch.Tensor:
         """
@@ -624,7 +646,7 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
         hidden_states = hidden_states.view(-1, self.hidden_shape[-1])
 
         if self.config.moe_router_padding_for_quantization:
-            pad_multiple = self.get_align_size_for_quantization()
+            pad_multiple = get_align_size_for_quantization(self.config)
             if is_experimental_enabled() and self.config.moe_permute_fusion:
                 self.routing_map = fused_pad_routing_map(self.routing_map, pad_multiple)
             else:
@@ -643,6 +665,8 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
             permutated_local_input_tokens,
             permuted_probs,
             self.reversed_local_input_permutation_mapping,
+            _,
+            _,
         ) = permute(
             hidden_states,
             self.routing_map,
@@ -668,15 +692,33 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
         Returns:
             A tuple of tokens and probabilities after All-to-All.
         """
+        # Make sure the shared experts fc1 is overlapped with dispatch A2A
+        # when CUDA_DEVICE_MAX_CONNECTIONS>1.
+        if self.shared_experts is not None:
+            self.shared_experts.wait_current_stream()
         # Perform expert parallel AlltoAll communication
         self.tokens_per_expert = self._maybe_dtoh_and_synchronize(
             "before_ep_alltoall", self.tokens_per_expert
         )
         global_input_tokens = all_to_all(
-            self.ep_group, permutated_local_input_tokens, self.output_splits, self.input_splits
+            self.ep_group,
+            permutated_local_input_tokens,
+            self.output_splits,
+            self.input_splits,
+            use_nccl_stream=self.use_nccl_stream,
         )
+        # Move the shared experts fc1 right after the tokens A2A, to prevent the probs A2A
+        # block the launch of fc1 GEMM when CUDA_DEVICE_MAX_CONNECTIONS=1.
+        # Forward launch order: tokens A2A -> shared experts fc1 -> probs A2A
+        # Backward launch order: probs A2A -> tokens A2A -> shared experts fc1
+        if self.shared_experts is not None:
+            self.shared_experts.linear_fc1_forward_and_act(global_input_tokens)
         global_probs = all_to_all(
-            self.ep_group, permuted_probs, self.output_splits, self.input_splits
+            self.ep_group,
+            permuted_probs,
+            self.output_splits,
+            self.input_splits,
+            use_nccl_stream=self.use_nccl_stream,
         )
 
         return global_input_tokens, global_probs
@@ -694,9 +736,6 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
         Returns:
             A tuple of processed tokens, token counts per expert, and processed probabilities.
         """
-        if self.shared_experts is not None:
-            self.shared_experts.linear_fc1_forward_and_act(global_input_tokens)
-
         if self.tp_size > 1:
             if self.output_splits_tp is None:
                 output_split_sizes = None
@@ -713,7 +752,7 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
         self.tokens_per_expert = self._maybe_dtoh_and_synchronize(
             "before_permutation_2", self.tokens_per_expert
         )
-        if self.num_local_experts > 1:
+        if self.num_local_experts > 1 and not self._local_expert_chunk_sort_is_identity():
             if self.drop_and_pad:
                 global_input_tokens = (
                     global_input_tokens.view(
@@ -759,7 +798,7 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
         parallel dimension.
         """
         # Unpermutation 2: Unsort tokens by local expert.
-        if self.num_local_experts > 1:
+        if self.num_local_experts > 1 and not self._local_expert_chunk_sort_is_identity():
             if self.drop_and_pad:
                 hidden_states = (
                     hidden_states.view(
@@ -814,11 +853,22 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
         Returns:
             Tokens after the All-to-All communication for combining.
         """
+        # Make sure the shared experts fc2 is not overlapped with routed experts fc1
+        # when CUDA_DEVICE_MAX_CONNECTIONS>1.
+        if self.shared_experts is not None:
+            self.shared_experts.wait_current_stream()
         # Perform expert parallel AlltoAll communication
         # hidden_states: [SEQL, H] -> [SEQL, H/TP]
         permutated_local_input_tokens = all_to_all(
-            self.ep_group, hidden_states, self.input_splits, self.output_splits
+            self.ep_group,
+            hidden_states,
+            self.input_splits,
+            self.output_splits,
+            use_nccl_stream=self.use_nccl_stream,
         )
+        if self.shared_experts is not None:
+            self.shared_experts.linear_fc2_forward(permutated_local_input_tokens)
+            self.shared_experts.post_forward_comm()
         return permutated_local_input_tokens
 
     def combine_postprocess(self, permutated_local_input_tokens):
@@ -834,9 +884,6 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
         Returns:
             The final MoE layer output reshaped to its original dimensions.
         """
-        if self.shared_experts is not None:
-            self.shared_experts.linear_fc2_forward(permutated_local_input_tokens)
-            self.shared_experts.post_forward_comm()
 
         # Unpermutation 1: AlltoAll output to output
         output = unpermute(
@@ -869,7 +916,7 @@ class MoEAlltoAllTokenDispatcher(MoETokenDispatcher):
             self.cuda_sync_point = point
 
     def _maybe_dtoh_and_synchronize(
-        self, point: str, tokens_per_expert: torch.Tensor = None
+        self, point: str, tokens_per_expert: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         """
         Move all possible GPU tensors to CPU and make a synchronization at the expected point.
@@ -991,11 +1038,8 @@ class _HybridEPManager(_DispatchManager):
         if self.drop_and_pad:
             assert self.capacity_factor is not None
         self.capacity = None
-        # The up-bound for the number of tokens after dispatch op, -1 means no up-bound,
-        # which will cause a CPU sync
-        self.num_dispatched_tokens = None
-        # Actually the sum of tokens_per_expert, the up-bound for the number of tokens
-        # after permute op, -1 means no up-bound, will cause a CPU sync
+        # Actually the the up-bound for the number of tokens
+        # after permute op, None means no up-bound, will cause a CPU sync
         self.num_permuted_tokens = None
 
         # Metadata
@@ -1011,25 +1055,86 @@ class _HybridEPManager(_DispatchManager):
                 "https://github.com/deepseek-ai/DeepEP/tree/hybrid-ep."
             )
 
+        self.moe_expert_rank_capacity_factor = self.config.moe_expert_rank_capacity_factor
+        self.over_budget = torch.zeros(1, dtype=torch.bool, device='cuda')
+        # THD sequence packing can produce different token counts per rank.
+        # HybridEP dispatch expects equal per-rank input sizes, so metadata and
+        # hidden states are padded to the group-wide max and trimmed in combine.
+        self._original_num_tokens: Optional[int] = None
+        self._padded_num_tokens: Optional[int] = None
+
     def setup_metadata(self, routing_map: torch.Tensor, probs: torch.Tensor):
         num_tokens = routing_map.shape[0]
-        self.routing_map = routing_map.reshape(num_tokens, self.num_experts)
-        self.token_probs = probs.reshape(num_tokens, self.num_experts)
+        self._original_num_tokens = num_tokens
+
+        padded_num_tokens = num_tokens
+        equalize_thd_token_counts = (
+            self.config.sequence_packing_scheduler is not None
+            or self.config.moe_hybridep_pad_variable_tokens
+        )
+        if equalize_thd_token_counts:
+            if self.config.sequence_packing_scheduler is not None and (
+                torch.cuda.is_current_stream_capturing() or torch.compiler.is_compiling()
+            ):
+                # CUDA graph path: routing_map has already been padded to a static
+                # length upstream (CUDA graph + sequence packing implies
+                # cu_seqlens_q_padded -> max_seqlen_per_dp_cp_rank), so num_tokens
+                # is identical across the EP communication group. Skip the
+                # all_reduce + .item() during both dynamo tracing and stream
+                # capture, and use the local value directly.
+                padded_num_tokens = num_tokens
+            else:
+                # Use the actual tp_ep max so all ranks in the MoE communication
+                # group pass the same token count to HybridEP.
+                max_num_tokens_across_ep = torch.tensor(
+                    [num_tokens], device=routing_map.device, dtype=torch.long
+                )
+                torch.distributed.all_reduce(
+                    max_num_tokens_across_ep, op=torch.distributed.ReduceOp.MAX, group=self.group
+                )
+                padded_num_tokens = int(max_num_tokens_across_ep.item())
+            padded_num_tokens += -padded_num_tokens % HYBRIDEP_TOKEN_ALIGNMENT
+        self._padded_num_tokens = padded_num_tokens
+
+        routing_map = routing_map.reshape(num_tokens, self.num_experts)
+        probs = probs.reshape(num_tokens, self.num_experts)
+        if equalize_thd_token_counts and padded_num_tokens > num_tokens:
+            pad_rows = padded_num_tokens - num_tokens
+            routing_map = torch.cat(
+                [routing_map, routing_map.new_zeros((pad_rows, self.num_experts))], dim=0
+            )
+            probs = torch.cat([probs, probs.new_zeros((pad_rows, self.num_experts))], dim=0)
+
+        self.routing_map = routing_map
+        self.token_probs = probs
+
+        if self.moe_expert_rank_capacity_factor is not None:
+            pad_multiple = get_align_size_for_quantization(self.config)
+            # Static upper bound on permuted tokens passed to HybridEP (dropless EP rank
+            # budget). Tokens above this budget are dropped inside HybridEP; dispatch then
+            # sets overflow_flag on the handle (accumulated in over_budget in dispatch()).
+            budget = int(
+                padded_num_tokens
+                * self.config.moe_router_topk
+                * self.moe_expert_rank_capacity_factor
+            )
+            # Round budget up to pad_multiple (FP8/FP4/CUTLASS alignment for permute buffers).
+            budget += -budget % pad_multiple
+            self.num_permuted_tokens = budget
+        # else: num_permuted_tokens stays None; HybridEP sizes buffers dynamically (CPU sync
+        # in dispatch) and does not drop tokens or report overflow.
         # Compute the capacity for each expert at the drop_and_pad mode
         if self.drop_and_pad:
-            num_out_tokens = num_tokens * self.config.moe_router_topk
+            num_out_tokens = padded_num_tokens * self.config.moe_router_topk
             # Drop and pad the input to capacity.
             self.capacity = get_capacity(
                 num_tokens=num_out_tokens,
                 num_experts=self.num_experts,
                 capacity_factor=self.capacity_factor,
             )
-            # We cannot predict the actual number of tokens after the dispatch op,
-            # so we set it to the worst case in drop_and_pad mode
-            self.num_dispatched_tokens = self.capacity * self.group.size() * self.num_local_experts
             # In drop_and_pad mode, the number of tokens after the permute op
             # can be computed on the CPU
-            self.num_permuted_tokens = self.num_dispatched_tokens
+            self.num_permuted_tokens = self.capacity * self.group.size() * self.num_local_experts
             self.tokens_per_expert = torch.full(
                 (self.num_local_experts,), self.capacity * self.group.size(), dtype=torch.long
             )
@@ -1047,8 +1152,13 @@ class _HybridEPManager(_DispatchManager):
                     "HybridEP only supports float32 probs, please set --moe-router-dtype=fp32"
                 )
             self.token_probs = self.token_probs.float()  # downcast or upcast
-        if self.config.fp8:
-            self.pad_multiple = get_fp8_align_size(self.config.fp8_recipe)
+        if self.config.fp8 or self.config.fp4:
+            self.pad_multiple = get_align_size_for_quantization(self.config)
+        if self._padded_num_tokens is not None and hidden_states.shape[0] < self._padded_num_tokens:
+            pad_rows = self._padded_num_tokens - hidden_states.shape[0]
+            hidden_states = torch.cat(
+                [hidden_states, hidden_states.new_zeros((pad_rows, hidden_states.shape[-1]))], dim=0
+            )
         dispatched_hidden, self.dispatched_probs, _, tokens_per_expert, self.handle = (
             hybrid_ep_dispatch(
                 x=hidden_states,
@@ -1058,17 +1168,28 @@ class _HybridEPManager(_DispatchManager):
                 num_local_experts=self.num_local_experts,
                 num_sms_dispatch_api=self.config.moe_hybridep_num_sms,
                 num_sms_combine_api=self.config.moe_hybridep_num_sms,
-                num_dispatched_tokens=self.num_dispatched_tokens,
+                num_blocks_permute=self.config.moe_hybridep_num_blocks_permute,
+                num_blocks_unpermute=self.config.moe_hybridep_num_blocks_unpermute,
                 num_permuted_tokens=self.num_permuted_tokens,
                 pad_multiple=self.pad_multiple,
+                fused=self.config.moe_permute_fusion_into_hybridep,
+                num_sms_preprocessing_api=self.config.moe_hybridep_num_sms_preprocessing,
             )
         )
+        if self.moe_expert_rank_capacity_factor is not None:
+            # Static-budget path only: handle[-1] is HybridEP overflow_flag when tokens were
+            # dropped because permuted count exceeded num_permuted_tokens from setup_metadata.
+            over_budget = self.handle[-1] != 0
+            self.over_budget |= over_budget
+        # When capacity factor is None, skip overflow tracking (no token drops). Actual
+        # permuted size is resolved below via tokens_per_expert.sum() (CPU sync).
 
-        if not self.drop_and_pad:
-            self.tokens_per_expert = tokens_per_expert
-            # self.num_permuted_tokens is necessary to allocate the output tensor for permute
+        if self.num_permuted_tokens is None:
+            self.tokens_per_expert = tokens_per_expert.to(torch.int64)
+            # num_permuted_tokens is necessary to allocate the output tensor for combine.
             self.num_permuted_tokens = self.tokens_per_expert.sum()
-
+        if self.moe_expert_rank_capacity_factor is not None:
+            self.tokens_per_expert = tokens_per_expert.to(torch.int64)
         return dispatched_hidden
 
     def combine(
@@ -1080,14 +1201,24 @@ class _HybridEPManager(_DispatchManager):
         hidden_states = hybrid_ep_combine(
             x=hidden_states,
             handle=self.handle,
-            num_dispatched_tokens=self.num_dispatched_tokens,
             num_permuted_tokens=self.num_permuted_tokens,
             pad_multiple=self.pad_multiple,
+            fused=self.config.moe_permute_fusion_into_hybridep,
         )
-        # Release the used handle/num_permuted_tokens which could change in each iteration
+        if (
+            self._padded_num_tokens is not None
+            and self._original_num_tokens is not None
+            and hidden_states.shape[0] > self._original_num_tokens
+        ):
+            hidden_states = hidden_states[: self._original_num_tokens]
+        # Release the used handle/num_permuted_tokens which could change in each iteration.
+        # For drop_and_pad mode, we don't need to reset the num_permuted_tokens and
+        # num_dispatched_tokens, because their values never change.
         self.handle = None
-        self.num_permuted_tokens = None
-        self.num_dispatched_tokens = None
+        if not self.drop_and_pad:
+            self.num_permuted_tokens = None
+        self._original_num_tokens = None
+        self._padded_num_tokens = None
         return hidden_states
 
     def get_permuted_hidden_states_by_experts(self, hidden_states: torch.Tensor) -> torch.Tensor:
@@ -1165,7 +1296,10 @@ class _DeepepManager(_DispatchManager):
                 "DeepEP is not installed. Please install DeepEP package from "
                 "https://github.com/deepseek-ai/deepep."
             )
-        set_deepep_num_sms(config.moe_deepep_num_sms)
+        if config.moe_deepep_num_sms is None:
+            set_deepep_num_sms(20)
+        else:
+            set_deepep_num_sms(config.moe_deepep_num_sms)
 
     def setup_metadata(self, routing_map: torch.Tensor, probs: torch.Tensor):
         num_tokens = routing_map.shape[0]
@@ -1261,6 +1395,9 @@ class _DeepepManager(_DispatchManager):
         )
         # Release the handle after combine operation
         self.handle = None
+        # Manually release the metadata to avoid memory leak.
+        self.dispatched_indices = None
+        self.dispatched_probs = None
         return hidden_states
 
     def _pad_routing_map(
@@ -1269,7 +1406,7 @@ class _DeepepManager(_DispatchManager):
         """
         Pad the routing map to the nearest multiple of the pad_multiple.
         """
-        pad_multiple = self.get_align_size_for_quantization()
+        pad_multiple = get_align_size_for_quantization(self.config)
 
         num_input_tokens = routing_map.shape[0]
         target_tokens_per_expert = (
@@ -1279,7 +1416,6 @@ class _DeepepManager(_DispatchManager):
         # Check if there are enough tokens to pad
         enough_tokens_to_pad = torch.all(target_tokens_per_expert <= num_input_tokens)
         if not enough_tokens_to_pad:
-            logger = logging.getLogger(__name__)
             logger.warning(
                 "Not enough tokens to pad. The total number of tokens received in this rank "
                 "is smaller than the target number of tokens for each expert. "
@@ -1311,12 +1447,20 @@ class _DeepepManager(_DispatchManager):
 
         self.hidden_shape_before_permute = hidden_states.shape
         assert self.dispatched_probs.dtype == torch.float32, "DeepEP only supports float32 probs"
-        hidden_states, permuted_probs, self.reversed_mapping_for_combine = permute(
+        (
+            hidden_states,
+            permuted_probs,
+            self.reversed_mapping_for_combine,
+            self.pad_offsets,
+            self.tokens_per_expert,
+        ) = permute(
             hidden_states,
             self.dispatched_routing_map,
             probs=self.dispatched_probs,
             num_out_tokens=self.tokens_per_expert.sum().item(),
             fused=self.permute_fusion,
+            tokens_per_expert=self.tokens_per_expert,
+            align_size=get_align_size_for_quantization(self.config),
         )
         if self.router_dtype == "fp64":
             permuted_probs = permuted_probs.to(torch.float64)
@@ -1329,16 +1473,115 @@ class _DeepepManager(_DispatchManager):
             restore_shape=self.hidden_shape_before_permute,
             routing_map=self.dispatched_routing_map,
             fused=self.permute_fusion,
+            pad_offsets=self.pad_offsets,
         )
         return hidden_states
 
-    def get_align_size_for_quantization(self):
-        """Get the alignment size for quantization."""
-        if self.config.fp8:
-            return get_fp8_align_size(self.config.fp8_recipe)
-        elif self.config.fp4:
-            return get_fp4_align_size(self.config.fp4_recipe)
-        return 16
+
+class _DeepepV2Manager(_DeepepManager):
+    """
+    A manager class for the DeepEP v2 ElasticBuffer backend.
+
+    This keeps the original DeepEP backend isolated under "deepep", while "deepepv2"
+    uses the v2 dispatch/combine APIs.
+    """
+
+    def __init__(
+        self,
+        group: torch.distributed.ProcessGroup,
+        num_local_experts: int,
+        router_topk: int,
+        num_experts: int,
+        config: TransformerConfig,
+    ):
+        # Do not call _DeepepManager.__init__; v2-only images may not ship the v1 Buffer API.
+        self.group = group
+        self.num_local_experts = num_local_experts
+        self.config = config
+
+        self.router_topk = router_topk
+        self.num_experts = num_experts
+        self.router_dtype = config.moe_router_dtype
+        self.capacity_factor = config.moe_expert_capacity_factor
+        self.permute_fusion = config.moe_permute_fusion
+        if config.moe_deepep_num_sms is None:
+            self.num_sms = 0
+        else:
+            self.num_sms = config.moe_deepep_num_sms
+
+        self.token_indices: Optional[torch.Tensor] = None
+        self.token_probs: Optional[torch.Tensor] = None
+        self.handle = None
+        self.buffer = None
+
+        if deepepv2_dispatch is None:
+            raise ImportError(
+                "DeepEP v2 is not installed. Please install a DeepEP package that provides "
+                "ElasticBuffer."
+            )
+
+    def _get_buffer(self, hidden_states: torch.Tensor):
+        self.buffer = get_elastic_buffer(
+            self.group,
+            num_max_tokens_per_rank=hidden_states.shape[0],
+            hidden=hidden_states.shape[1],
+            num_topk=self.token_indices.shape[1],
+        )
+        return self.buffer
+
+    def dispatch(
+        self,
+        hidden_states: torch.Tensor,
+        async_finish: bool = False,
+        allocate_on_comm_stream: bool = False,
+    ) -> torch.Tensor:
+        # DeepEP v2 only supports float32 probs
+        if self.token_probs.dtype != torch.float32:
+            if self.token_probs.dtype in [torch.bfloat16, torch.float16]:
+                logger.warning(
+                    "DeepEP v2 only supports float32 probs, please set --moe-router-dtype=fp32"
+                )
+            self.token_probs = self.token_probs.float()
+        buffer = self._get_buffer(hidden_states)
+        hidden_states, dispatched_indices, dispatched_probs, num_tokens_per_expert, handle = (
+            deepepv2_dispatch(
+                buffer,
+                hidden_states,
+                self.token_indices,
+                self.token_probs,
+                self.num_experts,
+                num_max_tokens_per_rank=hidden_states.shape[0],
+                expert_alignment=1,
+                num_sms=self.num_sms,
+                async_finish=async_finish,
+                allocate_on_comm_stream=allocate_on_comm_stream,
+            )
+        )
+        self.handle = handle
+        self.tokens_per_expert = num_tokens_per_expert
+        self.dispatched_indices = dispatched_indices
+        self.dispatched_probs = dispatched_probs
+
+        return hidden_states
+
+    def combine(
+        self,
+        hidden_states: torch.Tensor,
+        async_finish: bool = False,
+        allocate_on_comm_stream: bool = False,
+    ) -> torch.Tensor:
+        hidden_states, _ = deepepv2_combine(
+            self.buffer,
+            hidden_states,
+            self.handle,
+            num_sms=self.num_sms,
+            async_finish=async_finish,
+            allocate_on_comm_stream=allocate_on_comm_stream,
+        )
+        self.handle = None
+        self.dispatched_indices = None
+        self.dispatched_probs = None
+        return hidden_states
 
 
 class MoEFlexTokenDispatcher(MoETokenDispatcher):
@@ -1367,9 +1610,20 @@ class MoEFlexTokenDispatcher(MoETokenDispatcher):
 
         self.num_local_experts = num_local_experts
         self.local_expert_indices = local_expert_indices
-        assert self.tp_size * self.ep_size > 1, "Flex token dispatcher requires TPxEP > 1"
+        self._comm_manager: _DispatchManager
         if self.config.moe_flex_dispatcher_backend == "deepep":
+            assert self.tp_size * self.ep_size > 1, "DeepEP dispatcher requires TPxEP > 1"
             self._comm_manager = _DeepepManager(
+                group=self.tp_ep_group,
+                num_local_experts=self.num_local_experts,
+                router_topk=self.tp_size * self.config.moe_router_topk,
+                num_experts=self.tp_size * self.config.num_moe_experts,
+                config=self.config,
+            )
+            self.cudagraph_attrs = ['_comm_manager.token_probs', '_comm_manager.token_indices']
+        elif self.config.moe_flex_dispatcher_backend == "deepepv2":
+            assert self.tp_size * self.ep_size > 1, "DeepEP v2 dispatcher requires TPxEP > 1"
+            self._comm_manager = _DeepepV2Manager(
                 group=self.tp_ep_group,
                 num_local_experts=self.num_local_experts,
                 router_topk=self.tp_size * self.config.moe_router_topk,
@@ -1388,14 +1642,10 @@ class MoEFlexTokenDispatcher(MoETokenDispatcher):
         else:
             raise ValueError(
                 f"Invalid backend: {self.config.moe_flex_dispatcher_backend}"
-                "Please set --moe-flex-dispatcher-backend=deepep or "
+                "Please set --moe-flex-dispatcher-backend=deepep, "
+                "--moe-flex-dispatcher-backend=deepepv2 or "
                 "--moe-flex-dispatcher-backend=hybridep"
             )
-
-    def set_shared_experts(self, shared_experts):
-        raise NotImplementedError(
-            "Shared expert overlap is not supported in Flex Token Dispatcher."
-        )
 
     def _initialize_metadata(self, routing_map: torch.Tensor, probs: torch.Tensor) -> torch.Tensor:
         """
@@ -1422,6 +1672,7 @@ class MoEFlexTokenDispatcher(MoETokenDispatcher):
             .expand(-1, -1, self.tp_size, -1)
             .reshape(num_local_tokens, world_size, self.num_local_experts)
         ).contiguous()
+
         return routing_map, probs
 
     @jit_fuser
@@ -1454,7 +1705,7 @@ class MoEFlexTokenDispatcher(MoETokenDispatcher):
     def token_dispatch(
         self,
         hidden_states: torch.Tensor,
-        probs: torch.Tensor = None,
+        probs: Optional[torch.Tensor] = None,
         async_finish: bool = True,
         allocate_on_comm_stream: bool = True,
     ):
@@ -1475,10 +1726,16 @@ class MoEFlexTokenDispatcher(MoETokenDispatcher):
         Returns:
             A tuple of dispatched tokens and probabilities.
         """
-        return (
-            self._comm_manager.dispatch(hidden_states, async_finish, allocate_on_comm_stream),
-            self._comm_manager.dispatched_probs,
+        if self.shared_experts is not None:
+            self.shared_experts.wait_current_stream()
+        dispatched_hidden_states = self._comm_manager.dispatch(
+            hidden_states, async_finish, allocate_on_comm_stream
         )
+        if self.shared_experts is not None:
+            self.shared_experts.pre_forward_comm(hidden_states, wait_current_stream=False)
+            self.shared_experts.linear_fc1_forward_and_act(dispatched_hidden_states)
+
+        return dispatched_hidden_states, self._comm_manager.dispatched_probs
 
     def dispatch_postprocess(self, hidden_states: torch.Tensor, probs: torch.Tensor):
         """Converts dispatched tokens to a per-expert format for expert processing.
@@ -1526,6 +1783,10 @@ class MoEFlexTokenDispatcher(MoETokenDispatcher):
         Returns:
             Combined tokens after fused un-permutation and communication.
         """
+        # Make sure the shared experts fc2 is not overlapped with routed experts GEMM
+        # when CUDA_DEVICE_MAX_CONNECTIONS>1.
+        if self.shared_experts is not None:
+            self.shared_experts.wait_current_stream()
         return self._comm_manager.combine(hidden_states, async_finish, allocate_on_comm_stream)
 
     def combine_postprocess(self, hidden_states: torch.Tensor):
@@ -1541,4 +1802,20 @@ class MoEFlexTokenDispatcher(MoETokenDispatcher):
         Returns:
             The final MoE layer output reshaped to its original dimensions.
         """
+        if self.shared_experts is not None:
+            self.shared_experts.linear_fc2_forward(hidden_states)
+            self.shared_experts.post_forward_comm()
+            hidden_states += self.shared_experts.get_output()
         return hidden_states.view(self.hidden_shape)
+
+    def check_over_budget(self):
+        """Check if the dispatcher has exceeded its budget."""
+        if hasattr(self._comm_manager, 'over_budget'):
+            return self._comm_manager.over_budget
+        else:
+            return None
+
+    def reset_over_budget(self):
+        """Reset the accumulated over-budget flag on the communication manager."""
+        if hasattr(self._comm_manager, 'over_budget'):
+            self._comm_manager.over_budget.fill_(0)

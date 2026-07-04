@@ -28,9 +28,7 @@ def on_save_checkpoint_success(checkpoint_path: str, tracker_filename: str, save
 
     wandb_writer = get_wandb_writer()
 
-    # Check both wandb_writer and wandb_writer.run to avoid AttributeError
-    # when wandb.finish() is called before async checkpoint finalization
-    if wandb_writer and wandb_writer.run:
+    if wandb_writer:
         metadata = {"iteration": iteration}
         artifact_name, artifact_version = _get_artifact_name_and_version(Path(save_dir), Path(checkpoint_path))
         artifact = wandb_writer.Artifact(artifact_name, type="model", metadata=metadata)
@@ -54,8 +52,7 @@ def on_load_checkpoint_success(checkpoint_path: str, load_dir: str) -> None:
 
     wandb_writer = get_wandb_writer()
     
-    # Check both wandb_writer and wandb_writer.run to avoid AttributeError
-    if wandb_writer and wandb_writer.run:
+    if wandb_writer:
         try:
             artifact_name, artifact_version = _get_artifact_name_and_version(Path(load_dir), Path(checkpoint_path))
             wandb_tracker_filename = _get_wandb_artifact_tracker_filename(load_dir)

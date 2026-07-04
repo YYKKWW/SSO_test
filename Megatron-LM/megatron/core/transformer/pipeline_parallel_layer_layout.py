@@ -15,8 +15,11 @@ logger = logging.getLogger(__name__)
 class PipelineParallelLayerLayout:
     """Configuration of custom pipeline parallel layer partitioning."""
 
-    def __repr__(self):
-        return self.input_data
+    def __repr__(self) -> str:
+        if isinstance(self.input_data, str):
+            return self.input_data
+        else:
+            return str(self.input_data)
 
     def __init__(self, layout: str | list, pipeline_model_parallel_size: int):
         """Initialize PipelineParallelLayerLayout from a list or a str.
@@ -127,7 +130,7 @@ class PipelineParallelLayerLayout:
                 ), "All of the MTP layers must be in the same one virtual pipeline stage"
         for vpp_rank in range(self.virtual_pipeline_model_parallel_size - 1):
             assert LayerType.mtp not in self.layout[0][vpp_rank], (
-                f"Corrently we restrict that the MTP should not be in the first pp rank."
+                f"Currently we restrict that the MTP should not be in the first pp rank."
                 f"But got {self.layout[0]} for the first pp rank."
             )
         ## Detect MTP standalone usage.

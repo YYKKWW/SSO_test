@@ -4,6 +4,7 @@ build
 .coverage_*
 *.egg-info
 *~
+*.swp
 slurm*
 logs
 .vscode
@@ -16,12 +17,11 @@ onelogger.err
 runs/
 /test_cases/
 **/dist/
-*BUILD*
-benchmark/
-*CHECKPOINT.md
-docs/*
-*CLAUDE*
-DEVELOP.md
-*script.sh
-*downstream_eval.py
-COMPARISON.md
+
+# Sphinx documentation
+docs/_build
+docs/apidocs
+
+# Git worktrees
+.worktrees/
+.claude/worktrees/

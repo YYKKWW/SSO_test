@@ -117,6 +117,8 @@ No intentional model-architecture change was made for this sweep. GPT layer defi
 
 The main runtime deviation from the original `spball.sh` is backend selection: H20 uses `TRANSFORMER_IMPL=local` after a TE/fused smoke test failed in the current environment. See [Backend Compatibility Note](#backend-compatibility-note).
 
+Megatron source alignment update, 2026-07-04: `SSO_test/Megatron-LM` was replaced by a clean snapshot of the H20-tested `~/projects/Megatron-LM-dev-spel-v3` checkout (`codex/spel-h20-rebase`, upstream head `3e89f3c`). The project-local copy excludes generated files such as `.git`, `__pycache__`, logs, outputs, and compiled `.so` artifacts. Two short H20 smoke jobs verified the replacement: `3733419` for `spel_dist` and `3733420` for `spectral_ball_dist`, both `COMPLETED` with exit code `0:0`.
+
 ## Server Layout
 
 Active server paths:
@@ -364,7 +366,7 @@ slurm/submit_width256_sso_mcsd_lr_sweep.sh
 The Slurm entry now defaults to:
 
 ```bash
-MEGATRON_PATH="${MEGATRON_PATH:-$HOME/projects/Megatron-LM-active}"
+MEGATRON_PATH="${MEGATRON_PATH:-$PROJECT_DIR/Megatron-LM}"
 ENV_DIR="${ENV_DIR:-$HOME/envs/sso_h20}"
 ```
 

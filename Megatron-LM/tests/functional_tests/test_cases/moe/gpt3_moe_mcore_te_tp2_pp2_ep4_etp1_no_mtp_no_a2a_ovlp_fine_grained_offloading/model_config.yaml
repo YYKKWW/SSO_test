@@ -5,6 +5,10 @@ ENV_VARS:
   NCCL_NVLS_ENABLE: 0
   PYTHONWARNINGS: ignore
   NCCL_DEBUG: VERSION
+  NVTE_CPU_OFFLOAD_V1: 1
+  NVTE_FUSED_ATTN: 0
+  NCCL_ALGO: ^NVLS
+  CUBLAS_WORKSPACE_CONFIG: ":4096:8"
 MODEL_ARGS:
   # Distributed args
   --distributed-timeout-minutes: 60
@@ -23,33 +27,31 @@ MODEL_ARGS:
   --use-mcore-models: true
   --sequence-parallel: true
   --disable-bias-linear: true
-  --micro-batch-size: 4
-  --global-batch-size: 32
+  --micro-batch-size: 1
+  --global-batch-size: 8
   --train-iters: 50
   --exit-duration-in-mins: 230
   --no-check-for-nan-in-loss-and-grad: true
   --no-rope-fusion: true
-  --cross-entropy-loss-fusion: true
-  --cross-entropy-fusion-impl: native
   --manual-gc: true
   --manual-gc-interval: 100
   --recompute-granularity: selective
   --recompute-modules: "[layernorm mla_up_proj mlp moe_act]"
   --fine-grained-activation-offloading: true
-  --offload-modules: "[expert_fc1 moe_act attn_norm mlp_norm]"
+  --offload-modules: "[expert_fc1 moe_act attn_norm mlp_norm qkv_linear core_attn attn_proj]"
   # Transformer Engine args
   --transformer-impl: transformer_engine
   # Data args
   --seq-length: 4096
   --data-cache-path: ${DATA_CACHE_PATH}
-  --data-path: ${DATA_PATH}/text/the_pile/shard00/my-gpt3_00_text_document
-  --vocab-file: ${DATA_PATH}/text/the_pile/shard00/bpe/vocab.json
-  --merge-file: ${DATA_PATH}/text/the_pile/shard00/bpe/merges.txt
+  --data-path: ${DATA_PATH}/text/common_pile/v01_filtered_data/my-gpt3_00_text_document
+  --vocab-file: ${DATA_PATH}/text/common_pile/v01_filtered_data/bpe/vocab.json
+  --merge-file: ${DATA_PATH}/text/common_pile/v01_filtered_data/bpe/merges.txt
   --split: 949,50,1
   # Add network size args
   --num-layers: 15
   --moe-layer-freq: ([0]*3+[1]*12)
-  --pipeline-model-parallel-layout: Et*3\\|\\(tt\\|\\)*6L # Et*3|(tt|)*6L
+  --pipeline-model-parallel-layout: Et*3|(tt|)*6L
   --hidden-size: 1024
   --ffn-hidden-size: 4096
   --num-attention-heads: 32
@@ -125,10 +127,10 @@ MODEL_ARGS:
   # Add mixed precision args
   --bf16: true
   --exit-interval: 50
+  --async-save: true
+  --use-persistent-ckpt-worker: true
 TEST_TYPE: regular # Usually ckpt-resume, but as a WAR to #513 set to regular
 METRICS:
-  # - "iteration-time"
   - "lm loss"
-  - "num-zeros"
   - "mem-allocated-bytes"
   - "mem-max-allocated-bytes"

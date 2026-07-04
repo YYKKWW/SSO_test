@@ -17,17 +17,20 @@ import threading
 import time
 import traceback
 import warnings
+from collections import defaultdict
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache, reduce, wraps
 from importlib.metadata import version
 from types import TracebackType
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
+import numpy
 import torch
 
 from megatron.core import config
+from megatron.core._rank_utils import log_single_rank
 from megatron.core.package_info import __version__ as mcore_version
 
 try:
@@ -40,6 +43,7 @@ except ImportError:
 
 from megatron.core import parallel_state
 from megatron.core.dist_checkpointing.mapping import ShardedTensor
+from megatron.core.packed_seq_params import PackedSeqParams
 
 try:
     from packaging.version import Version as PkgVersion
@@ -48,15 +52,17 @@ try:
 except ImportError:
     HAVE_PACKAGING = False
 
-try:
-    import nvtx
-
-    HAVE_NVTX = True
-except ImportError:
-    HAVE_NVTX = False
-
 logger = logging.getLogger(__name__)
 
+try:
+    # Register the TE CUDA kernels
+    import transformer_engine  # pylint: disable=unused-import
+
+    # Alias the PyTorch wrapper so we can call tex.* APIs
+    import transformer_engine_torch as tex
+except ImportError:
+    # TE isn’t installed or the torch wrapper is missing
+    tex = None
 
 try:
     _torch_version = PkgVersion(torch.__version__)
@@ -65,6 +71,13 @@ except Exception:
     _torch_version = PkgVersion("0.0.0") if HAVE_PACKAGING else "0.0.0"
 _te_version = None
 _fa_version = None
+_flashinfer_version = None
+_mamba_ssm_version = None
+_causal_conv1d_version = None
+
+
+_Wrapped = TypeVar('_Wrapped', bound=Callable)
+"""A function or class which has been wrapped by a decorator."""
 
 
 @contextmanager
@@ -104,7 +117,7 @@ def experimental_fn(introduced_with_version: str):
     """
     logged_functions = set()
 
-    def validator(func: Callable, max_lifetime: int = 3) -> Callable:
+    def validator(func: _Wrapped, max_lifetime: int = 3) -> _Wrapped:
         """Validates the request to the experimental function.
 
         Args:
@@ -127,7 +140,9 @@ def experimental_fn(introduced_with_version: str):
             PkgVersion(introduced_with_version).minor + max_lifetime
             < PkgVersion(mcore_version).minor
         ):
-            logger.warning(
+            log_single_rank(
+                logger,
+                logging.WARNING,
                 "%s has reached end of life. Please migrate to a non-experimental function.",
                 func.__name__,
             )
@@ -168,7 +183,7 @@ def experimental_cls(introduced_with_version: str):
     """
     logged_classes = set()
 
-    def validator(cls: Callable, max_lifetime: int = 3) -> Callable:
+    def validator(cls: _Wrapped, max_lifetime: int = 3) -> _Wrapped:
         """Validates the request to the experimental function.
 
         Args:
@@ -192,7 +207,9 @@ def experimental_cls(introduced_with_version: str):
             PkgVersion(introduced_with_version).minor + max_lifetime
             < PkgVersion(mcore_version).minor
         ):
-            logger.warning(
+            log_single_rank(
+                logger,
+                logging.WARNING,
                 "%s has reached end of life. Please migrate to a non-experimental function.",
                 cls.__name__,
             )
@@ -276,28 +293,6 @@ def experimental_cls(introduced_with_version: str):
     return validator
 
 
-def get_torch_version():
-    """Get pytorch version from __version__; if not available use pip's. Use caching."""
-
-    if not HAVE_PACKAGING:
-        raise ImportError(
-            "packaging is not installed. Please install it with `pip install packaging`."
-        )
-
-    def get_torch_version_str():
-        import torch
-
-        if hasattr(torch, "__version__"):
-            return str(torch.__version__)
-        else:
-            return version("torch")
-
-    global _torch_version
-    if _torch_version is None:
-        _torch_version = PkgVersion(get_torch_version_str())
-    return _torch_version
-
-
 def get_te_version():
     """Get TE version from __version__; if not available use pip's. Use caching."""
     if not HAVE_PACKAGING:
@@ -321,8 +316,11 @@ def get_te_version():
             return version("transformer-engine")
 
     global _te_version
-    if _te_version is None and HAVE_TE:
-        _te_version = PkgVersion(get_te_version_str())
+    if _te_version is None:
+        if HAVE_TE:
+            _te_version = PkgVersion(get_te_version_str())
+        else:
+            _te_version = PkgVersion("0.0.0")
     return _te_version
 
 
@@ -388,6 +386,114 @@ def is_fa_min_version(version, check_equality=True):
     return get_fa_version() > PkgVersion(version)
 
 
+def get_mamba_version():
+    """Get mamba version from __version__; if not available use pip's. Use caching."""
+    if not HAVE_PACKAGING:
+        raise ImportError(
+            "packaging is not installed. Please install it with `pip install packaging`."
+        )
+
+    def get_mamba_version_str():
+        import mamba_ssm
+
+        if hasattr(mamba_ssm, "__version__"):
+            return str(mamba_ssm.__version__)
+        else:
+            return version("mamba_ssm")
+
+    global _mamba_ssm_version
+    if _mamba_ssm_version is None:
+        _mamba_ssm_version = PkgVersion(get_mamba_version_str())
+    return _mamba_ssm_version
+
+
+def is_mamba_min_version(version, check_equality=True):
+    """Check if minimum version of `mamba_ssm` is installed."""
+    if not HAVE_PACKAGING:
+        raise ImportError(
+            "packaging is not installed. Please install it with `pip install packaging`."
+        )
+    if check_equality:
+        return get_mamba_version() >= PkgVersion(version)
+    return get_mamba_version() > PkgVersion(version)
+
+
+def get_causal_conv1d_version():
+    """Get causal_conv1d version from __version__; if not available use pip's. Use caching."""
+    if not HAVE_PACKAGING:
+        raise ImportError(
+            "packaging is not installed. Please install it with `pip install packaging`."
+        )
+
+    def get_causal_conv1d_version_str():
+        import causal_conv1d
+
+        if hasattr(causal_conv1d, "__version__"):
+            return str(causal_conv1d.__version__)
+        else:
+            return version("causal_conv1d")
+
+    global _causal_conv1d_version
+    if _causal_conv1d_version is None:
+        _causal_conv1d_version = PkgVersion(get_causal_conv1d_version_str())
+    return _causal_conv1d_version
+
+
+def is_causal_conv1d_min_version(version, check_equality=True):
+    """Check if minimum version of `causal_conv1d` is installed."""
+    if not HAVE_PACKAGING:
+        raise ImportError(
+            "packaging is not installed. Please install it with `pip install packaging`."
+        )
+    if check_equality:
+        return get_causal_conv1d_version() >= PkgVersion(version)
+    return get_causal_conv1d_version() > PkgVersion(version)
+
+
+def get_flashinfer_version():
+    """Get flashinfer version from __version__; if not available use pip's. Use caching."""
+    if not HAVE_PACKAGING:
+        raise ImportError(
+            "packaging is not installed. Please install it with `pip install packaging`."
+        )
+
+    def get_flashinfer_version_str():
+        try:
+            import flashinfer
+        except ImportError:
+            return None
+
+        if hasattr(flashinfer, "__version__"):
+            return str(flashinfer.__version__)
+        else:
+            return version("flashinfer")
+
+    global _flashinfer_version
+    if _flashinfer_version is None:
+        if (flashinfer_version_str := get_flashinfer_version_str()) is not None:
+            _flashinfer_version = PkgVersion(flashinfer_version_str)
+    return _flashinfer_version
+
+
+def is_flashinfer_min_version(version, check_equality=True):
+    """Check if minimum version of `flashinfer` is installed."""
+    if not HAVE_PACKAGING:
+        raise ImportError(
+            "packaging is not installed. Please install it with `pip install packaging`."
+        )
+    if (flashinfer_version := get_flashinfer_version()) is None:
+        return False
+    if check_equality:
+        return flashinfer_version >= PkgVersion(version)
+    return flashinver_version > PkgVersion(version)
+
+
+def accepts_parameter(func: Callable, name: str) -> bool:
+    """Check if a callable accepts a parameter with the given name or **kwargs."""
+    params = inspect.signature(func).parameters.values()
+    return any(p.name == name or p.kind == inspect.Parameter.VAR_KEYWORD for p in params)
+
+
 def ensure_divisibility(numerator, denominator):
     """Ensure that numerator is divisible by the denominator."""
     assert numerator % denominator == 0, "{} is not divisible by {}".format(numerator, denominator)
@@ -400,15 +506,9 @@ def divide(numerator, denominator):
     return numerator // denominator
 
 
-def deprecate_inference_params(inference_context, inference_params):
-    """Print warning for deprecated `inference_params`."""
-    if inference_context is None and inference_params is not None:
-        warnings.warn(
-            "`inference_params` renamed to `inference_context`, and will be "
-            "removed in `megatron-core` 0.13."
-        )
-        return inference_params
-    return inference_context
+def round_up_to_nearest_multiple(value: int, multiple: int) -> int:
+    """Round *value* up to the nearest multiple of *multiple*."""
+    return math.ceil(value / multiple) * multiple
 
 
 def get_tensor_model_parallel_group_if_none(tp_group, is_expert=False, check_initialized=True):
@@ -416,6 +516,10 @@ def get_tensor_model_parallel_group_if_none(tp_group, is_expert=False, check_ini
     # TODO(zijiey): remove this function later.
     if not torch.distributed.is_initialized():
         return None
+
+    # if parallel_state is not initialized, pass `tp_group` thru
+    if not parallel_state.is_initialized():
+        return tp_group
 
     if tp_group is None:
         if torch.distributed.is_initialized() and torch.distributed.get_rank() == 0:
@@ -462,6 +566,23 @@ def get_pg_rank(group=None):
     if not torch.distributed.is_initialized() or group is None:
         return 0
     return group.rank()
+
+
+def get_pg_src_rank(group=None):
+    """Calculate the global rank corresponding to the first local rank
+    in the given process group.
+
+    Args:
+        group: Process group to query. If None or distributed is not initialized,
+            returns 0.
+
+    Returns:
+        int: The first (source) global rank in the group.
+    """
+    if not torch.distributed.is_initialized() or group is None:
+        return 0
+    ranks = torch.distributed.get_process_group_ranks(group)
+    return ranks[0]
 
 
 def get_attr_wrapped_model(model, attr, allow_none=True, return_model_obj=False):
@@ -657,283 +778,105 @@ def scaled_init_method_normal(sigma, num_layers, multiplier=2.0):
     return functools.partial(torch.nn.init.normal_, mean=0.0, std=std)
 
 
-def get_qkv_init_method(config):
-    """Init QKV with optional split modes.
+def mup_scaled_init_method_normal(sigma, num_layers, width_mult, multiplier=2.0):
+    """MuP scaled init method for output layers: N(0, sigma / (sqrt(2*L) * sqrt(m))).
 
-    Supports three modes that align with optimizer split modes:
-    - 'group' mode: Split each query group into Q/K/V and initialize separately
-      (aligns with --spectral-ball-qkv-split-mode group)
-    - 'component' mode: Merge all groups' Q together, K together, V together
-      (aligns with --spectral-ball-qkv-split-mode component)
-    - 'head' mode: Initialize each attention head independently for Q/K/V
+    Combines the standard scaled initialization (for output projection layers)
+    with MuP width scaling. This ensures that both depth and width scaling
+    are accounted for in the initialization.
 
     Args:
-        config: TransformerConfig with split_qkv_init and split_qkv_init_mode
+        sigma (float): Base standard deviation for initialization.
+        num_layers (int): Number of transformer layers.
+        width_mult (float): Width multiplier (hidden_size / base_hidden_size).
+        multiplier (float): Multiplier for depth scaling (default: 2.0).
 
     Returns:
-        Initialization method function
+        Callable: Initialization function for torch.nn.init.
     """
-    if not config.split_qkv_init:
-        return config.init_method
-
-    # Get split mode (default to 'group' for backward compatibility)
-    split_mode = getattr(config, 'split_qkv_init_mode', 'group')
-
-    # Compute qkv_split_shapes from config
-    # Follows the same logic as optimizer: [q_dim, k_dim, v_dim] per group
-    num_attention_heads = config.num_attention_heads
-    num_query_groups = config.num_query_groups
-    kv_channels = config.kv_channels
-    qkv_split_shapes = [
-        num_attention_heads // num_query_groups * kv_channels,  # Q dim per group
-        kv_channels,  # K dim per group
-        kv_channels,  # V dim per group
-    ]
-
-    # Unified inner function for all modes
-    def inner(tensor):
-        # Disable autograd to avoid view modification issues with transformer_engine
-        with torch.no_grad():
-            # tensor shape: [num_query_groups * (q+k+v), hidden_size]
-            out_dim, in_dim = tensor.shape
-            split_sum = sum(qkv_split_shapes)
-            num_groups = out_dim // split_sum
-
-            # Reshape to [num_groups, split_sum, in_dim]
-            tensor_view = tensor.view(num_groups, split_sum, in_dim)
-
-            if split_mode == 'group':
-                # Group mode: process each query group independently, with Q/K/V split within each group
-                for g in range(num_groups):
-                    q_comp, k_comp, v_comp = torch.split(
-                        tensor_view[g], qkv_split_shapes, dim=0
-                    )
-                    config.init_method(q_comp)
-                    config.init_method(k_comp)
-                    config.init_method(v_comp)
-
-            elif split_mode == 'component':
-                # Component mode: merge all groups' Q together, K together, V together
-                q_all, k_all, v_all = torch.split(tensor_view, qkv_split_shapes, dim=1)
-
-                # Flatten each component (merge all groups)
-                q_merged = q_all.reshape(-1, in_dim)  # [num_groups * q_dim, in_dim]
-                k_merged = k_all.reshape(-1, in_dim)  # [num_groups * k_dim, in_dim]
-                v_merged = v_all.reshape(-1, in_dim)  # [num_groups * v_dim, in_dim]
-
-                # Initialize each merged component
-                config.init_method(q_merged)
-                config.init_method(k_merged)
-                config.init_method(v_merged)
-
-            elif split_mode == 'head':
-                # Head mode: initialize each attention head independently for Q/K/V
-                heads_per_group = num_attention_heads // num_query_groups
-
-                for g in range(num_groups):
-                    q_comp, k_comp, v_comp = torch.split(
-                        tensor_view[g], qkv_split_shapes, dim=0
-                    )
-
-                    # Q: split into individual heads and initialize each
-                    # q_comp shape: [heads_per_group * kv_channels, in_dim]
-                    q_heads = q_comp.view(heads_per_group, kv_channels, in_dim)
-                    for h in range(heads_per_group):
-                        config.init_method(q_heads[h])
-
-                    # K and V: single head per group, initialize directly
-                    config.init_method(k_comp)
-                    config.init_method(v_comp)
-
-            else:
-                raise ValueError(
-                    f"Invalid split_qkv_init_mode: {split_mode}. Must be 'group', 'component', or 'head'."
-                )
-
-    return inner
-
-
-def get_fc1_init_method(config):
-    """Init gate and up projections separately for gated linear units (SwiGLU).
-
-    When split_fc1_init is enabled, the FC1 weight matrix is split along dim=0
-    into gate and up projections, and each is initialized independently. This
-    ensures gate and up start with independent features.
-
-    For SwiGLU: output = gate(x) ⊙ σ(up(x))
-    - Gate learns gating signals (which features are important)
-    - Up learns feature transformations
-
-    Independent initialization avoids correlation between them.
-    """
-    if not config.split_fc1_init:
-        return config.init_method
-    else:
-        def inner(tensor):
-            # Disable autograd to avoid view modification issues with transformer_engine
-            with torch.no_grad():
-                # tensor shape: [2 * ffn_hidden_size, hidden_size] for gated linear units
-                # Split into gate [ffn_hidden_size, hidden_size] and up [ffn_hidden_size, hidden_size]
-                gate, up = tensor.chunk(2, dim=0)
-                config.init_method(gate)
-                config.init_method(up)
-        return inner
-
-
-def get_expert_init_method(config, num_local_experts, is_gated=False):
-    """Init MoE expert weights with each expert initialized separately.
-
-    For GroupedMLP weight matrices that contain multiple experts:
-    - weight1: [hidden_size, num_experts * ffn_hidden_size * (2 if gated)]
-    - weight2: [num_experts * ffn_hidden_size, hidden_size]
-
-    When split_expert_init is enabled, each expert's portion is initialized
-    independently to ensure diverse expert specialization and reduce correlation
-    between experts. This aligns with muon_split_moe_experts optimizer behavior.
-
-    When both split_expert_init and split_fc1_init are enabled for gated layers,
-    each expert's gate and up projections are further initialized independently,
-    ensuring maximum diversity at both expert-level and component-level.
-
-    Args:
-        config: TransformerConfig with split_expert_init and split_fc1_init flags
-        num_local_experts: Number of experts in this GroupedMLP instance
-        is_gated: Whether using gated linear units (affects weight1 dimensions)
-
-    Returns:
-        Tuple of (weight1_init_method, weight2_init_method)
-    """
-    if not config.split_expert_init:
-        # Use default initialization methods
-        return config.init_method, config.output_layer_init_method
-
-    def init_weight1(tensor):
-        """Initialize weight1: [hidden_size, num_experts * ffn_per_expert * multiplier]
-
-        For each expert, initializes its portion independently:
-        - Without gating: [hidden_size, ffn_per_expert] per expert
-        - With gating: [hidden_size, 2 * ffn_per_expert] per expert (gate + up)
-
-        If split_fc1_init is enabled and gated, further splits gate and up:
-        - Gate: [hidden_size, ffn_per_expert] per expert
-        - Up: [hidden_size, ffn_per_expert] per expert
-        """
-        # Disable autograd to avoid view modification issues with transformer_engine
-        with torch.no_grad():
-            hidden_size, total_out_dim = tensor.shape
-            ffn_multiplier = 2 if is_gated else 1
-            ffn_per_expert = total_out_dim // (num_local_experts * ffn_multiplier)
-
-            # Reshape to separate experts: [hidden_size, num_experts, ffn_per_expert * multiplier]
-            tensor_view = tensor.view(hidden_size, num_local_experts, ffn_per_expert * ffn_multiplier)
-
-            # Initialize each expert independently
-            for expert_idx in range(num_local_experts):
-                expert_weight = tensor_view[:, expert_idx, :]  # [hidden_size, ffn_per_expert * multiplier]
-
-                # Further split gate and up if split_fc1_init is enabled and this is a gated layer
-                if config.split_fc1_init and is_gated:
-                    # Split into gate and up: each is [hidden_size, ffn_per_expert]
-                    gate_weight = expert_weight[:, :ffn_per_expert]
-                    up_weight = expert_weight[:, ffn_per_expert:]
-
-                    # Initialize gate and up independently
-                    config.init_method(gate_weight)
-                    config.init_method(up_weight)
-                else:
-                    # Initialize the entire expert weight as a single matrix
-                    config.init_method(expert_weight)
-
-    def init_weight2(tensor):
-        """Initialize weight2: [num_experts * ffn_per_expert, hidden_size]
-
-        For each expert, initializes its portion independently:
-        - [ffn_per_expert, hidden_size] per expert
-        """
-        # Disable autograd to avoid view modification issues with transformer_engine
-        with torch.no_grad():
-            total_in_dim, hidden_size = tensor.shape
-            ffn_per_expert = total_in_dim // num_local_experts
-
-            # Reshape to separate experts: [num_experts, ffn_per_expert, hidden_size]
-            tensor_view = tensor.view(num_local_experts, ffn_per_expert, hidden_size)
-
-            # Initialize each expert independently
-            for expert_idx in range(num_local_experts):
-                expert_weight = tensor_view[expert_idx, :, :]  # [ffn_per_expert, hidden_size]
-                config.output_layer_init_method(expert_weight)
-
-    return init_weight1, init_weight2
+    std = sigma / (math.sqrt(multiplier * num_layers) * math.sqrt(width_mult))
+    return functools.partial(torch.nn.init.normal_, mean=0.0, std=std)
 
 
 def spectral_mup_init_method_normal(sigma):
-    """Spectral MuP initialization: σ * √(d_out/d_in) / ||W'||₂ * W'
+    """Spectral MuP initialization for 2D linear weights."""
 
-    This initialization method applies spectral normalization and MuP scaling to linear layers.
-    For 2D weight matrices W ∈ R^(d_out × d_in):
-    1. Initialize W' ~ N(0, σ)
-    2. Compute spectral norm s = ||W'||₂
-    3. Apply scaling: W = σ * √(d_out/d_in) / s * W'
-
-    Only applies to 2D linear layer weights. Skips:
-    - Non-2D parameters (biases, layernorm, etc.)
-    - lm_head (identified by d_out/d_in > 10, as vocab_size >> hidden_size)
-    - Embedding layers (use separate embedding_init_method)
-
-    Args:
-        sigma: Standard deviation for the initial normal distribution.
-
-    Returns:
-        Initialization function that can be applied to tensors.
-    """
     def init_(tensor):
-        # Disable autograd to avoid view modification issues with transformer_engine
         with torch.no_grad():
-            # Skip non-2D parameters (bias, layernorm, etc.)
+            torch.nn.init.normal_(tensor, mean=0.0, std=sigma)
             if len(tensor.shape) != 2:
-                return torch.nn.init.normal_(tensor, mean=0.0, std=sigma)
+                return tensor
 
             d_out, d_in = tensor.shape
-
-            # Skip lm_head: identified by large output dimension ratio
-            # vocab_size is typically >> hidden_size (e.g., 151936 >> 2048)
             if d_out > 50000 or d_in > 50000:
-                return torch.nn.init.normal_(tensor, mean=0.0, std=sigma)
+                return tensor
 
-            # Step 1: Initialize W' ~ N(0, σ)
-            torch.nn.init.normal_(tensor, mean=0.0, std=sigma)
-
-            # Step 2: Compute spectral norm s = ||W'||₂
-            dtype = tensor.dtype
-            tensor_fp32 = tensor.detach().clone().float()
+            tensor_fp32 = tensor.detach().float()
             spectral_norm = torch.linalg.matrix_norm(tensor_fp32, ord=2)
-            
-            # Step 3: Apply MuP scaling: W = σ * √(d_out/d_in) / s * W'
-            mup_scale = math.sqrt(d_out / d_in) / spectral_norm
-            tensor.mul_(mup_scale)
-
+            if torch.isfinite(spectral_norm) and spectral_norm > 0:
+                tensor.mul_(math.sqrt(d_out / d_in) / spectral_norm)
             return tensor
 
     return init_
 
 
-def log_single_rank(logger: logging.Logger, *args: Any, rank: int = 0, **kwargs: Any):
-    """If torch distributed is initialized, write log on only one rank
+def get_qkv_init_method(config):
+    """Return an initializer that can split fused QKV weights."""
+    if not getattr(config, "split_qkv_init", True):
+        return config.init_method
 
-    Args:
-        logger (logging.Logger): The logger to write the logs
+    split_mode = getattr(config, "split_qkv_init_mode", "group")
+    qkv_split_shapes = [
+        config.num_attention_heads // config.num_query_groups * config.kv_channels,
+        config.kv_channels,
+        config.kv_channels,
+    ]
 
-        args (Tuple[Any]): All logging.Logger.log positional arguments
+    def inner(tensor):
+        with torch.no_grad():
+            out_dim, in_dim = tensor.shape
+            split_sum = sum(qkv_split_shapes)
+            num_groups = out_dim // split_sum
+            tensor_view = tensor.view(num_groups, split_sum, in_dim)
 
-        rank (int, optional): The rank to write on. Defaults to 0.
+            if split_mode == "group":
+                for group_idx in range(num_groups):
+                    for part in torch.split(tensor_view[group_idx], qkv_split_shapes, dim=0):
+                        config.init_method(part)
+            elif split_mode == "component":
+                for part in torch.split(tensor_view, qkv_split_shapes, dim=1):
+                    config.init_method(part.reshape(-1, in_dim))
+            elif split_mode == "head":
+                heads_per_group = config.num_attention_heads // config.num_query_groups
+                for group_idx in range(num_groups):
+                    q_part, k_part, v_part = torch.split(
+                        tensor_view[group_idx], qkv_split_shapes, dim=0
+                    )
+                    for head in q_part.view(heads_per_group, config.kv_channels, in_dim):
+                        config.init_method(head)
+                    config.init_method(k_part)
+                    config.init_method(v_part)
+            else:
+                raise ValueError(f"Invalid split_qkv_init_mode: {split_mode}")
 
-        kwargs (Dict[str, Any]): All logging.Logger.log keyword arguments
-    """
-    if torch.distributed.is_initialized():
-        if torch.distributed.get_rank() == rank:
-            logger.log(*args, **kwargs)
-    else:
-        logger.log(*args, **kwargs)
+    return inner
+
+
+def get_fc1_init_method(config):
+    """Return an initializer that can split gated FC1 into gate/up blocks."""
+    if not getattr(config, "split_fc1_init", True):
+        return config.init_method
+
+    def inner(tensor):
+        with torch.no_grad():
+            if getattr(config, "gated_linear_unit", False) and tensor.shape[0] % 2 == 0:
+                gate, up = tensor.chunk(2, dim=0)
+                config.init_method(gate)
+                config.init_method(up)
+            else:
+                config.init_method(tensor)
+
+    return inner
 
 
 def log_on_each_pipeline_stage(
@@ -1053,15 +996,43 @@ def make_tp_sharded_tensor_for_checkpoint(
     is sharded across TP group.
 
     Optionally, can provide offsets which prepend new dimensions to the tensor.
+
+    Args:
+        tensor: Tensor to shard
+        key: Key for the sharded tensor
+        tp_axis: Axis to shard across tensor parallel group (default: 0)
+        replica_id: Replica ID for the tensor (default: None)
+        prepend_offsets: Offsets to prepend to tensor dimensions (default: ())
+        **kwargs: Additional arguments. May include:
+            - tp_group: Tensor parallel group (default: None, falls back to parallel_state)
+            - dp_cp_group: Data parallel + context parallel group
+              (default: None, falls back to parallel_state)
     """
+    # Pop group parameters from kwargs
+    tp_group = kwargs.pop('tp_group', None)
+    dp_cp_group = kwargs.pop('dp_cp_group', None)
+    # If there are any additional kwargs left, surface them for visibility
+    # (these will be forwarded to ShardedTensor.from_rank_offsets).
+    if kwargs:
+        logger.warning(
+            "make_tp_sharded_tensor_for_checkpoint received extra kwargs: %s", list(kwargs.keys())
+        )
+
     prepend_axis_num = len(prepend_offsets)
 
     new_offsets = []
-    tp_rank = parallel_state.get_tensor_model_parallel_rank()
-    dp_rank = parallel_state.get_data_parallel_rank(with_context_parallel=True)
-    tp_size = parallel_state.get_tensor_model_parallel_world_size()
-    dp_size = parallel_state.get_data_parallel_world_size(with_context_parallel=True)
-    dp_replica_id = parallel_state.get_data_parallel_rank(with_context_parallel=True)
+
+    # Get groups with fallback to parallel_state
+    if tp_group is None and dp_cp_group is None:
+        tp_group = parallel_state.get_tensor_model_parallel_group()
+        dp_cp_group = parallel_state.get_data_parallel_group(with_context_parallel=True)
+
+    # Use local get_pg_rank and get_pg_size functions
+    tp_rank = get_pg_rank(tp_group)
+    dp_rank = get_pg_rank(dp_cp_group)
+    tp_size = get_pg_size(tp_group)
+    dp_size = get_pg_size(dp_cp_group)
+    dp_replica_id = get_pg_rank(dp_cp_group)
 
     new_offsets.append((tp_axis + prepend_axis_num, tp_rank, tp_size))
 
@@ -1097,14 +1068,40 @@ def make_sharded_tensor_for_checkpoint(tensor, key, prepend_offsets=(), replica_
     """Helper for instantiating a non-sharded ShardedTensor (replicated across TP and DP group).
 
     Optionally, can provide offsets which prepend new dimensions to the tensor.
+
+    Keyword Args:
+        tensor: Tensor to create sharded tensor for
+        key: Key for the sharded tensor
+        prepend_offsets: Offsets to prepend to tensor dimensions (default: ())
+        replica_id: Replica ID for the tensor (default: None)
+        **kwargs: Additional arguments. May include:
+            - tp_group: Tensor parallel group (default: None, falls back to parallel_state)
+            - dp_cp_group: Data parallel + context parallel group
+              (default: None, falls back to parallel_state)
     """
+    # Pop group parameters from kwargs
+    tp_group = kwargs.pop('tp_group', None)
+    dp_cp_group = kwargs.pop('dp_cp_group', None)
+    # If there are any additional kwargs left, surface them for visibility
+    # (these will be forwarded to ShardedTensor.from_rank_offsets).
+    if kwargs:
+        logger.warning(
+            "make_sharded_tensor_for_checkpoint received extra kwargs: %s", list(kwargs.keys())
+        )
 
     prepend_axis_num = len(prepend_offsets)
 
     new_offsets = []
-    dp_rank = parallel_state.get_data_parallel_rank(with_context_parallel=True)
-    dp_size = parallel_state.get_data_parallel_world_size(with_context_parallel=True)
-    dp_replica_id = parallel_state.get_data_parallel_rank(with_context_parallel=True)
+
+    # Get groups with fallback to parallel_state
+    if tp_group is None and dp_cp_group is None:
+        tp_group = parallel_state.get_tensor_model_parallel_group()
+        dp_cp_group = parallel_state.get_data_parallel_group(with_context_parallel=True)
+
+    # Use local get_pg_rank and get_pg_size functions
+    dp_rank = get_pg_rank(dp_cp_group)
+    dp_size = get_pg_size(dp_cp_group)
+    dp_replica_id = get_pg_rank(dp_cp_group)
 
     if HAVE_DTENSOR and isinstance(tensor, DTensor):
         # FSDP2 sharding
@@ -1113,7 +1110,7 @@ def make_sharded_tensor_for_checkpoint(tensor, key, prepend_offsets=(), replica_
         new_offsets.append((prepend_axis_num, dp_rank, dp_size))
 
     if replica_id is None:
-        replica_id = (0, parallel_state.get_tensor_model_parallel_rank(), dp_replica_id)
+        replica_id = (0, get_pg_rank(tp_group), dp_replica_id)
 
     return ShardedTensor.from_rank_offsets(
         key,
@@ -2069,41 +2066,495 @@ def is_submodule(module, parent_module, strict=True):
 
 
 ########################
+### tensor parallel ####
+########################
+
+
+def get_batch_on_this_tp_rank(
+    batch: dict[str, torch.Tensor],
+    is_sft: bool,
+    is_hybrid_cp: bool,
+    create_attention_mask_in_dataloader: bool,
+    broadcast_src_rank: int,
+    broadcast_group: torch.distributed.ProcessGroup,
+    cp_size: int,
+    tp_rank: int,
+    micro_batch_size: int,
+    seq_length: int,
+    mtp_on_this_rank: bool,
+    pipeline_model_parallel_size: int = 1,
+    is_pipeline_first_stage: bool = False,
+    is_pipeline_last_stage: bool = False,
+):
+    """Broadcast batch tensors from TP rank 0 to all other ranks in the TP group.
+
+    TP rank 0 holds the fully preprocessed batch (from the dataloader or from
+    ``preprocess_sft_batch`` when SFT is enabled). This function broadcasts
+    every required tensor to the remaining TP ranks so that all ranks hold
+    identical data before the forward pass. The set of tensors broadcast depends
+    on the pipeline stage and whether SFT / hybrid-CP modes are active.
+
+    For SFT and hybrid-CP, variable-length metadata (``cu_seqlens``,
+    ``cu_seqlens_padded``) is broadcast using a length-prefixed protocol: TP
+    rank 0 first sends the numel, then the tensor itself, so receivers can
+    allocate the correct buffer size.
+
+    For hybrid-CP, the sequence length may differ per micro-batch (since it
+    depends on `local_cp_size`), so the actual sequence length is broadcast
+    before allocating receive buffers on non-zero TP ranks.
+
+    Args:
+        batch (dict[str, torch.Tensor]): The batch dict. On TP rank 0 this
+            contains the actual data; on other ranks it is ignored (receive
+            buffers are allocated internally).
+        is_sft (bool): Whether this is an SFT (supervised fine-tuning) run
+            using THD packed sequences.
+        is_hybrid_cp (bool): Whether hybrid context parallelism is enabled.
+        create_attention_mask_in_dataloader (bool): Whether the dataloader
+            creates an explicit attention mask tensor.
+        broadcast_src_rank (int): Global rank of the broadcast source (TP rank 0).
+        broadcast_group (torch.distributed.ProcessGroup): The TP process group
+            used for broadcasting.
+        cp_size (int): Context-parallel world size.
+        tp_rank (int): This rank's position within the TP group.
+        micro_batch_size (int): Micro-batch size (number of samples).
+        seq_length (int): Sequence length used for allocating receive buffers
+            (ignored under hybrid-CP where it is broadcast dynamically).
+        mtp_on_this_rank (bool): Whether Multi-Token Prediction layers are
+            active on this rank (affects which tensors are needed).
+        pipeline_model_parallel_size (int): Number of pipeline-parallel stages.
+        is_pipeline_first_stage (bool): Whether this rank is on the first PP stage.
+        is_pipeline_last_stage (bool): Whether this rank is on the last PP stage.
+
+    Returns:
+        dict[str, torch.Tensor]: The batch dict with all tensors populated on
+        every TP rank. Keys include 'tokens', 'labels', 'loss_mask',
+        'position_ids', 'attention_mask', 'cu_seqlens', 'cu_seqlens_padded',
+        'max_seqlen', 'local_cp_size', and 'hybrid_cp_group'.
+    """
+
+    def _broadcast(item):
+        if item is not None:
+            torch.distributed.broadcast(item, broadcast_src_rank, group=broadcast_group)
+
+    if tp_rank == 0:
+
+        def _broadcast_cu_seqlens(cu_seqlens):
+            dev = torch.cuda.current_device()
+            n = 0 if cu_seqlens is None else int(cu_seqlens.numel())
+            n_tensor = torch.tensor(n, dtype=torch.int64, device=dev)
+            _broadcast(n_tensor)
+
+            if n > 0:
+                assert isinstance(
+                    cu_seqlens, torch.Tensor
+                ), f"Expected cu_seqlens to be a torch.Tensor, got {type(cu_seqlens)}"
+                assert (
+                    cu_seqlens.dtype == torch.int32
+                ), f"Expected cu_seqlens to be of type torch.int32, got {cu_seqlens.dtype}"
+                _broadcast(cu_seqlens)
+
+        if is_hybrid_cp:
+            hybrid_cp_seq_length = torch.tensor(
+                batch['tokens'].shape[1], dtype=torch.int32, device=torch.cuda.current_device()
+            )
+            _broadcast(hybrid_cp_seq_length)
+
+        if pipeline_model_parallel_size == 1 or mtp_on_this_rank:
+            _broadcast(batch['tokens'])
+            _broadcast(batch['labels'])
+            _broadcast(batch['loss_mask'])
+            _broadcast(batch['position_ids'])
+            if is_sft or is_hybrid_cp:
+                _broadcast_cu_seqlens(batch['cu_seqlens'])
+                _broadcast(batch['max_seqlen'])
+                if cp_size > 1:
+                    _broadcast_cu_seqlens(batch['cu_seqlens_padded'])
+            if create_attention_mask_in_dataloader:
+                _broadcast(batch['attention_mask'])
+            if is_hybrid_cp:
+                _broadcast(batch['local_cp_size'])
+
+        elif is_pipeline_first_stage:
+            batch["labels"] = None
+            batch["loss_mask"] = None
+
+            _broadcast(batch['tokens'])
+            _broadcast(batch['position_ids'])
+            if is_sft:
+                _broadcast_cu_seqlens(batch['cu_seqlens'])
+                _broadcast(batch['max_seqlen'])
+                if cp_size > 1:
+                    _broadcast_cu_seqlens(batch['cu_seqlens_padded'])
+            if create_attention_mask_in_dataloader:
+                _broadcast(batch['attention_mask'])
+
+        elif is_pipeline_last_stage:
+            batch["tokens"] = None
+            batch["position_ids"] = None
+
+            _broadcast(batch['labels'])
+            _broadcast(batch['loss_mask'])
+            if is_sft:
+                _broadcast_cu_seqlens(batch['cu_seqlens'])
+                _broadcast(batch['max_seqlen'])
+                if cp_size > 1:
+                    _broadcast_cu_seqlens(batch['cu_seqlens_padded'])
+            if create_attention_mask_in_dataloader:
+                _broadcast(batch['attention_mask'])
+
+        elif is_sft:
+            # NOTE(asolergi-nv): Broadcast required THD metadata for SFT to intermediate stages
+            batch["tokens"] = None
+            batch["labels"] = None
+            batch["loss_mask"] = None
+            batch["position_ids"] = None
+            batch["attention_mask"] = None
+
+            _broadcast_cu_seqlens(batch['cu_seqlens'])
+            _broadcast(batch['max_seqlen'])
+            if cp_size > 1:
+                _broadcast_cu_seqlens(batch['cu_seqlens_padded'])
+
+    else:
+        if is_hybrid_cp:
+            hybrid_cp_seq_length = torch.tensor(
+                0, dtype=torch.int32, device=torch.cuda.current_device()
+            )
+            _broadcast(hybrid_cp_seq_length)
+            shape = (micro_batch_size, hybrid_cp_seq_length.item())
+        else:
+            shape = (micro_batch_size, seq_length)
+
+        tokens = torch.empty(shape, dtype=torch.int64, device=torch.cuda.current_device())
+        labels = torch.empty(shape, dtype=torch.int64, device=torch.cuda.current_device())
+        loss_mask = torch.empty(shape, dtype=torch.float32, device=torch.cuda.current_device())
+        position_ids = torch.empty(shape, dtype=torch.int64, device=torch.cuda.current_device())
+        cu_seqlens = None
+        cu_seqlens_padded = None
+        max_seqlen = None
+        attention_mask = None
+        local_cp_size = None
+
+        if is_sft or is_hybrid_cp:
+            max_seqlen = torch.empty(1, dtype=torch.int32, device=torch.cuda.current_device())
+        if create_attention_mask_in_dataloader:
+            attention_mask = torch.empty(
+                (micro_batch_size, 1, seq_length, seq_length),
+                dtype=torch.bool,
+                device=torch.cuda.current_device(),
+            )
+
+        if is_hybrid_cp:
+            local_cp_size = torch.empty(1, dtype=torch.int32, device=torch.cuda.current_device())
+
+        def _broadcast_cu_seqlens():
+            dev = torch.cuda.current_device()
+
+            n = torch.empty((), dtype=torch.int64, device=dev)
+            _broadcast(n)
+            n = int(n.item())
+
+            if n == 0:
+                return None
+
+            # cu_seqlens / cu_seqlens_padded carry the dataloader's batch dim
+            # throughout (mbs=1 for packed sequences). Allocate (1, n) so the
+            # shape on receiving ranks matches the (1, n) tensor TP rank 0 sent.
+            cu_seqlens = torch.empty((1, n), dtype=torch.int32, device=dev)
+            _broadcast(cu_seqlens)
+            assert (
+                cu_seqlens.dim() == 2 and cu_seqlens.shape[0] == 1
+            ), f"Expected cu_seqlens shape (1, n), got {tuple(cu_seqlens.shape)}"
+            assert (
+                cu_seqlens.dtype == torch.int32
+            ), f"Expected cu_seqlens to be of type torch.int32, got {cu_seqlens.dtype}"
+            return cu_seqlens
+
+        if pipeline_model_parallel_size == 1 or mtp_on_this_rank:
+            _broadcast(tokens)
+            _broadcast(labels)
+            _broadcast(loss_mask)
+            _broadcast(position_ids)
+            if is_sft or is_hybrid_cp:
+                cu_seqlens = _broadcast_cu_seqlens()
+                _broadcast(max_seqlen)
+                if cp_size > 1:
+                    cu_seqlens_padded = _broadcast_cu_seqlens()
+            if create_attention_mask_in_dataloader:
+                _broadcast(attention_mask)
+            if is_hybrid_cp:
+                _broadcast(local_cp_size)
+
+        elif is_pipeline_first_stage:
+            labels = None
+            loss_mask = None
+
+            _broadcast(tokens)
+            _broadcast(position_ids)
+            if is_sft:
+                cu_seqlens = _broadcast_cu_seqlens()
+                _broadcast(max_seqlen)
+                if cp_size > 1:
+                    cu_seqlens_padded = _broadcast_cu_seqlens()
+            if create_attention_mask_in_dataloader:
+                _broadcast(attention_mask)
+
+        elif is_pipeline_last_stage:
+            tokens = None
+            position_ids = None
+
+            _broadcast(labels)
+            _broadcast(loss_mask)
+            if is_sft:
+                cu_seqlens = _broadcast_cu_seqlens()
+                _broadcast(max_seqlen)
+                if cp_size > 1:
+                    cu_seqlens_padded = _broadcast_cu_seqlens()
+            if create_attention_mask_in_dataloader:
+                _broadcast(attention_mask)
+
+        elif is_sft:
+            # NOTE(asolergi-nv): Broadcast required THD metadata for SFT to intermediate stages
+            tokens = None
+            labels = None
+            loss_mask = None
+            position_ids = None
+
+            cu_seqlens = _broadcast_cu_seqlens()
+            _broadcast(max_seqlen)
+            if cp_size > 1:
+                cu_seqlens_padded = _broadcast_cu_seqlens()
+
+        batch = {
+            'tokens': tokens,
+            'labels': labels,
+            'loss_mask': loss_mask,
+            'position_ids': position_ids,
+            'attention_mask': attention_mask,
+            'cu_seqlens': cu_seqlens,
+            'cu_seqlens_padded': cu_seqlens_padded,
+            'max_seqlen': max_seqlen,
+            'local_cp_size': local_cp_size,
+            'hybrid_cp_group': None,
+        }
+
+    return batch
+
+
+########################
 ### context parallel ###
 ########################
 
 
-def get_batch_on_this_cp_rank(batch: Dict[str, Any]):
-    """Slice batch input along sequence dimension into multiple chunks,
-    which are parallelized across GPUs in a context parallel group.
+def get_sft_batch_on_this_cp_rank(
+    batch: dict[str, torch.Tensor], cp_group: torch.distributed.ProcessGroup
+):
+    """Partition an SFT packed-sequence batch across context-parallel ranks using THD indexing.
+
+    For SFT workloads the batch contains multiple variable-length sub-sequences
+    packed contiguously (THD format). This function uses Transformer Engine's
+    ``thd_get_partitioned_indices`` to compute the token indices assigned to the
+    current CP rank and gathers only those tokens from every sequence-dimension
+    tensor in the batch.
+
+    Metadata keys ('attention_mask', 'cu_seqlens', 'cu_seqlens_padded',
+    'max_seqlen', 'local_cp_size', 'hybrid_cp_group') are left unchanged
+    because TE's attention kernels consume them directly.
+
+    Args:
+        batch (dict[str, torch.Tensor]): Batch dict with tensors of shape
+            ``[micro_batch_size, seq_length, ...]``.
+        cp_group (torch.distributed.ProcessGroup): The context-parallel process
+            group.
+
+    Returns:
+        dict[str, torch.Tensor]: The batch with sequence-dimension tensors
+        index-selected to this CP rank's partition.
+    """
+    cp_size = torch.distributed.get_world_size(cp_group)
+    cp_rank = torch.distributed.get_rank(cp_group)
+
+    if cp_size > 1:
+        # cu_seqlens / cu_seqlens_padded carry the dataloader's batch dim (1, n).
+        # tex.thd_get_partitioned_indices expects a 1-D tensor, so squeeze the
+        # batch dim inline without mutating the batch dict.
+        cu_seqlens_for_te = (
+            batch["cu_seqlens_padded"]
+            if batch["cu_seqlens_padded"] is not None
+            else batch["cu_seqlens"]
+        )[0]
+        index = tex.thd_get_partitioned_indices(
+            cu_seqlens_for_te,
+            (
+                batch["tokens"].size(1) if batch["tokens"] is not None else batch["labels"].size(1)
+            ),  # NOTE(asolergi-nv): Labels to enable PP!
+            cp_size,
+            cp_rank,
+        )
+        SEQUENCE_KEYS = ('tokens', 'labels', 'loss_mask', 'position_ids')
+        for key in SEQUENCE_KEYS:
+            if batch.get(key) is not None:
+                batch[key] = batch[key].index_select(1, index)
+    return batch
+
+
+def get_pretrain_batch_on_this_cp_rank(
+    batch: dict[str, torch.Tensor], cp_group: torch.distributed.ProcessGroup
+):
+    """Partition a pretraining batch across context-parallel ranks with load-balanced chunking.
+
+    With causal masking, each token only attends to its prior tokens. Simply splitting
+    the sequence into CP chunks can result in severe load imbalance, as chunks at the
+    end of the sequence have bigger workloads than earlier ones. To address this, the
+    sequence is split into ``2 * cp_size`` chunks and assigned in a zigzag pattern:
+    for CP=2 the 4 chunks are assigned as (chunk_0, chunk_3) -> GPU 0 and
+    (chunk_1, chunk_2) -> GPU 1, balancing the workload across the CP group.
+
+    All tensor-valued entries in the batch are partitioned along their sequence
+    dimension (``seq_dim=1`` by default, ``seq_dim=2`` for 'attention_mask').
+    None-valued entries are left unchanged.
+
+    Args:
+        batch (dict[str, torch.Tensor]): Batch dict with tensors of shape
+            ``[micro_batch_size, seq_length, ...]``.
+        cp_group (torch.distributed.ProcessGroup): The context-parallel process
+            group.
+
+    Returns:
+        dict[str, torch.Tensor]: The batch with sequence-dimension tensors
+        sliced to this CP rank's zigzag partition.
     """
 
-    # With causal masking, each token only attends to its prior tokens. Simply split
-    # sequence into CP chunks can result in severe load imbalance. That's to say, chunks
-    # at the end of sequence have bigger workload than others. To address this issue,
-    # we split sequence into 2*CP ranks. Assuming CP=2, we then get 4 chunks, chunk_0
-    # and chunk_3 are assigned to GPU0, chunk_1 and chunk_2 are assigned to GPU1, so
-    # that we can get balanced workload among GPUs in a context parallel group.
-    cp_size = parallel_state.get_context_parallel_world_size()
+    cp_size = torch.distributed.get_world_size(cp_group)
+    cp_rank = torch.distributed.get_rank(cp_group)
+
+    # HybridCP metadata is not partitioned along the sequence dim — skip by key.
+    # Intermediate PP stages set non-metadata keys to None, so still skip those.
+    METADATA_KEYS = (
+        'cu_seqlens',
+        'cu_seqlens_padded',
+        'max_seqlen',
+        'local_cp_size',
+        'hybrid_cp_group',
+    )
+
     if cp_size > 1:
-        cp_rank = parallel_state.get_context_parallel_rank()
         for key, val in batch.items():
-            if val is not None:
-                seq_dim = 1 if key != "attention_mask" else 2
-                val = val.view(
-                    *val.shape[0:seq_dim],
-                    2 * cp_size,
-                    val.shape[seq_dim] // (2 * cp_size),
-                    *val.shape[(seq_dim + 1) :],
-                )
-                index = torch.zeros(2, dtype=torch.int64, device=val.device)
-                index[0].fill_(cp_rank)
-                index[1].fill_(2 * cp_size - cp_rank - 1)
-                val = val.index_select(seq_dim, index)
-                val = val.view(*val.shape[0:seq_dim], -1, *val.shape[(seq_dim + 2) :])
-                batch[key] = val
+            if key in METADATA_KEYS or val is None:
+                continue
+            seq_dim = 2 if key == 'attention_mask' else 1
+            val = val.view(
+                *val.shape[0:seq_dim],
+                2 * cp_size,
+                val.shape[seq_dim] // (2 * cp_size),
+                *val.shape[(seq_dim + 1) :],
+            )
+            index = torch.zeros(2, dtype=torch.int64, device=val.device)
+            index[0].fill_(cp_rank)
+            index[1].fill_(2 * cp_size - cp_rank - 1)
+            val = val.index_select(seq_dim, index)
+            val = val.view(*val.shape[0:seq_dim], -1, *val.shape[(seq_dim + 2) :])
+            batch[key] = val
 
     return batch
+
+
+def get_batch_on_this_cp_rank(
+    batch: Dict[str, Any],
+    is_hybrid_cp: bool = False,
+    cp_group: Optional[torch.distributed.ProcessGroup] = None,
+    hybrid_cp_group_func: Optional[Callable[[int], torch.distributed.ProcessGroup]] = None,
+):
+    """Dispatch batch partitioning across context-parallel ranks.
+
+    Routes to the appropriate CP partitioning strategy based on the batch
+    contents and parallelism mode:
+      - **SFT (packed sequences)**: When ``cu_seqlens`` is present and
+        ``is_hybrid_cp`` is False, delegates to ``get_sft_batch_on_this_cp_rank``
+        which uses THD index-based partitioning.
+      - **Hybrid CP**: When ``cu_seqlens`` is present and ``is_hybrid_cp`` is
+        True, creates a local hybrid CP group (via ``hybrid_cp_group_func``)
+        and delegates to ``get_pretrain_batch_on_this_cp_rank`` with that group.
+      - **Pretraining**: When ``cu_seqlens`` is None, delegates to
+        ``get_pretrain_batch_on_this_cp_rank`` with zigzag load-balanced
+        chunking.
+
+    Args:
+        batch (Dict[str, Any]): Input batch tensors. Must contain a
+            'cu_seqlens' key (may be None for pretraining).
+        is_hybrid_cp (bool): Whether hybrid context parallelism is enabled.
+        cp_group (Optional[torch.distributed.ProcessGroup]): Context-parallel
+            process group used for SFT and pretraining CP partitioning.
+        hybrid_cp_group_func (Optional[Callable[[int], torch.distributed.ProcessGroup]]):
+            Factory function that returns a hybrid CP process group for a given
+            ``group_size``. Required when ``is_hybrid_cp`` is True.
+
+    Returns:
+        Dict[str, Any]: The batch with sequence-dimension tensors partitioned
+        to this CP rank.
+    """
+
+    if cp_group is None:
+        # Backward-compatible fallback for callers that pass only ``batch``
+        # (pretrain entrypoints historically read the global CP group
+        # internally): use the current context-parallel group.
+        cp_group = parallel_state.get_context_parallel_group()
+
+    if batch.get("cu_seqlens") is not None:  # NOTE(asolergi-nv): SFT & HybridCP case
+        if is_hybrid_cp:
+            assert (
+                batch['local_cp_size'] is not None
+            ), "local_cp_size is required for hybrid context parallel"
+            if batch['local_cp_size'].item() > 1:
+                hybrid_cp_group = hybrid_cp_group_func(group_size=batch['local_cp_size'].item())
+                batch = get_pretrain_batch_on_this_cp_rank(batch, cp_group=hybrid_cp_group)
+                batch["hybrid_cp_group"] = hybrid_cp_group
+        else:
+            batch = get_sft_batch_on_this_cp_rank(batch, cp_group=cp_group)
+    else:  # NOTE(asolergi-nv): Pretrain case
+        batch = get_pretrain_batch_on_this_cp_rank(batch, cp_group=cp_group)
+    return batch
+
+
+def get_thd_batch_on_this_cp_rank(
+    batch: Dict[str, Any],
+    cu_seqlens: torch.Tensor,
+    cu_seqlens_padded: torch.Tensor,
+    max_seqlen: torch.Tensor,
+    cp_size: Optional[int] = None,
+    cp_rank: Optional[int] = None,
+):
+    """Slice each sub-sample in a packed sample batch input along
+    sequence dimension into multiple chunks, which are parallelized
+    across GPUs in a context parallel group.
+    """
+    packed_seq_params = PackedSeqParams(
+        qkv_format="thd",
+        cu_seqlens_q=cu_seqlens,
+        cu_seqlens_kv=cu_seqlens,
+        cu_seqlens_q_padded=cu_seqlens_padded,
+        cu_seqlens_kv_padded=cu_seqlens_padded,
+        max_seqlen_q=int(max_seqlen[0].item()),
+        max_seqlen_kv=int(max_seqlen[0].item()),
+    )
+
+    cp_size = parallel_state.get_context_parallel_world_size() if cp_size is None else cp_size
+    cp_rank = parallel_state.get_context_parallel_rank() if cp_rank is None else cp_rank
+    if cp_size > 1:  # slice batch along sequence dimension for context parallelism
+        assert tex is not None and is_te_min_version("1.10.0"), (
+            "Please update Transformer Engine to >= 1.10 to use "
+            "Context Parallel with THD format data"
+        )
+        index = tex.thd_get_partitioned_indices(
+            cu_seqlens_padded, batch['tokens'].size(1), cp_size, cp_rank
+        )
+        for key, data in batch.items():
+            if key in {'attention_mask', 'cu_seqlens', 'cu_seqlens_padded', 'max_seqlen'}:
+                continue
+            batch[key] = data.index_select(1, index)
+
+    return batch, packed_seq_params
 
 
 ######################
@@ -2112,6 +2563,10 @@ def get_batch_on_this_cp_rank(batch: Dict[str, Any]):
 
 _nvtx_enabled: bool = False  # Whether NVTX range profiling is enabled
 _nvtx_range_messages: list[str] = []  # Messages associated with active NVTX ranges
+# Permanently pin the string object representing the name of each NVTX range.
+# These string objects may be created during CUDA graph capture.
+# If they are not pinned, the NVTX range names will be garbage-collected and nsys profile crashes.
+_nvtx_range_msg_pool: dict[str, str] = {}
 
 
 def configure_nvtx_profiling(enabled: bool) -> None:
@@ -2152,6 +2607,11 @@ def nvtx_range_push(msg=None, suffix=None) -> None:
         msg = _nvtx_range_get_func_path()
     if suffix is not None:
         msg = f"{msg}.{suffix}"
+
+    # If we have entered this range before, do not use the newly-created "msg" object.
+    # But instead point to the original, first-created, "msg" object.
+    # They may hold identical data, but they are different addresses; matters when CUDA-graphed.
+    msg = _nvtx_range_msg_pool.setdefault(msg, msg)
 
     # Track messages to ensure consistency when popping
     _nvtx_range_messages.append(msg)
@@ -2205,12 +2665,16 @@ def _nvtx_decorator_get_func_path(func):
     return f"{module.__name__}.{caller_func}"
 
 
-def nvtx_decorator(message: Optional[str] = None, color: Optional[str] = None):
+def nvtx_decorator(message: Optional[str] = None) -> Callable[[_Wrapped], _Wrapped]:
     """Decorator to add NVTX range to a function.
+
+    The ``_nvtx_enabled`` flag is checked at **call time** inside
+    ``nvtx_range_push`` / ``nvtx_range_pop``, so the decorator works
+    correctly even when applied before ``configure_nvtx_profiling()``
+    is called (e.g. at module-import time).
 
     Args:
         message (str, optional): Custom message for the NVTX range. If None, uses function path
-        color (str, optional): Color for the NVTX range. Defaults to None
 
     Returns:
         Callable: Decorated function with NVTX profiling if enabled
@@ -2220,17 +2684,23 @@ def nvtx_decorator(message: Optional[str] = None, color: Optional[str] = None):
         def my_function():
             pass
 
-        @nvtx_decorator(message="Custom Range", color="blue")
+        @nvtx_decorator(message="Custom Range")
         def another_function():
             pass
     """
 
-    def decorator(func: Callable) -> Callable:
-        if _nvtx_enabled:
-            return nvtx.annotate(
-                message=message or _nvtx_decorator_get_func_path(func), color=color
-            )(func)
-        return func
+    def decorator(func: _Wrapped) -> _Wrapped:
+        msg = message or _nvtx_decorator_get_func_path(func)
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            nvtx_range_push(msg)
+            try:
+                return func(*args, **kwargs)
+            finally:
+                nvtx_range_pop(msg)
+
+        return wrapper  # type: ignore[return-value]
 
     return decorator
 
@@ -2261,11 +2731,274 @@ def unwrap_model(model, module_instances=None):
     return unwrapped_model
 
 
-def get_asyncio_loop():
+_ASYNC_IO_LOOP: asyncio.AbstractEventLoop | None = None
+
+
+def get_asyncio_loop(loop: asyncio.AbstractEventLoop | None = None) -> asyncio.AbstractEventLoop:
     """Creates an asyncio loop if necessary and then returns the current asyncio loop."""
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError as e:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    global _ASYNC_IO_LOOP
+    if loop is None:
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError as e:
+            if _ASYNC_IO_LOOP is not None:
+                return _ASYNC_IO_LOOP
+            else:
+                _ASYNC_IO_LOOP = loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
     return loop
+
+
+def is_using_quantization_scales(config):
+    """Returns whether the model is using quantization scales based on the config."""
+    return getattr(config, "fp8", False) or getattr(config, "fp4", False)
+
+
+_ASYNC_TASK_STATS = defaultdict(lambda: [0, 0.0])  # cnt, total_time
+
+
+def trace_async_exceptions(func: Optional[Callable] = None, *, verbose: bool = False):
+    """Decorator to be applied to every coroutine that runs in a separate task.
+
+    This is needed because asyncio tasks do not propagate exceptions.
+    Coroutines running inside separate tasks will fail silently if not decorated.
+
+    Passing in `verbose=True` will print additional lifetime logging information about the task.
+    Such functionality is relied on by some users, and can be enabled as shown below:
+    ```
+        @trace_async_exceptions(verbose=True)
+        async def my_coroutine(...):
+            ...
+    ```
+    """
+
+    def _log_verbose(name: str, start: float) -> None:
+        elapsed = (time.perf_counter() - start) * 1000.0
+        cnt, tot = _ASYNC_TASK_STATS[name]
+        _ASYNC_TASK_STATS[name] = [cnt + 1, tot + elapsed]
+        avg = _ASYNC_TASK_STATS[name][1] / _ASYNC_TASK_STATS[name][0]
+
+        log10 = numpy.log10(max(cnt, 1))
+        if numpy.isclose(log10, round(log10)):
+            logger.info(
+                f"{name} completed in {elapsed:.3f} ms, "
+                f"lifetime avg: {avg:.3f} ms, "
+                f"lifetime cnt: {cnt + 1}"
+            )
+
+    def _decorate(fn: Callable):
+        if asyncio.iscoroutinefunction(fn):
+
+            @functools.wraps(fn)
+            async def wrapper(*args, **kwargs):
+                if verbose:
+                    start = time.perf_counter()
+                try:
+                    return await fn(*args, **kwargs)
+                except Exception as e:
+                    logger.error(f"Exception in async function {fn.__name__}: {e}")
+                    traceback.print_exc()
+                    sys.exit(1)
+                finally:
+                    if verbose:
+                        _log_verbose(fn.__qualname__, start)
+
+        elif inspect.isasyncgenfunction(fn):
+
+            @functools.wraps(fn)
+            async def wrapper(*args, **kwargs):
+                if verbose:
+                    start = time.perf_counter()
+                agen = fn(*args, **kwargs)
+                try:
+                    async for item in agen:
+                        yield item
+                except Exception as e:
+                    logger.error(f"Exception in async generator {fn.__name__}: {e}")
+                    traceback.print_exc()
+                    sys.exit(1)
+                finally:
+                    if verbose:
+                        _log_verbose(fn.__qualname__, start)
+
+        else:
+            raise TypeError("trace_async_exceptions must be used on async functions or generators")
+        return wrapper
+
+    return _decorate if func is None else _decorate(func)
+
+
+# ============================================================================
+# Backward Compatibility Decorators
+# ============================================================================
+
+
+def deprecated(
+    version: str,
+    removal_version: Optional[str] = None,
+    alternative: Optional[str] = None,
+    reason: Optional[str] = None,
+) -> Callable[[_Wrapped], _Wrapped]:
+    """
+    Mark a function as deprecated.
+
+    This decorator:
+    1. Adds deprecation metadata to the function
+    2. Issues a DeprecationWarning when the function is called
+    3. Allows the compatibility checker to track deprecation lifecycle
+
+    Args:
+        version: Version where deprecation starts (e.g., "1.0.0")
+        removal_version: Version where function will be removed (e.g., "2.0.0")
+        alternative: Name of the recommended replacement function
+        reason: Optional explanation for the deprecation
+
+    Returns:
+        Decorator function
+
+    Example:
+        @deprecated(
+            version="1.0.0",
+            removal_version="2.0.0",
+            alternative="new_train_model",
+            reason="Improved performance and cleaner API"
+        )
+        def old_train_model(config):
+            pass
+    """
+
+    def decorator(func: _Wrapped) -> _Wrapped:
+        # Add metadata
+        func._deprecated = True
+        func._deprecated_version = version
+        func._removal_version = removal_version
+        func._alternative = alternative
+        func._deprecation_reason = reason
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # Build warning message
+            msg_parts = [f"{func.__name__} is deprecated since version {version}."]
+
+            if alternative:
+                msg_parts.append(f"Use {alternative} instead.")
+
+            if removal_version:
+                msg_parts.append(f"Will be removed in version {removal_version}.")
+
+            if reason:
+                msg_parts.append(f"Reason: {reason}")
+
+            warnings.warn(" ".join(msg_parts), DeprecationWarning, stacklevel=2)
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def internal_api(func: _Wrapped) -> _Wrapped:
+    """
+    Mark a function or class as internal API (not for external use).
+
+    Use this decorator for:
+    - Internal APIs not intended for public consumption
+    - Experimental features that may change without notice
+    - Implementation details that are not part of the stable API
+
+    Objects marked with this decorator will be exempt from backward
+    compatibility checks.
+
+    Args:
+        func: The function or class to mark as internal
+
+    Returns:
+        The original function/class with an internal API marker
+
+    Example:
+        @internal_api
+        def _internal_helper():
+            '''For internal use only'''
+            pass
+
+        @internal_api
+        class ExperimentalFeature:
+            '''This API may change without notice'''
+            pass
+    """
+    func._internal_api = True
+    return func
+
+
+def experimental_api(func: _Wrapped) -> _Wrapped:
+    """
+    Mark a function or class as experimental API.
+
+    Use this decorator for:
+    - Experimental features that may change without notice
+    - New APIs under active development
+    - Features that are not yet stable
+
+    Objects marked with this decorator will be exempt from backward
+    compatibility checks, allowing rapid iteration during development.
+
+    Args:
+        func: The function or class to mark as experimental
+
+    Returns:
+        The original function/class with an experimental API marker
+
+    Example:
+        @experimental_api
+        def new_experimental_feature():
+            '''This API is experimental and may change'''
+            pass
+
+        @experimental_api
+        class ExperimentalModel:
+            '''This model is under active development'''
+            pass
+    """
+    func._experimental_api = True
+    return func
+
+
+def deprecate_args(
+    *deprecated_keys: str, message="Argument '{name}' has been deprecated and should not be used."
+) -> Callable[[_Wrapped], _Wrapped]:
+    """
+    Intercepts specific keyword arguments to raise a custom TypeError.
+
+    Args:
+        *deprecated_keys: Strings representing the argument names to block.
+        message: Custom error message string. Use {name} as a placeholder.
+    """
+
+    def decorator(func: _Wrapped) -> _Wrapped:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # Check if any deprecated key is present in kwargs
+            found_deprecated = set(deprecated_keys) & set(kwargs.keys())
+
+            if found_deprecated:
+                bad_key = list(found_deprecated)[0]
+                raise TypeError(message.format(name=bad_key))
+
+            # Send args to the real function
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def deprecate_inference_params(inference_context, inference_params):
+    """Print warning for deprecated `inference_params`."""
+    if inference_context is None and inference_params is not None:
+        warnings.warn(
+            "`inference_params` renamed to `inference_context`, and will be "
+            "removed in `megatron-core` 0.13."
+        )
+        return inference_params
+    return inference_context

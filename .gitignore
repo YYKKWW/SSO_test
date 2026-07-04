@@ -25,3 +25,5 @@ cache/
 *.ckpt
 *.safetensors
 .DS_Store
+*.so
+data_cache/
