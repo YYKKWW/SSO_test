@@ -1,8 +1,8 @@
-# Experiment Record: Width-256 SSO vs MCSD LR Sweep on OLMo Mix 1B
+# Experiment Record: Width-256 Optimizer LR Sweep on OLMo Mix 1B
 
 Last updated: 2026-07-04
 
-This document is the primary experiment record for the `width=256` SSO-vs-MCSD learning-rate sweep. It is intended to support paper development, later reproduction, and future extensions with new optimizers or additional learning rates.
+This document is the primary experiment record for the `width=256` optimizer learning-rate sweep. It is intended to support paper development, later reproduction, and future extensions with new optimizers or additional learning rates.
 
 Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or other secrets in this file.
 
@@ -15,12 +15,12 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 | Width | `256` |
 | Data budget | `1B` training tokens |
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
-| Compared optimizers | SSO / `spectral_ball_dist`, MCSD / `spel_dist` |
+| Compared optimizers | SSO / `spectral_ball_dist`, MCSD / `spel_dist`, SpEL-PGD / `spel_pgd_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | `10/10` |
+| Jobs completed | `15/15` |
 | Slurm status | all `COMPLETED`, all exit code `0:0` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
-| Next likely extension | add higher LRs such as `2e-2`, `3e-2`; add new optimizer rows |
+| Next likely extension | add higher LRs for SSO/MCSD; revise SpEL-PGD branch rule before larger sweeps |
 
 ## Scope And Caveats
 
@@ -30,6 +30,7 @@ This is a controlled small-scale experiment, not the full paper sweep.
 - The current run uses one 1B-token weighted sample from OLMo mix; it is not a 30B-token paper-scale run.
 - The current table is a single-run comparison; paper claims should be calibrated accordingly unless repeated seeds or additional settings are added.
 - The current MCSD label maps to the `spel_dist` implementation path because the active Megatron launcher does not expose an optimizer literally named `mcsd`.
+- The current SpEL-PGD row uses the first `spel_pgd_dist` implementation, with automatic PGD fallback and the same SpEL-style spectral retraction. It is an algorithm-development result, not yet a tuned baseline.
 - The H20 runs use Megatron's `local` transformer implementation rather than the original script's `transformer_engine` + `fused` backend. A direct TE/fused smoke test failed in the current environment; see [Backend Compatibility Note](#backend-compatibility-note).
 
 For paper use, treat the table below as an experiment record with exact job IDs and settings. If the results are later promoted into a paper figure, record the plotting script, figure version, and any post-processing assumptions in this document.
@@ -50,6 +51,7 @@ Run a small-scale version of the SSO paper's width/LR sweep at `width=256`, comp
 
 - SSO: `spectral_ball_dist`
 - MCSD: `spel_dist`
+- SpEL-PGD: `spel_pgd_dist`
 
 The current sweep uses 1B training tokens from the weighted OLMo mix sample and evaluates five learning rates:
 
@@ -57,16 +59,17 @@ The current sweep uses 1B training tokens from the weighted OLMo mix sample and 
 5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
 ```
 
-The immediate goal is to determine whether the two optimizers have similar LR sensitivity at small width and whether the current LR grid should be extended upward before running more expensive widths or new algorithms.
+The immediate goal is to determine optimizer LR sensitivity at small width and whether the current LR grid or algorithm implementation should be extended before running more expensive widths.
 
 ## Algorithms Compared
 
-This experiment compares two optimizer implementations in the active Megatron checkout. Both are run with the same model architecture, data, token budget, warmup/decay schedule, weight decay, and batch settings. The only intended difference is the optimizer algorithm.
+This experiment compares three optimizer implementations in the active Megatron checkout. They are run with the same model architecture, data, token budget, warmup/decay schedule, weight decay, and batch settings. The only intended difference is the optimizer algorithm.
 
 | Display name | Megatron optimizer name | Main source files | Role in this sweep |
 |---|---|---|---|
-| SSO / Spectral Sphere | `spectral_ball_dist` | `Megatron-LM/megatron/core/optimizer/spectral_ball_optimizer.py`, `emerging_optimizers/orthogonalized_optimizers/spectral_ball.py`, `spectral_ball_utils.py` | Main SSO baseline following the paper's `spball` scripts. |
-| MCSD / SpEL | `spel_dist` | `Megatron-LM/megatron/core/optimizer/spel.py`, `emerging_optimizers/orthogonalized_optimizers/spel.py` | Comparison optimizer currently treated as the MCSD/SpEL path. |
+| SSO / Spectral Sphere | `spectral_ball_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_ball.py`, `spectral_ball_utils.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | Main SSO baseline following the paper's `spball` scripts. |
+| MCSD / SpEL | `spel_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | Comparison optimizer currently treated as the MCSD/SpEL path. |
+| SpEL-PGD | `spel_pgd_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel_pgd_same_projection.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | New algorithm under test: SpEL-style spectral retraction with an automatic PGD fallback branch. |
 
 SSO follows the Spectral Sphere / Spectral Ball setup:
 
@@ -83,6 +86,14 @@ MCSD/SpEL in this project is the current comparison optimizer path:
 
 Important naming note: the codebase does not expose an optimizer literally named `mcsd` in the current launcher. For this experiment log, "MCSD" means the active `spel_dist` optimizer path unless a later patch adds a separate `mcsd` optimizer name.
 
+SpEL-PGD in this project is the first new algorithm extension after the SSO/MCSD baseline:
+
+- It subclasses the SpEL path and keeps the same spectral-sphere retraction operator: `power_iteration + apply_retract`.
+- It does not use an exact SVD projection.
+- In `branch_mode=auto`, it estimates the relative top-singular-value gap and switches to a PGD-style momentum direction when the gap is below `gap_threshold_rel`.
+- Both the SpEL branch and PGD branch form a trial point and apply the same post-step SpEL-style retraction.
+- The sweep uses `branch_mode=auto`, `gap_threshold_rel=5e-3`, `sigma2_power_iteration_steps=3`, and `pgd_direction_normalization=none`.
+
 Future comparison algorithms should be added to this table before running them. Candidate columns to add later are implementation file, optimizer CLI name, default hyperparameters, and whether it needs a separate LR grid.
 
 ## Megatron Patch Summary
@@ -91,20 +102,18 @@ The intent is to keep the original Megatron-LM model and training stack intact, 
 
 Code-level additions used by the experiment:
 
-- `Megatron-LM/megatron/core/optimizer/spel.py`
-- `Megatron-LM/megatron/core/optimizer/spectral_ball_optimizer.py`
-- `Megatron-LM/megatron/core/optimizer/muon_ball_optimizer.py`
-- `Megatron-LM/megatron/core/optimizer/mup_adamw.py`
 - `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel.py`
+- `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel_pgd_same_projection.py`
 - `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_ball.py`
 - `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_ball_utils.py`
+- `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py`
 
 Integration points:
 
-- `Megatron-LM/megatron/core/optimizer/optimizer_config.py` defines SpEL, SpectralBall/SSO, MuonBall, and spectral-muP AdamW config fields.
-- `Megatron-LM/megatron/training/arguments.py` exposes optimizer choices and CLI flags such as `--optimizer spel_dist`, `--optimizer spectral_ball_dist`, `--spel-*`, and `--spectral-ball-*`.
-- `Megatron-LM/megatron/training/training.py` dispatches `spel*`, `spectral_ball*`, and related optimizer names to the custom Megatron optimizer builders.
-- Unit tests under `Megatron-LM/tests/unit_tests/` cover spectral-ball and muon-ball optimizer construction paths.
+- `Megatron-LM/megatron/core/optimizer/optimizer_config.py` defines SpEL, SpEL-PGD, and SpectralBall/SSO config fields.
+- `Megatron-LM/megatron/training/arguments.py` exposes optimizer choices and CLI flags such as `--optimizer spel_dist`, `--optimizer spel_pgd_dist`, `--optimizer spectral_ball_dist`, `--spel-*`, `--spel-pgd-*`, and `--spectral-ball-*`.
+- `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` registers `spel`, `spel_pgd`, and `spectral_ball` for Megatron's emerging optimizer path.
+- `scripts/optimizer_compare_smoke.py` includes direct smoke tests for `spectral_ball_dist`, `spel`, and `spel_pgd`.
 
 H20 import compatibility fixes:
 
@@ -186,7 +195,7 @@ Relevant stderr warning:
 Transformer Engine and Apex are not installed. Falling back to Torch optimizers.
 ```
 
-Conclusion: in the current `sso_h20` environment, the TE/fused path is not usable for this experiment without installing or fixing Transformer Engine/Apex compatibility. The completed SSO-vs-MCSD sweep therefore uses `local` for both optimizers, which preserves fairness within this experiment but should be disclosed when comparing against paper runs that used TE/fused kernels.
+Conclusion: in the current `sso_h20` environment, the TE/fused path is not usable for this experiment without installing or fixing Transformer Engine/Apex compatibility. The completed optimizer sweeps therefore use `local` for all compared optimizers, which preserves fairness within this experiment but should be disclosed when comparing against paper runs that used TE/fused kernels.
 
 ## Data
 
@@ -469,6 +478,11 @@ All jobs below completed successfully with Slurm state `COMPLETED` and exit code
 | MCSD | `spel_dist` | `9e-3` | `3725137` | `1908` | `3.596797` | `36.48121` | `05:27:10` | `SPG-7-2` |
 | MCSD | `spel_dist` | `1e-2` | `3725138` | `1908` | `3.587145` | `36.13079` | `05:25:56` | `SPG-7-2` |
 | MCSD | `spel_dist` | `1.5e-2` | `3725139` | `1908` | `3.567708` | `35.43530` | `05:26:59` | `SPG-7-2` |
+| SpEL-PGD | `spel_pgd_dist` | `5e-3` | `3733609` | `1908` | `3.931570` | `50.98697` | `05:30:42` | `SPG-7-1` |
+| SpEL-PGD | `spel_pgd_dist` | `7e-3` | `3733610` | `1908` | `4.021310` | `55.77414` | `05:30:06` | `SPG-7-1` |
+| SpEL-PGD | `spel_pgd_dist` | `9e-3` | `3733611` | `1908` | `4.071300` | `58.63311` | `05:29:09` | `SPG-7-1` |
+| SpEL-PGD | `spel_pgd_dist` | `1e-2` | `3733612` | `1908` | `4.083732` | `59.36659` | `05:28:19` | `SPG-7-1` |
+| SpEL-PGD | `spel_pgd_dist` | `1.5e-2` | `3733613` | `1908` | `4.099114` | `60.28685` | `05:29:23` | `SPG-7-1` |
 
 Best result in this sweep:
 
@@ -482,6 +496,12 @@ Best SSO result:
 SSO / spectral_ball_dist, LR=1.5e-2, val loss=3.570953, PPL=35.55044
 ```
 
+Best SpEL-PGD result:
+
+```text
+SpEL-PGD / spel_pgd_dist, LR=5e-3, val loss=3.931570, PPL=50.98697
+```
+
 Difference at each LR, measured as `SSO val loss - MCSD val loss`:
 
 | LR | SSO - MCSD |
@@ -492,15 +512,32 @@ Difference at each LR, measured as `SSO val loss - MCSD val loss`:
 | `1e-2` | `+0.003132` |
 | `1.5e-2` | `+0.003245` |
 
-Interpretation for this one-seed sweep: MCSD is slightly better at four of five LRs; SSO is slightly better at `9e-3`. Both optimizers improve as LR increases up to `1.5e-2`, so it is reasonable to add higher LRs such as `2e-2` and `3e-2` next if training remains stable.
+SpEL-PGD gap to the best baseline at the same LR, measured as `SpEL-PGD val loss - min(SSO, MCSD) val loss`:
+
+| LR | Best SSO/MCSD val loss | SpEL-PGD val loss | Gap |
+|---:|---:|---:|---:|
+| `5e-3` | `3.657197` | `3.931570` | `+0.274373` |
+| `7e-3` | `3.616392` | `4.021310` | `+0.404918` |
+| `9e-3` | `3.595198` | `4.071300` | `+0.476102` |
+| `1e-2` | `3.587145` | `4.083732` | `+0.496587` |
+| `1.5e-2` | `3.567708` | `4.099114` | `+0.531406` |
+
+Interpretation for this one-seed sweep:
+
+- MCSD is slightly better than SSO at four of five LRs; SSO is slightly better at `9e-3`.
+- Both SSO and MCSD improve as LR increases up to `1.5e-2`, so it remains reasonable to add higher LRs such as `2e-2` and `3e-2` for those two baselines if training remains stable.
+- The current SpEL-PGD implementation is stable (`0` skipped iterations and `0` NaN iterations for all five jobs), but it is clearly worse than both SSO and MCSD on this grid.
+- SpEL-PGD degrades as LR increases in this grid; its best result is at the smallest tested LR, `5e-3`.
+- For paper use, treat SpEL-PGD as a negative or diagnostic algorithm-development result unless the fallback rule or direction scaling is revised and rerun.
 
 ### Paper Draft Notes
 
 Use these results carefully:
 
 - The table supports an initial width-256 LR sensitivity comparison.
-- The best observed LR in the current grid is the largest tested LR, so the optimum may lie beyond `1.5e-2`.
+- For SSO and MCSD, the best observed LR in the current grid is the largest tested LR, so the optimum may lie beyond `1.5e-2`.
 - The small loss gaps between SSO and MCSD suggest that more LRs or repeated runs may be needed before making a strong claim.
+- SpEL-PGD is not competitive in the current version; include it only if the paper needs a failed variant/ablation or if a revised version is rerun.
 - If this result becomes a figure, plot validation loss versus LR with one curve per optimizer and clearly state `width=256`, `1B tokens`, `global batch=128`, and `eval_iters=5`.
 
 ## Historical Baseline
@@ -541,6 +578,11 @@ Remote logs:
 ~/projects/SSO_test/logs/mcsd_w256_lr9em3_3725137.out
 ~/projects/SSO_test/logs/mcsd_w256_lr1em2_3725138.out
 ~/projects/SSO_test/logs/mcsd_w256_lr1p5em2_3725139.out
+~/projects/SSO_test/logs/spel_pgd_w256_lr5em3_3733609.out
+~/projects/SSO_test/logs/spel_pgd_w256_lr7em3_3733610.out
+~/projects/SSO_test/logs/spel_pgd_w256_lr9em3_3733611.out
+~/projects/SSO_test/logs/spel_pgd_w256_lr1em2_3733612.out
+~/projects/SSO_test/logs/spel_pgd_w256_lr1p5em2_3733613.out
 ```
 
 Local copied logs:
@@ -553,6 +595,7 @@ Remote result root:
 
 ```text
 ~/projects/SSO_test/results/olmo_1b_width256_sso_mcsd_lr_sweep
+~/projects/SSO_test/results/olmo_1b_width256_spel_pgd_lr_sweep
 ```
 
 ## Reproduce Current Sweep
@@ -563,6 +606,7 @@ From the server:
 ssh hpc2021
 cd ~/projects/SSO_test
 bash slurm/submit_width256_sso_mcsd_lr_sweep.sh
+bash slurm/submit_width256_spel_pgd_lr_sweep.sh
 ```
 
 Monitor:
@@ -571,6 +615,13 @@ Monitor:
 squeue -u u3013198
 sacct -j <job_id> --format=JobID,JobName%28,State,ExitCode,Elapsed,NodeList
 tail -f logs/<job_name>_<job_id>.out
+```
+
+The SpEL-PGD sweep can also be rerun alone:
+
+```bash
+cd ~/projects/SSO_test
+bash slurm/submit_width256_spel_pgd_lr_sweep.sh
 ```
 
 ## Add More Learning Rates

@@ -5,10 +5,10 @@ This repository manages one experiment track for a paper project on SSO-style op
 The active experiment is a `width=256` learning-rate sweep on a weighted 1B-token OLMo mix sample:
 
 ```text
-comparison: SSO / spectral_ball_dist vs MCSD / spel_dist
+comparison: SSO / spectral_ball_dist vs MCSD / spel_dist vs SpEL-PGD / spel_pgd_dist
 LR grid:    5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
 cluster:    HKU HPC2021 H20 Slurm partition
-status:     completed, 10/10 jobs finished with exit code 0:0
+status:     completed, 15/15 jobs finished with exit code 0:0
 ```
 
 ## Documentation
@@ -89,6 +89,12 @@ The best SSO result is:
 SSO / spectral_ball_dist, LR=1.5e-2, validation loss=3.570953, PPL=35.55044
 ```
 
+The best SpEL-PGD result is:
+
+```text
+SpEL-PGD / spel_pgd_dist, LR=5e-3, validation loss=3.931570, PPL=50.98697
+```
+
 See [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) for the full table, job IDs, commands, and caveats.
 
 ## Quick Workflow
@@ -108,6 +114,7 @@ Run the current sweep:
 cd ~/projects/SSO_test
 export MEGATRON_PATH=$PWD/Megatron-LM
 bash slurm/submit_width256_sso_mcsd_lr_sweep.sh
+bash slurm/submit_width256_spel_pgd_lr_sweep.sh
 ```
 
 Monitor jobs:
