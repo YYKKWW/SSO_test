@@ -12,9 +12,12 @@ outputs/
 wandb/
 runs/
 logs/
+analysis_logs_*/
 checkpoints/
 tensorboard/
 cache/
+*.out
+*.err
 *.bin
 *.idx
 *.pt
