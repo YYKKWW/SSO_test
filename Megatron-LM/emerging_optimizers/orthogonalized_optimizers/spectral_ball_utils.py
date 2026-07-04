@@ -6,7 +6,6 @@ from typing import Optional, Tuple
 import torch
 from absl import logging
 
-from emerging_optimizers.orthogonalized_optimizers.muon_utils import newton_schulz
 from emerging_optimizers import utils
 
 DEBUG_CONVERGED = False 
@@ -125,6 +124,8 @@ def _small_msign(G: torch.Tensor, steps: int) -> torch.Tensor:
 @torch.compile  # type: ignore[misc]
 @torch.no_grad()
 def _large_msign(G: torch.Tensor, steps: int) -> torch.Tensor:
+    from emerging_optimizers.orthogonalized_optimizers.muon_utils import newton_schulz
+
     coeffs = [
         (8.2051, -22.9019, 16.4607),
         (4.0664, -2.8612, 0.5184),

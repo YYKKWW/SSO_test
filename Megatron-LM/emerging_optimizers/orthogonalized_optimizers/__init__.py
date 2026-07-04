@@ -12,10 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from emerging_optimizers.orthogonalized_optimizers.muon import *
 from emerging_optimizers.orthogonalized_optimizers.muon_ball import *
 from emerging_optimizers.orthogonalized_optimizers.orthogonalized_optimizer import *
 from emerging_optimizers.orthogonalized_optimizers.spel import *
 from emerging_optimizers.orthogonalized_optimizers.spectral_ball import *
 from emerging_optimizers.orthogonalized_optimizers.spectral_ball_utils import *
-from emerging_optimizers.orthogonalized_optimizers.spectral_clipping_utils import *
+
+# Muon and spectral_clipping_utils import Triton-backed utilities at module
+# import time. Some cluster Python environments do not provide Python.h for
+# Triton driver compilation; keep SpEL/SpectralBall importable by not exporting
+# those modules from the package root.

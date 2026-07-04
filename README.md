@@ -42,6 +42,7 @@ What was added:
 - Shared spectral/muP helper implementations under `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/`.
 - CLI/config entries for `spel`, `spel_dist`, `spectral_ball`, and `spectral_ball_dist`.
 - Training-time optimizer dispatch in `Megatron-LM/megatron/training/training.py` so these optimizer names call the custom builders.
+- Import compatibility fixes so SpEL/SSO can be imported on H20 without eagerly compiling Triton-backed Muon utilities.
 - Unit/smoke test utilities and H20 Slurm launchers for reproducibility.
 
 What was not intentionally changed:

@@ -106,6 +106,13 @@ Integration points:
 - `Megatron-LM/megatron/training/training.py` dispatches `spel*`, `spectral_ball*`, and related optimizer names to the custom Megatron optimizer builders.
 - Unit tests under `Megatron-LM/tests/unit_tests/` cover spectral-ball and muon-ball optimizer construction paths.
 
+H20 import compatibility fixes:
+
+- `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/__init__.py` avoids exporting Triton-backed Muon and spectral-clipping modules from the package root.
+- `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_ball_utils.py` imports `newton_schulz` lazily inside the large matrix-sign path.
+
+These two changes avoid import-time Triton driver compilation failures in environments without the expected Python development headers. They do not change the GPT architecture or the experiment-level optimizer settings.
+
 No intentional model-architecture change was made for this sweep. GPT layer definitions, attention/MLP layout, tokenizer interface, data-loader behavior, and pretraining entry point remain Megatron-style. The width-256 scale is produced by launcher arguments, not by modifying Megatron's transformer implementation.
 
 The main runtime deviation from the original `spball.sh` is backend selection: H20 uses `TRANSFORMER_IMPL=local` after a TE/fused smoke test failed in the current environment. See [Backend Compatibility Note](#backend-compatibility-note).
