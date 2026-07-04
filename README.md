@@ -15,15 +15,17 @@ status:     completed, 10/10 jobs finished with exit code 0:0
 
 | Document | Purpose |
 |---|---|
-| [docs/width256_sso_mcsd_lr_sweep_1b.md](docs/width256_sso_mcsd_lr_sweep_1b.md) | Main experiment record. Includes algorithm definitions, dataset source and acquisition, preprocessing, Slurm configuration, completed results, and instructions for adding new optimizers or learning rates. |
-| [docs/h20_spel_megatron_runbook.md](docs/h20_spel_megatron_runbook.md) | Historical H20 setup and debugging runbook. Useful for understanding earlier environment, Megatron rebase, and data-preparation decisions. |
+| [docs/README.md](docs/README.md) | Documentation index, naming rules, and where to add new experiment records. |
+| [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) | Main experiment record. Includes algorithm definitions, dataset source and acquisition, preprocessing, Slurm configuration, completed results, and instructions for adding new optimizers or learning rates. |
+| [docs/runbooks/h20_spel_megatron_runbook.md](docs/runbooks/h20_spel_megatron_runbook.md) | Historical H20 setup and debugging runbook. Useful for understanding earlier environment, Megatron rebase, and data-preparation decisions. |
+| [docs/templates/experiment_record_template.md](docs/templates/experiment_record_template.md) | Template for adding a new paper-facing experiment. |
 | [README.md](README.md) | Repository entry point and high-level map. Detailed experiment maintenance should happen in the main experiment document above. |
 
 ## Repository Layout
 
 | Path | Content |
 |---|---|
-| `docs/` | Experiment records and runbooks. |
+| `docs/` | Documentation index, experiment records, runbooks, and templates. |
 | `slurm/` | Slurm launchers for H20 jobs and LR sweeps. |
 | `scripts/` | Data sampling, preprocessing, Megatron patching, and verification utilities. |
 | `Spectral-Sphere-Optimizer/` | Reference upstream SSO scripts and paper-related materials. |
@@ -85,7 +87,7 @@ The best SSO result is:
 SSO / spectral_ball_dist, LR=1.5e-2, validation loss=3.570953, PPL=35.55044
 ```
 
-See [docs/width256_sso_mcsd_lr_sweep_1b.md](docs/width256_sso_mcsd_lr_sweep_1b.md) for the full table, job IDs, commands, and caveats.
+See [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) for the full table, job IDs, commands, and caveats.
 
 ## Quick Workflow
 
@@ -113,7 +115,7 @@ squeue -u u3013198
 sacct -j <job_id> --format=JobID,JobName%28,State,ExitCode,Elapsed,NodeList
 ```
 
-For additional learning rates or new optimizers, follow the templates in the main experiment document.
+For additional learning rates or new optimizers, follow the current experiment document. For a new project track, copy [docs/templates/experiment_record_template.md](docs/templates/experiment_record_template.md) into `docs/experiments/`.
 
 ## Git Hygiene
 

@@ -677,7 +677,7 @@ Get-ChildItem -Path analysis_logs_372513 -Filter *.out | ForEach-Object {
 Recommended files to track:
 
 ```text
-docs/width256_sso_mcsd_lr_sweep_1b.md
+docs/experiments/width256_sso_mcsd_lr_sweep_1b.md
 slurm/spel_olmo_1b_h20.sbatch
 slurm/submit_width256_sso_mcsd_lr_sweep.sh
 scripts/preprocess_olmo_mix_1124_1b.sh
