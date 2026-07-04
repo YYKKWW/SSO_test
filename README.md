@@ -27,14 +27,33 @@ status:     completed, 10/10 jobs finished with exit code 0:0
 | `slurm/` | Slurm launchers for H20 jobs and LR sweeps. |
 | `scripts/` | Data sampling, preprocessing, Megatron patching, and verification utilities. |
 | `Spectral-Sphere-Optimizer/` | Reference upstream SSO scripts and paper-related materials. |
-| `Megatron-LM/` | Local historical Megatron copy. The server-side 1B experiments use `~/projects/Megatron-LM-active` instead. |
+| `Megatron-LM/` | Bundled Megatron-LM tree with the project SpEL/SSO optimizer additions. The original Megatron model and training behavior is kept unless explicitly noted in the patch summary below. |
 | `analysis_logs_372513/` | Local copied logs from the completed width-256 sweep. Keep only if needed for local inspection; summaries live in the main document. |
 
 Large generated directories such as `data/`, `results/`, `logs/`, `outputs/`, `checkpoints/`, and Megatron `.bin/.idx` files should not be committed.
 
+## Megatron Patch Summary
+
+This repository keeps the Megatron-LM code path close to the original project and adds the optimizer integration needed by the experiments.
+
+What was added:
+
+- SpEL and SSO optimizer implementations under `Megatron-LM/megatron/core/optimizer/`.
+- Shared spectral/muP helper implementations under `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/`.
+- CLI/config entries for `spel`, `spel_dist`, `spectral_ball`, and `spectral_ball_dist`.
+- Training-time optimizer dispatch in `Megatron-LM/megatron/training/training.py` so these optimizer names call the custom builders.
+- Unit/smoke test utilities and H20 Slurm launchers for reproducibility.
+
+What was not intentionally changed:
+
+- GPT model architecture, transformer block layout, attention math, MLP layout, tokenizer interface, and Megatron data loader semantics.
+- Width changes are controlled by launch-script arguments such as hidden size, FFN size, attention heads, and layer count, not by rewriting Megatron model code.
+
+The H20 jobs use `TRANSFORMER_IMPL=local` because the direct `transformer_engine` + `fused` smoke test failed in the current environment. This backend change is applied consistently to all compared optimizers and is documented in the main experiment record.
+
 ## Active Server Layout
 
-The H20 runs use these server paths:
+The completed H20 runs used these server paths:
 
 ```text
 ~/projects/SSO_test
@@ -42,7 +61,14 @@ The H20 runs use these server paths:
 ~/envs/sso_h20
 ```
 
-`Megatron-LM-active` is the stable symlink used by the Slurm scripts. If the Megatron checkout is updated later, update the symlink rather than hard-coding a new checkout name in every script.
+For a fresh clone, the Slurm scripts can also use the bundled Megatron checkout directly:
+
+```bash
+export PROJECT_DIR=$PWD
+export MEGATRON_PATH=$PWD/Megatron-LM
+```
+
+On the original H20 server, `Megatron-LM-active` is the stable symlink used by the Slurm scripts. If the server-side Megatron checkout is updated later, update the symlink rather than hard-coding a new checkout name in every script.
 
 ## Current Result Summary
 
@@ -66,6 +92,7 @@ Prepare data:
 
 ```bash
 cd ~/projects/SSO_test
+export MEGATRON_PATH=$PWD/Megatron-LM
 bash scripts/download_olmo_mix_1124_1b.sh
 bash scripts/preprocess_olmo_mix_1124_1b.sh
 ```
@@ -74,6 +101,7 @@ Run the current sweep:
 
 ```bash
 cd ~/projects/SSO_test
+export MEGATRON_PATH=$PWD/Megatron-LM
 bash slurm/submit_width256_sso_mcsd_lr_sweep.sh
 ```
 

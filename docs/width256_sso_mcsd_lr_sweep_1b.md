@@ -85,6 +85,31 @@ Important naming note: the codebase does not expose an optimizer literally named
 
 Future comparison algorithms should be added to this table before running them. Candidate columns to add later are implementation file, optimizer CLI name, default hyperparameters, and whether it needs a separate LR grid.
 
+## Megatron Patch Summary
+
+The intent is to keep the original Megatron-LM model and training stack intact, then add the SpEL/SSO optimizer path required by this experiment.
+
+Code-level additions used by the experiment:
+
+- `Megatron-LM/megatron/core/optimizer/spel.py`
+- `Megatron-LM/megatron/core/optimizer/spectral_ball_optimizer.py`
+- `Megatron-LM/megatron/core/optimizer/muon_ball_optimizer.py`
+- `Megatron-LM/megatron/core/optimizer/mup_adamw.py`
+- `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel.py`
+- `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_ball.py`
+- `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_ball_utils.py`
+
+Integration points:
+
+- `Megatron-LM/megatron/core/optimizer/optimizer_config.py` defines SpEL, SpectralBall/SSO, MuonBall, and spectral-muP AdamW config fields.
+- `Megatron-LM/megatron/training/arguments.py` exposes optimizer choices and CLI flags such as `--optimizer spel_dist`, `--optimizer spectral_ball_dist`, `--spel-*`, and `--spectral-ball-*`.
+- `Megatron-LM/megatron/training/training.py` dispatches `spel*`, `spectral_ball*`, and related optimizer names to the custom Megatron optimizer builders.
+- Unit tests under `Megatron-LM/tests/unit_tests/` cover spectral-ball and muon-ball optimizer construction paths.
+
+No intentional model-architecture change was made for this sweep. GPT layer definitions, attention/MLP layout, tokenizer interface, data-loader behavior, and pretraining entry point remain Megatron-style. The width-256 scale is produced by launcher arguments, not by modifying Megatron's transformer implementation.
+
+The main runtime deviation from the original `spball.sh` is backend selection: H20 uses `TRANSFORMER_IMPL=local` after a TE/fused smoke test failed in the current environment. See [Backend Compatibility Note](#backend-compatibility-note).
+
 ## Server Layout
 
 Active server paths:
@@ -94,7 +119,20 @@ Active server paths:
 ~/projects/Megatron-LM-active -> ~/projects/Megatron-LM-dev-spel-v3
 ```
 
-The active Megatron checkout is `Megatron-LM-dev-spel-v3`, exposed through the stable symlink `Megatron-LM-active`. The old `~/projects/SSO_test/Megatron-LM` package is kept for history/smoke scripts, but it is not the main runnable Megatron dev package for the 1B experiments.
+The active H20 Megatron checkout is `Megatron-LM-dev-spel-v3`, exposed through the stable symlink `Megatron-LM-active`.
+
+For the GitHub repository, the usable Megatron checkout is bundled under:
+
+```text
+Megatron-LM/
+```
+
+After cloning the repository, users can point scripts to the bundled checkout:
+
+```bash
+export PROJECT_DIR=$PWD
+export MEGATRON_PATH=$PWD/Megatron-LM
+```
 
 Archived old Megatron copies:
 
@@ -321,6 +359,12 @@ The Slurm entry now defaults to:
 ```bash
 MEGATRON_PATH="${MEGATRON_PATH:-$HOME/projects/Megatron-LM-active}"
 ENV_DIR="${ENV_DIR:-$HOME/envs/sso_h20}"
+```
+
+For a fresh clone outside the original H20 directory layout, override `MEGATRON_PATH`:
+
+```bash
+export MEGATRON_PATH=$PWD/Megatron-LM
 ```
 
 ## Experimental Protocol
