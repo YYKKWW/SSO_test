@@ -1,0 +1,70 @@
+#!/bin/bash
+set -euo pipefail
+
+PROJECT_DIR="${PROJECT_DIR:-$HOME/projects/SSO_test}"
+SBATCH_SCRIPT="${SBATCH_SCRIPT:-$PROJECT_DIR/slurm/spel_olmo_1b_h20.sbatch}"
+RUN_ROOT="${RUN_ROOT:-$PROJECT_DIR/results/olmo_1b_width512_spel_sso_pgd_best}"
+
+WIDTH="${WIDTH:-512}"
+NUM_LAYERS="${NUM_LAYERS:-28}"
+SEQ_LENGTH="${SEQ_LENGTH:-4096}"
+HEAD_DIM="${HEAD_DIM:-128}"
+GLOBAL_BATCH="${GLOBAL_BATCH:-128}"
+MICRO_BATCH="${MICRO_BATCH:-4}"
+TRAIN_TOKENS="${TRAIN_TOKENS:-1000000000}"
+LRS="${LRS:-5e-3 7e-3 9e-3 1e-2 1.5e-2}"
+LR_WARMUP_ITERS="${LR_WARMUP_ITERS:-250}"
+EVAL_INTERVAL="${EVAL_INTERVAL:-250}"
+EVAL_ITERS="${EVAL_ITERS:-5}"
+LOG_INTERVAL="${LOG_INTERVAL:-10}"
+
+# Best width-256 SpEL/MCSD-PGD tuning result from the 250M-token projection sweep:
+# fallback_topk with rank=4. gap=1e-4 and 1e-3 tied; use 1e-3 as the less brittle default.
+SPEL_PGD_BRANCH_MODE="${SPEL_PGD_BRANCH_MODE:-auto}"
+SPEL_PGD_PROJECTION_MODE="${SPEL_PGD_PROJECTION_MODE:-fallback_topk}"
+SPEL_PGD_PROJECTION_RANK="${SPEL_PGD_PROJECTION_RANK:-4}"
+SPEL_PGD_GAP_THRESHOLD_REL="${SPEL_PGD_GAP_THRESHOLD_REL:-1e-3}"
+SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS="${SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS:-3}"
+SPEL_PGD_DIRECTION_NORMALIZATION="${SPEL_PGD_DIRECTION_NORMALIZATION:-none}"
+
+mkdir -p "$RUN_ROOT"
+
+submit_one() {
+  local label=$1
+  local optimizer=$2
+  local lr=$3
+  local lr_tag=${lr//./p}
+  lr_tag=${lr_tag//-/m}
+  local job_name="${label}_w${WIDTH}_lr${lr_tag}_best"
+  local min_lr
+  min_lr=$(awk -v lr="$lr" 'BEGIN { printf "%.8g", lr / 10.0 }')
+
+  if [[ "$optimizer" == "spel_pgd_dist" ]]; then
+    sbatch \
+      -J "$job_name" \
+      --export=ALL,OPTIMIZER="$optimizer",WIDTH="$WIDTH",NUM_LAYERS="$NUM_LAYERS",HEAD_DIM="$HEAD_DIM",SEQ_LENGTH="$SEQ_LENGTH",GLOBAL_BATCH="$GLOBAL_BATCH",MICRO_BATCH="$MICRO_BATCH",TRAIN_TOKENS="$TRAIN_TOKENS",LR="$lr",MIN_LR="$min_lr",LR_WARMUP_ITERS="$LR_WARMUP_ITERS",EVAL_INTERVAL="$EVAL_INTERVAL",EVAL_ITERS="$EVAL_ITERS",LOG_INTERVAL="$LOG_INTERVAL",RUN_ROOT="$RUN_ROOT",JOB_NAME="$job_name",SAVE_CHECKPOINT=0,SPEL_PGD_BRANCH_MODE="$SPEL_PGD_BRANCH_MODE",SPEL_PGD_PROJECTION_MODE="$SPEL_PGD_PROJECTION_MODE",SPEL_PGD_PROJECTION_RANK="$SPEL_PGD_PROJECTION_RANK",SPEL_PGD_GAP_THRESHOLD_REL="$SPEL_PGD_GAP_THRESHOLD_REL",SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS="$SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS",SPEL_PGD_DIRECTION_NORMALIZATION="$SPEL_PGD_DIRECTION_NORMALIZATION" \
+      "$SBATCH_SCRIPT"
+  else
+    sbatch \
+      -J "$job_name" \
+      --export=ALL,OPTIMIZER="$optimizer",WIDTH="$WIDTH",NUM_LAYERS="$NUM_LAYERS",HEAD_DIM="$HEAD_DIM",SEQ_LENGTH="$SEQ_LENGTH",GLOBAL_BATCH="$GLOBAL_BATCH",MICRO_BATCH="$MICRO_BATCH",TRAIN_TOKENS="$TRAIN_TOKENS",LR="$lr",MIN_LR="$min_lr",LR_WARMUP_ITERS="$LR_WARMUP_ITERS",EVAL_INTERVAL="$EVAL_INTERVAL",EVAL_ITERS="$EVAL_ITERS",LOG_INTERVAL="$LOG_INTERVAL",RUN_ROOT="$RUN_ROOT",JOB_NAME="$job_name",SAVE_CHECKPOINT=0 \
+      "$SBATCH_SCRIPT"
+  fi
+}
+
+echo "Submitting width=${WIDTH} SpEL vs SSO vs MCSD-PGD best-config LR sweep"
+echo "  LRS=${LRS}, TRAIN_TOKENS=${TRAIN_TOKENS}, GLOBAL_BATCH=${GLOBAL_BATCH}, MICRO_BATCH=${MICRO_BATCH}"
+echo "  MCSD-PGD: branch=${SPEL_PGD_BRANCH_MODE}, projection=${SPEL_PGD_PROJECTION_MODE}, rank=${SPEL_PGD_PROJECTION_RANK}, gap=${SPEL_PGD_GAP_THRESHOLD_REL}"
+echo "  RUN_ROOT=${RUN_ROOT}"
+
+for lr in $LRS; do
+  submit_one "sso" "spectral_ball_dist" "$lr"
+done
+
+for lr in $LRS; do
+  submit_one "spel" "spel_dist" "$lr"
+done
+
+for lr in $LRS; do
+  submit_one "mcsd_pgd" "spel_pgd_dist" "$lr"
+done
