@@ -309,8 +309,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--spel-pgd-projection-mode",
         default="fallback_exact",
-        choices=["fallback_exact", "fallback_retraction", "shared_exact", "shared_retraction"],
+        choices=[
+            "fallback_exact",
+            "fallback_retraction",
+            "fallback_topk",
+            "shared_exact",
+            "shared_retraction",
+            "shared_topk",
+        ],
     )
+    parser.add_argument("--spel-pgd-projection-rank", type=int, default=1)
     parser.add_argument("--clip-grad", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=1234)
     parser.add_argument("--output", default="outputs/optimizer_compare_smoke.json")
@@ -477,6 +485,7 @@ def run_direct(
             sigma2_power_iteration_steps=args.spel_pgd_sigma2_power_iteration_steps,
             pgd_direction_normalization=args.spel_pgd_direction_normalization,
             projection_mode=args.spel_pgd_projection_mode,
+            projection_rank=args.spel_pgd_projection_rank,
             **common,
         )
     elif bare_name == "spectral_ball":
@@ -577,6 +586,7 @@ def make_optimizer_config(optimizer_name: str, args: argparse.Namespace):
         spel_pgd_sigma2_power_iteration_steps=args.spel_pgd_sigma2_power_iteration_steps,
         spel_pgd_pgd_direction_normalization=args.spel_pgd_direction_normalization,
         spel_pgd_projection_mode=args.spel_pgd_projection_mode,
+        spel_pgd_projection_rank=args.spel_pgd_projection_rank,
     )
 
 

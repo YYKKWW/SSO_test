@@ -55,8 +55,10 @@ PGDDirectionNormalization = Literal["none", "fro"]
 ProjectionMode = Literal[
     "fallback_exact",
     "fallback_retraction",
+    "fallback_topk",
     "shared_exact",
     "shared_retraction",
+    "shared_topk",
 ]
 
 __all__ = [
@@ -67,6 +69,7 @@ __all__ = [
     "compute_spel_pgd_same_projection_update",
     "estimate_second_singular_value",
     "project_to_spectral_sphere_exact",
+    "project_to_spectral_sphere_topk",
 ]
 
 
@@ -82,6 +85,7 @@ class SpELPGDUpdateInfo:
     trial_sigma: float
     post_retract_bias: float
     projection_mode: str
+    projection_rank: int
 
 
 @torch.no_grad()
@@ -224,6 +228,58 @@ def project_to_spectral_sphere_exact(
 
 
 @torch.no_grad()
+def project_to_spectral_sphere_topk(
+    Z: torch.Tensor,
+    target_radius: float,
+    *,
+    rank: int,
+    power_iteration_steps: int,
+    eps: float = 1e-8,
+) -> Tuple[torch.Tensor, float]:
+    """Approximate spectral-sphere projection with top-k deflation.
+
+    This avoids a full SVD.  If the top singular value is below the target,
+    the top singular direction is lifted to ``target_radius``.  Otherwise, the
+    first ``rank`` singular values estimated by repeated power iteration and
+    deflation are clipped to ``target_radius``.  Singular values below the
+    target stop the correction because the remaining deflated spectrum should
+    be no larger than the current estimate.
+    """
+    if rank < 1:
+        raise ValueError("rank must be at least 1")
+    if power_iteration_steps < 1:
+        raise ValueError("power_iteration_steps must be at least 1")
+
+    dtype = Z.dtype
+    Y = Z.to(torch.float32)
+    residual = Y.clone()
+    trial_sigma = 0.0
+
+    for idx in range(rank):
+        sigma, u, v = power_iteration(residual, steps=power_iteration_steps)
+        sigma_value = float(sigma.item())
+        if idx == 0:
+            trial_sigma = sigma_value
+        if sigma_value <= eps:
+            break
+
+        u_col, v_col = _canonicalize_uv_for_matrix(residual, u, v, eps=eps)
+        outer = torch.matmul(u_col, v_col.transpose(-2, -1))
+
+        if idx == 0 and sigma_value < target_radius:
+            Y = Y + (target_radius - sigma_value) * outer
+            break
+
+        if sigma_value <= target_radius:
+            break
+
+        Y = Y - (sigma_value - target_radius) * outer
+        residual = residual - sigma_value * outer
+
+    return Y.to(dtype=dtype), trial_sigma
+
+
+@torch.no_grad()
 def _pgd_direction(
     M: torch.Tensor,
     *,
@@ -265,6 +321,7 @@ def _post_project_trial(
     target_radius: float,
     *,
     projection_mode: ProjectionMode,
+    projection_rank: int,
     power_iteration_steps: int,
     retract_mode: str,
     retract_alpha: float,
@@ -273,6 +330,15 @@ def _post_project_trial(
     """Apply the selected post-step projection/retraction to a trial point."""
     if projection_mode in ("fallback_exact", "shared_exact"):
         projected, trial_sigma = project_to_spectral_sphere_exact(Y, target_radius)
+        return projected, 0.0, trial_sigma
+
+    if projection_mode in ("fallback_topk", "shared_topk"):
+        projected, trial_sigma = project_to_spectral_sphere_topk(
+            Y,
+            target_radius,
+            rank=projection_rank,
+            power_iteration_steps=power_iteration_steps,
+        )
         return projected, 0.0, trial_sigma
 
     if projection_mode in ("fallback_retraction", "shared_retraction"):
@@ -287,7 +353,7 @@ def _post_project_trial(
 
     raise ValueError(
         "projection_mode must be one of: fallback_exact, fallback_retraction, "
-        "shared_exact, shared_retraction"
+        "fallback_topk, shared_exact, shared_retraction, shared_topk"
     )
 
 
@@ -311,6 +377,7 @@ def compute_spel_pgd_same_projection_update(
     sigma2_power_iteration_steps: int = 3,
     pgd_direction_normalization: PGDDirectionNormalization = "none",
     projection_mode: ProjectionMode = "fallback_exact",
+    projection_rank: int = 1,
     eps: float = 1e-8,
 ) -> Tuple[torch.Tensor, SpELPGDUpdateInfo]:
     """Compute a SpEL--PGD update.
@@ -341,13 +408,17 @@ def compute_spel_pgd_same_projection_update(
     if projection_mode not in (
         "fallback_exact",
         "fallback_retraction",
+        "fallback_topk",
         "shared_exact",
         "shared_retraction",
+        "shared_topk",
     ):
         raise ValueError(
             "projection_mode must be one of: fallback_exact, fallback_retraction, "
-            "shared_exact, shared_retraction"
+            "fallback_topk, shared_exact, shared_retraction, shared_topk"
         )
+    if projection_rank < 1:
+        raise ValueError("projection_rank must be at least 1")
 
     effective_lr_value = float(effective_lr)
 
@@ -405,6 +476,7 @@ def compute_spel_pgd_same_projection_update(
             trial_sigma=sigma1_value,
             post_retract_bias=0.0,
             projection_mode=projection_mode,
+            projection_rank=projection_rank,
         )
     else:
         branch = _select_branch(
@@ -441,6 +513,7 @@ def compute_spel_pgd_same_projection_update(
                 Y,
                 target_radius,
                 projection_mode=projection_mode,
+                projection_rank=projection_rank,
                 power_iteration_steps=power_iteration_steps,
                 retract_mode=retract_mode,
                 retract_alpha=retract_alpha,
@@ -457,6 +530,7 @@ def compute_spel_pgd_same_projection_update(
             trial_sigma=float(trial_sigma),
             post_retract_bias=float(post_retract_bias),
             projection_mode=projection_mode,
+            projection_rank=projection_rank,
         )
 
     if tp_enabled:
@@ -493,6 +567,7 @@ class SpELPGDSameProjection(SpEL):
             retraction for PGD.  ``'shared_exact'`` and ``'shared_retraction'``
             project both branches after the trial step and are intended for
             ablations.
+        projection_rank: Rank used by the top-k approximate projection modes.
     """
 
     def __init__(
@@ -504,6 +579,7 @@ class SpELPGDSameProjection(SpEL):
         sigma2_power_iteration_steps: int = 3,
         pgd_direction_normalization: PGDDirectionNormalization = "none",
         projection_mode: ProjectionMode = "fallback_exact",
+        projection_rank: int = 1,
         **kwargs: Any,
     ) -> None:
         if branch_mode not in ("auto", "spel", "pgd"):
@@ -517,13 +593,17 @@ class SpELPGDSameProjection(SpEL):
         if projection_mode not in (
             "fallback_exact",
             "fallback_retraction",
+            "fallback_topk",
             "shared_exact",
             "shared_retraction",
+            "shared_topk",
         ):
             raise ValueError(
                 "projection_mode must be one of: fallback_exact, fallback_retraction, "
-                "shared_exact, shared_retraction"
+                "fallback_topk, shared_exact, shared_retraction, shared_topk"
             )
+        if projection_rank < 1:
+            raise ValueError("projection_rank must be at least 1")
 
         super().__init__(*args, **kwargs)
 
@@ -533,6 +613,7 @@ class SpELPGDSameProjection(SpEL):
         self.sigma2_power_iteration_steps = sigma2_power_iteration_steps
         self.pgd_direction_normalization = pgd_direction_normalization
         self.projection_mode = projection_mode
+        self.projection_rank = projection_rank
 
         self.spel_branch_count = 0
         self.pgd_branch_count = 0
@@ -588,6 +669,7 @@ class SpELPGDSameProjection(SpEL):
             "trial_sigma": info.trial_sigma,
             "post_retract_bias": info.post_retract_bias,
             "projection_mode": info.projection_mode,
+            "projection_rank": info.projection_rank,
         }
 
         if self.retract_mode == "dynamic":
@@ -645,6 +727,7 @@ class SpELPGDSameProjection(SpEL):
             sigma2_power_iteration_steps=self.sigma2_power_iteration_steps,
             pgd_direction_normalization=self.pgd_direction_normalization,
             projection_mode=self.projection_mode,
+            projection_rank=self.projection_rank,
         )
 
         self._record_update_info(

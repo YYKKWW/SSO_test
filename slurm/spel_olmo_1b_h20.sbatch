@@ -245,6 +245,7 @@ TRAINING_ARGS=(
   --spel-pgd-sigma2-power-iteration-steps "${SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS:-3}"
   --spel-pgd-direction-normalization "${SPEL_PGD_DIRECTION_NORMALIZATION:-none}"
   --spel-pgd-projection-mode "${SPEL_PGD_PROJECTION_MODE:-fallback_exact}"
+  --spel-pgd-projection-rank "${SPEL_PGD_PROJECTION_RANK:-1}"
 )
 
 PARALLEL_ARGS=(

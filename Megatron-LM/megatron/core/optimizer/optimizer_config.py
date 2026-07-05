@@ -427,7 +427,10 @@ class OptimizerConfig:
     """PGD branch direction normalization mode: none or fro."""
 
     spel_pgd_projection_mode: str = "fallback_exact"
-    """SpEL-PGD projection mode: fallback_exact, fallback_retraction, shared_exact, or shared_retraction."""
+    """SpEL-PGD projection mode: fallback_exact, fallback_retraction, fallback_topk, shared_exact, shared_retraction, or shared_topk."""
+
+    spel_pgd_projection_rank: int = 1
+    """Rank used by SpEL-PGD top-k approximate projection modes."""
 
     # Lion.
     lion_beta1: float = 0.95

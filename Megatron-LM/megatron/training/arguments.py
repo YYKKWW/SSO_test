@@ -3478,12 +3478,25 @@ def _add_regularization_args(parser):
         '--spel-pgd-projection-mode',
         type=str,
         default='fallback_exact',
-        choices=['fallback_exact', 'fallback_retraction', 'shared_exact', 'shared_retraction'],
+        choices=[
+            'fallback_exact',
+            'fallback_retraction',
+            'fallback_topk',
+            'shared_exact',
+            'shared_retraction',
+            'shared_topk',
+        ],
         help=(
             'Projection mode for SpEL-PGD. fallback_exact preserves original SpEL in '
             'the safe branch and uses exact PGD projection only for fallback; '
-            'shared_retraction reproduces the old shared cheap-retraction ablation.'
+            'fallback_topk uses approximate top-k singular correction.'
         ),
+    )
+    group.add_argument(
+        '--spel-pgd-projection-rank',
+        type=int,
+        default=1,
+        help='Rank used by SpEL-PGD top-k approximate projection modes',
     )
     group.add_argument(
         '--lion-beta1',
