@@ -4,7 +4,7 @@
 #SBATCH --qos=gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=12
 #SBATCH --gres=gpu:nvidia_h20:1
 #SBATCH --mem=80G
 #SBATCH --time=1-00:00:00
@@ -146,7 +146,7 @@ else
 fi
 
 export PYTHONPATH="$MEGATRON_PATH:${PYTHONPATH:-}"
-export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-16}"
+export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-12}"
 
 DATA_ARGS=(
   --tokenizer-model "$TOKENIZER_MODEL"
@@ -244,6 +244,7 @@ TRAINING_ARGS=(
   --spel-pgd-gap-threshold-rel "${SPEL_PGD_GAP_THRESHOLD_REL:-5e-3}"
   --spel-pgd-sigma2-power-iteration-steps "${SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS:-3}"
   --spel-pgd-direction-normalization "${SPEL_PGD_DIRECTION_NORMALIZATION:-none}"
+  --spel-pgd-projection-mode "${SPEL_PGD_PROJECTION_MODE:-fallback_exact}"
 )
 
 PARALLEL_ARGS=(

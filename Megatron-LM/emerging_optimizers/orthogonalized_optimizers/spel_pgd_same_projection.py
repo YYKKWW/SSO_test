@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Derived from the SpEL optimizer implementation.  This variant adds a
-# SpEL--PGD branch while keeping the PGD projection/retraction identical to
-# the SpEL-style spectral-sphere retraction used by the original code.
+# gap-triggered PGD fallback while keeping the safe-region SpEL path identical
+# to the original SpEL implementation by default.
 
-"""SpEL--PGD optimizer with the same projection/retraction as SpEL.
+"""SpEL--PGD optimizer with a gap-triggered PGD fallback.
 
 This file implements a practical MCSD/SpEL--PGD variant for matrix weights
 constrained to a spectral sphere.  It is intended to live next to ``spel.py``
@@ -13,17 +13,19 @@ in the same optimizer package.
 
 Key design choice
 -----------------
-The PGD branch does **not** use the expensive exact SVD projection.  Instead,
-both the SpEL branch and the PGD branch form a trial point
+The default mode is the engineering version recommended for LLM pretraining:
+the safe branch is exactly the original SpEL update, while the unsafe branch
+uses an exact SVD projection for the PGD fallback.  This keeps the baseline
+SpEL behavior intact when the singular gap is safe.
+
+For ablations, ``projection_mode`` can also force both branches through the
+same post-step projection/retraction.  The old experimental implementation is
 
     Z = W - effective_lr * D
+    Y = Retr_spel_style(Z)
 
-and then apply the same SpEL-style spectral-sphere retraction:
-
-    sigma_Z = power_iteration(Z)
-    apply_retract(Z, sigma_Z, target_radius, ...)
-
-Thus the two branches differ only in the direction ``D``:
+which corresponds to ``projection_mode='shared_retraction'``.  In all modes,
+the branch rule only controls the direction:
 
 * SpEL branch: tangent-projected ``msign`` direction.
 * PGD branch: momentum/Nesterov-momentum direction.
@@ -50,6 +52,12 @@ from .spectral_ball_utils import (
 
 BranchMode = Literal["auto", "spel", "pgd"]
 PGDDirectionNormalization = Literal["none", "fro"]
+ProjectionMode = Literal[
+    "fallback_exact",
+    "fallback_retraction",
+    "shared_exact",
+    "shared_retraction",
+]
 
 __all__ = [
     "SpELPGDSameProjection",
@@ -58,6 +66,7 @@ __all__ = [
     "apply_spel_style_spectral_projection_",
     "compute_spel_pgd_same_projection_update",
     "estimate_second_singular_value",
+    "project_to_spectral_sphere_exact",
 ]
 
 
@@ -72,6 +81,7 @@ class SpELPGDUpdateInfo:
     pre_retract_bias: float
     trial_sigma: float
     post_retract_bias: float
+    projection_mode: str
 
 
 @torch.no_grad()
@@ -184,6 +194,36 @@ def apply_spel_style_spectral_projection_(
 
 
 @torch.no_grad()
+def project_to_spectral_sphere_exact(
+    Z: torch.Tensor,
+    target_radius: float,
+) -> Tuple[torch.Tensor, float]:
+    """Euclidean projection onto ``{W: ||W||_2 = target_radius}``.
+
+    The projection is exact but uses a full SVD, so it is intended for the
+    low-frequency PGD fallback or for small-model ablations.
+    """
+    dtype = Z.dtype
+    Z_fp32 = Z.to(torch.float32)
+
+    U, S, Vh = torch.linalg.svd(Z_fp32, full_matrices=False)
+    S_proj = S.clone()
+    trial_sigma = float(S_proj[0].item()) if S_proj.numel() else 0.0
+
+    if S_proj.numel() == 0:
+        return Z_fp32.to(dtype=dtype), trial_sigma
+
+    if S_proj[0] >= target_radius:
+        S_proj.clamp_(max=target_radius)
+        S_proj[0] = target_radius
+    else:
+        S_proj[0] = target_radius
+
+    Y = (U * S_proj.unsqueeze(-2)) @ Vh
+    return Y.to(dtype=dtype), trial_sigma
+
+
+@torch.no_grad()
 def _pgd_direction(
     M: torch.Tensor,
     *,
@@ -220,6 +260,38 @@ def _select_branch(
 
 
 @torch.no_grad()
+def _post_project_trial(
+    Y: torch.Tensor,
+    target_radius: float,
+    *,
+    projection_mode: ProjectionMode,
+    power_iteration_steps: int,
+    retract_mode: str,
+    retract_alpha: float,
+    current_lr: Optional[float],
+) -> Tuple[torch.Tensor, float, float]:
+    """Apply the selected post-step projection/retraction to a trial point."""
+    if projection_mode in ("fallback_exact", "shared_exact"):
+        projected, trial_sigma = project_to_spectral_sphere_exact(Y, target_radius)
+        return projected, 0.0, trial_sigma
+
+    if projection_mode in ("fallback_retraction", "shared_retraction"):
+        return apply_spel_style_spectral_projection_(
+            Y,
+            target_radius,
+            power_iteration_steps=power_iteration_steps,
+            retract_mode=retract_mode,
+            retract_alpha=retract_alpha,
+            current_lr=current_lr,
+        )
+
+    raise ValueError(
+        "projection_mode must be one of: fallback_exact, fallback_retraction, "
+        "shared_exact, shared_retraction"
+    )
+
+
+@torch.no_grad()
 def compute_spel_pgd_same_projection_update(
     W: torch.Tensor,
     M: torch.Tensor,
@@ -238,22 +310,19 @@ def compute_spel_pgd_same_projection_update(
     gap_threshold_rel: float = 5e-3,
     sigma2_power_iteration_steps: int = 3,
     pgd_direction_normalization: PGDDirectionNormalization = "none",
+    projection_mode: ProjectionMode = "fallback_exact",
     eps: float = 1e-8,
 ) -> Tuple[torch.Tensor, SpELPGDUpdateInfo]:
-    """Compute a SpEL--PGD update using SpEL-style projection for both branches.
+    """Compute a SpEL--PGD update.
 
     The function follows the same external optimizer contract as ``SpEL``:
     it returns an update direction ``u``.  The caller should still multiply it
     by the spectral-ball scale factor before returning to the base optimizer.
 
-    If the caller returns ``u * scale_factor`` and the base optimizer applies
-    ``W <- W - current_lr * returned_update``, then the actual new iterate is
-
-        Y = Retr_spel_style(W_retracted - current_lr * scale_factor * D).
-
-    This is achieved by returning
-
-        u = (W_retracted - Y) / (current_lr * scale_factor).
+    In ``fallback_*`` modes, the SpEL branch returns the original SpEL direction
+    and only the PGD fallback branch encodes a projected target ``Y`` as
+    ``u = (W_retracted - Y) / (current_lr * scale_factor)``.  In ``shared_*``
+    modes, both branches encode a post-projected target this way.
 
     No line search, loss reevaluation, Armijo, or Wolfe step is performed.
     """
@@ -269,6 +338,16 @@ def compute_spel_pgd_same_projection_update(
         raise ValueError("msign_steps must be at least 1")
     if gap_threshold_rel < 0.0:
         raise ValueError("gap_threshold_rel must be non-negative")
+    if projection_mode not in (
+        "fallback_exact",
+        "fallback_retraction",
+        "shared_exact",
+        "shared_retraction",
+    ):
+        raise ValueError(
+            "projection_mode must be one of: fallback_exact, fallback_retraction, "
+            "shared_exact, shared_retraction"
+        )
 
     effective_lr_value = float(effective_lr)
 
@@ -325,6 +404,7 @@ def compute_spel_pgd_same_projection_update(
             pre_retract_bias=float(pre_retract_bias),
             trial_sigma=sigma1_value,
             post_retract_bias=0.0,
+            projection_mode=projection_mode,
         )
     else:
         branch = _select_branch(
@@ -348,20 +428,26 @@ def compute_spel_pgd_same_projection_update(
                 eps=eps,
             )
 
-        # Shared projection/retraction for SpEL and PGD branches.
-        # This is the part that makes PGD projection match original SpEL's
-        # spectral-sphere retraction instead of exact SVD projection.
-        Y = W_base - effective_lr_value * D.to(torch.float32)
-        Y, post_retract_bias, trial_sigma = apply_spel_style_spectral_projection_(
-            Y,
-            target_radius,
-            power_iteration_steps=power_iteration_steps,
-            retract_mode=retract_mode,
-            retract_alpha=retract_alpha,
-            current_lr=current_lr,
-        )
+        if branch == "spel" and projection_mode.startswith("fallback_"):
+            # Default engineering path: preserve original SpEL exactly in the
+            # safe region.  The current W has already been pre-retracted, and
+            # the outer optimizer will apply W <- W - lr * scale * D.
+            update_unscaled = D.to(torch.float32)
+            post_retract_bias = 0.0
+            trial_sigma = sigma1_value
+        else:
+            Y = W_base - effective_lr_value * D.to(torch.float32)
+            Y, post_retract_bias, trial_sigma = _post_project_trial(
+                Y,
+                target_radius,
+                projection_mode=projection_mode,
+                power_iteration_steps=power_iteration_steps,
+                retract_mode=retract_mode,
+                retract_alpha=retract_alpha,
+                current_lr=current_lr,
+            )
+            update_unscaled = (W_base - Y.to(torch.float32)) / effective_lr_value
 
-        update_unscaled = (W_base - Y.to(torch.float32)) / effective_lr_value
         info = SpELPGDUpdateInfo(
             branch=branch,
             rel_gap=rel_gap,
@@ -370,6 +456,7 @@ def compute_spel_pgd_same_projection_update(
             pre_retract_bias=float(pre_retract_bias),
             trial_sigma=float(trial_sigma),
             post_retract_bias=float(post_retract_bias),
+            projection_mode=projection_mode,
         )
 
     if tp_enabled:
@@ -395,12 +482,17 @@ class SpELPGDSameProjection(SpEL):
             relative singular-value gap is below ``gap_threshold_rel``.
         branch_mode: ``'auto'`` uses the gap rule, ``'spel'`` always uses the
             tangent-projected SpEL direction, and ``'pgd'`` always uses the PGD
-            momentum direction.  All modes still use the same post-step
-            SpEL-style projection/retraction.
+            momentum direction.
         gap_threshold_rel: Threshold for ``1 - sigma2 / sigma1``.
         sigma2_power_iteration_steps: Power iterations on the rank-one residual.
         pgd_direction_normalization: ``'none'`` for standard momentum PGD;
             ``'fro'`` for Frobenius-normalized momentum fallback.
+        projection_mode: ``'fallback_exact'`` preserves original SpEL in the
+            safe branch and uses exact SVD projection only for PGD fallback.
+            ``'fallback_retraction'`` does the same but uses cheap SpEL-style
+            retraction for PGD.  ``'shared_exact'`` and ``'shared_retraction'``
+            project both branches after the trial step and are intended for
+            ablations.
     """
 
     def __init__(
@@ -411,6 +503,7 @@ class SpELPGDSameProjection(SpEL):
         gap_threshold_rel: float = 5e-3,
         sigma2_power_iteration_steps: int = 3,
         pgd_direction_normalization: PGDDirectionNormalization = "none",
+        projection_mode: ProjectionMode = "fallback_exact",
         **kwargs: Any,
     ) -> None:
         if branch_mode not in ("auto", "spel", "pgd"):
@@ -421,6 +514,16 @@ class SpELPGDSameProjection(SpEL):
             raise ValueError("pgd_direction_normalization must be one of: 'none', 'fro'")
         if gap_threshold_rel < 0.0:
             raise ValueError("gap_threshold_rel must be non-negative")
+        if projection_mode not in (
+            "fallback_exact",
+            "fallback_retraction",
+            "shared_exact",
+            "shared_retraction",
+        ):
+            raise ValueError(
+                "projection_mode must be one of: fallback_exact, fallback_retraction, "
+                "shared_exact, shared_retraction"
+            )
 
         super().__init__(*args, **kwargs)
 
@@ -429,10 +532,12 @@ class SpELPGDSameProjection(SpEL):
         self.gap_threshold_rel = gap_threshold_rel
         self.sigma2_power_iteration_steps = sigma2_power_iteration_steps
         self.pgd_direction_normalization = pgd_direction_normalization
+        self.projection_mode = projection_mode
 
         self.spel_branch_count = 0
         self.pgd_branch_count = 0
         self.zero_lr_branch_count = 0
+        self.post_projection_count = 0
         self.branch_info_dict: Dict[str, Dict[str, float | str]] = {}
         self.post_retract_bias_dict: Dict[str, float] = {}
         self.trial_spectral_norm_dict: Dict[str, float] = {}
@@ -442,6 +547,7 @@ class SpELPGDSameProjection(SpEL):
         self.spel_branch_count = 0
         self.pgd_branch_count = 0
         self.zero_lr_branch_count = 0
+        self.post_projection_count = 0
         self.branch_info_dict.clear()
         self.post_retract_bias_dict.clear()
         self.trial_spectral_norm_dict.clear()
@@ -460,6 +566,8 @@ class SpELPGDSameProjection(SpEL):
             self.pgd_branch_count += 1
         elif info.branch == "zero_lr":
             self.zero_lr_branch_count += 1
+        if info.branch == "pgd" or info.projection_mode.startswith("shared_"):
+            self.post_projection_count += 1
 
         if param_name is None and component_label is None:
             return
@@ -479,6 +587,7 @@ class SpELPGDSameProjection(SpEL):
             "pre_retract_bias": info.pre_retract_bias,
             "trial_sigma": info.trial_sigma,
             "post_retract_bias": info.post_retract_bias,
+            "projection_mode": info.projection_mode,
         }
 
         if self.retract_mode == "dynamic":
@@ -535,6 +644,7 @@ class SpELPGDSameProjection(SpEL):
             gap_threshold_rel=self.gap_threshold_rel,
             sigma2_power_iteration_steps=self.sigma2_power_iteration_steps,
             pgd_direction_normalization=self.pgd_direction_normalization,
+            projection_mode=self.projection_mode,
         )
 
         self._record_update_info(
@@ -622,8 +732,10 @@ class SpELPGDSameProjection(SpEL):
             "spel_branch_count": self.spel_branch_count,
             "pgd_branch_count": self.pgd_branch_count,
             "zero_lr_branch_count": self.zero_lr_branch_count,
+            "post_projection_count": self.post_projection_count,
             "total_matrix_updates": total,
             "pgd_fallback_rate": (self.pgd_branch_count / total) if total else 0.0,
+            "post_projection_rate": (self.post_projection_count / total) if total else 0.0,
         }
 
     def get_branch_info_dict(self) -> Optional[Dict[str, Dict[str, float | str]]]:

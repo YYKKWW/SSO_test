@@ -426,6 +426,9 @@ class OptimizerConfig:
     spel_pgd_pgd_direction_normalization: str = "none"
     """PGD branch direction normalization mode: none or fro."""
 
+    spel_pgd_projection_mode: str = "fallback_exact"
+    """SpEL-PGD projection mode: fallback_exact, fallback_retraction, shared_exact, or shared_retraction."""
+
     # Lion.
     lion_beta1: float = 0.95
     """First beta coefficient for Lion optimizer (used in sign update). Defaults to 0.95."""

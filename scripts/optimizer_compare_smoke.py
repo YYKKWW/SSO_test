@@ -306,6 +306,11 @@ def parse_args() -> argparse.Namespace:
         default="none",
         choices=["none", "fro"],
     )
+    parser.add_argument(
+        "--spel-pgd-projection-mode",
+        default="fallback_exact",
+        choices=["fallback_exact", "fallback_retraction", "shared_exact", "shared_retraction"],
+    )
     parser.add_argument("--clip-grad", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=1234)
     parser.add_argument("--output", default="outputs/optimizer_compare_smoke.json")
@@ -471,6 +476,7 @@ def run_direct(
             gap_threshold_rel=args.spel_pgd_gap_threshold_rel,
             sigma2_power_iteration_steps=args.spel_pgd_sigma2_power_iteration_steps,
             pgd_direction_normalization=args.spel_pgd_direction_normalization,
+            projection_mode=args.spel_pgd_projection_mode,
             **common,
         )
     elif bare_name == "spectral_ball":
@@ -570,6 +576,7 @@ def make_optimizer_config(optimizer_name: str, args: argparse.Namespace):
         spel_pgd_gap_threshold_rel=args.spel_pgd_gap_threshold_rel,
         spel_pgd_sigma2_power_iteration_steps=args.spel_pgd_sigma2_power_iteration_steps,
         spel_pgd_pgd_direction_normalization=args.spel_pgd_direction_normalization,
+        spel_pgd_projection_mode=args.spel_pgd_projection_mode,
     )
 
 

@@ -3475,6 +3475,17 @@ def _add_regularization_args(parser):
         help='PGD branch direction normalization for SpEL-PGD',
     )
     group.add_argument(
+        '--spel-pgd-projection-mode',
+        type=str,
+        default='fallback_exact',
+        choices=['fallback_exact', 'fallback_retraction', 'shared_exact', 'shared_retraction'],
+        help=(
+            'Projection mode for SpEL-PGD. fallback_exact preserves original SpEL in '
+            'the safe branch and uses exact PGD projection only for fallback; '
+            'shared_retraction reproduces the old shared cheap-retraction ablation.'
+        ),
+    )
+    group.add_argument(
         '--lion-beta1',
         type=float,
         default=0.95,
