@@ -1,8 +1,8 @@
-# Experiment Record: Width-256 Optimizer LR Sweep on OLMo Mix 1B
+# Experiment Record: Width-256/512 Optimizer LR Sweep on OLMo Mix 1B
 
-Last updated: 2026-07-04
+Last updated: 2026-07-06
 
-This document is the primary experiment record for the `width=256` optimizer learning-rate sweep. It is intended to support paper development, later reproduction, and future extensions with new optimizers or additional learning rates.
+This document is the primary experiment record for the `width=256` and `width=512` optimizer learning-rate sweeps. It is intended to support paper development, later reproduction, and future extensions with new optimizers or additional learning rates.
 
 Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or other secrets in this file.
 
@@ -12,25 +12,25 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 |---|---|
 | Experiment family | Small-scale pretraining LR sweep |
 | Paper role | One supporting experiment for optimizer comparison |
-| Width | `256` |
+| Width | `256`, `512` |
 | Data budget | `1B` training tokens |
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
-| Compared optimizers | SSO / `spectral_ball_dist`, MCSD / `spel_dist`, SpEL-PGD / `spel_pgd_dist` |
+| Compared optimizers | SSO / `spectral_ball_dist`, MCSD/SpEL / `spel_dist`, MCSD-PGD / `spel_pgd_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | `15/15` |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; width-512 1B sweep: `15/15` |
 | Slurm status | all `COMPLETED`, all exit code `0:0` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
-| Next likely extension | add higher LRs for SSO/MCSD; revise SpEL-PGD branch rule before larger sweeps |
+| Next likely extension | repeat selected settings or extend to width `1024` |
 
 ## Scope And Caveats
 
 This is a controlled small-scale experiment, not the full paper sweep.
 
-- The current run fixes `width=256`; it does not yet cover widths `512`, `1024`, or `2048`.
+- The completed runs cover `width=256` and `width=512`; they do not yet cover widths `1024` or `2048`.
 - The current run uses one 1B-token weighted sample from OLMo mix; it is not a 30B-token paper-scale run.
 - The current table is a single-run comparison; paper claims should be calibrated accordingly unless repeated seeds or additional settings are added.
 - The current MCSD label maps to the `spel_dist` implementation path because the active Megatron launcher does not expose an optimizer literally named `mcsd`.
-- The current SpEL-PGD row uses the first `spel_pgd_dist` implementation, with automatic PGD fallback and the same SpEL-style spectral retraction. It is an algorithm-development result, not yet a tuned baseline.
+- The original width-256 SpEL-PGD rows use the first `spel_pgd_dist` implementation. The later width-512 MCSD-PGD rows use the selected top-k projection setting from the 250M-token tuning run: `fallback_topk`, rank `4`, gap `1e-3`.
 - The H20 runs use Megatron's `local` transformer implementation rather than the original script's `transformer_engine` + `fused` backend. A direct TE/fused smoke test failed in the current environment; see [Backend Compatibility Note](#backend-compatibility-note).
 
 For paper use, treat the table below as an experiment record with exact job IDs and settings. If the results are later promoted into a paper figure, record the plotting script, figure version, and any post-processing assumptions in this document.
@@ -539,6 +539,94 @@ Use these results carefully:
 - The small loss gaps between SSO and MCSD suggest that more LRs or repeated runs may be needed before making a strong claim.
 - SpEL-PGD is not competitive in the current version; include it only if the paper needs a failed variant/ablation or if a revised version is rerun.
 - If this result becomes a figure, plot validation loss versus LR with one curve per optimizer and clearly state `width=256`, `1B tokens`, `global batch=128`, and `eval_iters=5`.
+
+## MCSD-PGD Projection Tuning
+
+This 250M-token tuning pass was run after the original width-256 SpEL-PGD sweep. It fixes `width=256`, `LR=1.5e-2`, `GLOBAL_BATCH=128`, `EVAL_INTERVAL=100`, and `EVAL_ITERS=5`. The goal was to select a usable MCSD-PGD projection rule before running width 512.
+
+All jobs below completed with Slurm state `COMPLETED` and exit code `0:0`.
+
+| Variant | Key setting | Job ID | Final val iter | Val loss | PPL | Elapsed | Node |
+|---|---|---:|---:|---:|---:|---:|---|
+| SpEL baseline | `branch_mode=spel` | `3734899` | `477` | `4.001449` | `54.67733` | `01:23:39` | `SPG-7-1` |
+| MCSD-PGD exact | `fallback_exact`, `gap=1e-4` | `3734900` | `477` | `4.009463` | `55.11728` | `01:24:08` | `SPG-7-1` |
+| MCSD-PGD exact | `fallback_exact`, `gap=1e-3` | `3734901` | `477` | `4.009463` | `55.11728` | `01:24:00` | `SPG-7-1` |
+| MCSD-PGD exact | `fallback_exact`, `gap=5e-3` | `3734902` | `477` | `4.011888` | `55.25106` | `01:24:06` | `SPG-7-1` |
+| MCSD-PGD exact | `fallback_exact`, `gap=1e-2` | `3734903` | `477` | `4.011760` | `55.24400` | `01:24:12` | `SPG-7-1` |
+| MCSD-PGD exact | `fallback_exact`, `gap=5e-3`, `direction=fro` | `3734904` | `477` | `4.011085` | `55.20674` | `01:24:10` | `SPG-7-1` |
+| MCSD-PGD retraction | `fallback_retraction`, `gap=5e-3` | `3734905` | `477` | `4.631289` | `102.6462` | `01:23:29` | `SPG-7-1` |
+| MCSD-PGD retraction | `fallback_retraction`, `gap=1e-2` | `3734906` | `477` | `4.762298` | `117.0145` | `01:23:28` | `SPG-7-1` |
+| MCSD-PGD top-k | `fallback_topk`, `k=1`, `gap=1e-4` | `3735002` | `477` | `4.019766` | `55.68809` | `01:24:13` | `SPG-7-2` |
+| MCSD-PGD top-k | `fallback_topk`, `k=2`, `gap=1e-4` | `3735003` | `477` | `4.003179` | `54.77197` | `01:23:58` | `SPG-7-2` |
+| MCSD-PGD top-k | `fallback_topk`, `k=4`, `gap=1e-4` | `3735004` | `477` | `4.000864` | `54.64534` | `01:23:53` | `SPG-7-2` |
+| MCSD-PGD top-k | `fallback_topk`, `k=8`, `gap=1e-4` | `3735005` | `477` | `4.001924` | `54.70327` | `01:24:00` | `SPG-7-2` |
+| MCSD-PGD top-k | `fallback_topk`, `k=1`, `gap=1e-3` | `3735006` | `477` | `4.019766` | `55.68809` | `01:24:02` | `SPG-7-2` |
+| MCSD-PGD top-k | `fallback_topk`, `k=2`, `gap=1e-3` | `3735007` | `477` | `4.003179` | `54.77197` | `01:24:03` | `SPG-7-2` |
+| MCSD-PGD top-k | `fallback_topk`, `k=4`, `gap=1e-3` | `3735008` | `477` | `4.000864` | `54.64534` | `01:24:04` | `SPG-7-2` |
+| MCSD-PGD top-k | `fallback_topk`, `k=8`, `gap=1e-3` | `3735009` | `477` | `4.001924` | `54.70327` | `01:24:03` | `SPG-7-2` |
+| MCSD-PGD top-k | `fallback_topk`, `k=4`, `gap=5e-3` | `3735010` | `477` | `4.002656` | `54.74335` | `01:24:13` | `SPG-7-1` |
+| MCSD-PGD top-k | `fallback_topk`, `k=8`, `gap=5e-3` | `3735011` | `477` | `4.002858` | `54.75440` | `01:23:55` | `SPG-7-1` |
+
+Selection for width 512:
+
+```text
+projection_mode=fallback_topk
+projection_rank=4
+gap_threshold_rel=1e-3
+```
+
+Rationale: `gap=1e-4` and `gap=1e-3` tie at `4.000864`, and `1e-3` is the less brittle threshold. This tuning result is a narrow 250M-token selection run; it should be treated as a configuration choice for the width-512 sweep, not as a paper-scale standalone claim.
+
+## Width-512 Completed Sweep Results
+
+This extension uses the same 1B-token OLMo mix sample, LR grid, tokenizer, sequence length, global batch, and local Megatron backend as the width-256 sweep. Width 512 uses hidden size `512`, head dim `128`, four attention heads, FFN hidden size `1536`, and 28 layers.
+
+MCSD-PGD uses the selected setting from the projection tuning run:
+
+```text
+projection_mode=fallback_topk
+projection_rank=4
+gap_threshold_rel=1e-3
+```
+
+All jobs below completed with Slurm state `COMPLETED` and exit code `0:0`.
+
+| Optimizer | Megatron optimizer | LR | Job ID | Final val iter | Val loss | PPL | Elapsed | Node |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| SSO | `spectral_ball_dist` | `5e-3` | `3737714` | `1908` | `3.423116` | `30.66482` | `11:12:16` | `SPG-7-1` |
+| SSO | `spectral_ball_dist` | `7e-3` | `3737715` | `1908` | `3.371309` | `29.11660` | `11:14:35` | `SPG-7-1` |
+| SSO | `spectral_ball_dist` | `9e-3` | `3737716` | `1908` | `3.345420` | `28.37248` | `11:14:06` | `SPG-7-1` |
+| SSO | `spectral_ball_dist` | `1e-2` | `3737717` | `1908` | `3.338379` | `28.17342` | `11:17:06` | `SPG-7-1` |
+| SSO | `spectral_ball_dist` | `1.5e-2` | `3737718` | `1908` | `3.322861` | `27.73959` | `11:21:05` | `SPG-7-1` |
+| SpEL | `spel_dist` | `5e-3` | `3737719` | `1908` | `3.420247` | `30.57696` | `10:18:25` | `SPG-7-1` |
+| SpEL | `spel_dist` | `7e-3` | `3737720` | `1908` | `3.371672` | `29.12719` | `10:17:12` | `SPG-7-1` |
+| SpEL | `spel_dist` | `9e-3` | `3737721` | `1908` | `3.345384` | `28.37146` | `10:17:31` | `SPG-7-1` |
+| SpEL | `spel_dist` | `1e-2` | `3737722` | `1908` | `3.337422` | `28.14648` | `10:18:51` | `SPG-7-2` |
+| SpEL | `spel_dist` | `1.5e-2` | `3737723` | `1908` | `3.321666` | `27.70647` | `10:17:51` | `SPG-7-2` |
+| MCSD-PGD | `spel_pgd_dist` | `5e-3` | `3737724` | `1908` | `3.418978` | `30.53818` | `10:22:23` | `SPG-7-2` |
+| MCSD-PGD | `spel_pgd_dist` | `7e-3` | `3737725` | `1908` | `3.371645` | `29.12640` | `10:22:21` | `SPG-7-2` |
+| MCSD-PGD | `spel_pgd_dist` | `9e-3` | `3737726` | `1908` | `3.346858` | `28.41331` | `10:24:34` | `SPG-7-2` |
+| MCSD-PGD | `spel_pgd_dist` | `1e-2` | `3737727` | `1908` | `3.339918` | `28.21682` | `10:25:18` | `SPG-7-2` |
+| MCSD-PGD | `spel_pgd_dist` | `1.5e-2` | `3737728` | `1908` | `3.321784` | `27.70973` | `10:22:07` | `SPG-7-2` |
+
+Best result at width 512:
+
+```text
+SpEL / spel_dist, LR=1.5e-2, val loss=3.321666, PPL=27.70647
+```
+
+MCSD-PGD is very close at the same LR:
+
+```text
+MCSD-PGD / spel_pgd_dist, LR=1.5e-2, val loss=3.321784, PPL=27.70973
+```
+
+For this one-seed width-512 sweep:
+
+- All three optimizers improve as LR increases up to `1.5e-2`.
+- SpEL is best at `9e-3`, `1e-2`, and `1.5e-2`, but the gaps to SSO and MCSD-PGD are small.
+- MCSD-PGD is best at `5e-3`; SSO is best at `7e-3`.
+- MCSD-PGD with top-k projection is no longer the failed behavior seen in the earlier untuned width-256 SpEL-PGD sweep, but it has not clearly beaten SpEL at the best LR.
 
 ## Historical Baseline
 

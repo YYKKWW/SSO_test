@@ -2,13 +2,14 @@
 
 This repository manages one experiment track for a paper project on SSO-style optimizers in Megatron-LM. It keeps the runnable Slurm scripts, data-preparation utilities, experiment notes, and completed result summaries needed to reproduce and extend the current width-scaling study.
 
-The active experiment is a `width=256` learning-rate sweep on a weighted 1B-token OLMo mix sample:
+The active experiment track is a width-scaling learning-rate sweep on a weighted 1B-token OLMo mix sample:
 
 ```text
-comparison: SSO / spectral_ball_dist vs MCSD / spel_dist vs SpEL-PGD / spel_pgd_dist
+comparison: SSO / spectral_ball_dist vs MCSD-SpEL / spel_dist vs MCSD-PGD / spel_pgd_dist
+widths:     256 and 512
 LR grid:    5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
 cluster:    HKU HPC2021 H20 Slurm partition
-status:     completed, 15/15 jobs finished with exit code 0:0
+status:     completed, width-256 and width-512 sweeps finished with exit code 0:0
 ```
 
 ## Documentation
@@ -77,23 +78,58 @@ On the original H20 server, `Megatron-LM-active` is the stable symlink used by t
 
 ## Current Result Summary
 
-The best completed result in the current `width=256` 1B-token sweep is:
+Status as of 2026-07-06: the `width=256` and `width=512` five-LR sweeps are complete on H20. All listed jobs finished with Slurm state `COMPLETED` and exit code `0:0`.
+
+Best completed results:
+
+| Width | Optimizer | LR | Val loss | PPL | Job |
+|---:|---|---:|---:|---:|---:|
+| `256` | MCSD / SpEL `spel_dist` | `1.5e-2` | `3.567708` | `35.43530` | `3725139` |
+| `512` | SpEL `spel_dist` | `1.5e-2` | `3.321666` | `27.70647` | `3737723` |
+| `512` | MCSD-PGD `spel_pgd_dist` | `1.5e-2` | `3.321784` | `27.70973` | `3737728` |
+| `512` | SSO `spectral_ball_dist` | `1.5e-2` | `3.322861` | `27.73959` | `3737718` |
+
+### Width-256 1B-token LR Sweep
+
+This is the original completed `width=256` sweep on the 1B-token OLMo mix sample. The SpEL-PGD column is the earlier, untuned PGD implementation; the later MCSD-PGD projection tuning is listed separately below.
+
+| LR | SSO val loss | MCSD / SpEL val loss | Earlier SpEL-PGD val loss |
+|---:|---:|---:|---:|
+| `5e-3` | `3.658330` | `3.657197` | `3.931570` |
+| `7e-3` | `3.625447` | `3.616392` | `4.021310` |
+| `9e-3` | `3.595198` | `3.596797` | `4.071300` |
+| `1e-2` | `3.590277` | `3.587145` | `4.083732` |
+| `1.5e-2` | `3.570953` | `3.567708` | `4.099114` |
+
+### Width-512 1B-token LR Sweep
+
+This sweep compares SSO, SpEL, and MCSD-PGD with the best MCSD-PGD projection setting from the 250M-token tuning run:
 
 ```text
-MCSD / spel_dist, LR=1.5e-2, validation loss=3.567708, PPL=35.43530
+MCSD-PGD: projection_mode=fallback_topk, projection_rank=4, gap_threshold_rel=1e-3
 ```
 
-The best SSO result is:
+| LR | SSO val loss | SpEL val loss | MCSD-PGD val loss |
+|---:|---:|---:|---:|
+| `5e-3` | `3.423116` | `3.420247` | `3.418978` |
+| `7e-3` | `3.371309` | `3.371672` | `3.371645` |
+| `9e-3` | `3.345420` | `3.345384` | `3.346858` |
+| `1e-2` | `3.338379` | `3.337422` | `3.339918` |
+| `1.5e-2` | `3.322861` | `3.321666` | `3.321784` |
 
-```text
-SSO / spectral_ball_dist, LR=1.5e-2, validation loss=3.570953, PPL=35.55044
-```
+### MCSD-PGD Projection Tuning
 
-The best SpEL-PGD result is:
+The 250M-token `width=256`, `LR=1.5e-2` projection tuning run selected the MCSD-PGD configuration used for the `width=512` sweep.
 
-```text
-SpEL-PGD / spel_pgd_dist, LR=5e-3, validation loss=3.931570, PPL=50.98697
-```
+| Variant | Key setting | Val loss | PPL | Job |
+|---|---|---:|---:|---:|
+| SpEL baseline | `branch_mode=spel` | `4.001449` | `54.67733` | `3734899` |
+| MCSD-PGD top-k | `fallback_topk`, `k=4`, `gap=1e-4` | `4.000864` | `54.64534` | `3735004` |
+| MCSD-PGD top-k | `fallback_topk`, `k=4`, `gap=1e-3` | `4.000864` | `54.64534` | `3735008` |
+| MCSD-PGD top-k | `fallback_topk`, `k=8`, `gap=1e-3` | `4.001924` | `54.70327` | `3735009` |
+| MCSD-PGD top-k | `fallback_topk`, `k=2`, `gap=1e-3` | `4.003179` | `54.77197` | `3735007` |
+| MCSD-PGD exact | `fallback_exact`, `gap=1e-3` | `4.009463` | `55.11728` | `3734901` |
+| MCSD-PGD retraction | `fallback_retraction`, `gap=5e-3` | `4.631289` | `102.6462` | `3734905` |
 
 See [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) for the full table, job IDs, commands, and caveats.
 
