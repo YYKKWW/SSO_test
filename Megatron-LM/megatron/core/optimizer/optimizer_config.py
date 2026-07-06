@@ -374,6 +374,12 @@ class OptimizerConfig:
     spel_retract_alpha: float = 0.05
     """Step size for dynamic SpEL retraction."""
 
+    spel_projection_mode: str = "retraction"
+    """SpEL post-step projection mode: retraction, exact, or topk."""
+
+    spel_projection_rank: int = 1
+    """Rank used by SpEL top-k approximate projection mode."""
+
     # SpEL-PGD, a SpEL variant with PGD-style fallback.
     spel_pgd_momentum: float = 0.9
     """Momentum coefficient for SpEL-PGD optimizer."""

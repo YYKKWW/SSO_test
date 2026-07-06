@@ -3386,6 +3386,19 @@ def _add_regularization_args(parser):
         help='Retraction mode for SpEL',
     )
     group.add_argument('--spel-retract-alpha', type=float, default=0.05, help='Dynamic SpEL retraction step size')
+    group.add_argument(
+        '--spel-projection-mode',
+        type=str,
+        default='retraction',
+        choices=['retraction', 'exact', 'topk'],
+        help='SpEL post-step projection mode: original retraction behavior, exact SVD projection, or top-k approximate projection',
+    )
+    group.add_argument(
+        '--spel-projection-rank',
+        type=int,
+        default=1,
+        help='Rank used by SpEL top-k approximate projection mode',
+    )
     group.add_argument('--spel-pgd-momentum', type=float, default=0.9, help='Momentum coefficient for SpEL-PGD optimizer')
     group.add_argument('--spel-pgd-use-nesterov', action='store_true', default=True, help='Use Nesterov-style momentum in SpEL-PGD')
     group.add_argument(

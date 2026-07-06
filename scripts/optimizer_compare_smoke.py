@@ -297,6 +297,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--radius-mode", default="spectral_mup")
     parser.add_argument("--scale-mode", default="spectral_mup")
     parser.add_argument("--retract-mode", default="hard")
+    parser.add_argument(
+        "--spel-projection-mode",
+        default="retraction",
+        choices=["retraction", "exact", "topk"],
+    )
+    parser.add_argument("--spel-projection-rank", type=int, default=1)
     parser.add_argument("--qkv-split-mode", default="head", choices=["component", "group", "head"])
     parser.add_argument("--spel-pgd-branch-mode", default="auto", choices=["auto", "spel", "pgd"])
     parser.add_argument("--spel-pgd-gap-threshold-rel", type=float, default=5e-3)
@@ -476,7 +482,12 @@ def run_direct(
     )
     param_groups = [{"params": linear_params, "wd_mult": 0.0}]
     if bare_name == "spel":
-        opt = SpEL(param_groups, **common)
+        opt = SpEL(
+            param_groups,
+            projection_mode=args.spel_projection_mode,
+            projection_rank=args.spel_projection_rank,
+            **common,
+        )
     elif bare_name == "spel_pgd":
         opt = SpELPGDSameProjection(
             param_groups,
@@ -569,6 +580,8 @@ def make_optimizer_config(optimizer_name: str, args: argparse.Namespace):
         spel_power_iteration_steps=args.power_iteration_steps,
         spel_scale_mode=args.scale_mode,
         spel_retract_mode=args.retract_mode,
+        spel_projection_mode=args.spel_projection_mode,
+        spel_projection_rank=args.spel_projection_rank,
         spel_pgd_momentum=args.momentum,
         spel_pgd_use_nesterov=True,
         spel_pgd_split_qkv=True,

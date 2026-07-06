@@ -231,6 +231,8 @@ TRAINING_ARGS=(
   --spel-scale-mode spectral_mup
   --spel-retract-mode hard
   --spel-retract-alpha 0.05
+  --spel-projection-mode "${SPEL_PROJECTION_MODE:-retraction}"
+  --spel-projection-rank "${SPEL_PROJECTION_RANK:-1}"
   --spel-pgd-momentum 0.9
   --spel-pgd-use-nesterov
   --spel-pgd-qkv-split-mode head

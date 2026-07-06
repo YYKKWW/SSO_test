@@ -33,7 +33,7 @@ Algorithm:
 6. Update: W ← W - lr * scale * Φ
 """
 
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, Literal, Optional, Tuple
 
 import torch
 from absl import logging
@@ -53,7 +53,16 @@ from .spectral_ball_utils import (
 )
 
 
-__all__ = ["SpEL", "compute_spel_update", "project_to_tangent_plane"]
+SpELProjectionMode = Literal["retraction", "exact", "topk"]
+
+
+__all__ = [
+    "SpEL",
+    "compute_spel_update",
+    "project_to_tangent_plane",
+    "project_to_spectral_sphere_exact",
+    "project_to_spectral_sphere_topk",
+]
 
 
 def _as_column_unit_vector(x: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
@@ -105,6 +114,146 @@ def project_to_tangent_plane(
     return M_fp32 - coeff * torch.matmul(u_col, v_col.transpose(-2, -1))
 
 
+def _canonicalize_uv_for_matrix(
+    W: torch.Tensor,
+    u: torch.Tensor,
+    v: torch.Tensor,
+    *,
+    eps: float = 1e-8,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Return top singular vectors as column vectors compatible with W."""
+    W_fp32 = W.to(torch.float32)
+    u_col = _as_column_unit_vector(u, eps=eps)
+    v_col = _as_column_unit_vector(v, eps=eps)
+
+    if u_col.shape[-2] != W_fp32.shape[-2] or v_col.shape[-2] != W_fp32.shape[-1]:
+        if u_col.shape[-2] == W_fp32.shape[-1] and v_col.shape[-2] == W_fp32.shape[-2]:
+            u_col, v_col = v_col, u_col
+        else:
+            raise ValueError(
+                "Top singular vector dimensions are incompatible with W: "
+                f"W.shape={tuple(W_fp32.shape)}, "
+                f"u.shape={tuple(u.shape)}, v.shape={tuple(v.shape)}"
+            )
+    return u_col, v_col
+
+
+@torch.no_grad()
+def project_to_spectral_sphere_exact(
+    Z: torch.Tensor,
+    target_radius: float,
+) -> Tuple[torch.Tensor, float]:
+    """Exact Euclidean projection onto {W: ||W||_2 = target_radius}.
+
+    This uses a full SVD and is intended for canonical/ablation runs rather
+    than the cheapest large-scale training path.
+    """
+    dtype = Z.dtype
+    Z_fp32 = Z.to(torch.float32)
+
+    U, S, Vh = torch.linalg.svd(Z_fp32, full_matrices=False)
+    S_proj = S.clone()
+    trial_sigma = float(S_proj[0].item()) if S_proj.numel() else 0.0
+
+    if S_proj.numel() == 0:
+        return Z_fp32.to(dtype=dtype), trial_sigma
+
+    if S_proj[0] >= target_radius:
+        S_proj.clamp_(max=target_radius)
+        S_proj[0] = target_radius
+    else:
+        S_proj[0] = target_radius
+
+    Y = (U * S_proj.unsqueeze(-2)) @ Vh
+    return Y.to(dtype=dtype), trial_sigma
+
+
+@torch.no_grad()
+def project_to_spectral_sphere_topk(
+    Z: torch.Tensor,
+    target_radius: float,
+    *,
+    rank: int,
+    power_iteration_steps: int,
+    eps: float = 1e-8,
+) -> Tuple[torch.Tensor, float]:
+    """Approximate spectral-sphere projection with top-k deflation."""
+    if rank < 1:
+        raise ValueError("rank must be at least 1")
+    if power_iteration_steps < 1:
+        raise ValueError("power_iteration_steps must be at least 1")
+
+    dtype = Z.dtype
+    Y = Z.to(torch.float32)
+    residual = Y.clone()
+    trial_sigma = 0.0
+
+    for idx in range(rank):
+        sigma, u, v = power_iteration(residual, steps=power_iteration_steps)
+        sigma_value = float(sigma.item())
+        if idx == 0:
+            trial_sigma = sigma_value
+        if sigma_value <= eps:
+            break
+
+        u_col, v_col = _canonicalize_uv_for_matrix(residual, u, v, eps=eps)
+        outer = torch.matmul(u_col, v_col.transpose(-2, -1))
+
+        if idx == 0 and sigma_value < target_radius:
+            Y = Y + (target_radius - sigma_value) * outer
+            break
+
+        if sigma_value <= target_radius:
+            break
+
+        Y = Y - (sigma_value - target_radius) * outer
+        residual = residual - sigma_value * outer
+
+    return Y.to(dtype=dtype), trial_sigma
+
+
+@torch.no_grad()
+def _post_project_spel_trial(
+    W: torch.Tensor,
+    Phi: torch.Tensor,
+    target_radius: float,
+    *,
+    projection_mode: SpELProjectionMode,
+    projection_rank: int,
+    power_iteration_steps: int,
+    current_lr: Optional[float],
+    scale_factor: Optional[float],
+) -> Tuple[torch.Tensor, float]:
+    """Convert a projected SpEL trial point back into an unscaled update."""
+    if projection_mode == "retraction":
+        return Phi, 0.0
+    if projection_mode not in ("exact", "topk"):
+        raise ValueError("projection_mode must be one of: retraction, exact, topk")
+    if projection_rank < 1:
+        raise ValueError("projection_rank must be at least 1")
+    if current_lr is None or scale_factor is None:
+        raise ValueError("current_lr and scale_factor are required for SpEL post-projection")
+
+    step_size = float(current_lr) * float(scale_factor)
+    if step_size == 0.0:
+        return Phi, 0.0
+
+    trial = W.to(torch.float32) - step_size * Phi.to(torch.float32)
+    if projection_mode == "exact":
+        projected, trial_sigma = project_to_spectral_sphere_exact(trial, target_radius)
+    else:
+        projected, trial_sigma = project_to_spectral_sphere_topk(
+            trial,
+            target_radius,
+            rank=projection_rank,
+            power_iteration_steps=power_iteration_steps,
+        )
+
+    projected = projected.to(dtype=W.dtype)
+    Phi_projected = (W - projected) / step_size
+    return Phi_projected.to(dtype=Phi.dtype), trial_sigma
+
+
 def compute_spel_update(
     W: torch.Tensor,
     M: torch.Tensor,
@@ -117,6 +266,9 @@ def compute_spel_update(
     retract_mode: str = 'hard',
     retract_alpha: float = 0.05,
     current_lr: Optional[float] = None,
+    projection_mode: SpELProjectionMode = "retraction",
+    projection_rank: int = 1,
+    scale_factor: Optional[float] = None,
 ) -> Tuple[torch.Tensor, float, float]:
     """Compute SpEL update.
 
@@ -190,6 +342,17 @@ def compute_spel_update(
     # of M_projected does not imply tangentness of msign(M_projected).
     Phi = project_to_tangent_plane(Phi, u, v)
 
+    Phi, _ = _post_project_spel_trial(
+        W_work,
+        Phi,
+        target_radius,
+        projection_mode=projection_mode,
+        projection_rank=projection_rank,
+        power_iteration_steps=power_iteration_steps,
+        current_lr=current_lr,
+        scale_factor=scale_factor,
+    )
+
     # Handle TP: split result and update local W
     if tp_enabled:
         W_local = _tp_split_along_dim(W_work, tp_group, partition_dim)
@@ -253,6 +416,8 @@ class SpEL(OrthogonalizedOptimizer):
         scale_mode: str = "align_adamw_rms",
         retract_mode: str = "hard",
         retract_alpha: float = 0.05,
+        projection_mode: SpELProjectionMode = "retraction",
+        projection_rank: int = 1,
         # QKV / TP support (optional)
         split_qkv: bool = False,
         is_qkv_fn: Optional[Callable[[torch.Tensor], bool]] = None,
@@ -276,6 +441,12 @@ class SpEL(OrthogonalizedOptimizer):
             raise ValueError(f"Invalid radius_mode: {radius_mode}, must be one of: spectral_mup, identity, initialize")
         if retract_mode not in ("hard", "dynamic"):
             raise ValueError(f"Invalid retract_mode: {retract_mode}, must be one of: hard, dynamic")
+        if projection_mode not in ("retraction", "exact", "topk"):
+            raise ValueError(
+                f"Invalid projection_mode: {projection_mode}, must be one of: retraction, exact, topk"
+            )
+        if projection_rank < 1:
+            raise ValueError(f"projection_rank must be at least 1, got {projection_rank}")
         if qkv_split_mode not in ("component", "group", "head"):
             raise ValueError(f"Invalid qkv_split_mode: {qkv_split_mode}, must be one of: component, group, head")
 
@@ -286,6 +457,8 @@ class SpEL(OrthogonalizedOptimizer):
         self.scale_mode = scale_mode
         self.retract_mode = retract_mode
         self.retract_alpha = retract_alpha
+        self.projection_mode = projection_mode
+        self.projection_rank = projection_rank
         self.retract_bias_dict = {}  # For logging retract bias (only in dynamic mode)
         self.spectral_norm_dict = {}  # For logging spectral norms
         # QKV / TP
@@ -367,6 +540,7 @@ class SpEL(OrthogonalizedOptimizer):
             Update direction tensor
         """
         R = compute_target_radius(shape=W.shape, radius_mode=self.radius_mode)
+        scale_factor = get_spectral_ball_scale_factor(W.shape[0], W.shape[1], mode=self.scale_mode)
 
         u, bias, sigma = compute_spel_update(
             W=W,
@@ -379,6 +553,9 @@ class SpEL(OrthogonalizedOptimizer):
             retract_mode=self.retract_mode,
             retract_alpha=self.retract_alpha,
             current_lr=current_lr,
+            projection_mode=self.projection_mode,
+            projection_rank=self.projection_rank,
+            scale_factor=scale_factor,
         )
 
         # Record bias for logging
@@ -387,7 +564,6 @@ class SpEL(OrthogonalizedOptimizer):
             self.spectral_norm_dict[f"{param_name}.{component_label}"] = sigma
 
         # Apply scale factor
-        scale_factor = get_spectral_ball_scale_factor(W.shape[0], W.shape[1], mode=self.scale_mode)
         return u * scale_factor
 
     def orthogonalize(self, p: torch.Tensor, grad: torch.Tensor, **kwargs: Any) -> torch.Tensor:
@@ -666,6 +842,9 @@ class SpEL(OrthogonalizedOptimizer):
             retract_mode=self.retract_mode,
             retract_alpha=self.retract_alpha,
             current_lr=current_lr,
+            projection_mode=self.projection_mode,
+            projection_rank=self.projection_rank,
+            scale_factor=get_spectral_ball_scale_factor(p.shape[0], p.shape[1], mode=self.scale_mode),
         )
 
         # Record bias (only if dynamic mode and bias != 0)
