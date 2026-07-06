@@ -78,13 +78,14 @@ On the original H20 server, `Megatron-LM-active` is the stable symlink used by t
 
 ## Current Result Summary
 
-Status as of 2026-07-06: the `width=256` and `width=512` five-LR sweeps are complete on H20. All listed jobs finished with Slurm state `COMPLETED` and exit code `0:0`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
+Status as of 2026-07-07: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=256` top-k supplemental sweep is also complete. A matching `width=512` top-k supplemental sweep has been submitted as jobs `3741588`-`3741602`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
 Best completed results:
 
 | Width | Optimizer | LR | Val loss | PPL | Elapsed | Job |
 |---:|---|---:|---:|---:|---:|---:|
-| `256` | MCSD / SpEL `spel_dist` | `1.5e-2` | `3.567708` | `35.43530` | `05:26:59` | `3725139` |
+| `256` | MCSD / SpEL `spel_dist`, `topk k=8` | `1.5e-2` | `3.566694` | `35.39936` | `05:34:38` | `3740137` |
+| `256` | MCSD / SpEL `spel_dist`, original retraction | `1.5e-2` | `3.567708` | `35.43530` | `05:26:59` | `3725139` |
 | `512` | SpEL `spel_dist` | `1.5e-2` | `3.321666` | `27.70647` | `10:17:51` | `3737723` |
 | `512` | MCSD-PGD `spel_pgd_dist` | `1.5e-2` | `3.321784` | `27.70973` | `10:22:07` | `3737728` |
 | `512` | SSO `spectral_ball_dist` | `1.5e-2` | `3.322861` | `27.73959` | `11:21:05` | `3737718` |
@@ -149,6 +150,30 @@ This follow-up tests the theory-facing projection choice for SpEL/MCSD itself. I
 
 Current interpretation: the exact SVD projection variant is slower and worse in this implementation. The strongest candidates for follow-up are `SpEL topk k=2` and `SpEL-PGD shared_topk k=2`.
 
+### Width-256 Supplemental Top-k LR Sweep
+
+This 1B-token supplemental sweep follows the stronger projection choices from the 250M-token ablation. It compares MCSD/SpEL with `topk k=8` against MCSD-PGD with `shared_topk k=4` and `shared_topk k=8`.
+
+| LR | SpEL top-k k=8 val loss | SpEL elapsed | PGD shared top-k k=4 val loss | PGD k=4 elapsed | PGD shared top-k k=8 val loss | PGD k=8 elapsed |
+|---:|---:|---:|---:|---:|---:|---:|
+| `5e-3` | `3.640078` | `05:34:53` | `3.638641` | `05:36:58` | `3.640233` | `05:36:36` |
+| `7e-3` | `3.599136` | `05:33:27` | `3.602398` | `05:35:31` | `3.599719` | `05:35:49` |
+| `9e-3` | `3.583797` | `05:33:26` | `3.583682` | `05:36:06` | `3.584555` | `05:36:19` |
+| `1e-2` | `3.580739` | `05:33:30` | `3.577118` | `05:37:24` | `3.580421` | `05:37:12` |
+| `1.5e-2` | **`3.566694`** | `05:34:38` | `3.568926` | `05:37:10` | `3.566973` | `05:37:25` |
+
+Current interpretation: `SpEL topk k=8` gives the best completed width-256 1B result so far, but the margin over the original SpEL run is small (`3.566694` versus `3.567708`). MCSD-PGD `shared_topk k=8` is very close at `1.5e-2`.
+
+### Width-512 Supplemental Top-k LR Sweep
+
+The matching width-512 supplemental sweep was submitted on 2026-07-07 with the same LR grid and projection settings. Job IDs:
+
+| Variant | LR grid | Jobs |
+|---|---|---|
+| SpEL top-k k=8 | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` | `3741588`-`3741592` |
+| MCSD-PGD shared top-k k=4 | same | `3741593`-`3741597` |
+| MCSD-PGD shared top-k k=8 | same | `3741598`-`3741602` |
+
 See [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) for the full table, job IDs, commands, and caveats.
 
 ## Quick Workflow
@@ -169,6 +194,8 @@ cd ~/projects/SSO_test
 export MEGATRON_PATH=$PWD/Megatron-LM
 bash slurm/submit_width256_sso_mcsd_lr_sweep.sh
 bash slurm/submit_width256_spel_pgd_lr_sweep.sh
+bash slurm/submit_width256_spel_topk8_pgd_topk_lr_sweep.sh
+bash slurm/submit_width512_spel_topk8_pgd_topk_lr_sweep.sh
 ```
 
 Monitor jobs:

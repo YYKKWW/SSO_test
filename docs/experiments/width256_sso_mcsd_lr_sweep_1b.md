@@ -1,6 +1,6 @@
 # Experiment Record: Width-256/512 Optimizer LR Sweep on OLMo Mix 1B
 
-Last updated: 2026-07-06
+Last updated: 2026-07-07
 
 This document is the primary experiment record for the `width=256` and `width=512` optimizer learning-rate sweeps. It is intended to support paper development, later reproduction, and future extensions with new optimizers or additional learning rates.
 
@@ -17,8 +17,8 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
 | Compared optimizers | SSO / `spectral_ball_dist`, MCSD/SpEL / `spel_dist`, MCSD-PGD / `spel_pgd_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15` |
-| Slurm status | all `COMPLETED`, all exit code `0:0` |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15` |
+| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; width-512 supplemental top-k sweep submitted as jobs `3741588`-`3741602` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
 | Next likely extension | repeat selected settings or extend to width `1024` |
 
@@ -31,6 +31,7 @@ This is a controlled small-scale experiment, not the full paper sweep.
 - The current table is a single-run comparison; paper claims should be calibrated accordingly unless repeated seeds or additional settings are added.
 - The current MCSD label maps to the `spel_dist` implementation path because the active Megatron launcher does not expose an optimizer literally named `mcsd`.
 - The original width-256 SpEL-PGD rows use the first `spel_pgd_dist` implementation. The later width-512 MCSD-PGD rows use the selected top-k projection setting from the 250M-token tuning run: `fallback_topk`, rank `4`, gap `1e-3`.
+- The supplemental top-k rows use SpEL `projection_mode=topk` and MCSD-PGD `projection_mode=shared_topk`.
 - The H20 runs use Megatron's `local` transformer implementation rather than the original script's `transformer_engine` + `fused` backend. A direct TE/fused smoke test failed in the current environment; see [Backend Compatibility Note](#backend-compatibility-note).
 
 For paper use, treat the table below as an experiment record with exact job IDs and settings. If the results are later promoted into a paper figure, record the plotting script, figure version, and any post-processing assumptions in this document.
@@ -612,6 +613,44 @@ Interpretation:
 - Applying top-k to both SpEL-PGD branches is marginally best: `shared_topk k=2` reaches `3.983814`, but the gap to SpEL top-k k=2 is only `0.000089`.
 - The strongest follow-up candidates are `SpEL topk k=2` and `SpEL-PGD shared_topk k=2`.
 
+## Width-256 Supplemental Top-k LR Sweep
+
+This 1B-token supplemental run follows the projection settings that were strongest or most relevant after the 250M-token ablation:
+
+```text
+SpEL / MCSD: projection_mode=topk, projection_rank=8
+MCSD-PGD:    projection_mode=shared_topk, projection_rank=4 or 8
+```
+
+The run keeps the same width-256 model, OLMo mix 1B sample, LR grid, global batch, evaluation cadence, tokenizer, and local Megatron backend as the original width-256 sweep.
+
+All jobs below completed with Slurm state `COMPLETED` and exit code `0:0`.
+
+| Variant | Megatron optimizer | Key setting | LR | Job ID | Final val iter | Val loss | PPL | Elapsed | Node |
+|---|---|---|---:|---:|---:|---:|---:|---:|---|
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `5e-3` | `3740133` | `1908` | `3.640078` | `38.09481` | `05:34:53` | `SPG-7-1` |
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `7e-3` | `3740134` | `1908` | `3.599136` | `36.56664` | `05:33:27` | `SPG-7-1` |
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `9e-3` | `3740135` | `1908` | `3.583797` | `36.01000` | `05:33:26` | `SPG-7-1` |
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `1e-2` | `3740136` | `1908` | `3.580739` | `35.90005` | `05:33:30` | `SPG-7-1` |
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `1.5e-2` | `3740137` | `1908` | `3.566694` | `35.39936` | `05:34:38` | `SPG-7-1` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `5e-3` | `3740138` | `1908` | `3.638641` | `38.04009` | `05:36:58` | `SPG-7-1` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `7e-3` | `3740139` | `1908` | `3.602398` | `36.68610` | `05:35:31` | `SPG-7-1` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `9e-3` | `3740140` | `1908` | `3.583682` | `36.00586` | `05:36:06` | `SPG-7-1` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `1e-2` | `3740141` | `1908` | `3.577118` | `35.77032` | `05:37:24` | `SPG-7-2` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `1.5e-2` | `3740142` | `1908` | `3.568926` | `35.47848` | `05:37:10` | `SPG-7-2` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `5e-3` | `3740143` | `1908` | `3.640233` | `38.10070` | `05:36:36` | `SPG-7-2` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `7e-3` | `3740144` | `1908` | `3.599719` | `36.58796` | `05:35:49` | `SPG-7-2` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `9e-3` | `3740145` | `1908` | `3.584555` | `36.03732` | `05:36:19` | `SPG-7-2` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `1e-2` | `3740146` | `1908` | `3.580421` | `35.88865` | `05:37:12` | `SPG-7-2` |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `1.5e-2` | `3740147` | `1908` | `3.566973` | `35.40925` | `05:37:25` | `SPG-7-2` |
+
+Interpretation:
+
+- The best completed width-256 1B result is now `SpEL topk k=8`, `LR=1.5e-2`, with val loss `3.566694`.
+- The gain over the original SpEL/retraction row is small: `3.566694` versus `3.567708`.
+- MCSD-PGD `shared_topk k=8` is very close at `1.5e-2`, with val loss `3.566973`.
+- MCSD-PGD `shared_topk k=4` is best at `1.5e-2` among its own rows, but trails the `k=8` and SpEL top-k rows at the same LR.
+
 ## Width-512 Completed Sweep Results
 
 This extension uses the same 1B-token OLMo mix sample, LR grid, tokenizer, sequence length, global batch, and local Megatron backend as the width-256 sweep. Width 512 uses hidden size `512`, head dim `128`, four attention heads, FFN hidden size `1536`, and 28 layers.
@@ -662,6 +701,43 @@ For this one-seed width-512 sweep:
 - SpEL is best at `9e-3`, `1e-2`, and `1.5e-2`, but the gaps to SSO and MCSD-PGD are small.
 - MCSD-PGD is best at `5e-3`; SSO is best at `7e-3`.
 - MCSD-PGD with top-k projection is no longer the failed behavior seen in the earlier untuned width-256 SpEL-PGD sweep, but it has not clearly beaten SpEL at the best LR.
+
+## Width-512 Supplemental Top-k LR Sweep
+
+This run is the width-512 counterpart of the completed width-256 supplemental top-k sweep. It was submitted on 2026-07-07 and uses:
+
+```text
+SpEL / MCSD: projection_mode=topk, projection_rank=8
+MCSD-PGD:    projection_mode=shared_topk, projection_rank=4 or 8
+LR grid:     5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
+```
+
+The jobs are currently tracked under:
+
+```text
+RUN_ROOT=/home/u3013198/projects/SSO_test/results/olmo_1b_width512_spel_topk8_pgd_topk_lr_sweep
+script=slurm/submit_width512_spel_topk8_pgd_topk_lr_sweep.sh
+```
+
+| Variant | Megatron optimizer | Key setting | LR | Job ID | Status |
+|---|---|---|---:|---:|---|
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `5e-3` | `3741588` | submitted/running |
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `7e-3` | `3741589` | submitted/running |
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `9e-3` | `3741590` | submitted/running |
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `1e-2` | `3741591` | submitted/running |
+| SpEL top-k | `spel_dist` | `topk`, `k=8` | `1.5e-2` | `3741592` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `5e-3` | `3741593` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `7e-3` | `3741594` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `9e-3` | `3741595` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `1e-2` | `3741596` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=4` | `1.5e-2` | `3741597` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `5e-3` | `3741598` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `7e-3` | `3741599` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `9e-3` | `3741600` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `1e-2` | `3741601` | submitted/running |
+| MCSD-PGD shared top-k | `spel_pgd_dist` | `shared_topk`, `k=8` | `1.5e-2` | `3741602` | submitted/running |
+
+Update this section with final val loss, PPL, elapsed time, and node after `sacct` reports `COMPLETED`.
 
 ## Historical Baseline
 
