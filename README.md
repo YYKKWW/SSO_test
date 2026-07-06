@@ -131,6 +131,24 @@ The 250M-token `width=256`, `LR=1.5e-2` projection tuning run selected the MCSD-
 | MCSD-PGD exact | `fallback_exact`, `gap=1e-3` | `4.009463` | `55.11728` | `3734901` |
 | MCSD-PGD retraction | `fallback_retraction`, `gap=5e-3` | `4.631289` | `102.6462` | `3734905` |
 
+### SpEL Projection Ablation
+
+This follow-up tests the theory-facing projection choice for SpEL/MCSD itself. It uses `width=256`, `250M` training tokens, `LR=1.5e-2`, `GLOBAL_BATCH=128`, and the same OLMo mix sample.
+
+| Variant | Key setting | Val loss | PPL | Job |
+|---|---|---:|---:|---:|
+| SpEL-PGD shared top-k | `shared_topk`, `k=2` | **`3.983814`** | `53.72153` | `3739001` |
+| SpEL top-k | `topk`, `k=2` | `3.983903` | `53.72633` | `3738997` |
+| SpEL top-k | `topk`, `k=8` | `3.985768` | `53.82662` | `3738999` |
+| SpEL-PGD shared top-k | `shared_topk`, `k=8` | `3.985801` | `53.82839` | `3739003` |
+| SpEL-PGD shared top-k | `shared_topk`, `k=4` | `3.986346` | `53.85776` | `3739002` |
+| SpEL top-k | `topk`, `k=4` | `3.986554` | `53.86893` | `3738998` |
+| SpEL-PGD fallback top-k | `fallback_topk`, `k=4` | `4.000864` | `54.64534` | `3739000` |
+| SpEL retraction baseline | `retraction` | `4.001449` | `54.67733` | `3738995` |
+| SpEL exact SVD | `exact` | `4.138569` | `62.71301` | `3738996` |
+
+Current interpretation: the exact SVD projection variant is slower and worse in this implementation. The strongest candidates for follow-up are `SpEL topk k=2` and `SpEL-PGD shared_topk k=2`.
+
 See [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) for the full table, job IDs, commands, and caveats.
 
 ## Quick Workflow

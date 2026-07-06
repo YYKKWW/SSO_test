@@ -17,7 +17,7 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
 | Compared optimizers | SSO / `spectral_ball_dist`, MCSD/SpEL / `spel_dist`, MCSD-PGD / `spel_pgd_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; width-512 1B sweep: `15/15` |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15` |
 | Slurm status | all `COMPLETED`, all exit code `0:0` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
 | Next likely extension | repeat selected settings or extend to width `1024` |
@@ -576,6 +576,41 @@ gap_threshold_rel=1e-3
 ```
 
 Rationale: `gap=1e-4` and `gap=1e-3` tie at `4.000864`, and `1e-3` is the less brittle threshold. This tuning result is a narrow 250M-token selection run; it should be treated as a configuration choice for the width-512 sweep, not as a paper-scale standalone claim.
+
+## SpEL Projection Ablation
+
+This follow-up run tests the projection choice for SpEL/MCSD itself. It uses `width=256`, `250M` training tokens, `LR=1.5e-2`, `GLOBAL_BATCH=128`, `EVAL_INTERVAL=100`, and `EVAL_ITERS=5`.
+
+The tested SpEL projection modes are:
+
+```text
+retraction: original SpEL engineering retraction
+exact:      full-SVD post-step spectral-sphere projection
+topk:       approximate top-k post-step spectral-sphere projection
+```
+
+The SpEL-PGD `shared_topk` runs apply top-k projection to both the safe SpEL branch and the PGD fallback branch.
+
+All jobs below completed with Slurm state `COMPLETED` and exit code `0:0`.
+
+| Variant | Key setting | Job ID | Final val iter | Val loss | PPL | Elapsed | Node |
+|---|---|---:|---:|---:|---:|---:|---|
+| SpEL retraction baseline | `projection_mode=retraction` | `3738995` | `477` | `4.001449` | `54.67733` | `01:23:28` | `SPG-7-1` |
+| SpEL exact SVD | `projection_mode=exact` | `3738996` | `477` | `4.138569` | `62.71301` | `01:34:24` | `SPG-7-1` |
+| SpEL top-k | `projection_mode=topk`, `k=2` | `3738997` | `477` | `3.983903` | `53.72633` | `01:24:38` | `SPG-7-1` |
+| SpEL top-k | `projection_mode=topk`, `k=4` | `3738998` | `477` | `3.986554` | `53.86893` | `01:24:59` | `SPG-7-1` |
+| SpEL top-k | `projection_mode=topk`, `k=8` | `3738999` | `477` | `3.985768` | `53.82662` | `01:25:09` | `SPG-7-1` |
+| SpEL-PGD fallback top-k | `fallback_topk`, `k=4` | `3739000` | `477` | `4.000864` | `54.64534` | `01:24:16` | `SPG-7-1` |
+| SpEL-PGD shared top-k | `shared_topk`, `k=2` | `3739001` | `477` | `3.983814` | `53.72153` | `01:25:28` | `SPG-7-1` |
+| SpEL-PGD shared top-k | `shared_topk`, `k=4` | `3739002` | `477` | `3.986346` | `53.85776` | `01:25:42` | `SPG-7-1` |
+| SpEL-PGD shared top-k | `shared_topk`, `k=8` | `3739003` | `477` | `3.985801` | `53.82839` | `01:26:30` | `SPG-7-2` |
+
+Interpretation:
+
+- Exact SVD projection is slower and clearly worse in this implementation: `4.138569` versus `4.001449` for the original retraction baseline.
+- Top-k projection improves SpEL/MCSD: `topk k=2` reaches `3.983903`.
+- Applying top-k to both SpEL-PGD branches is marginally best: `shared_topk k=2` reaches `3.983814`, but the gap to SpEL top-k k=2 is only `0.000089`.
+- The strongest follow-up candidates are `SpEL topk k=2` and `SpEL-PGD shared_topk k=2`.
 
 ## Width-512 Completed Sweep Results
 
