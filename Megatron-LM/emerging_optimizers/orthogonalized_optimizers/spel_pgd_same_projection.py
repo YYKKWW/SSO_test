@@ -378,6 +378,7 @@ def compute_spel_pgd_same_projection_update(
     pgd_direction_normalization: PGDDirectionNormalization = "none",
     projection_mode: ProjectionMode = "fallback_exact",
     projection_rank: int = 1,
+    tangent_project_after_msign: bool = True,
     eps: float = 1e-8,
 ) -> Tuple[torch.Tensor, SpELPGDUpdateInfo]:
     """Compute a SpEL--PGD update.
@@ -492,7 +493,8 @@ def compute_spel_pgd_same_projection_update(
                 M_projected, dim=(-2, -1), keepdim=True
             ).clamp_min(eps)
             D = msign(M_projected, steps=msign_steps)
-            D = project_to_tangent_plane(D, u, v, eps=eps)
+            if tangent_project_after_msign:
+                D = project_to_tangent_plane(D, u, v, eps=eps)
         else:
             D = _pgd_direction(
                 M_work,
@@ -580,6 +582,7 @@ class SpELPGDSameProjection(SpEL):
         pgd_direction_normalization: PGDDirectionNormalization = "none",
         projection_mode: ProjectionMode = "fallback_exact",
         projection_rank: int = 1,
+        tangent_project_after_msign: bool = True,
         **kwargs: Any,
     ) -> None:
         if branch_mode not in ("auto", "spel", "pgd"):
@@ -605,7 +608,11 @@ class SpELPGDSameProjection(SpEL):
         if projection_rank < 1:
             raise ValueError("projection_rank must be at least 1")
 
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            *args,
+            tangent_project_after_msign=tangent_project_after_msign,
+            **kwargs,
+        )
 
         self.use_pgd_fallback = use_pgd_fallback
         self.branch_mode = branch_mode
@@ -728,6 +735,7 @@ class SpELPGDSameProjection(SpEL):
             pgd_direction_normalization=self.pgd_direction_normalization,
             projection_mode=self.projection_mode,
             projection_rank=self.projection_rank,
+            tangent_project_after_msign=self.tangent_project_after_msign,
         )
 
         self._record_update_info(

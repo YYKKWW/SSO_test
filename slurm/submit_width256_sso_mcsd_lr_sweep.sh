@@ -36,7 +36,7 @@ submit_one() {
     "$SBATCH_SCRIPT"
 }
 
-echo "Submitting width=${WIDTH} SSO vs MCSD LR sweep"
+echo "Submitting width=${WIDTH} SSO vs MCSD-TP LR sweep"
 echo "  LRS=${LRS}"
 echo "  GLOBAL_BATCH=${GLOBAL_BATCH}, MICRO_BATCH=${MICRO_BATCH}, TRAIN_TOKENS=${TRAIN_TOKENS}"
 echo "  RUN_ROOT=${RUN_ROOT}"
@@ -46,5 +46,5 @@ for lr in $LRS; do
 done
 
 for lr in $LRS; do
-  submit_one "mcsd" "spel_dist" "$lr"
+  submit_one "mcsd_tp" "spel_tp_dist" "$lr"
 done

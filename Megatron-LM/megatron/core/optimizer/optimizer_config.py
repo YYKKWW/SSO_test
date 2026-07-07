@@ -380,6 +380,9 @@ class OptimizerConfig:
     spel_projection_rank: int = 1
     """Rank used by SpEL top-k approximate projection mode."""
 
+    spel_tangent_project_after_msign: bool = False
+    """Whether SpEL re-projects the msign direction to the tangent plane."""
+
     # SpEL-PGD, a SpEL variant with PGD-style fallback.
     spel_pgd_momentum: float = 0.9
     """Momentum coefficient for SpEL-PGD optimizer."""
@@ -437,6 +440,9 @@ class OptimizerConfig:
 
     spel_pgd_projection_rank: int = 1
     """Rank used by SpEL-PGD top-k approximate projection modes."""
+
+    spel_pgd_tangent_project_after_msign: bool = True
+    """Whether the SpEL branch in SpEL-PGD re-projects msign to the tangent plane."""
 
     # Lion.
     lion_beta1: float = 0.95

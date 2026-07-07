@@ -14,7 +14,7 @@ This directory is the documentation entry point for the H20 experiment repositor
 
 | Document | Purpose |
 |---|---|
-| [experiments/width256_sso_mcsd_lr_sweep_1b.md](experiments/width256_sso_mcsd_lr_sweep_1b.md) | Main width-256/512 optimizer LR sweep on the 1B-token OLMo mix sample, covering SSO, MCSD/SpEL, MCSD-PGD, and the 250M-token MCSD-PGD projection tuning run. |
+| [experiments/width256_sso_mcsd_lr_sweep_1b.md](experiments/width256_sso_mcsd_lr_sweep_1b.md) | Main width-256/512 optimizer LR sweep on the 1B-token OLMo mix sample, covering SSO, MCSD-TP/SpEL-TP, MCSD-PGD, and the 250M-token MCSD-PGD projection tuning run. |
 | [runbooks/h20_spel_megatron_runbook.md](runbooks/h20_spel_megatron_runbook.md) | Historical H20 setup and debugging runbook for SpEL/Megatron experiments. |
 | [templates/experiment_record_template.md](templates/experiment_record_template.md) | Starting point for a new experiment record. |
 

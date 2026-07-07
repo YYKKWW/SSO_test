@@ -3399,6 +3399,13 @@ def _add_regularization_args(parser):
         default=1,
         help='Rank used by SpEL top-k approximate projection mode',
     )
+    group.add_argument(
+        '--spel-tangent-project-after-msign',
+        action='store_true',
+        default=False,
+        dest='spel_tangent_project_after_msign',
+        help='Re-project the SpEL msign direction to the spectral-sphere tangent plane',
+    )
     group.add_argument('--spel-pgd-momentum', type=float, default=0.9, help='Momentum coefficient for SpEL-PGD optimizer')
     group.add_argument('--spel-pgd-use-nesterov', action='store_true', default=True, help='Use Nesterov-style momentum in SpEL-PGD')
     group.add_argument(
@@ -3510,6 +3517,19 @@ def _add_regularization_args(parser):
         type=int,
         default=1,
         help='Rank used by SpEL-PGD top-k approximate projection modes',
+    )
+    group.add_argument(
+        '--spel-pgd-tangent-project-after-msign',
+        action='store_true',
+        default=True,
+        dest='spel_pgd_tangent_project_after_msign',
+        help='Re-project the SpEL branch msign direction to the tangent plane in SpEL-PGD',
+    )
+    group.add_argument(
+        '--spel-pgd-no-tangent-project-after-msign',
+        action='store_false',
+        dest='spel_pgd_tangent_project_after_msign',
+        help='Disable post-msign tangent projection in the SpEL branch of SpEL-PGD',
     )
     group.add_argument(
         '--lion-beta1',
@@ -3916,7 +3936,7 @@ def _add_training_args(parser):
         '--optimizer',
         type=str,
         default='adam',
-        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'spel', 'spel_dist', 'spel_pgd', 'spel_pgd_dist', 'lion', 'soap', 'adaptive_muon'],
+        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'spel', 'spel_dist', 'spel_tp', 'spel_tp_dist', 'spel_pgd', 'spel_pgd_dist', 'lion', 'soap', 'adaptive_muon'],
         help='Optimizer function. '
         'Note: dist_muon is deprecated; use --optimizer muon '
         'with --use-distributed-optimizer instead.',

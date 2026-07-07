@@ -496,6 +496,13 @@ def _spel_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any
     return kwargs
 
 
+def _spel_tp_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any]:
+    """Convert OptimizerConfig to SpEL-TP constructor kwargs."""
+    kwargs = _spel_config_to_kwargs(config, model_chunks, pg_collection)
+    kwargs["tangent_project_after_msign"] = True
+    return kwargs
+
+
 def _spel_pgd_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any]:
     """Convert OptimizerConfig to SpEL-PGD constructor kwargs."""
     model_cfg = model_chunks[0].config
@@ -560,6 +567,18 @@ _EMERGING_OPTIMIZERS.update(
             optimizer_cls=SpEL,
             init_state_fn=_eopt_init_state_fn,
             config_to_kwargs=_spel_config_to_kwargs,
+            default_param_overrides={
+                ParamKey(
+                    predicate=ParamPredicate(
+                        name="nonlinear_or_embedding", fn=_is_nonlinear_or_embedding
+                    )
+                ): {'optimizer': 'adam'}
+            },
+        ),
+        "spel_tp": EmergingOptimizerEntry(
+            optimizer_cls=SpEL,
+            init_state_fn=_eopt_init_state_fn,
+            config_to_kwargs=_spel_tp_config_to_kwargs,
             default_param_overrides={
                 ParamKey(
                     predicate=ParamPredicate(

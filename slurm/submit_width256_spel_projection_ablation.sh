@@ -28,11 +28,11 @@ submit_spel() {
   local label=$1
   local projection_mode=$2
   local projection_rank=$3
-  local job_name="spelproj_w${WIDTH}_${label}"
+  local job_name="spel_tp_proj_w${WIDTH}_${label}"
 
   sbatch \
     -J "$job_name" \
-    --export=ALL,OPTIMIZER="spel_dist",WIDTH="$WIDTH",NUM_LAYERS="$NUM_LAYERS",HEAD_DIM="$HEAD_DIM",SEQ_LENGTH="$SEQ_LENGTH",GLOBAL_BATCH="$GLOBAL_BATCH",MICRO_BATCH="$MICRO_BATCH",TRAIN_TOKENS="$TRAIN_TOKENS",LR="$LR",MIN_LR="$MIN_LR",LR_WARMUP_ITERS="$LR_WARMUP_ITERS",EVAL_INTERVAL="$EVAL_INTERVAL",EVAL_ITERS="$EVAL_ITERS",LOG_INTERVAL="$LOG_INTERVAL",RUN_ROOT="$RUN_ROOT",JOB_NAME="$job_name",SAVE_CHECKPOINT=0,SPEL_PROJECTION_MODE="$projection_mode",SPEL_PROJECTION_RANK="$projection_rank" \
+    --export=ALL,OPTIMIZER="spel_tp_dist",WIDTH="$WIDTH",NUM_LAYERS="$NUM_LAYERS",HEAD_DIM="$HEAD_DIM",SEQ_LENGTH="$SEQ_LENGTH",GLOBAL_BATCH="$GLOBAL_BATCH",MICRO_BATCH="$MICRO_BATCH",TRAIN_TOKENS="$TRAIN_TOKENS",LR="$LR",MIN_LR="$MIN_LR",LR_WARMUP_ITERS="$LR_WARMUP_ITERS",EVAL_INTERVAL="$EVAL_INTERVAL",EVAL_ITERS="$EVAL_ITERS",LOG_INTERVAL="$LOG_INTERVAL",RUN_ROOT="$RUN_ROOT",JOB_NAME="$job_name",SAVE_CHECKPOINT=0,SPEL_PROJECTION_MODE="$projection_mode",SPEL_PROJECTION_RANK="$projection_rank",SPEL_TANGENT_PROJECT_AFTER_MSIGN=1 \
     "$SBATCH_SCRIPT"
 }
 
@@ -48,11 +48,11 @@ submit_spel_pgd() {
     "$SBATCH_SCRIPT"
 }
 
-echo "Submitting width=${WIDTH} SpEL projection and SpEL-PGD top-k ablation"
+echo "Submitting width=${WIDTH} MCSD-TP/SpEL-TP projection and SpEL-PGD top-k ablation"
 echo "  LR=${LR}, TRAIN_TOKENS=${TRAIN_TOKENS}, GLOBAL_BATCH=${GLOBAL_BATCH}, MICRO_BATCH=${MICRO_BATCH}"
 echo "  RUN_ROOT=${RUN_ROOT}"
 
-# SpEL/MCSD canonical projection ablation.
+# MCSD-TP/SpEL-TP canonical projection ablation.
 submit_spel "retr" "retraction" "1"
 submit_spel "exact" "exact" "1"
 submit_spel "topk_k2" "topk" "2"

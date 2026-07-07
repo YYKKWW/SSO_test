@@ -61,12 +61,12 @@ submit_spel_topk() {
   local min_lr
   tag=$(lr_tag "$lr")
   min_lr=$(min_lr_for "$lr")
-  local job_name="mcsd_topk${rank}_w${WIDTH}_lr${tag}_high"
+  local job_name="mcsd_tp_topk${rank}_w${WIDTH}_lr${tag}_high"
 
   sbatch \
     --cpus-per-task="$CPUS_PER_TASK" \
     -J "$job_name" \
-    --export=ALL,OPTIMIZER="spel_dist",WIDTH="$WIDTH",NUM_LAYERS="$NUM_LAYERS",HEAD_DIM="$HEAD_DIM",SEQ_LENGTH="$SEQ_LENGTH",GLOBAL_BATCH="$GLOBAL_BATCH",MICRO_BATCH="$MICRO_BATCH",TRAIN_TOKENS="$TRAIN_TOKENS",LR="$lr",MIN_LR="$min_lr",LR_WARMUP_ITERS="$LR_WARMUP_ITERS",EVAL_INTERVAL="$EVAL_INTERVAL",EVAL_ITERS="$EVAL_ITERS",LOG_INTERVAL="$LOG_INTERVAL",RUN_ROOT="$RUN_ROOT",JOB_NAME="$job_name",SAVE_CHECKPOINT=0,SPEL_PROJECTION_MODE=topk,SPEL_PROJECTION_RANK="$rank" \
+    --export=ALL,OPTIMIZER="spel_tp_dist",WIDTH="$WIDTH",NUM_LAYERS="$NUM_LAYERS",HEAD_DIM="$HEAD_DIM",SEQ_LENGTH="$SEQ_LENGTH",GLOBAL_BATCH="$GLOBAL_BATCH",MICRO_BATCH="$MICRO_BATCH",TRAIN_TOKENS="$TRAIN_TOKENS",LR="$lr",MIN_LR="$min_lr",LR_WARMUP_ITERS="$LR_WARMUP_ITERS",EVAL_INTERVAL="$EVAL_INTERVAL",EVAL_ITERS="$EVAL_ITERS",LOG_INTERVAL="$LOG_INTERVAL",RUN_ROOT="$RUN_ROOT",JOB_NAME="$job_name",SAVE_CHECKPOINT=0,SPEL_PROJECTION_MODE=topk,SPEL_PROJECTION_RANK="$rank",SPEL_TANGENT_PROJECT_AFTER_MSIGN=1 \
     "$SBATCH_SCRIPT"
 }
 
@@ -88,7 +88,7 @@ submit_pgd_shared_topk() {
 
 echo "Submitting width=${WIDTH} high-LR projection sweep"
 echo "  LRS=${LRS}"
-echo "  configs: SSO, SpEL topk k=4/8, MCSD-PGD shared_topk k=4/8"
+echo "  configs: SSO, MCSD-TP/SpEL-TP topk k=4/8, MCSD-PGD shared_topk k=4/8"
 echo "  TRAIN_TOKENS=${TRAIN_TOKENS}, GLOBAL_BATCH=${GLOBAL_BATCH}, MICRO_BATCH=${MICRO_BATCH}, CPUS_PER_TASK=${CPUS_PER_TASK}"
 echo "  RUN_ROOT=${RUN_ROOT}"
 

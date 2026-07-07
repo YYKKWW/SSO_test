@@ -268,18 +268,21 @@ def compute_spel_update(
     current_lr: Optional[float] = None,
     projection_mode: SpELProjectionMode = "retraction",
     projection_rank: int = 1,
+    tangent_project_after_msign: bool = False,
     scale_factor: Optional[float] = None,
 ) -> Tuple[torch.Tensor, float, float]:
     """Compute SpEL update.
 
     Algorithm:
+    Note: the post-msign tangent projection is optional in this implementation.
+    Runs with that option enabled are reported as SpEL-TP / MCSD-TP.
     1. Power iteration to get σ, u, v
     2. Retract W to spectral sphere: W ← (R/σ)W
     3. Project momentum to the spectral-sphere tangent plane:
        M ← M - <u v^T, M> u v^T
     4. Orthogonalize: Φ = msign(M_projected)
-    5. Re-project Φ to the same tangent plane, because msign is nonlinear
-       and does not preserve <u v^T, ·> = 0 exactly.
+    5. Optionally re-project Φ to the same tangent plane, because msign is
+       nonlinear and does not preserve <u v^T, ·> = 0 exactly.
 
     Args:
         W: Current weight matrix (modified in-place for retraction)
@@ -338,9 +341,10 @@ def compute_spel_update(
     # 4. Orthogonalize the projected momentum.
     Phi = msign(M_projected, steps=msign_steps)
 
-    # 5. Re-project after msign.  The map msign is nonlinear, so tangentness
-    # of M_projected does not imply tangentness of msign(M_projected).
-    Phi = project_to_tangent_plane(Phi, u, v)
+    if tangent_project_after_msign:
+        # The map msign is nonlinear, so tangentness of M_projected does not
+        # imply tangentness of msign(M_projected).
+        Phi = project_to_tangent_plane(Phi, u, v)
 
     Phi, _ = _post_project_spel_trial(
         W_work,
@@ -418,6 +422,7 @@ class SpEL(OrthogonalizedOptimizer):
         retract_alpha: float = 0.05,
         projection_mode: SpELProjectionMode = "retraction",
         projection_rank: int = 1,
+        tangent_project_after_msign: bool = False,
         # QKV / TP support (optional)
         split_qkv: bool = False,
         is_qkv_fn: Optional[Callable[[torch.Tensor], bool]] = None,
@@ -459,6 +464,7 @@ class SpEL(OrthogonalizedOptimizer):
         self.retract_alpha = retract_alpha
         self.projection_mode = projection_mode
         self.projection_rank = projection_rank
+        self.tangent_project_after_msign = tangent_project_after_msign
         self.retract_bias_dict = {}  # For logging retract bias (only in dynamic mode)
         self.spectral_norm_dict = {}  # For logging spectral norms
         # QKV / TP
@@ -555,6 +561,7 @@ class SpEL(OrthogonalizedOptimizer):
             current_lr=current_lr,
             projection_mode=self.projection_mode,
             projection_rank=self.projection_rank,
+            tangent_project_after_msign=self.tangent_project_after_msign,
             scale_factor=scale_factor,
         )
 
@@ -844,6 +851,7 @@ class SpEL(OrthogonalizedOptimizer):
             current_lr=current_lr,
             projection_mode=self.projection_mode,
             projection_rank=self.projection_rank,
+            tangent_project_after_msign=self.tangent_project_after_msign,
             scale_factor=get_spectral_ball_scale_factor(p.shape[0], p.shape[1], mode=self.scale_mode),
         )
 

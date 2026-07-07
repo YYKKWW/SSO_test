@@ -18,7 +18,7 @@ EVAL_INTERVAL="${EVAL_INTERVAL:-250}"
 EVAL_ITERS="${EVAL_ITERS:-5}"
 LOG_INTERVAL="${LOG_INTERVAL:-10}"
 
-# Best width-256 SpEL/MCSD-PGD tuning result from the 250M-token projection sweep:
+# Best width-256 SpEL-TP/MCSD-PGD tuning result from the 250M-token projection sweep:
 # fallback_topk with rank=4. gap=1e-4 and 1e-3 tied; use 1e-3 as the less brittle default.
 SPEL_PGD_BRANCH_MODE="${SPEL_PGD_BRANCH_MODE:-auto}"
 SPEL_PGD_PROJECTION_MODE="${SPEL_PGD_PROJECTION_MODE:-fallback_topk}"
@@ -52,7 +52,7 @@ submit_one() {
   fi
 }
 
-echo "Submitting width=${WIDTH} SpEL vs SSO vs MCSD-PGD best-config LR sweep"
+echo "Submitting width=${WIDTH} SpEL-TP vs SSO vs MCSD-PGD best-config LR sweep"
 echo "  LRS=${LRS}, TRAIN_TOKENS=${TRAIN_TOKENS}, GLOBAL_BATCH=${GLOBAL_BATCH}, MICRO_BATCH=${MICRO_BATCH}"
 echo "  MCSD-PGD: branch=${SPEL_PGD_BRANCH_MODE}, projection=${SPEL_PGD_PROJECTION_MODE}, rank=${SPEL_PGD_PROJECTION_RANK}, gap=${SPEL_PGD_GAP_THRESHOLD_REL}"
 echo "  RUN_ROOT=${RUN_ROOT}"
@@ -62,7 +62,7 @@ for lr in $LRS; do
 done
 
 for lr in $LRS; do
-  submit_one "spel" "spel_dist" "$lr"
+  submit_one "spel_tp" "spel_tp_dist" "$lr"
 done
 
 for lr in $LRS; do

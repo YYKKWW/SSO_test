@@ -250,6 +250,21 @@ TRAINING_ARGS=(
   --spel-pgd-projection-rank "${SPEL_PGD_PROJECTION_RANK:-1}"
 )
 
+SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE="${SPEL_TANGENT_PROJECT_AFTER_MSIGN:-0}"
+if [[ "$OPTIMIZER" == "spel_tp" || "$OPTIMIZER" == "spel_tp_dist" ]]; then
+  SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE=1
+fi
+
+if [[ "$SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE" == "1" || "$SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE" == "true" ]]; then
+  TRAINING_ARGS+=(--spel-tangent-project-after-msign)
+fi
+
+if [[ "${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-1}" == "0" || "${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-}" == "false" ]]; then
+  TRAINING_ARGS+=(--spel-pgd-no-tangent-project-after-msign)
+else
+  TRAINING_ARGS+=(--spel-pgd-tangent-project-after-msign)
+fi
+
 PARALLEL_ARGS=(
   --tensor-model-parallel-size "$TP_SIZE"
   --pipeline-model-parallel-size "$PP_SIZE"
@@ -292,6 +307,8 @@ echo "job_name=$JOB_NAME"
 echo "hidden=$HIDDEN_SIZE layers=$NUM_LAYERS heads=$NUM_ATTENTION_HEADS q_groups=$NUM_QUERY_GROUPS"
 echo "seq=$SEQ_LENGTH micro=$MICRO_BATCH global=$GLOBAL_BATCH train_tokens=$TRAIN_TOKENS train_iters=$TRAIN_ITER"
 echo "optimizer=$OPTIMIZER lr=$LR min_lr=$MIN_LR warmup=$LR_WARMUP_ITERS"
+echo "spel_projection=${SPEL_PROJECTION_MODE:-retraction} rank=${SPEL_PROJECTION_RANK:-1} tp_after_msign=${SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE}"
+echo "spel_pgd_projection=${SPEL_PGD_PROJECTION_MODE:-fallback_exact} rank=${SPEL_PGD_PROJECTION_RANK:-1} tp_after_msign=${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-1}"
 echo "transformer_impl=$TRANSFORMER_IMPL attention_backend=${ATTENTION_BACKEND:-auto}"
 echo "train_data=$TRAIN_DATA_PREFIX"
 echo "valid_data=$VALID_DATA_PREFIX"
