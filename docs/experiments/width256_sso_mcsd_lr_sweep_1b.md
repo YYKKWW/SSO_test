@@ -15,10 +15,10 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 | Width | `256`, `512` |
 | Data budget | `1B` training tokens |
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
-| Compared optimizers | SSO / `spectral_ball_dist`, MCSD-TP/SpEL-TP / `spel_dist`, MCSD-PGD / `spel_pgd_dist` |
+| Compared optimizers | SSO / `spectral_ball_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, MCSD-PGD / `spel_pgd_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
 | Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15` |
-| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement job `3743071` is complete and `3743072` is running; width-512 high-LR jobs `3743116`-`3743125` are running |
+| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement job `3743071` is complete and `3743072` is running; width-512 high-LR jobs `3743116`-`3743125` are running; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` were submitted on 2026-07-08 |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
 | Next likely extension | repeat selected settings or extend to width `1024` |
 
@@ -794,6 +794,40 @@ Jobs were submitted on 2026-07-07 and entered `RUNNING`.
 | MCSD-PGD shared top-k / `spel_pgd_dist`, `k=8` | `3e-2` | `3743125` | running |
 
 Update this table with final validation loss, PPL, elapsed time, and node after completion.
+
+## Plain SpEL / MCSD-TP-PGD Projection Supplement
+
+This supplement was submitted on 2026-07-08 after the optimizer naming audit separated plain SpEL from SpEL-TP. It directly tests the missing projection choices at `LR=1.5e-2` for both `width=256` and `width=512`.
+
+```text
+Script: slurm/submit_width256_512_spel_mcsd_tp_pgd_projection_supplement.sh
+Run roots:
+  /home/u3013198/projects/SSO_test/results/olmo_1b_width256_spel_mcsd_tp_pgd_projection_supplement
+  /home/u3013198/projects/SSO_test/results/olmo_1b_width512_spel_mcsd_tp_pgd_projection_supplement
+Train tokens: 1B
+Global batch: 128
+Micro batch: 4
+LR: 1.5e-2
+```
+
+Plain SpEL uses `OPTIMIZER=spel_dist` and `SPEL_TANGENT_PROJECT_AFTER_MSIGN=0`. MCSD-TP-PGD uses `OPTIMIZER=spel_pgd_dist`, `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=1`, `SPEL_PGD_BRANCH_MODE=auto`, `SPEL_PGD_GAP_THRESHOLD_REL=1e-3`, and `SPEL_PGD_DIRECTION_NORMALIZATION=none`.
+
+| Width | Optimizer/config | Projection | Job ID | Initial status | Notes |
+|---:|---|---|---:|---|---|
+| `256` | SpEL / `spel_dist` | `retraction` | `3744519` | running | iteration 1 reached; `spel_tangent_project_after_msign=False` |
+| `256` | SpEL / `spel_dist` | `topk`, `k=4` | `3744520` | running |  |
+| `256` | SpEL / `spel_dist` | `topk`, `k=8` | `3744521` | running |  |
+| `256` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_retraction` | `3744522` | running | iteration 1 reached; `spel_pgd_tangent_project_after_msign=True` |
+| `256` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=4` | `3744523` | running |  |
+| `256` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=8` | `3744524` | pending |  |
+| `512` | SpEL / `spel_dist` | `retraction` | `3744525` | pending |  |
+| `512` | SpEL / `spel_dist` | `topk`, `k=4` | `3744526` | pending |  |
+| `512` | SpEL / `spel_dist` | `topk`, `k=8` | `3744527` | pending |  |
+| `512` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_retraction` | `3744528` | pending |  |
+| `512` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=4` | `3744529` | pending |  |
+| `512` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=8` | `3744530` | pending |  |
+
+After completion, update this table with final validation loss, PPL, elapsed time, and node, then compare against the historical SpEL-TP rows above.
 
 ## Historical Baseline
 

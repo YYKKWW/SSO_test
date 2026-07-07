@@ -78,7 +78,7 @@ On the original H20 server, `Megatron-LM-active` is the stable symlink used by t
 
 ## Current Result Summary
 
-Status as of 2026-07-08: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=256` and `width=512` top-k supplemental sweeps are complete except for the `width=512`, `SpEL-TP top-k k=4`, `LR=1.5e-2` supplement job `3743072`, which is still running. The `width=256` counterpart `3743071` completed with exit code `0:0`. The width-512 high-LR sweep for `2e-2` and `3e-2` is running as jobs `3743116`-`3743125`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
+Status as of 2026-07-08: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=256` and `width=512` top-k supplemental sweeps are complete except for the `width=512`, `SpEL-TP top-k k=4`, `LR=1.5e-2` supplement job `3743072`, which is still running. The `width=256` counterpart `3743071` completed with exit code `0:0`. The width-512 high-LR sweep for `2e-2` and `3e-2` is running as jobs `3743116`-`3743125`. A new plain SpEL vs MCSD-TP-PGD projection supplement at `LR=1.5e-2` was submitted as jobs `3744519`-`3744530`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
 Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows are labeled `MCSD-PGD`; their SpEL branch also used the same TP re-projection in that code snapshot.
 
@@ -212,6 +212,25 @@ This sweep extends the width-512 LR grid beyond `1.5e-2` to find whether the val
 | SpEL-TP top-k k=8 | `3743118` | `3743123` |
 | MCSD-PGD shared top-k k=4 | `3743119` | `3743124` |
 | MCSD-PGD shared top-k k=8 | `3743120` | `3743125` |
+
+### Plain SpEL / MCSD-TP-PGD Projection Supplement
+
+Submitted on 2026-07-08 with `LR=1.5e-2`, `TRAIN_TOKENS=1B`, `GLOBAL_BATCH=128`, and `MICRO_BATCH=4`. Plain SpEL uses `spel_dist` with `tp_after_msign=0`; MCSD-TP-PGD uses `spel_pgd_dist` with `spel_pgd_tangent_project_after_msign=True`.
+
+| Width | Config | Job | Initial status |
+|---:|---|---:|---|
+| `256` | SpEL retraction | `3744519` | running |
+| `256` | SpEL top-k k=4 | `3744520` | running |
+| `256` | SpEL top-k k=8 | `3744521` | running |
+| `256` | MCSD-TP-PGD shared retraction | `3744522` | running |
+| `256` | MCSD-TP-PGD shared top-k k=4 | `3744523` | running |
+| `256` | MCSD-TP-PGD shared top-k k=8 | `3744524` | pending |
+| `512` | SpEL retraction | `3744525` | pending |
+| `512` | SpEL top-k k=4 | `3744526` | pending |
+| `512` | SpEL top-k k=8 | `3744527` | pending |
+| `512` | MCSD-TP-PGD shared retraction | `3744528` | pending |
+| `512` | MCSD-TP-PGD shared top-k k=4 | `3744529` | pending |
+| `512` | MCSD-TP-PGD shared top-k k=8 | `3744530` | pending |
 
 See [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) for the full table, job IDs, commands, and caveats.
 
