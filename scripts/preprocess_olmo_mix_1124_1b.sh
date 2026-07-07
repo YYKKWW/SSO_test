@@ -2,7 +2,7 @@
 set -euo pipefail
 
 PROJECT=${PROJECT:-$HOME/projects/SSO_test}
-MEGATRON=${MEGATRON:-$HOME/projects/Megatron-LM-active}
+MEGATRON=${MEGATRON:-$PROJECT/Megatron-LM}
 BASE_DIR=${BASE_DIR:-$PROJECT/data/olmo_mix_1124_1b}
 RAW_DIR=${RAW_DIR:-$BASE_DIR/jsonl}
 TOKENIZER_DIR=${TOKENIZER_DIR:-$BASE_DIR/tokenizer/OLMo-2-1124-7B}

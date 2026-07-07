@@ -136,10 +136,16 @@ Active server paths:
 
 ```text
 ~/projects/SSO_test
-~/projects/Megatron-LM-active -> ~/projects/Megatron-LM-dev-spel-v3
+~/projects/SSO_test/Megatron-LM
 ```
 
-The active H20 Megatron checkout is `Megatron-LM-dev-spel-v3`, exposed through the stable symlink `Megatron-LM-active`.
+The active H20 training jobs use the project-local bundled checkout:
+
+```text
+MEGATRON_PATH=${PROJECT_DIR}/Megatron-LM
+```
+
+The older server-local `~/projects/Megatron-LM-dev-spel-v3` checkout and `Megatron-LM-active` symlink were development artifacts. They are not the default path for the current Slurm scripts.
 
 For the GitHub repository, the usable Megatron checkout is bundled under:
 
@@ -147,7 +153,7 @@ For the GitHub repository, the usable Megatron checkout is bundled under:
 Megatron-LM/
 ```
 
-After cloning the repository, users can point scripts to the bundled checkout:
+After cloning the repository, users can keep the default bundled checkout or set it explicitly:
 
 ```bash
 export PROJECT_DIR=$PWD
@@ -330,7 +336,7 @@ bash scripts/preprocess_olmo_mix_1124_1b.sh
 The preprocessing script uses:
 
 ```text
-MEGATRON=$HOME/projects/Megatron-LM-active
+MEGATRON=$HOME/projects/SSO_test/Megatron-LM
 RAW_DIR=$HOME/projects/SSO_test/data/olmo_mix_1124_1b/jsonl
 TOKENIZER_DIR=$HOME/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B
 INDEXED_DIR=$HOME/projects/SSO_test/data/olmo_mix_1124_1b/indexed
@@ -933,7 +939,7 @@ After completion, append rows to the completed sweep table in this document.
 First confirm the optimizer name exists in the active Megatron checkout:
 
 ```bash
-cd ~/projects/Megatron-LM-active
+cd ~/projects/SSO_test/Megatron-LM
 grep -R "choices=.*optimizer" -n megatron/training/arguments.py
 grep -R "<optimizer_name>" -n megatron/core/optimizer
 ```

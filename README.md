@@ -63,18 +63,18 @@ The completed H20 runs used these server paths:
 
 ```text
 ~/projects/SSO_test
-~/projects/Megatron-LM-active -> ~/projects/Megatron-LM-dev-spel-v3
+~/projects/SSO_test/Megatron-LM
 ~/envs/sso_h20
 ```
 
-For a fresh clone, the Slurm scripts can also use the bundled Megatron checkout directly:
+The current Slurm and preprocessing scripts default to the bundled Megatron checkout in the repository:
 
 ```bash
 export PROJECT_DIR=$PWD
 export MEGATRON_PATH=$PWD/Megatron-LM
 ```
 
-On the original H20 server, `Megatron-LM-active` is the stable symlink used by the Slurm scripts. If the server-side Megatron checkout is updated later, update the symlink rather than hard-coding a new checkout name in every script.
+Older server-local checkouts such as `~/projects/Megatron-LM-active` and `~/projects/Megatron-LM-dev-spel-v3` were used during development and are not the default path for the current experiment scripts.
 
 ## Current Result Summary
 
