@@ -78,7 +78,7 @@ On the original H20 server, `Megatron-LM-active` is the stable symlink used by t
 
 ## Current Result Summary
 
-Status as of 2026-07-07: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=256` top-k supplemental sweep is also complete. A matching `width=512` top-k supplemental sweep has been submitted as jobs `3741588`-`3741602`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
+Status as of 2026-07-07: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=256` and `width=512` top-k supplemental sweeps are also complete. Two `SpEL topk k=4`, `LR=1.5e-2` supplement jobs are running as `3743071` and `3743072`. The width-512 high-LR sweep for `2e-2` and `3e-2` is running as jobs `3743116`-`3743125`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
 Best completed results:
 
@@ -86,6 +86,7 @@ Best completed results:
 |---:|---|---:|---:|---:|---:|---:|
 | `256` | MCSD / SpEL `spel_dist`, `topk k=8` | `1.5e-2` | `3.566694` | `35.39936` | `05:34:38` | `3740137` |
 | `256` | MCSD / SpEL `spel_dist`, original retraction | `1.5e-2` | `3.567708` | `35.43530` | `05:26:59` | `3725139` |
+| `512` | MCSD-PGD `spel_pgd_dist`, `shared_topk k=4` | `1.5e-2` | `3.320985` | `27.68762` | `10:32:10` | `3741597` |
 | `512` | SpEL `spel_dist` | `1.5e-2` | `3.321666` | `27.70647` | `10:17:51` | `3737723` |
 | `512` | MCSD-PGD `spel_pgd_dist` | `1.5e-2` | `3.321784` | `27.70973` | `10:22:07` | `3737728` |
 | `512` | SSO `spectral_ball_dist` | `1.5e-2` | `3.322861` | `27.73959` | `11:21:05` | `3737718` |
@@ -166,13 +167,48 @@ Current interpretation: `SpEL topk k=8` gives the best completed width-256 1B re
 
 ### Width-512 Supplemental Top-k LR Sweep
 
-The matching width-512 supplemental sweep was submitted on 2026-07-07 with the same LR grid and projection settings. Job IDs:
+The matching width-512 supplemental sweep finished successfully on 2026-07-07 with the same LR grid and projection settings.
 
-| Variant | LR grid | Jobs |
-|---|---|---|
-| SpEL top-k k=8 | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` | `3741588`-`3741592` |
-| MCSD-PGD shared top-k k=4 | same | `3741593`-`3741597` |
-| MCSD-PGD shared top-k k=8 | same | `3741598`-`3741602` |
+| LR | SpEL top-k k=8 val loss | SpEL elapsed | PGD shared top-k k=4 val loss | PGD k=4 elapsed | PGD shared top-k k=8 val loss | PGD k=8 elapsed |
+|---:|---:|---:|---:|---:|---:|---:|
+| `5e-3` | `3.402194` | `10:28:34` | `3.400489` | `10:32:23` | `3.401184` | `10:30:29` |
+| `7e-3` | `3.358461` | `10:29:06` | `3.358685` | `10:30:40` | `3.357924` | `10:31:30` |
+| `9e-3` | `3.338081` | `10:27:11` | `3.335894` | `10:30:05` | `3.338519` | `10:32:14` |
+| `1e-2` | `3.330682` | `10:28:10` | `3.331491` | `10:34:28` | `3.331737` | `10:34:34` |
+| `1.5e-2` | `3.323886` | `10:28:29` | **`3.320985`** | `10:32:10` | `3.322947` | `10:31:50` |
+
+Current interpretation: `MCSD-PGD shared_topk k=4` gives the best completed width-512 result so far at `LR=1.5e-2`.
+
+### LR 1.5e-2 Projection Comparison
+
+This table aligns the current best-comparison rows at the highest LR. `SpEL topk k=4` is being supplemented because the previous 1B top-k sweep only included `k=8`.
+
+| Width | Optimizer/config | Val loss | PPL | Elapsed/status | Job |
+|---:|---|---:|---:|---:|---:|
+| `256` | SSO | `3.570953` | `35.55044` | `06:02:39` | `3725134` |
+| `256` | SpEL original retraction | `3.567708` | `35.43530` | `05:26:59` | `3725139` |
+| `256` | SpEL top-k k=4 | pending | pending | running | `3743071` |
+| `256` | SpEL top-k k=8 | **`3.566694`** | `35.39936` | `05:34:38` | `3740137` |
+| `256` | MCSD-PGD shared top-k k=4 | `3.568926` | `35.47848` | `05:37:10` | `3740142` |
+| `256` | MCSD-PGD shared top-k k=8 | `3.566973` | `35.40925` | `05:37:25` | `3740147` |
+| `512` | SSO | `3.322861` | `27.73959` | `11:21:05` | `3737718` |
+| `512` | SpEL original retraction | `3.321666` | `27.70647` | `10:17:51` | `3737723` |
+| `512` | SpEL top-k k=4 | pending | pending | running | `3743072` |
+| `512` | SpEL top-k k=8 | `3.323886` | `27.76806` | `10:28:29` | `3741592` |
+| `512` | MCSD-PGD shared top-k k=4 | **`3.320985`** | `27.68762` | `10:32:10` | `3741597` |
+| `512` | MCSD-PGD shared top-k k=8 | `3.322947` | `27.74197` | `10:31:50` | `3741602` |
+
+### Width-512 High-LR Projection Sweep
+
+This sweep extends the width-512 LR grid beyond `1.5e-2` to find whether the validation-loss minimum is to the right of the current best point. It uses `LR={2e-2, 3e-2}` and the same 1B-token setup.
+
+| Config | `2e-2` job | `3e-2` job |
+|---|---:|---:|
+| SSO | `3743116` | `3743121` |
+| SpEL top-k k=4 | `3743117` | `3743122` |
+| SpEL top-k k=8 | `3743118` | `3743123` |
+| MCSD-PGD shared top-k k=4 | `3743119` | `3743124` |
+| MCSD-PGD shared top-k k=8 | `3743120` | `3743125` |
 
 See [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) for the full table, job IDs, commands, and caveats.
 
@@ -196,6 +232,8 @@ bash slurm/submit_width256_sso_mcsd_lr_sweep.sh
 bash slurm/submit_width256_spel_pgd_lr_sweep.sh
 bash slurm/submit_width256_spel_topk8_pgd_topk_lr_sweep.sh
 bash slurm/submit_width512_spel_topk8_pgd_topk_lr_sweep.sh
+bash slurm/submit_width256_512_spel_topk4_lr1p5_supplement.sh
+bash slurm/submit_width512_high_lr_projection_sweep.sh
 ```
 
 Monitor jobs:
