@@ -3332,6 +3332,61 @@ def _add_regularization_args(parser):
     )
     group.add_argument('--spectral-ball-retract-alpha', type=float, default=0.05, help='Dynamic Spectral Ball retraction step size')
 
+    group.add_argument('--muon-ball-momentum', type=float, default=0.9, help='Momentum coefficient for MuonBall optimizer')
+    group.add_argument('--muon-ball-use-nesterov', action='store_true', default=True, help='Use Nesterov-style momentum in MuonBall')
+    group.add_argument(
+        '--muon-ball-no-split-qkv',
+        action='store_false',
+        default=True,
+        dest='muon_ball_split_qkv',
+        help='Disable QKV splitting for MuonBall optimizer',
+    )
+    group.add_argument(
+        '--muon-ball-qkv-split-mode',
+        type=str,
+        default='component',
+        choices=['component', 'group', 'head'],
+        help='QKV split mode for MuonBall: component, group, or head',
+    )
+    group.add_argument(
+        '--muon-ball-no-split-fc1',
+        action='store_false',
+        default=True,
+        dest='muon_ball_split_fc1',
+        help='Disable FC1 gate/up splitting for MuonBall optimizer',
+    )
+    group.add_argument(
+        '--muon-ball-no-split-moe-experts',
+        action='store_false',
+        default=True,
+        dest='muon_ball_split_moe_experts',
+        help='Disable grouped MoE expert splitting for MuonBall optimizer',
+    )
+    group.add_argument('--muon-ball-msign-steps', type=int, default=8, help='Matrix-sign iterations for MuonBall')
+    group.add_argument(
+        '--muon-ball-radius-mode',
+        type=str,
+        default='spectral_mup',
+        choices=['spectral_mup', 'identity', 'initialize'],
+        help='Target radius mode for MuonBall',
+    )
+    group.add_argument('--muon-ball-power-iteration-steps', type=int, default=10, help='Power iteration steps for MuonBall spectral norm')
+    group.add_argument(
+        '--muon-ball-scale-mode',
+        type=str,
+        default='spectral_mup',
+        choices=['align_adamw_rms', 'spectral_mup', 'shape_scaling'],
+        help='Update scaling mode for MuonBall',
+    )
+    group.add_argument(
+        '--muon-ball-retract-mode',
+        type=str,
+        default='hard',
+        choices=['hard', 'dynamic'],
+        help='Retraction mode for MuonBall',
+    )
+    group.add_argument('--muon-ball-retract-alpha', type=float, default=0.05, help='Dynamic MuonBall retraction step size')
+
     group.add_argument('--spel-momentum', type=float, default=0.9, help='Momentum coefficient for SpEL optimizer')
     group.add_argument('--spel-use-nesterov', action='store_true', default=True, help='Use Nesterov-style momentum in SpEL')
     group.add_argument(
@@ -3936,7 +3991,7 @@ def _add_training_args(parser):
         '--optimizer',
         type=str,
         default='adam',
-        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'spel', 'spel_dist', 'spel_tp', 'spel_tp_dist', 'spel_pgd', 'spel_pgd_dist', 'lion', 'soap', 'adaptive_muon'],
+        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'muon_ball', 'muon_ball_dist', 'spel', 'spel_dist', 'spel_tp', 'spel_tp_dist', 'spel_pgd', 'spel_pgd_dist', 'lion', 'soap', 'adaptive_muon'],
         help='Optimizer function. '
         'Note: dist_muon is deprecated; use --optimizer muon '
         'with --use-distributed-optimizer instead.',

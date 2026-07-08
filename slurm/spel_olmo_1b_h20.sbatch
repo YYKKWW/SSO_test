@@ -222,6 +222,15 @@ TRAINING_ARGS=(
   --spectral-ball-solver-max-iterations "${SPECTRAL_BALL_SOLVER_MAX_ITERATIONS:-20}"
   --spectral-ball-retract-mode hard
   --spectral-ball-retract-alpha "${SPECTRAL_BALL_RETRACT_ALPHA:-0.05}"
+  --muon-ball-momentum 0.9
+  --muon-ball-use-nesterov
+  --muon-ball-qkv-split-mode head
+  --muon-ball-msign-steps "${MUON_BALL_MSIGN_STEPS:-8}"
+  --muon-ball-radius-mode spectral_mup
+  --muon-ball-power-iteration-steps "${MUON_BALL_POWER_ITERATION_STEPS:-10}"
+  --muon-ball-scale-mode spectral_mup
+  --muon-ball-retract-mode hard
+  --muon-ball-retract-alpha "${MUON_BALL_RETRACT_ALPHA:-0.05}"
   --spel-momentum 0.9
   --spel-use-nesterov
   --spel-qkv-split-mode head
@@ -307,6 +316,7 @@ echo "job_name=$JOB_NAME"
 echo "hidden=$HIDDEN_SIZE layers=$NUM_LAYERS heads=$NUM_ATTENTION_HEADS q_groups=$NUM_QUERY_GROUPS"
 echo "seq=$SEQ_LENGTH micro=$MICRO_BATCH global=$GLOBAL_BATCH train_tokens=$TRAIN_TOKENS train_iters=$TRAIN_ITER"
 echo "optimizer=$OPTIMIZER lr=$LR min_lr=$MIN_LR warmup=$LR_WARMUP_ITERS"
+echo "muon_ball_msign_steps=${MUON_BALL_MSIGN_STEPS:-8} muon_ball_power_iteration_steps=${MUON_BALL_POWER_ITERATION_STEPS:-10}"
 echo "spel_projection=${SPEL_PROJECTION_MODE:-retraction} rank=${SPEL_PROJECTION_RANK:-1} tp_after_msign=${SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE}"
 echo "spel_pgd_projection=${SPEL_PGD_PROJECTION_MODE:-fallback_exact} rank=${SPEL_PGD_PROJECTION_RANK:-1} tp_after_msign=${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-1}"
 echo "transformer_impl=$TRANSFORMER_IMPL attention_backend=${ATTENTION_BACKEND:-auto}"

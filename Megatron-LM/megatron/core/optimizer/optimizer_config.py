@@ -337,6 +337,43 @@ class OptimizerConfig:
     spectral_ball_retract_alpha: float = 0.05
     """Step size for dynamic Spectral Ball retraction."""
 
+    # MuonBall.
+    muon_ball_momentum: float = 0.9
+    """Momentum coefficient for MuonBall optimizer."""
+
+    muon_ball_use_nesterov: bool = True
+    """Whether to use Nesterov-style momentum in MuonBall."""
+
+    muon_ball_split_qkv: bool = True
+    """Whether to split QKV parameters for MuonBall optimizer."""
+
+    muon_ball_qkv_split_mode: str = "component"
+    """QKV split mode for MuonBall optimizer: component, group, or head."""
+
+    muon_ball_split_fc1: bool = True
+    """Whether to split FC1 gate/up projections for MuonBall optimizer."""
+
+    muon_ball_split_moe_experts: bool = True
+    """Whether to split grouped MoE expert weights for MuonBall optimizer."""
+
+    muon_ball_msign_steps: int = 8
+    """Number of matrix-sign iterations for MuonBall."""
+
+    muon_ball_radius_mode: str = 'spectral_mup'
+    """Target spectral radius mode for MuonBall."""
+
+    muon_ball_power_iteration_steps: int = 10
+    """Power iteration steps used to estimate spectral norm in MuonBall."""
+
+    muon_ball_scale_mode: str = 'spectral_mup'
+    """Update scaling mode for MuonBall."""
+
+    muon_ball_retract_mode: str = 'hard'
+    """MuonBall retraction mode: hard or dynamic."""
+
+    muon_ball_retract_alpha: float = 0.05
+    """Step size for dynamic MuonBall retraction."""
+
     # SpEL.
     spel_momentum: float = 0.9
     """Momentum coefficient for SpEL optimizer."""

@@ -36,6 +36,7 @@ try:
     from emerging_optimizers.orthogonalized_optimizers.spel_pgd_same_projection import (
         SpELPGDSameProjection,
     )
+    from emerging_optimizers.orthogonalized_optimizers.muon_ball import MuonBall
     from emerging_optimizers.orthogonalized_optimizers.spectral_ball import SpectralBall
 
     try:
@@ -78,6 +79,7 @@ except ImportError:
     OrthogonalizedOptimizer = object
     AdaptiveMuon = object
     SpEL = object
+    MuonBall = object
     SpectralBall = object
 
 
@@ -475,6 +477,27 @@ def _spectral_ball_config_to_kwargs(config, model_chunks, pg_collection) -> Dict
     return kwargs
 
 
+def _muon_ball_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any]:
+    """Convert OptimizerConfig to MuonBall constructor kwargs."""
+    model_cfg = model_chunks[0].config
+    kwargs = _kwargs_from_config(MuonBall, "muon_ball", config)
+    kwargs["momentum_beta"] = config.muon_ball_momentum
+    kwargs["weight_decay_method"] = "decoupled" if config.decoupled_weight_decay else "l2"
+    kwargs["fp32_matmul_prec"] = "medium"
+    kwargs["is_qkv_fn"] = lambda p: getattr(p, "is_qkv", False)
+    kwargs["qkv_split_shapes"] = _get_qkv_split_shapes(model_cfg)
+    kwargs["is_fc1_fn"] = lambda p: getattr(p, "is_fc1", False)
+    kwargs["fc1_split_shapes"] = (
+        (model_cfg.ffn_hidden_size, model_cfg.ffn_hidden_size)
+        if getattr(model_cfg, "gated_linear_unit", False)
+        else None
+    )
+    kwargs["is_grouped_moe_fn"] = lambda p: getattr(p, "is_grouped_moe", False)
+    kwargs["pg_collection"] = pg_collection
+    kwargs["tp_mode"] = "duplicated"
+    return kwargs
+
+
 def _spel_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any]:
     """Convert OptimizerConfig to SpEL constructor kwargs."""
     model_cfg = model_chunks[0].config
@@ -555,6 +578,18 @@ _EMERGING_OPTIMIZERS.update(
             optimizer_cls=SpectralBall,
             init_state_fn=_eopt_init_state_fn,
             config_to_kwargs=_spectral_ball_config_to_kwargs,
+            default_param_overrides={
+                ParamKey(
+                    predicate=ParamPredicate(
+                        name="nonlinear_or_embedding", fn=_is_nonlinear_or_embedding
+                    )
+                ): {'optimizer': 'adam'}
+            },
+        ),
+        "muon_ball": EmergingOptimizerEntry(
+            optimizer_cls=MuonBall,
+            init_state_fn=_eopt_init_state_fn,
+            config_to_kwargs=_muon_ball_config_to_kwargs,
             default_param_overrides={
                 ParamKey(
                     predicate=ParamPredicate(

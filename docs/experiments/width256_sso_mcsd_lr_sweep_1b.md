@@ -15,12 +15,12 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 | Width | `256`, `512` |
 | Data budget | `1B` training tokens |
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
-| Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, MCSD-TP-PGD / `spel_pgd_dist` |
+| Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, MCSD-TP-PGD / `spel_pgd_dist`, MuonBall / `muon_ball_dist` pending supplement |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
 | Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12` |
 | Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` are complete |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
-| Next likely extension | repeat selected settings or extend to width `1024` |
+| Next likely extension | complete the width-256 MuonBall seven-LR supplement, then decide whether to repeat selected settings or extend to width `1024` |
 
 ## Scope And Caveats
 
@@ -54,11 +54,18 @@ Run a small-scale version of the SSO paper's width/LR sweep at `width=256`, comp
 - SSO: `spectral_ball_dist`
 - MCSD-TP: `spel_tp_dist` for new runs; historical completed rows used `spel_dist`
 - MCSD-PGD: `spel_pgd_dist`
+- MuonBall: `muon_ball_dist` as a new width-256 supplement
 
-The current sweep uses 1B training tokens from the weighted OLMo mix sample and evaluates five learning rates:
+The completed SSO/SpEL sweeps use 1B training tokens from the weighted OLMo mix sample and evaluate five learning rates:
 
 ```text
 5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
+```
+
+The MuonBall supplement extends the width-256 LR grid to seven learning rates:
+
+```text
+5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2, 2e-2, 3e-2
 ```
 
 The immediate goal is to determine optimizer LR sensitivity at small width and whether the current LR grid or algorithm implementation should be extended before running more expensive widths.
@@ -72,6 +79,7 @@ This experiment compares three optimizer implementations in the active Megatron 
 | SSO / Spectral Sphere | `spectral_ball_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_ball.py`, `spectral_ball_utils.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | Main SSO baseline following the paper's `spball` scripts. |
 | MCSD-TP / SpEL-TP | `spel_tp_dist` for new runs; historical rows used `spel_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | Comparison optimizer path with post-msign tangent re-projection enabled. |
 | MCSD-PGD | `spel_pgd_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel_pgd_same_projection.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | New algorithm under test: SpEL-style spectral retraction with an automatic PGD fallback branch. |
+| MuonBall | `muon_ball_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/muon_ball.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | Supplementary baseline from the SSO repository: Spectral Ball with lambda fixed to zero, removing the bisection solver. |
 
 SSO follows the Spectral Sphere / Spectral Ball setup:
 
@@ -79,6 +87,18 @@ SSO follows the Spectral Sphere / Spectral Ball setup:
 - It uses matrix-sign style updates, computed with Newton-Schulz iterations.
 - It uses hard retraction in this sweep, so weights are projected back to the spectral constraint after the update.
 - In the current Megatron launcher, distributed SSO is selected by `--optimizer spectral_ball_dist`.
+
+MuonBall follows the reference `Spectral-Sphere-Optimizer/megatron_scripts/Dense-1.7B/muonball/muonball.sh` optimizer constants while using this repository's H20 width-256 1B training setup:
+
+- `--optimizer muon_ball_dist`
+- `momentum=0.9`
+- Nesterov enabled
+- `msign_steps=8`
+- `radius_mode=spectral_mup`
+- `scale_mode=spectral_mup`
+- `power_iteration_steps=10`
+- `retract_mode=hard`
+- `qkv_split_mode=head`
 
 MCSD-TP/SpEL-TP in this project is the current comparison optimizer path:
 
@@ -843,6 +863,35 @@ Plain SpEL uses `OPTIMIZER=spel_dist` and `SPEL_TANGENT_PROJECT_AFTER_MSIGN=0`. 
 
 Current interpretation: plain SpEL top-k `k=4` is the strongest row in this supplement at both widths. MCSD-TP-PGD `shared_retraction` is clearly not competitive, while `shared_topk k=4/8` remains close to SSO and SpEL-TP.
 
+## MuonBall Width-256 Seven-LR Supplement
+
+This pending supplement adds the reference MuonBall optimizer to the same width-256 1B-token setup used by the SSO and SpEL sweeps. It is intended to answer whether removing the Spectral Ball lambda solver remains competitive at the small width used in this experiment.
+
+```text
+Script: slurm/submit_width256_muon_ball_lr_sweep.sh
+Run root: /home/u3013198/projects/SSO_test/results/olmo_1b_width256_muon_ball_lr_sweep
+Optimizer: muon_ball_dist
+Width: 256
+Train tokens: 1B
+Global batch: 128
+Micro batch: 4
+LR grid: 5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2, 2e-2, 3e-2
+```
+
+MuonBall constants follow the original SSO repository launcher `Spectral-Sphere-Optimizer/megatron_scripts/Dense-1.7B/muonball/muonball.sh`: `momentum=0.9`, Nesterov enabled, `msign_steps=8`, `radius_mode=spectral_mup`, `scale_mode=spectral_mup`, `power_iteration_steps=10`, `retract_mode=hard`, and `qkv_split_mode=head`.
+
+When jobs complete, compare primarily against:
+
+| LR | SSO width-256 val loss | SpEL-TP width-256 val loss | Plain SpEL top-k k=4 note |
+|---:|---:|---:|---|
+| `5e-3` | `3.658330` | `3.657197` | plain SpEL top-k k=4 not run at this LR yet |
+| `7e-3` | `3.625447` | `3.616392` | plain SpEL top-k k=4 not run at this LR yet |
+| `9e-3` | `3.595198` | `3.596797` | plain SpEL top-k k=4 not run at this LR yet |
+| `1e-2` | `3.590277` | `3.587145` | plain SpEL top-k k=4 not run at this LR yet |
+| `1.5e-2` | `3.570953` | `3.567708` | completed plain SpEL top-k k=4: `3.562941` |
+| `2e-2` | not run at width 256 | not run at width 256 | high-LR extension point |
+| `3e-2` | not run at width 256 | not run at width 256 | high-LR extension point |
+
 ## Missing Plain SpEL-PGD Experiments
 
 Plain SpEL-PGD is the same `spel_pgd_dist` optimizer with the SpEL branch post-msign tangent projection disabled:
@@ -940,6 +989,7 @@ ssh hpc2021
 cd ~/projects/SSO_test
 bash slurm/submit_width256_sso_mcsd_lr_sweep.sh
 bash slurm/submit_width256_spel_pgd_lr_sweep.sh
+bash slurm/submit_width256_muon_ball_lr_sweep.sh
 ```
 
 Monitor:

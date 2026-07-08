@@ -22,6 +22,7 @@ The current paper-facing goal is to compare SSO-style spectral optimizers on a c
 - plain SpEL / `spel_dist`
 - SpEL-TP / MCSD-TP / `spel_tp_dist`
 - MCSD-TP-PGD / `spel_pgd_dist`
+- MuonBall / `muon_ball_dist` as a new width-256 seven-LR supplement
 
 Current completed-result conclusion: at `LR=1.5e-2`, plain SpEL with top-k projection `k=4` is the best completed row for both `width=256` and `width=512`. Width-512 high-LR tests at `2e-2` and `3e-2` are worse, so the current minimum remains near `1.5e-2`. MCSD-TP-PGD requires top-k projection; shared retraction is clearly worse in the completed supplement.
 
@@ -296,6 +297,7 @@ bash slurm/submit_width256_512_spel_topk4_lr1p5_supplement.sh
 bash slurm/submit_width512_high_lr_projection_sweep.sh
 bash slurm/submit_width256_512_spel_mcsd_tp_pgd_projection_supplement.sh
 bash slurm/submit_width256_pgd_sigma2_sweep.sh
+bash slurm/submit_width256_muon_ball_lr_sweep.sh
 ```
 
 Monitor jobs:
