@@ -295,6 +295,7 @@ bash slurm/submit_width512_spel_topk8_pgd_topk_lr_sweep.sh
 bash slurm/submit_width256_512_spel_topk4_lr1p5_supplement.sh
 bash slurm/submit_width512_high_lr_projection_sweep.sh
 bash slurm/submit_width256_512_spel_mcsd_tp_pgd_projection_supplement.sh
+bash slurm/submit_width256_pgd_sigma2_sweep.sh
 ```
 
 Monitor jobs:
