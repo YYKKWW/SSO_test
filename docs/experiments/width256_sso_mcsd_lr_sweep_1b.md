@@ -15,10 +15,10 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 | Width | `256`, `512` |
 | Data budget | `1B` training tokens |
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
-| Compared optimizers | SSO / `spectral_ball_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, MCSD-PGD / `spel_pgd_dist` |
+| Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, MCSD-TP-PGD / `spel_pgd_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15` |
-| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement width-256 jobs `3744519`-`3744524` are complete and width-512 jobs `3744525`-`3744530` are running |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12` |
+| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` are complete |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
 | Next likely extension | repeat selected settings or extend to width `1024` |
 
@@ -653,8 +653,9 @@ All jobs below completed with Slurm state `COMPLETED` and exit code `0:0`.
 
 Interpretation:
 
-- The best completed width-256 1B result is now `SpEL-TP topk k=8`, `LR=1.5e-2`, with val loss `3.566694`.
-- The gain over the original SpEL-TP/retraction row is small: `3.566694` versus `3.567708`.
+- Within this SpEL-TP / MCSD-PGD top-k supplement, the best row is `SpEL-TP topk k=8`, `LR=1.5e-2`, with val loss `3.566694`.
+- After the later plain SpEL projection supplement, the best completed width-256 result overall is plain SpEL `topk k=4`, `LR=1.5e-2`, with val loss `3.562941`.
+- The gain from SpEL-TP top-k over the original SpEL-TP/retraction row is small: `3.566694` versus `3.567708`.
 - MCSD-PGD `shared_topk k=8` is very close at `1.5e-2`, with val loss `3.566973`.
 - MCSD-PGD `shared_topk k=4` is best at `1.5e-2` among its own rows, but trails the `k=8` and SpEL-TP top-k rows at the same LR.
 
@@ -748,29 +749,36 @@ All jobs below completed with Slurm state `COMPLETED` and exit code `0:0`.
 
 Interpretation:
 
-- The best completed width-512 result is now `SpEL-TP topk k=4`, `LR=1.5e-2`, with val loss `3.319634`.
+- Within the SpEL-TP / MCSD-PGD supplemental top-k sweep, the best width-512 result is `SpEL-TP topk k=4`, `LR=1.5e-2`, with val loss `3.319634`.
+- After the later plain SpEL projection supplement, the best completed width-512 result overall is plain SpEL `topk k=4`, `LR=1.5e-2`, with val loss `3.318744`.
 - This is slightly better than `MCSD-PGD shared_topk k=4`, `3.320985`, and the previous width-512 best SpEL-TP/retraction row, `3.321666`.
 - `SpEL-TP topk k=8` is worse than original SpEL-TP at `1.5e-2` in width 512, even though it helped in width 256.
 - `MCSD-PGD shared_topk k=4` is stronger than `shared_topk k=8` at the two highest LRs in this run.
 
 ## LR 1.5e-2 Width Comparison
 
-This table aligns the current width-256 and width-512 rows at the highest LR. The SpEL-TP top-k k=4 1B-token rows were missing from the previous top-k sweeps, so they are now being supplemented as jobs `3743071` and `3743072`.
+This table aligns the current width-256 and width-512 rows at the highest LR. It is the primary compact comparison for the current 1B-token test goal.
 
-| Width | Optimizer/config | Job ID | Final val iter | Val loss | PPL | Elapsed/status | Node |
+| Width | Optimizer/config | Job ID | Final val iter | Val loss | PPL | Elapsed | Node |
 |---:|---|---:|---:|---:|---:|---:|---|
 | `256` | SSO / `spectral_ball_dist` | `3725134` | `1908` | `3.570953` | `35.55044` | `06:02:39` | `SPG-7-1` |
+| `256` | plain SpEL / `spel_dist`, retraction | `3744519` | `1908` | `3.571484` | `35.56934` | `05:26:24` | `SPG-7-1` |
+| `256` | plain SpEL / `spel_dist`, top-k `k=4` | `3744520` | `1908` | **`3.562941`** | `35.26677` | `05:32:06` | `SPG-7-2` |
+| `256` | plain SpEL / `spel_dist`, top-k `k=8` | `3744521` | `1908` | `3.566394` | `35.38876` | `05:32:28` | `SPG-7-2` |
 | `256` | SpEL-TP original retraction / `spel_dist` | `3725139` | `1908` | `3.567708` | `35.43530` | `05:26:59` | `SPG-7-2` |
 | `256` | SpEL-TP top-k / `spel_dist`, `k=4` | `3743071` | `1908` | `3.567563` | `35.43013` | `05:33:45` | `SPG-7-1` |
 | `256` | SpEL-TP top-k / `spel_dist`, `k=8` | `3740137` | `1908` | `3.566694` | `35.39936` | `05:34:38` | `SPG-7-1` |
-| `256` | MCSD-PGD shared top-k / `spel_pgd_dist`, `k=4` | `3740142` | `1908` | `3.568926` | `35.47848` | `05:37:10` | `SPG-7-2` |
-| `256` | MCSD-PGD shared top-k / `spel_pgd_dist`, `k=8` | `3740147` | `1908` | `3.566973` | `35.40925` | `05:37:25` | `SPG-7-2` |
+| `256` | MCSD-TP-PGD shared top-k / `spel_pgd_dist`, `k=4` | `3744523` | `1908` | `3.568926` | `35.47848` | `05:35:00` | `SPG-7-2` |
+| `256` | MCSD-TP-PGD shared top-k / `spel_pgd_dist`, `k=8` | `3744524` | `1908` | `3.566973` | `35.40925` | `05:37:55` | `SPG-7-1` |
 | `512` | SSO / `spectral_ball_dist` | `3737718` | `1908` | `3.322861` | `27.73959` | `11:21:05` | `SPG-7-1` |
+| `512` | plain SpEL / `spel_dist`, retraction | `3744525` | `1908` | `3.322735` | `27.73611` | `10:16:56` | `SPG-7-1` |
+| `512` | plain SpEL / `spel_dist`, top-k `k=4` | `3744526` | `1908` | **`3.318744`** | `27.62564` | `10:25:33` | `SPG-7-1` |
+| `512` | plain SpEL / `spel_dist`, top-k `k=8` | `3744527` | `1908` | `3.321280` | `27.69578` | `10:28:18` | `SPG-7-2` |
 | `512` | SpEL-TP original retraction / `spel_dist` | `3737723` | `1908` | `3.321666` | `27.70647` | `10:17:51` | `SPG-7-2` |
 | `512` | SpEL-TP top-k / `spel_dist`, `k=4` | `3743072` | `1908` | `3.319634` | `27.65023` | `10:27:54` | `SPG-7-1` |
 | `512` | SpEL-TP top-k / `spel_dist`, `k=8` | `3741592` | `1908` | `3.323886` | `27.76806` | `10:28:29` | `SPG-7-1` |
-| `512` | MCSD-PGD shared top-k / `spel_pgd_dist`, `k=4` | `3741597` | `1908` | `3.320985` | `27.68762` | `10:32:10` | `SPG-7-2` |
-| `512` | MCSD-PGD shared top-k / `spel_pgd_dist`, `k=8` | `3741602` | `1908` | `3.322947` | `27.74197` | `10:31:50` | `SPG-7-2` |
+| `512` | MCSD-TP-PGD shared top-k / `spel_pgd_dist`, `k=4` | `3744529` | `1908` | `3.320985` | `27.68762` | `10:32:18` | `SPG-7-1` |
+| `512` | MCSD-TP-PGD shared top-k / `spel_pgd_dist`, `k=8` | `3744530` | `1908` | `3.322947` | `27.74197` | `10:32:45` | `SPG-7-2` |
 
 ## Width-512 High-LR Projection Sweep
 
@@ -818,7 +826,7 @@ LR: 1.5e-2
 
 Plain SpEL uses `OPTIMIZER=spel_dist` and `SPEL_TANGENT_PROJECT_AFTER_MSIGN=0`. MCSD-TP-PGD uses `OPTIMIZER=spel_pgd_dist`, `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=1`, `SPEL_PGD_BRANCH_MODE=auto`, `SPEL_PGD_GAP_THRESHOLD_REL=1e-3`, and `SPEL_PGD_DIRECTION_NORMALIZATION=none`.
 
-| Width | Optimizer/config | Projection | Job ID | Final/latest iter | Val loss | PPL | Elapsed/status | Node |
+| Width | Optimizer/config | Projection | Job ID | Final iter | Val loss | PPL | Elapsed | Node |
 |---:|---|---|---:|---:|---:|---:|---:|---|
 | `256` | SpEL / `spel_dist` | `retraction` | `3744519` | `1908` | `3.571484` | `35.56934` | `05:26:24` | `SPG-7-1` |
 | `256` | SpEL / `spel_dist` | `topk`, `k=4` | `3744520` | `1908` | `3.562941` | `35.26677` | `05:32:06` | `SPG-7-2` |
@@ -826,14 +834,14 @@ Plain SpEL uses `OPTIMIZER=spel_dist` and `SPEL_TANGENT_PROJECT_AFTER_MSIGN=0`. 
 | `256` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_retraction` | `3744522` | `1908` | `4.069594` | `58.53322` | `05:28:56` | `SPG-7-2` |
 | `256` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=4` | `3744523` | `1908` | `3.568926` | `35.47848` | `05:35:00` | `SPG-7-2` |
 | `256` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=8` | `3744524` | `1908` | `3.566973` | `35.40925` | `05:37:55` | `SPG-7-1` |
-| `512` | SpEL / `spel_dist` | `retraction` | `3744525` | latest `1500` | `3.419256` | `30.54667` | running | `SPG-7-1` |
-| `512` | SpEL / `spel_dist` | `topk`, `k=4` | `3744526` | latest `1500` | `3.415218` | `30.42359` | running | `SPG-7-1` |
-| `512` | SpEL / `spel_dist` | `topk`, `k=8` | `3744527` | latest `1500` | `3.417263` | `30.48586` | running | `SPG-7-2` |
-| `512` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_retraction` | `3744528` | latest `1500` | `3.795879` | `44.51737` | running | `SPG-7-2` |
-| `512` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=4` | `3744529` | latest `1500` | `3.418024` | `30.50906` | running | `SPG-7-1` |
-| `512` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=8` | `3744530` | latest `1500` | `3.418643` | `30.52795` | running | `SPG-7-2` |
+| `512` | SpEL / `spel_dist` | `retraction` | `3744525` | `1908` | `3.322735` | `27.73611` | `10:16:56` | `SPG-7-1` |
+| `512` | SpEL / `spel_dist` | `topk`, `k=4` | `3744526` | `1908` | **`3.318744`** | `27.62564` | `10:25:33` | `SPG-7-1` |
+| `512` | SpEL / `spel_dist` | `topk`, `k=8` | `3744527` | `1908` | `3.321280` | `27.69578` | `10:28:18` | `SPG-7-2` |
+| `512` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_retraction` | `3744528` | `1908` | `3.753390` | `42.66548` | `10:20:46` | `SPG-7-2` |
+| `512` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=4` | `3744529` | `1908` | `3.320985` | `27.68762` | `10:32:18` | `SPG-7-1` |
+| `512` | MCSD-TP-PGD / `spel_pgd_dist` | `shared_topk`, `k=8` | `3744530` | `1908` | `3.322947` | `27.74197` | `10:32:45` | `SPG-7-2` |
 
-Current interpretation: width-256 plain SpEL top-k `k=4` is the strongest completed row in this supplement. Width-512 rows are still running and should be ranked only after final validation at iteration `1908`.
+Current interpretation: plain SpEL top-k `k=4` is the strongest row in this supplement at both widths. MCSD-TP-PGD `shared_retraction` is clearly not competitive, while `shared_topk k=4/8` remains close to SSO and SpEL-TP.
 
 ## Missing Plain SpEL-PGD Experiments
 

@@ -5,12 +5,25 @@ This repository manages one experiment track for a paper project on SSO-style op
 The active experiment track is a width-scaling learning-rate sweep on a weighted 1B-token OLMo mix sample:
 
 ```text
-comparison: SSO / spectral_ball_dist vs MCSD-TP / SpEL-TP / spel_tp_dist vs MCSD-PGD / spel_pgd_dist
+comparison: SSO vs plain SpEL vs SpEL-TP / MCSD-TP vs MCSD-TP-PGD
 widths:     256 and 512
 LR grid:    5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
 cluster:    HKU HPC2021 H20 Slurm partition
-status:     completed baseline and high-LR sweeps; selected width-512 plain supplement jobs still running
+status:     completed baseline, high-LR, and projection-supplement sweeps; plain SpEL-PGD still missing
 ```
+
+## Current Testing Goal
+
+The current paper-facing goal is to compare SSO-style spectral optimizers on a controlled 1B-token OLMo mix pretraining task at small widths. The immediate comparison set is:
+
+- `width=256` and `width=512`
+- LR grid `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2`
+- SSO / `spectral_ball_dist`
+- plain SpEL / `spel_dist`
+- SpEL-TP / MCSD-TP / `spel_tp_dist`
+- MCSD-TP-PGD / `spel_pgd_dist`
+
+Current completed-result conclusion: at `LR=1.5e-2`, plain SpEL with top-k projection `k=4` is the best completed row for both `width=256` and `width=512`. Width-512 high-LR tests at `2e-2` and `3e-2` are worse, so the current minimum remains near `1.5e-2`. MCSD-TP-PGD requires top-k projection; shared retraction is clearly worse in the completed supplement.
 
 ## Documentation
 
@@ -78,7 +91,7 @@ Older server-local checkouts such as `~/projects/Megatron-LM-active` and `~/proj
 
 ## Current Result Summary
 
-Status as of 2026-07-08: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=512`, `SpEL-TP top-k k=4`, `LR=1.5e-2` supplement job `3743072` completed successfully. The width-512 high-LR sweep for `2e-2` and `3e-2` also completed successfully as jobs `3743116`-`3743125`. In the plain SpEL vs MCSD-TP-PGD projection supplement, the width-256 jobs `3744519`-`3744524` completed and the width-512 jobs `3744525`-`3744530` are still running. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
+Status as of 2026-07-08: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=512`, `SpEL-TP top-k k=4`, `LR=1.5e-2` supplement job `3743072` completed successfully. The width-512 high-LR sweep for `2e-2` and `3e-2` completed successfully as jobs `3743116`-`3743125`. The plain SpEL vs MCSD-TP-PGD projection supplement also completed successfully: width-256 jobs `3744519`-`3744524` and width-512 jobs `3744525`-`3744530`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
 Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows are labeled `MCSD-PGD`; their SpEL branch also used the same TP re-projection in that code snapshot.
 
@@ -88,13 +101,14 @@ Best completed results:
 |---:|---|---:|---:|---:|---:|---:|
 | `256` | plain SpEL `spel_dist`, `topk k=4` | `1.5e-2` | **`3.562941`** | `35.26677` | `05:32:06` | `3744520` |
 | `256` | plain SpEL `spel_dist`, `topk k=8` | `1.5e-2` | `3.566394` | `35.38876` | `05:32:28` | `3744521` |
-| `256` | MCSD-TP / SpEL-TP `spel_dist`, `topk k=8` | `1.5e-2` | `3.566694` | `35.39936` | `05:34:38` | `3740137` |
-| `256` | MCSD-TP / SpEL-TP `spel_dist`, `topk k=4` | `1.5e-2` | `3.567563` | `35.43013` | `05:33:45` | `3743071` |
-| `256` | MCSD-TP / SpEL-TP `spel_dist`, original retraction | `1.5e-2` | `3.567708` | `35.43530` | `05:26:59` | `3725139` |
-| `512` | SpEL-TP `spel_dist`, `topk k=4` | `1.5e-2` | **`3.319634`** | `27.65023` | `10:27:54` | `3743072` |
-| `512` | MCSD-PGD `spel_pgd_dist`, `shared_topk k=4` | `1.5e-2` | `3.320985` | `27.68762` | `10:32:10` | `3741597` |
-| `512` | SpEL-TP `spel_dist` | `1.5e-2` | `3.321666` | `27.70647` | `10:17:51` | `3737723` |
-| `512` | MCSD-PGD `spel_pgd_dist` | `1.5e-2` | `3.321784` | `27.70973` | `10:22:07` | `3737728` |
+| `256` | SpEL-TP / MCSD-TP `spel_tp_dist`, `topk k=8` | `1.5e-2` | `3.566694` | `35.39936` | `05:34:38` | `3740137` |
+| `256` | MCSD-TP-PGD `spel_pgd_dist`, `shared_topk k=8` | `1.5e-2` | `3.566973` | `35.40925` | `05:37:55` | `3744524` |
+| `256` | SSO `spectral_ball_dist` | `1.5e-2` | `3.570953` | `35.55044` | `06:02:39` | `3725134` |
+| `512` | plain SpEL `spel_dist`, `topk k=4` | `1.5e-2` | **`3.318744`** | `27.62564` | `10:25:33` | `3744526` |
+| `512` | SpEL-TP / MCSD-TP `spel_tp_dist`, `topk k=4` | `1.5e-2` | `3.319634` | `27.65023` | `10:27:54` | `3743072` |
+| `512` | MCSD-TP-PGD `spel_pgd_dist`, `shared_topk k=4` | `1.5e-2` | `3.320985` | `27.68762` | `10:32:18` | `3744529` |
+| `512` | plain SpEL `spel_dist`, `topk k=8` | `1.5e-2` | `3.321280` | `27.69578` | `10:28:18` | `3744527` |
+| `512` | SpEL-TP / MCSD-TP `spel_tp_dist`, original retraction | `1.5e-2` | `3.321666` | `27.70647` | `10:17:51` | `3737723` |
 | `512` | SSO `spectral_ball_dist` | `1.5e-2` | `3.322861` | `27.73959` | `11:21:05` | `3737718` |
 
 ### Width-256 1B-token LR Sweep
@@ -169,7 +183,7 @@ This 1B-token supplemental sweep follows the stronger projection choices from th
 | `1e-2` | `3.580739` | `05:33:30` | `3.577118` | `05:37:24` | `3.580421` | `05:37:12` |
 | `1.5e-2` | **`3.566694`** | `05:34:38` | `3.568926` | `05:37:10` | `3.566973` | `05:37:25` |
 
-Current interpretation: `SpEL-TP topk k=8` gives the best completed width-256 1B result so far, but the margin over the original SpEL-TP run is small (`3.566694` versus `3.567708`). MCSD-PGD `shared_topk k=8` is very close at `1.5e-2`.
+Current interpretation: within this SpEL-TP / MCSD-PGD top-k sweep, `SpEL-TP topk k=8` is strongest at `3.566694`. After the later plain SpEL supplement, the best completed width-256 result overall is plain SpEL `topk k=4` at `3.562941`.
 
 ### Width-512 Supplemental Top-k LR Sweep
 
@@ -183,26 +197,32 @@ The matching width-512 supplemental sweep finished successfully on 2026-07-07 wi
 | `1e-2` | `3.330682` | `10:28:10` | `3.331491` | `10:34:28` | `3.331737` | `10:34:34` |
 | `1.5e-2` | `3.323886` | `10:28:29` | **`3.320985`** | `10:32:10` | `3.322947` | `10:31:50` |
 
-Current interpretation: after the `3743072` supplement, `SpEL-TP top-k k=4` gives the best completed width-512 result so far at `LR=1.5e-2`.
+Current interpretation: within the SpEL-TP / MCSD-PGD top-k sweep, the strongest width-512 row is MCSD-PGD `shared_topk k=4` at `1.5e-2`. After the later plain SpEL supplement, the best completed width-512 result overall is plain SpEL `topk k=4` at `3.318744`.
 
 ### LR 1.5e-2 Projection Comparison
 
-This table aligns the current best-comparison rows at the highest LR. `SpEL-TP topk k=4` is being supplemented because the previous 1B top-k sweep only included `k=8`.
+This table aligns the current best-comparison rows at the highest LR. It is the most direct summary for the current paper-facing `width=256/512`, 1B-token comparison.
 
-| Width | Optimizer/config | Val loss | PPL | Elapsed/status | Job |
+| Width | Optimizer/config | Val loss | PPL | Elapsed | Job |
 |---:|---|---:|---:|---:|---:|
 | `256` | SSO | `3.570953` | `35.55044` | `06:02:39` | `3725134` |
+| `256` | plain SpEL retraction | `3.571484` | `35.56934` | `05:26:24` | `3744519` |
+| `256` | plain SpEL top-k k=4 | **`3.562941`** | `35.26677` | `05:32:06` | `3744520` |
+| `256` | plain SpEL top-k k=8 | `3.566394` | `35.38876` | `05:32:28` | `3744521` |
 | `256` | SpEL-TP original retraction | `3.567708` | `35.43530` | `05:26:59` | `3725139` |
 | `256` | SpEL-TP top-k k=4 | `3.567563` | `35.43013` | `05:33:45` | `3743071` |
-| `256` | SpEL-TP top-k k=8 | **`3.566694`** | `35.39936` | `05:34:38` | `3740137` |
-| `256` | MCSD-PGD shared top-k k=4 | `3.568926` | `35.47848` | `05:37:10` | `3740142` |
-| `256` | MCSD-PGD shared top-k k=8 | `3.566973` | `35.40925` | `05:37:25` | `3740147` |
+| `256` | SpEL-TP top-k k=8 | `3.566694` | `35.39936` | `05:34:38` | `3740137` |
+| `256` | MCSD-TP-PGD shared top-k k=4 | `3.568926` | `35.47848` | `05:35:00` | `3744523` |
+| `256` | MCSD-TP-PGD shared top-k k=8 | `3.566973` | `35.40925` | `05:37:55` | `3744524` |
 | `512` | SSO | `3.322861` | `27.73959` | `11:21:05` | `3737718` |
+| `512` | plain SpEL retraction | `3.322735` | `27.73611` | `10:16:56` | `3744525` |
+| `512` | plain SpEL top-k k=4 | **`3.318744`** | `27.62564` | `10:25:33` | `3744526` |
+| `512` | plain SpEL top-k k=8 | `3.321280` | `27.69578` | `10:28:18` | `3744527` |
 | `512` | SpEL-TP original retraction | `3.321666` | `27.70647` | `10:17:51` | `3737723` |
-| `512` | SpEL-TP top-k k=4 | **`3.319634`** | `27.65023` | `10:27:54` | `3743072` |
+| `512` | SpEL-TP top-k k=4 | `3.319634` | `27.65023` | `10:27:54` | `3743072` |
 | `512` | SpEL-TP top-k k=8 | `3.323886` | `27.76806` | `10:28:29` | `3741592` |
-| `512` | MCSD-PGD shared top-k k=4 | **`3.320985`** | `27.68762` | `10:32:10` | `3741597` |
-| `512` | MCSD-PGD shared top-k k=8 | `3.322947` | `27.74197` | `10:31:50` | `3741602` |
+| `512` | MCSD-TP-PGD shared top-k k=4 | `3.320985` | `27.68762` | `10:32:18` | `3744529` |
+| `512` | MCSD-TP-PGD shared top-k k=8 | `3.322947` | `27.74197` | `10:32:45` | `3744530` |
 
 ### Width-512 High-LR Projection Sweep
 
@@ -220,7 +240,7 @@ This sweep extends the width-512 LR grid beyond `1.5e-2` to find whether the val
 
 Submitted on 2026-07-08 with `LR=1.5e-2`, `TRAIN_TOKENS=1B`, `GLOBAL_BATCH=128`, and `MICRO_BATCH=4`. Plain SpEL uses `spel_dist` with `tp_after_msign=0`; MCSD-TP-PGD uses `spel_pgd_dist` with `spel_pgd_tangent_project_after_msign=True`.
 
-| Width | Config | Val loss / status | PPL | Elapsed/status | Job |
+| Width | Config | Val loss | PPL | Elapsed | Job |
 |---:|---|---:|---:|---:|---:|
 | `256` | plain SpEL retraction | `3.571484` | `35.56934` | `05:26:24` | `3744519` |
 | `256` | plain SpEL top-k k=4 | **`3.562941`** | `35.26677` | `05:32:06` | `3744520` |
@@ -228,14 +248,14 @@ Submitted on 2026-07-08 with `LR=1.5e-2`, `TRAIN_TOKENS=1B`, `GLOBAL_BATCH=128`,
 | `256` | MCSD-TP-PGD shared retraction | `4.069594` | `58.53322` | `05:28:56` | `3744522` |
 | `256` | MCSD-TP-PGD shared top-k k=4 | `3.568926` | `35.47848` | `05:35:00` | `3744523` |
 | `256` | MCSD-TP-PGD shared top-k k=8 | `3.566973` | `35.40925` | `05:37:55` | `3744524` |
-| `512` | plain SpEL retraction | latest `3.419256` at iter `1500`; running | `30.54667` | running | `3744525` |
-| `512` | plain SpEL top-k k=4 | latest `3.415218` at iter `1500`; running | `30.42359` | running | `3744526` |
-| `512` | plain SpEL top-k k=8 | latest `3.417263` at iter `1500`; running | `30.48586` | running | `3744527` |
-| `512` | MCSD-TP-PGD shared retraction | latest `3.795879` at iter `1500`; running | `44.51737` | running | `3744528` |
-| `512` | MCSD-TP-PGD shared top-k k=4 | latest `3.418024` at iter `1500`; running | `30.50906` | running | `3744529` |
-| `512` | MCSD-TP-PGD shared top-k k=8 | latest `3.418643` at iter `1500`; running | `30.52795` | running | `3744530` |
+| `512` | plain SpEL retraction | `3.322735` | `27.73611` | `10:16:56` | `3744525` |
+| `512` | plain SpEL top-k k=4 | **`3.318744`** | `27.62564` | `10:25:33` | `3744526` |
+| `512` | plain SpEL top-k k=8 | `3.321280` | `27.69578` | `10:28:18` | `3744527` |
+| `512` | MCSD-TP-PGD shared retraction | `3.753390` | `42.66548` | `10:20:46` | `3744528` |
+| `512` | MCSD-TP-PGD shared top-k k=4 | `3.320985` | `27.68762` | `10:32:18` | `3744529` |
+| `512` | MCSD-TP-PGD shared top-k k=8 | `3.322947` | `27.74197` | `10:32:45` | `3744530` |
 
-Current interpretation: the best completed width-256 row in this supplement is plain SpEL top-k k=4. Width-512 rows are still running and should not be ranked until final validation at iteration `1908`.
+Current interpretation: plain SpEL top-k `k=4` is the best completed row in this supplement at both widths. MCSD-TP-PGD `shared_retraction` is not competitive, while `shared_topk k=4/8` remains close to SpEL-TP and SSO.
 
 ### Missing Plain SpEL-PGD Experiments
 
