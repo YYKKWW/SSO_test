@@ -268,7 +268,7 @@ if [[ "$SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE" == "1" || "$SPEL_TANGENT_PRO
   TRAINING_ARGS+=(--spel-tangent-project-after-msign)
 fi
 
-if [[ "${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-1}" == "0" || "${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-}" == "false" ]]; then
+if [[ "${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-0}" == "0" || "${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-}" == "false" ]]; then
   TRAINING_ARGS+=(--spel-pgd-no-tangent-project-after-msign)
 else
   TRAINING_ARGS+=(--spel-pgd-tangent-project-after-msign)
@@ -318,7 +318,7 @@ echo "seq=$SEQ_LENGTH micro=$MICRO_BATCH global=$GLOBAL_BATCH train_tokens=$TRAI
 echo "optimizer=$OPTIMIZER lr=$LR min_lr=$MIN_LR warmup=$LR_WARMUP_ITERS"
 echo "muon_ball_msign_steps=${MUON_BALL_MSIGN_STEPS:-8} muon_ball_power_iteration_steps=${MUON_BALL_POWER_ITERATION_STEPS:-10}"
 echo "spel_projection=${SPEL_PROJECTION_MODE:-retraction} rank=${SPEL_PROJECTION_RANK:-1} tp_after_msign=${SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE}"
-echo "spel_pgd_projection=${SPEL_PGD_PROJECTION_MODE:-fallback_exact} rank=${SPEL_PGD_PROJECTION_RANK:-1} tp_after_msign=${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-1}"
+echo "spel_pgd_projection=${SPEL_PGD_PROJECTION_MODE:-fallback_exact} rank=${SPEL_PGD_PROJECTION_RANK:-1} tp_after_msign=${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-0}"
 echo "transformer_impl=$TRANSFORMER_IMPL attention_backend=${ATTENTION_BACKEND:-auto}"
 echo "train_data=$TRAIN_DATA_PREFIX"
 echo "valid_data=$VALID_DATA_PREFIX"

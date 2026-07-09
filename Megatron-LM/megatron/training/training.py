@@ -259,6 +259,74 @@ def print_datetime(string, override_timestamp=None):
     print_rank_0(f'[{string}] datetime: {time_str} ')
 
 
+def _collect_spel_pgd_branch_stats(optimizer) -> Optional[Dict[str, float]]:
+    """Return merged SpEL-PGD branch stats from wrapped optimizer objects."""
+    if optimizer is None:
+        return None
+
+    totals = defaultdict(float)
+    found = False
+    stack = [optimizer]
+    seen = set()
+
+    while stack:
+        current = stack.pop()
+        if current is None:
+            continue
+        current_id = id(current)
+        if current_id in seen:
+            continue
+        seen.add(current_id)
+
+        stats_fn = getattr(current, 'get_branch_stats', None)
+        if callable(stats_fn):
+            stats = stats_fn()
+            if stats:
+                found = True
+                for key in (
+                    'spel_branch_count',
+                    'pgd_branch_count',
+                    'zero_lr_branch_count',
+                    'post_projection_count',
+                    'total_matrix_updates',
+                    'cumulative_spel_branch_count',
+                    'cumulative_pgd_branch_count',
+                    'cumulative_zero_lr_branch_count',
+                    'cumulative_post_projection_count',
+                    'cumulative_total_matrix_updates',
+                ):
+                    totals[key] += float(stats.get(key, 0) or 0)
+
+        for attr_name in ('chained_optimizers', 'optimizers', 'base_optimizers'):
+            children = getattr(current, attr_name, None)
+            if isinstance(children, (list, tuple)):
+                stack.extend(children)
+
+        # Megatron optimizer wrappers expose the underlying torch optimizer as
+        # `.optimizer`, but ChainedOptimizer raises when more than one child exists.
+        try:
+            inner_optimizer = getattr(current, 'optimizer', None)
+        except (AssertionError, RuntimeError):
+            inner_optimizer = None
+        if inner_optimizer is not None and inner_optimizer is not current:
+            stack.append(inner_optimizer)
+
+    if not found:
+        return None
+
+    total = totals['total_matrix_updates']
+    cumulative_total = totals['cumulative_total_matrix_updates']
+    totals['pgd_fallback_rate'] = totals['pgd_branch_count'] / total if total else 0.0
+    totals['post_projection_rate'] = totals['post_projection_count'] / total if total else 0.0
+    totals['cumulative_pgd_fallback_rate'] = (
+        totals['cumulative_pgd_branch_count'] / cumulative_total if cumulative_total else 0.0
+    )
+    totals['cumulative_post_projection_rate'] = (
+        totals['cumulative_post_projection_count'] / cumulative_total if cumulative_total else 0.0
+    )
+    return dict(totals)
+
+
 # Per-iteration packed-sequence (THD) accumulator. The tensor holds TWO stats,
 # both computed from the REAL ``cu_seqlens`` (i.e. unpadded sub-sequence lengths
 # -- ``cu_seqlens_padded`` is intentionally ignored so that neither the
@@ -2912,6 +2980,7 @@ def training_log(
     seqlen_squared_sum_in_batch: float | None = None,
     total_real_tokens_in_batch: float | None = None,
     num_microbatches: int | None = None,
+    optimizer=None,
 ):
     """Log training information such as losses, timing, ...."""
     args = get_args()
@@ -2992,6 +3061,7 @@ def training_log(
 
     # Calculate batch size.
     batch_size = args.micro_batch_size * args.data_parallel_size * get_num_microbatches()
+    spel_pgd_branch_stats = _collect_spel_pgd_branch_stats(optimizer)
 
     # Track app tag & app tag ID
     one_logger_utils.track_app_tag(batch_size, args.world_size, args.seq_length)
@@ -3060,6 +3130,13 @@ def training_log(
             writer.add_scalar('params-norm vs samples', params_norm, args.consumed_train_samples)
             if wandb_writer:
                 wandb_writer.log({'params-norm': params_norm}, iteration)
+        if spel_pgd_branch_stats is not None:
+            for key, value in spel_pgd_branch_stats.items():
+                tb_key = f'spel-pgd/{key.replace("_", "-")}'
+                writer.add_scalar(tb_key, value, iteration)
+                writer.add_scalar(tb_key + ' vs samples', value, args.consumed_train_samples)
+                if wandb_writer:
+                    wandb_writer.log({tb_key: value}, iteration)
         if args.perform_rl_step:
             grpo_collection_iteration = iteration // (
                 args.grpo_iterations * ((args.grpo_samples_per_iteration) // args.global_batch_size)
@@ -3230,6 +3307,32 @@ def training_log(
             log_string += f' num zeros: {num_zeros_in_grad} |'
         if params_norm is not None:
             log_string += f' params norm: {params_norm:.3f} |'
+        if spel_pgd_branch_stats is not None:
+            pgd_count = int(spel_pgd_branch_stats.get('pgd_branch_count', 0))
+            spel_count = int(spel_pgd_branch_stats.get('spel_branch_count', 0))
+            zero_lr_count = int(spel_pgd_branch_stats.get('zero_lr_branch_count', 0))
+            total_count = int(spel_pgd_branch_stats.get('total_matrix_updates', 0))
+            post_projection_count = int(spel_pgd_branch_stats.get('post_projection_count', 0))
+            pgd_rate = spel_pgd_branch_stats.get('pgd_fallback_rate', 0.0)
+            post_projection_rate = spel_pgd_branch_stats.get('post_projection_rate', 0.0)
+            cumulative_pgd_count = int(
+                spel_pgd_branch_stats.get('cumulative_pgd_branch_count', 0)
+            )
+            cumulative_total_count = int(
+                spel_pgd_branch_stats.get('cumulative_total_matrix_updates', 0)
+            )
+            cumulative_pgd_rate = spel_pgd_branch_stats.get(
+                'cumulative_pgd_fallback_rate', 0.0
+            )
+            log_string += (
+                f' spel-pgd pgd branches: {pgd_count}/{total_count} ({pgd_rate:.3f}) |'
+                f' cumulative pgd branches: {cumulative_pgd_count}/{cumulative_total_count}'
+                f' ({cumulative_pgd_rate:.3f}) |'
+                f' spel branches: {spel_count} |'
+                f' zero-lr branches: {zero_lr_count} |'
+                f' post projections: {post_projection_count}/{total_count}'
+                f' ({post_projection_rate:.3f}) |'
+            )
         log_string += ' number of skipped iterations: {:3d} |'.format(
             total_loss_dict[skipped_iters_key]
         )
@@ -4285,6 +4388,7 @@ def train(
             seqlen_squared_sum_in_batch=seqlen_squared_sum_in_batch,
             total_real_tokens_in_batch=total_real_tokens_in_batch,
             num_microbatches=num_microbatches,
+            optimizer=optimizer,
         )
         is_first_iteration = False
 

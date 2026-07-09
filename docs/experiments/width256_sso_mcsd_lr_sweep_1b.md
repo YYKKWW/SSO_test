@@ -1,6 +1,6 @@
 # Experiment Record: Width-256/512 Optimizer LR Sweep on OLMo Mix 1B
 
-Last updated: 2026-07-08
+Last updated: 2026-07-09
 
 This document is the primary experiment record for the `width=256` and `width=512` optimizer learning-rate sweeps. It is intended to support paper development, later reproduction, and future extensions with new optimizers or additional learning rates.
 
@@ -15,12 +15,14 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 | Width | `256`, `512` |
 | Data budget | `1B` training tokens |
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
-| Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, MCSD-TP-PGD / `spel_pgd_dist`, MuonBall / `muon_ball_dist` pending supplement |
+| Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, plain MCSD-PGD / `spel_pgd_dist`, MuonBall / `muon_ball_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12` |
-| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` are complete |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3` |
+| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` are complete; PGD sigma2 jobs `3747964`-`3747969`, MuonBall jobs `3747994`-`3748000`, and width-1024 memory jobs `3748023`-`3748025` are complete |
+| Completed tuning jobs | 250M-token plain MCSD-PGD gap-threshold tuning at `width=256`, `LR=1.5e-2`, `shared_topk k=8`, `sigma2=5`: no direction normalization `3749547`-`3749553`, Frobenius normalization `3749569`-`3749575`, spectral normalization `3749612`-`3749618`; all `COMPLETED`, exit code `0:0` |
+| Active tuning jobs | Spectral-normalized phase-B sigma2/gap sweep: `sigma2=3` jobs `3750042`-`3750046`, `sigma2=8` jobs `3750047`-`3750051`, `sigma2=10` jobs `3750052`-`3750056` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
-| Next likely extension | complete the width-256 MuonBall seven-LR supplement, then decide whether to repeat selected settings or extend to width `1024` |
+| Next likely extension | run width-512 plain SpEL-PGD with the selected `shared_topk k=8`, `sigma2=5` setting if this optimizer remains in the paper comparison; only then consider expensive width-1024 full training |
 
 ## Scope And Caveats
 
@@ -32,6 +34,7 @@ This is a controlled small-scale experiment, not the full paper sweep.
 - Historical MCSD-TP rows map to the old `spel_dist` implementation path because the launcher did not expose an optimizer literally named `mcsd`.
 - Naming audit, 2026-07-08: all historical `spel_dist` rows in this document were run while `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel.py` always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled.
 - The original width-256 MCSD-PGD rows use the first `spel_pgd_dist` implementation. The later width-512 MCSD-PGD rows use the selected top-k projection setting from the 250M-token tuning run: `fallback_topk`, rank `4`, gap `1e-3`. In the current historical code snapshot, the SpEL branch inside `spel_pgd_dist` also used post-msign TP re-projection.
+- Forward rule from 2026-07-09: unqualified `MCSD-PGD` means the plain `spel_pgd_dist` variant with `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`. Historical `MCSD-TP-PGD` rows remain in the record, but new TP-PGD jobs should not be submitted unless a future ablation explicitly needs them.
 - The supplemental top-k rows use SpEL-TP `projection_mode=topk` and MCSD-PGD `projection_mode=shared_topk`. SpEL itself does not have a `shared_topk` mode; that mode only applies to the two-branch MCSD-PGD optimizer.
 - The H20 runs use Megatron's `local` transformer implementation rather than the original script's `transformer_engine` + `fused` backend. A direct TE/fused smoke test failed in the current environment; see [Backend Compatibility Note](#backend-compatibility-note).
 
@@ -53,8 +56,8 @@ Run a small-scale version of the SSO paper's width/LR sweep at `width=256`, comp
 
 - SSO: `spectral_ball_dist`
 - MCSD-TP: `spel_tp_dist` for new runs; historical completed rows used `spel_dist`
-- MCSD-PGD: `spel_pgd_dist`
-- MuonBall: `muon_ball_dist` as a new width-256 supplement
+- MCSD-PGD / plain SpEL-PGD: `spel_pgd_dist` with `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`
+- MuonBall: `muon_ball_dist` as a width-256 supplement
 
 The completed SSO/SpEL sweeps use 1B training tokens from the weighted OLMo mix sample and evaluate five learning rates:
 
@@ -78,7 +81,7 @@ This experiment compares three optimizer implementations in the active Megatron 
 |---|---|---|---|
 | SSO / Spectral Sphere | `spectral_ball_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_ball.py`, `spectral_ball_utils.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | Main SSO baseline following the paper's `spball` scripts. |
 | MCSD-TP / SpEL-TP | `spel_tp_dist` for new runs; historical rows used `spel_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | Comparison optimizer path with post-msign tangent re-projection enabled. |
-| MCSD-PGD | `spel_pgd_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel_pgd_same_projection.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | New algorithm under test: SpEL-style spectral retraction with an automatic PGD fallback branch. |
+| MCSD-PGD / plain SpEL-PGD | `spel_pgd_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spel_pgd_same_projection.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | New algorithm under test: SpEL-style spectral retraction with an automatic PGD fallback branch. Future runs use the plain variant by default. |
 | MuonBall | `muon_ball_dist` | `Megatron-LM/emerging_optimizers/orthogonalized_optimizers/muon_ball.py`, `Megatron-LM/megatron/core/optimizer/emerging_optimizers.py` | Supplementary baseline from the SSO repository: Spectral Ball with lambda fixed to zero, removing the bisection solver. |
 
 SSO follows the Spectral Sphere / Spectral Ball setup:
@@ -108,13 +111,16 @@ MCSD-TP/SpEL-TP in this project is the current comparison optimizer path:
 
 Important naming note: the codebase does not expose an optimizer literally named `mcsd` in the current launcher. For completed historical rows, "MCSD-TP" means the old `spel_dist` optimizer path with post-msign tangent re-projection enabled. From the 2026-07-08 code update onward, "MCSD-TP" should use `spel_tp_dist`; plain `spel_dist` should be labeled `SpEL`.
 
-MCSD-PGD in this project is the first new algorithm extension after the SSO/MCSD baseline:
+MCSD-PGD / plain SpEL-PGD in this project is the first new algorithm extension after the SSO/MCSD baseline:
 
 - It subclasses the SpEL path and keeps the same spectral-sphere retraction operator: `power_iteration + apply_retract`.
 - It does not use an exact SVD projection.
 - In `branch_mode=auto`, it estimates the relative top-singular-value gap and switches to a PGD-style momentum direction when the gap is below `gap_threshold_rel`.
 - Both the SpEL branch and PGD branch form a trial point and apply the same post-step SpEL-style retraction.
-- The sweep uses `branch_mode=auto`, `gap_threshold_rel=5e-3`, `sigma2_power_iteration_steps=3`, and `pgd_direction_normalization=none`.
+- The historical sweep uses `branch_mode=auto`, `gap_threshold_rel=5e-3`, `sigma2_power_iteration_steps=3`, and `pgd_direction_normalization=none`.
+- The 2026-07-09 plain SpEL-PGD sigma2 supplement fixes `projection_mode=shared_topk`, `rank=8`, `LR=1.5e-2`, and tests `sigma2_power_iteration_steps=5,8,10`. It also contains a completed TP ablation; future MCSD-PGD runs should keep `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`.
+- `pgd_direction_normalization` supports `none`, `fro`, and `spectral`. The `spectral` mode estimates the PGD fallback direction's leading singular value with the same `power_iteration` helper used by SpEL/SSO, then divides by that value to align update scale under spectral norm.
+- Runs after the 2026-07-09 logging update report PGD branch usage at every `LOG_INTERVAL`: stdout includes per-step `spel-pgd pgd branches: used/total (rate)` and cumulative `cumulative pgd branches: used/total (rate)`, and TensorBoard/W&B receive `spel-pgd/pgd-branch-count`, `spel-pgd/total-matrix-updates`, `spel-pgd/pgd-fallback-rate`, plus the matching `spel-pgd/cumulative-*` counters.
 
 Future comparison algorithms should be added to this table before running them. Candidate columns to add later are implementation file, optimizer CLI name, default hyperparameters, and whether it needs a separate LR grid.
 
@@ -784,10 +790,13 @@ This table aligns the current width-256 and width-512 rows at the highest LR. It
 | `256` | SSO / `spectral_ball_dist` | `3725134` | `1908` | `3.570953` | `35.55044` | `06:02:39` | `SPG-7-1` |
 | `256` | plain SpEL / `spel_dist`, retraction | `3744519` | `1908` | `3.571484` | `35.56934` | `05:26:24` | `SPG-7-1` |
 | `256` | plain SpEL / `spel_dist`, top-k `k=4` | `3744520` | `1908` | **`3.562941`** | `35.26677` | `05:32:06` | `SPG-7-2` |
+| `256` | MuonBall / `muon_ball_dist` | `3747998` | `1908` | `3.564250` | `35.31298` | `05:24:57` | `SPG-7-2` |
+| `256` | plain SpEL-PGD shared top-k / `spel_pgd_dist`, `k=8`, `sigma2=5` | `3747964` | `1908` | `3.566324` | `35.38627` | `05:37:26` | `SPG-7-1` |
 | `256` | plain SpEL / `spel_dist`, top-k `k=8` | `3744521` | `1908` | `3.566394` | `35.38876` | `05:32:28` | `SPG-7-2` |
 | `256` | SpEL-TP original retraction / `spel_dist` | `3725139` | `1908` | `3.567708` | `35.43530` | `05:26:59` | `SPG-7-2` |
 | `256` | SpEL-TP top-k / `spel_dist`, `k=4` | `3743071` | `1908` | `3.567563` | `35.43013` | `05:33:45` | `SPG-7-1` |
 | `256` | SpEL-TP top-k / `spel_dist`, `k=8` | `3740137` | `1908` | `3.566694` | `35.39936` | `05:34:38` | `SPG-7-1` |
+| `256` | SpEL-TP-PGD shared top-k / `spel_pgd_dist`, `k=8`, `sigma2=5` | `3747965` | `1908` | `3.568810` | `35.47436` | `05:38:32` | `SPG-7-1` |
 | `256` | MCSD-TP-PGD shared top-k / `spel_pgd_dist`, `k=4` | `3744523` | `1908` | `3.568926` | `35.47848` | `05:35:00` | `SPG-7-2` |
 | `256` | MCSD-TP-PGD shared top-k / `spel_pgd_dist`, `k=8` | `3744524` | `1908` | `3.566973` | `35.40925` | `05:37:55` | `SPG-7-1` |
 | `512` | SSO / `spectral_ball_dist` | `3737718` | `1908` | `3.322861` | `27.73959` | `11:21:05` | `SPG-7-1` |
@@ -865,7 +874,7 @@ Current interpretation: plain SpEL top-k `k=4` is the strongest row in this supp
 
 ## MuonBall Width-256 Seven-LR Supplement
 
-This pending supplement adds the reference MuonBall optimizer to the same width-256 1B-token setup used by the SSO and SpEL sweeps. It is intended to answer whether removing the Spectral Ball lambda solver remains competitive at the small width used in this experiment.
+This completed supplement adds the reference MuonBall optimizer to the same width-256 1B-token setup used by the SSO and SpEL sweeps. It answers whether removing the Spectral Ball lambda solver remains competitive at the small width used in this experiment.
 
 ```text
 Script: slurm/submit_width256_muon_ball_lr_sweep.sh
@@ -880,7 +889,19 @@ LR grid: 5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2, 2e-2, 3e-2
 
 MuonBall constants follow the original SSO repository launcher `Spectral-Sphere-Optimizer/megatron_scripts/Dense-1.7B/muonball/muonball.sh`: `momentum=0.9`, Nesterov enabled, `msign_steps=8`, `radius_mode=spectral_mup`, `scale_mode=spectral_mup`, `power_iteration_steps=10`, `retract_mode=hard`, and `qkv_split_mode=head`.
 
-When jobs complete, compare primarily against:
+Completed H20 results:
+
+| LR | Job | Val loss | PPL | Elapsed |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3747994` | `3.639009` | `38.05410` | `05:24:57` |
+| `7e-3` | `3747995` | `3.600150` | `36.60372` | `05:24:05` |
+| `9e-3` | `3747996` | `3.581582` | `35.93032` | `05:26:44` |
+| `1e-2` | `3747997` | `3.575525` | `35.71338` | `05:24:58` |
+| `1.5e-2` | `3747998` | **`3.564250`** | `35.31298` | `05:24:57` |
+| `2e-2` | `3747999` | `3.571979` | `35.58694` | `05:24:49` |
+| `3e-2` | `3748000` | `3.611113` | `37.00722` | `05:25:05` |
+
+Comparison against the completed width-256 SSO / SpEL-TP grid:
 
 | LR | SSO width-256 val loss | SpEL-TP width-256 val loss | Plain SpEL top-k k=4 note |
 |---:|---:|---:|---|
@@ -892,7 +913,9 @@ When jobs complete, compare primarily against:
 | `2e-2` | not run at width 256 | not run at width 256 | high-LR extension point |
 | `3e-2` | not run at width 256 | not run at width 256 | high-LR extension point |
 
-## Missing Plain SpEL-PGD Experiments
+Current interpretation: MuonBall's best width-256 row is `LR=1.5e-2`, with val loss `3.564250`. It beats width-256 SSO at the same LR (`3.570953`) and is close to plain SpEL, but remains slightly worse than plain SpEL `topk k=4` (`3.562941`).
+
+## Plain SpEL-PGD Sigma2 Supplement
 
 Plain SpEL-PGD is the same `spel_pgd_dist` optimizer with the SpEL branch post-msign tangent projection disabled:
 
@@ -900,27 +923,98 @@ Plain SpEL-PGD is the same `spel_pgd_dist` optimizer with the SpEL branch post-m
 SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0
 ```
 
-To match the MCSD-TP-PGD coverage in the table above, run the following minimum set:
+This completed supplement tests whether increasing `sigma2_power_iteration_steps` helps the PGD branch. It uses the same width-256 1B-token setup, `LR=1.5e-2`, `projection_mode=shared_topk`, and `rank=8`. It includes both plain SpEL-PGD and a historical SpEL-TP-PGD ablation, where SpEL-TP-PGD enables the post-msign tangent projection. Future MCSD-PGD experiments use the plain variant by default.
 
-| Width | LR | Projection modes | Jobs needed |
-|---:|---:|---|---:|
-| `256` | `1.5e-2` | `shared_retraction`, `shared_topk k=4`, `shared_topk k=8` | `3` |
-| `512` | `1.5e-2` | `shared_retraction`, `shared_topk k=4`, `shared_topk k=8` | `3` |
-
-Use the same non-TP PGD settings otherwise:
+Run settings:
 
 ```text
 OPTIMIZER=spel_pgd_dist
 SPEL_PGD_BRANCH_MODE=auto
-SPEL_PGD_GAP_THRESHOLD_REL=1e-3
-SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS=3
+SPEL_PGD_PROJECTION_MODE=shared_topk
+SPEL_PGD_RANKS=8
+SPEL_PGD_GAP_THRESHOLD_REL=5e-3
+SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS=5,8,10
 SPEL_PGD_DIRECTION_NORMALIZATION=none
 TRAIN_TOKENS=1000000000
 GLOBAL_BATCH=128
 MICRO_BATCH=4
 ```
 
-If the best plain SpEL-PGD row is competitive at `1.5e-2`, extend only that projection mode to the five-LR grid: `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2`.
+| Width | Variant | TP after msign | sigma2 steps | Job | Val loss | PPL | Elapsed |
+|---:|---|---:|---:|---:|---:|---:|---:|
+| `256` | plain SpEL-PGD | `0` | `5` | `3747964` | **`3.566324`** | `35.38627` | `05:37:26` |
+| `256` | SpEL-TP-PGD | `1` | `5` | `3747965` | `3.568810` | `35.47436` | `05:38:32` |
+| `256` | plain SpEL-PGD | `0` | `8` | `3747966` | `3.569803` | `35.50958` | `05:35:26` |
+| `256` | SpEL-TP-PGD | `1` | `8` | `3747967` | `3.569142` | `35.48614` | `05:37:30` |
+| `256` | plain SpEL-PGD | `0` | `10` | `3747968` | `3.627396` | `37.61473` | `05:35:03` |
+| `256` | SpEL-TP-PGD | `1` | `10` | `3747969` | `3.610268` | `36.97597` | `05:35:16` |
+
+Current interpretation: `sigma2_power_iteration_steps=5` is best in this sweep. Increasing sigma2 steps to `8` or `10` does not improve validation loss and is clearly worse at `10`. The best plain SpEL-PGD row (`3.566324`) is competitive with SpEL-TP and MCSD-TP-PGD, but does not beat plain SpEL `topk k=4` (`3.562941`) or MuonBall (`3.564250`) at width 256.
+
+Branch-count caveat: jobs `3747964`-`3747969` completed before the 2026-07-09 training-log update that records PGD branch usage. Exact PGD usage counts are therefore available only for new or rerun SpEL-PGD jobs.
+
+## Plain MCSD-PGD Gap/Normalization Tuning
+
+Submitted on 2026-07-09 to test whether PGD fallback frequency and direction scale explain the sigma2 degradation. All jobs in this block use the plain MCSD-PGD variant only: `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`, `width=256`, `LR=1.5e-2`, `TRAIN_TOKENS=250M`, `projection_mode=shared_topk`, and `rank=8`.
+
+Completed phase A fixes `sigma2_power_iteration_steps=5` and sweeps direction normalization plus `gap_threshold_rel`.
+
+| Direction normalization | Gap thresholds | Jobs | Run root |
+|---|---|---|---|
+| `none` | `0`, `1e-4`, `5e-4`, `1e-3`, `2e-3`, `5e-3`, `1e-2` | `3749547`-`3749553` | `/home/u3013198/projects/SSO_test/results/olmo_250m_width256_pgd_gap_threshold_tune` |
+| `fro` | `0`, `1e-4`, `5e-4`, `1e-3`, `2e-3`, `5e-3`, `1e-2` | `3749569`-`3749575` | `/home/u3013198/projects/SSO_test/results/olmo_250m_width256_pgd_gap_threshold_tune_fro` |
+| `spectral` | `0`, `1e-4`, `5e-4`, `1e-3`, `2e-3`, `5e-3`, `1e-2` | `3749612`-`3749618` | `/home/u3013198/projects/SSO_test/results/olmo_250m_width256_pgd_gap_threshold_tune_spectral` |
+
+All phase-A jobs completed with Slurm exit code `0:0`. Best rows by normalization:
+
+| Direction normalization | Best gap | Job | Val loss | PPL | Cumulative PGD branches |
+|---|---:|---:|---:|---:|---:|
+| `spectral` | `1e-4` to `2e-3` | `3749613`-`3749616` | **`3.990190`** | `54.06516` | `555/118440` (`0.005`) |
+| `fro` | `5e-3` | `3749574` | `3.991130` | `54.11601` | `432/118440` (`0.004`) |
+| `none` | `0` | `3749547` | `3.991379` | `54.12947` | `0/118440` (`0.000`) |
+
+Spectral-normalized detail:
+
+| sigma2 steps | gap | Job | Val loss | PPL | Cumulative PGD branches |
+|---:|---:|---:|---:|---:|---:|
+| `5` | `0` | `3749612` | `3.991379` | `54.12947` | `0/118440` (`0.000`) |
+| `5` | `1e-4` | `3749613` | **`3.990190`** | `54.06516` | `555/118440` (`0.005`) |
+| `5` | `5e-4` | `3749614` | **`3.990190`** | `54.06516` | `555/118440` (`0.005`) |
+| `5` | `1e-3` | `3749615` | **`3.990190`** | `54.06516` | `555/118440` (`0.005`) |
+| `5` | `2e-3` | `3749616` | **`3.990190`** | `54.06516` | `555/118440` (`0.005`) |
+| `5` | `5e-3` | `3749617` | `3.990719` | `54.09379` | `562/118440` (`0.005`) |
+| `5` | `1e-2` | `3749618` | `3.994977` | `54.32460` | `649/118440` (`0.005`) |
+
+Current phase-A interpretation: `spectral` normalization is the best direction scaling choice. `gap_threshold_rel=1e-2` is clearly too permissive. The useful range is narrow and conservative, roughly `1e-4` to `2e-3`; `1e-3` is the safest default within that plateau.
+
+Active phase B keeps `spectral` normalization and tests whether changing `sigma2_power_iteration_steps` improves over the current `sigma2=5` default. It reuses the phase-A `sigma2=5` results and submits only the missing values:
+
+| sigma2 steps | Gap thresholds | Jobs | Run root |
+|---:|---|---|---|
+| `3` | `1e-4`, `5e-4`, `1e-3`, `2e-3`, `5e-3` | `3750042`-`3750046` | `/home/u3013198/projects/SSO_test/results/olmo_250m_width256_pgd_spectral_sigma2_gap_sweep/sigma2_3` |
+| `8` | `1e-4`, `5e-4`, `1e-3`, `2e-3`, `5e-3` | `3750047`-`3750051` | `/home/u3013198/projects/SSO_test/results/olmo_250m_width256_pgd_spectral_sigma2_gap_sweep/sigma2_8` |
+| `10` | `1e-4`, `5e-4`, `1e-3`, `2e-3`, `5e-3` | `3750052`-`3750056` | `/home/u3013198/projects/SSO_test/results/olmo_250m_width256_pgd_spectral_sigma2_gap_sweep/sigma2_10` |
+
+The parameter decision rule after phase B is: choose the lowest validation loss; if several settings tie within `0.001`, choose the lower PGD branch rate and lower `sigma2_power_iteration_steps` for speed.
+
+Remaining coverage if plain SpEL-PGD stays in the paper comparison:
+
+| Width | LR | Projection modes | Jobs needed |
+|---:|---:|---|---:|
+| `512` | `1.5e-2` | `shared_topk k=8`, `sigma2=5` | `1` |
+| `256`, `512` | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` | best plain SpEL-PGD setting if selected | optional grid |
+
+## Width-1024 Memory Smoke
+
+This two-iteration smoke test checks whether `width=1024`, `num_layers=28`, `seq_length=4096`, `global_batch=128`, and `micro_batch=4` fit on one H20. These are not training-quality results and should not be compared by validation loss.
+
+| Optimizer | Job | State | Max allocated MB | Max reserved MB | Elapsed |
+|---|---:|---|---:|---:|---:|
+| SSO / `spectral_ball_dist` | `3748023` | `COMPLETED` | `75555.72` | `80610.00` | `00:03:07` |
+| SpEL-TP / `spel_tp_dist` | `3748024` | `COMPLETED` | `74531.72` | `78978.00` | `00:02:54` |
+| MuonBall / `muon_ball_dist` | `3748025` | `COMPLETED` | `74531.72` | `78978.00` | `00:02:54` |
+
+Current interpretation: width 1024 does not OOM at `micro_batch=4`, `seq_length=4096` on H20 for these three optimizers. SSO has the highest observed allocation and is closest to the limit.
 
 ## Historical Baseline
 

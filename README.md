@@ -5,11 +5,11 @@ This repository manages one experiment track for a paper project on SSO-style op
 The active experiment track is a width-scaling learning-rate sweep on a weighted 1B-token OLMo mix sample:
 
 ```text
-comparison: SSO vs plain SpEL vs SpEL-TP / MCSD-TP vs MCSD-TP-PGD
+comparison: SSO vs plain SpEL vs SpEL-TP / MCSD-TP vs plain MCSD-PGD
 widths:     256 and 512
 LR grid:    5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
 cluster:    HKU HPC2021 H20 Slurm partition
-status:     completed baseline, high-LR, and projection-supplement sweeps; plain SpEL-PGD still missing
+status:     completed baseline, high-LR, projection, MuonBall, and width-256 PGD sigma2 sweeps
 ```
 
 ## Current Testing Goal
@@ -21,10 +21,13 @@ The current paper-facing goal is to compare SSO-style spectral optimizers on a c
 - SSO / `spectral_ball_dist`
 - plain SpEL / `spel_dist`
 - SpEL-TP / MCSD-TP / `spel_tp_dist`
-- MCSD-TP-PGD / `spel_pgd_dist`
-- MuonBall / `muon_ball_dist` as a new width-256 seven-LR supplement
+- plain SpEL-PGD / `spel_pgd_dist` with post-msign TP disabled
+- MCSD-TP-PGD historical rows only; future MCSD-PGD runs default to the plain variant
+- MuonBall / `muon_ball_dist` as a width-256 seven-LR supplement
 
-Current completed-result conclusion: at `LR=1.5e-2`, plain SpEL with top-k projection `k=4` is the best completed row for both `width=256` and `width=512`. Width-512 high-LR tests at `2e-2` and `3e-2` are worse, so the current minimum remains near `1.5e-2`. MCSD-TP-PGD requires top-k projection; shared retraction is clearly worse in the completed supplement.
+Current completed-result conclusion: at `LR=1.5e-2`, plain SpEL with top-k projection `k=4` is still the best completed row for both `width=256` and `width=512`. The new width-256 MuonBall sweep is competitive and beats SSO at its best LR, but remains slightly behind plain SpEL `topk k=4`. The new width-256 plain SpEL-PGD sigma2 sweep is also competitive when `sigma2_power_iteration_steps=5`, but still trails plain SpEL `topk k=4`. Width-512 high-LR tests at `2e-2` and `3e-2` are worse, so the current width-512 minimum remains near `1.5e-2`.
+
+Forward rule for PGD experiments: `MCSD-PGD` now means the plain `spel_pgd_dist` variant with `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`. Do not submit new `MCSD-TP-PGD` jobs unless a later experiment explicitly reopens the TP ablation.
 
 ## Documentation
 
@@ -61,6 +64,8 @@ What was added:
 - Training-time optimizer dispatch in `Megatron-LM/megatron/training/training.py` so these optimizer names call the custom builders.
 - Import compatibility fixes so SpEL/SSO can be imported on H20 without eagerly compiling Triton-backed Muon utilities.
 - Unit/smoke test utilities under `scripts/` and H20 Slurm launchers for reproducibility.
+- Training-log support for SpEL-PGD branch diagnostics. New `spel_pgd_dist` runs print per-step and cumulative `spel-pgd pgd branches: used/total (rate)` counts at each `LOG_INTERVAL` and write the same counters under `spel-pgd/*` TensorBoard/W&B keys.
+- SpEL-PGD direction normalization supports `none`, `fro`, and `spectral`; `spectral` estimates the PGD direction's leading singular value with the same `power_iteration` helper used by SpEL/SSO and divides by that value.
 
 What was not intentionally changed:
 
@@ -92,15 +97,29 @@ Older server-local checkouts such as `~/projects/Megatron-LM-active` and `~/proj
 
 ## Current Result Summary
 
-Status as of 2026-07-08: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=512`, `SpEL-TP top-k k=4`, `LR=1.5e-2` supplement job `3743072` completed successfully. The width-512 high-LR sweep for `2e-2` and `3e-2` completed successfully as jobs `3743116`-`3743125`. The plain SpEL vs MCSD-TP-PGD projection supplement also completed successfully: width-256 jobs `3744519`-`3744524` and width-512 jobs `3744525`-`3744530`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
+Status as of 2026-07-09: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=512`, `SpEL-TP top-k k=4`, `LR=1.5e-2` supplement job `3743072` completed successfully. The width-512 high-LR sweep for `2e-2` and `3e-2` completed successfully as jobs `3743116`-`3743125`. The plain SpEL vs MCSD-TP-PGD projection supplement also completed successfully: width-256 jobs `3744519`-`3744524` and width-512 jobs `3744525`-`3744530`. The width-256 plain SpEL-PGD / SpEL-TP-PGD sigma2 supplement completed as jobs `3747964`-`3747969`. The width-256 MuonBall seven-LR supplement completed as jobs `3747994`-`3748000`. The width-1024 two-iteration memory smoke completed as jobs `3748023`-`3748025`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
-Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows are labeled `MCSD-PGD`; their SpEL branch also used the same TP re-projection in that code snapshot.
+The 250M-token MCSD-PGD gap-threshold tuning on 2026-07-09 completed successfully. It used the plain variant only, `width=256`, `LR=1.5e-2`, `shared_topk k=8`, and `sigma2_power_iteration_steps=5`. Best row: spectral direction normalization with `gap_threshold_rel` in `1e-4` to `2e-3`, final val loss `3.990190`, PPL `54.06516`, and cumulative PGD branch rate about `0.5%`. This is the preferred MCSD-PGD setting for the next 1B-token follow-up.
+
+| Direction normalization | Best gap | Best val loss | PPL | Cumulative PGD rate | Jobs |
+|---|---:|---:|---:|---:|---|
+| `spectral` | `1e-4` to `2e-3` | **`3.990190`** | `54.06516` | `555/118440` (`0.005`) | `3749613`-`3749616` |
+| `fro` | `5e-3` | `3.991130` | `54.11601` | `432/118440` (`0.004`) | `3749574` |
+| `none` | `0` | `3.991379` | `54.12947` | `0/118440` (`0.000`) | `3749547` |
+
+Interpretation: spectral normalization helps slightly over both unnormalized PGD and Frobenius normalization. Larger `gap_threshold_rel=1e-2` is worse across all normalizations, so the PGD fallback should remain rare.
+
+Active follow-up submitted on 2026-07-09: keep `spectral` normalization and test `sigma2_power_iteration_steps=3,8,10` against `gap_threshold_rel = 1e-4, 5e-4, 1e-3, 2e-3, 5e-3` at the same 250M-token budget. Jobs: `3750042`-`3750046` for `sigma2=3`, `3750047`-`3750051` for `sigma2=8`, and `3750052`-`3750056` for `sigma2=10`. Existing `sigma2=5` results above are reused as the comparison point.
+
+Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows may be labeled `MCSD-TP-PGD` when they used the TP branch. From 2026-07-09 onward, unqualified `MCSD-PGD` means plain `spel_pgd_dist` with post-msign TP disabled.
 
 Best completed results:
 
 | Width | Optimizer | LR | Val loss | PPL | Elapsed | Job |
 |---:|---|---:|---:|---:|---:|---:|
 | `256` | plain SpEL `spel_dist`, `topk k=4` | `1.5e-2` | **`3.562941`** | `35.26677` | `05:32:06` | `3744520` |
+| `256` | MuonBall `muon_ball_dist` | `1.5e-2` | `3.564250` | `35.31298` | `05:24:57` | `3747998` |
+| `256` | plain SpEL-PGD `spel_pgd_dist`, `shared_topk k=8`, `sigma2=5` | `1.5e-2` | `3.566324` | `35.38627` | `05:37:26` | `3747964` |
 | `256` | plain SpEL `spel_dist`, `topk k=8` | `1.5e-2` | `3.566394` | `35.38876` | `05:32:28` | `3744521` |
 | `256` | SpEL-TP / MCSD-TP `spel_tp_dist`, `topk k=8` | `1.5e-2` | `3.566694` | `35.39936` | `05:34:38` | `3740137` |
 | `256` | MCSD-TP-PGD `spel_pgd_dist`, `shared_topk k=8` | `1.5e-2` | `3.566973` | `35.40925` | `05:37:55` | `3744524` |
@@ -209,10 +228,13 @@ This table aligns the current best-comparison rows at the highest LR. It is the 
 | `256` | SSO | `3.570953` | `35.55044` | `06:02:39` | `3725134` |
 | `256` | plain SpEL retraction | `3.571484` | `35.56934` | `05:26:24` | `3744519` |
 | `256` | plain SpEL top-k k=4 | **`3.562941`** | `35.26677` | `05:32:06` | `3744520` |
+| `256` | MuonBall | `3.564250` | `35.31298` | `05:24:57` | `3747998` |
+| `256` | plain SpEL-PGD shared top-k k=8, sigma2=5 | `3.566324` | `35.38627` | `05:37:26` | `3747964` |
 | `256` | plain SpEL top-k k=8 | `3.566394` | `35.38876` | `05:32:28` | `3744521` |
 | `256` | SpEL-TP original retraction | `3.567708` | `35.43530` | `05:26:59` | `3725139` |
 | `256` | SpEL-TP top-k k=4 | `3.567563` | `35.43013` | `05:33:45` | `3743071` |
 | `256` | SpEL-TP top-k k=8 | `3.566694` | `35.39936` | `05:34:38` | `3740137` |
+| `256` | SpEL-TP-PGD shared top-k k=8, sigma2=5 | `3.568810` | `35.47436` | `05:38:32` | `3747965` |
 | `256` | MCSD-TP-PGD shared top-k k=4 | `3.568926` | `35.47848` | `05:35:00` | `3744523` |
 | `256` | MCSD-TP-PGD shared top-k k=8 | `3.566973` | `35.40925` | `05:37:55` | `3744524` |
 | `512` | SSO | `3.322861` | `27.73959` | `11:21:05` | `3737718` |
@@ -258,18 +280,57 @@ Submitted on 2026-07-08 with `LR=1.5e-2`, `TRAIN_TOKENS=1B`, `GLOBAL_BATCH=128`,
 
 Current interpretation: plain SpEL top-k `k=4` is the best completed row in this supplement at both widths. MCSD-TP-PGD `shared_retraction` is not competitive, while `shared_topk k=4/8` remains close to SpEL-TP and SSO.
 
-### Missing Plain SpEL-PGD Experiments
+### Plain SpEL-PGD Sigma2 Supplement
 
-Plain SpEL-PGD means `OPTIMIZER=spel_pgd_dist` with `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`, i.e. the SpEL branch inside PGD does not apply the post-msign tangent projection. To match the MCSD-TP-PGD coverage above, the minimum missing set is:
+Submitted on 2026-07-09 with `width=256`, `LR=1.5e-2`, `TRAIN_TOKENS=1B`, `GLOBAL_BATCH=128`, `MICRO_BATCH=4`, `SPEL_PGD_PROJECTION_MODE=shared_topk`, and `SPEL_PGD_RANKS=8`. Plain SpEL-PGD disables the post-msign tangent projection with `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`; SpEL-TP-PGD enables it with `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=1`. This is now treated as a historical TP ablation; future MCSD-PGD experiments default to the plain variant.
+
+| Width | Variant | sigma2 steps | Val loss | PPL | Elapsed | Job |
+|---:|---|---:|---:|---:|---:|---:|
+| `256` | plain SpEL-PGD | `5` | **`3.566324`** | `35.38627` | `05:37:26` | `3747964` |
+| `256` | SpEL-TP-PGD | `5` | `3.568810` | `35.47436` | `05:38:32` | `3747965` |
+| `256` | SpEL-TP-PGD | `8` | `3.569142` | `35.48614` | `05:37:30` | `3747967` |
+| `256` | plain SpEL-PGD | `8` | `3.569803` | `35.50958` | `05:35:26` | `3747966` |
+| `256` | SpEL-TP-PGD | `10` | `3.610268` | `36.97597` | `05:35:16` | `3747969` |
+| `256` | plain SpEL-PGD | `10` | `3.627396` | `37.61473` | `05:35:03` | `3747968` |
+
+Current interpretation: `sigma2_power_iteration_steps=5` is best in this sweep. Increasing sigma2 steps to `8` or `10` does not improve validation loss and is worse at `10`. The best plain SpEL-PGD row (`3.566324`) is competitive with SpEL-TP and MCSD-TP-PGD, but it does not beat plain SpEL `topk k=4` (`3.562941`) or MuonBall (`3.564250`) at width 256.
+
+### MuonBall Width-256 Seven-LR Supplement
+
+Submitted on 2026-07-09 with the same width-256 1B-token setup and the MuonBall constants from `Spectral-Sphere-Optimizer/megatron_scripts/Dense-1.7B/muonball/muonball.sh`: `momentum=0.9`, Nesterov enabled, `msign_steps=8`, `radius_mode=spectral_mup`, `scale_mode=spectral_mup`, `power_iteration_steps=10`, `retract_mode=hard`, and `qkv_split_mode=head`.
+
+| LR | MuonBall val loss | PPL | Elapsed | Job |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3.639009` | `38.05410` | `05:24:57` | `3747994` |
+| `7e-3` | `3.600150` | `36.60372` | `05:24:05` | `3747995` |
+| `9e-3` | `3.581582` | `35.93032` | `05:26:44` | `3747996` |
+| `1e-2` | `3.575525` | `35.71338` | `05:24:58` | `3747997` |
+| `1.5e-2` | **`3.564250`** | `35.31298` | `05:24:57` | `3747998` |
+| `2e-2` | `3.571979` | `35.58694` | `05:24:49` | `3747999` |
+| `3e-2` | `3.611113` | `37.00722` | `05:25:05` | `3748000` |
+
+Current interpretation: MuonBall's best width-256 row is `LR=1.5e-2`, with val loss `3.564250`. It beats width-256 SSO at the same LR (`3.570953`) and is close to plain SpEL, but it is still slightly worse than plain SpEL `topk k=4` (`3.562941`).
+
+### Width-1024 Memory Smoke
+
+This two-iteration smoke test checks whether `width=1024`, `num_layers=28`, `seq_length=4096`, `global_batch=128`, and `micro_batch=4` fit on one H20. These are not training-quality results.
+
+| Optimizer | State | Max allocated MB | Max reserved MB | Elapsed | Job |
+|---|---|---:|---:|---:|---:|
+| SSO | `COMPLETED` | `75555.72` | `80610.00` | `00:03:07` | `3748023` |
+| SpEL-TP | `COMPLETED` | `74531.72` | `78978.00` | `00:02:54` | `3748024` |
+| MuonBall | `COMPLETED` | `74531.72` | `78978.00` | `00:02:54` | `3748025` |
+
+Current interpretation: width 1024 does not OOM at `micro_batch=4`, `seq_length=4096` on H20 for these three optimizers. SSO has the highest observed allocation and is closest to the limit.
+
+### Remaining Plain SpEL-PGD Coverage
+
+The completed plain SpEL-PGD sigma2 supplement covers only `width=256`, `shared_topk k=8`, and `LR=1.5e-2`. The remaining minimum coverage, if this optimizer stays in the paper comparison, is:
 
 | Width | LR | Projection modes | Jobs needed |
 |---:|---:|---|---:|
-| `256` | `1.5e-2` | `shared_retraction`, `shared_topk k=4`, `shared_topk k=8` | `3` |
-| `512` | `1.5e-2` | `shared_retraction`, `shared_topk k=4`, `shared_topk k=8` | `3` |
-
-Keep the same settings as MCSD-TP-PGD: `branch_mode=auto`, `gap_threshold_rel=1e-3`, `sigma2_power_iteration_steps=3`, `direction_normalization=none`, `TRAIN_TOKENS=1B`, `GLOBAL_BATCH=128`, and `MICRO_BATCH=4`.
-
-If plain SpEL-PGD is competitive at `1.5e-2`, extend it to the same five-LR grid for the best projection mode: `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` at width `256` and `512`.
+| `512` | `1.5e-2` | `shared_topk k=8`, `sigma2=5` | `1` |
+| `256`, `512` | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` | best plain SpEL-PGD setting if selected | optional grid |
 
 See [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) for the full table, job IDs, commands, and caveats.
 

@@ -3545,9 +3545,9 @@ def _add_regularization_args(parser):
         '--spel-pgd-direction-normalization',
         type=str,
         default='none',
-        choices=['none', 'fro'],
+        choices=['none', 'fro', 'spectral'],
         dest='spel_pgd_pgd_direction_normalization',
-        help='PGD branch direction normalization for SpEL-PGD',
+        help='PGD branch direction normalization for SpEL-PGD: none, fro, or spectral',
     )
     group.add_argument(
         '--spel-pgd-projection-mode',
@@ -3576,7 +3576,7 @@ def _add_regularization_args(parser):
     group.add_argument(
         '--spel-pgd-tangent-project-after-msign',
         action='store_true',
-        default=True,
+        default=False,
         dest='spel_pgd_tangent_project_after_msign',
         help='Re-project the SpEL branch msign direction to the tangent plane in SpEL-PGD',
     )

@@ -470,7 +470,7 @@ class OptimizerConfig:
     """Power iteration steps used to estimate the second singular value."""
 
     spel_pgd_pgd_direction_normalization: str = "none"
-    """PGD branch direction normalization mode: none or fro."""
+    """PGD branch direction normalization mode: none, fro, or spectral."""
 
     spel_pgd_projection_mode: str = "fallback_exact"
     """SpEL-PGD projection mode: fallback_exact, fallback_retraction, fallback_topk, shared_exact, shared_retraction, or shared_topk."""
@@ -478,7 +478,7 @@ class OptimizerConfig:
     spel_pgd_projection_rank: int = 1
     """Rank used by SpEL-PGD top-k approximate projection modes."""
 
-    spel_pgd_tangent_project_after_msign: bool = True
+    spel_pgd_tangent_project_after_msign: bool = False
     """Whether the SpEL branch in SpEL-PGD re-projects msign to the tangent plane."""
 
     # Lion.

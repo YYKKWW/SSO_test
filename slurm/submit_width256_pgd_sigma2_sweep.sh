@@ -25,6 +25,7 @@ SPEL_PGD_RANKS="${SPEL_PGD_RANKS:-8}"
 SPEL_PGD_GAP_THRESHOLD_REL="${SPEL_PGD_GAP_THRESHOLD_REL:-5e-3}"
 SPEL_PGD_SIGMA2_STEPS="${SPEL_PGD_SIGMA2_STEPS:-5 8 10}"
 SPEL_PGD_DIRECTION_NORMALIZATION="${SPEL_PGD_DIRECTION_NORMALIZATION:-none}"
+SPEL_PGD_VARIANTS="${SPEL_PGD_VARIANTS:-plain}"
 
 mkdir -p "$RUN_ROOT"
 
@@ -65,13 +66,26 @@ echo "Submitting width=${WIDTH} PGD sigma2 sweep"
 echo "  LR=${LR}"
 echo "  sigma2_steps=${SPEL_PGD_SIGMA2_STEPS}"
 echo "  branch=${SPEL_PGD_BRANCH_MODE}, projection=${SPEL_PGD_PROJECTION_MODE}, ranks=${SPEL_PGD_RANKS}, gap=${SPEL_PGD_GAP_THRESHOLD_REL}"
-echo "  variants: plain-spel-pgd(tp_after_msign=0), spel-tp-pgd(tp_after_msign=1)"
+echo "  direction_normalization=${SPEL_PGD_DIRECTION_NORMALIZATION}"
+echo "  variants=${SPEL_PGD_VARIANTS} (plain: tp_after_msign=0, tp: tp_after_msign=1)"
 echo "  TRAIN_TOKENS=${TRAIN_TOKENS}, GLOBAL_BATCH=${GLOBAL_BATCH}, MICRO_BATCH=${MICRO_BATCH}, CPUS_PER_TASK=${CPUS_PER_TASK}"
 echo "  RUN_ROOT=${RUN_ROOT}"
 
 for sigma2_steps in $SPEL_PGD_SIGMA2_STEPS; do
   for rank in $SPEL_PGD_RANKS; do
-    submit_pgd "plain_pgd" "0" "$rank" "$sigma2_steps"
-    submit_pgd "spel_tp_pgd" "1" "$rank" "$sigma2_steps"
+    for variant in $SPEL_PGD_VARIANTS; do
+      case "$variant" in
+        plain)
+          submit_pgd "plain_pgd" "0" "$rank" "$sigma2_steps"
+          ;;
+        tp|spel_tp|spel-tp)
+          submit_pgd "spel_tp_pgd" "1" "$rank" "$sigma2_steps"
+          ;;
+        *)
+          echo "Unknown SPEL_PGD_VARIANTS entry: $variant" >&2
+          exit 1
+          ;;
+      esac
+    done
   done
 done

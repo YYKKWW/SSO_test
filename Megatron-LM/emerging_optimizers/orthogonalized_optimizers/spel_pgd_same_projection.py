@@ -51,7 +51,7 @@ from .spectral_ball_utils import (
 
 
 BranchMode = Literal["auto", "spel", "pgd"]
-PGDDirectionNormalization = Literal["none", "fro"]
+PGDDirectionNormalization = Literal["none", "fro", "spectral"]
 ProjectionMode = Literal[
     "fallback_exact",
     "fallback_retraction",
@@ -284,6 +284,7 @@ def _pgd_direction(
     M: torch.Tensor,
     *,
     normalization: PGDDirectionNormalization = "none",
+    power_iteration_steps: int = 10,
     eps: float = 1e-8,
 ) -> torch.Tensor:
     """Return the PGD fallback direction from momentum/Nesterov momentum."""
@@ -292,6 +293,12 @@ def _pgd_direction(
         return D
     if normalization == "fro":
         return D / torch.linalg.norm(D, dim=(-2, -1), keepdim=True).clamp_min(eps)
+    if normalization == "spectral":
+        sigma, _, _ = power_iteration(D, steps=power_iteration_steps)
+        denom = sigma.to(torch.float32).clamp_min(eps)
+        while denom.ndim < D.ndim:
+            denom = denom.unsqueeze(-1)
+        return D / denom
     raise ValueError(f"Invalid PGD direction normalization: {normalization}")
 
 
@@ -378,7 +385,7 @@ def compute_spel_pgd_same_projection_update(
     pgd_direction_normalization: PGDDirectionNormalization = "none",
     projection_mode: ProjectionMode = "fallback_exact",
     projection_rank: int = 1,
-    tangent_project_after_msign: bool = True,
+    tangent_project_after_msign: bool = False,
     eps: float = 1e-8,
 ) -> Tuple[torch.Tensor, SpELPGDUpdateInfo]:
     """Compute a SpEL--PGD update.
@@ -499,6 +506,7 @@ def compute_spel_pgd_same_projection_update(
             D = _pgd_direction(
                 M_work,
                 normalization=pgd_direction_normalization,
+                power_iteration_steps=power_iteration_steps,
                 eps=eps,
             )
 
@@ -562,7 +570,8 @@ class SpELPGDSameProjection(SpEL):
         gap_threshold_rel: Threshold for ``1 - sigma2 / sigma1``.
         sigma2_power_iteration_steps: Power iterations on the rank-one residual.
         pgd_direction_normalization: ``'none'`` for standard momentum PGD;
-            ``'fro'`` for Frobenius-normalized momentum fallback.
+            ``'fro'`` for Frobenius-normalized momentum fallback; ``'spectral'``
+            for spectral-norm-normalized PGD fallback.
         projection_mode: ``'fallback_exact'`` preserves original SpEL in the
             safe branch and uses exact SVD projection only for PGD fallback.
             ``'fallback_retraction'`` does the same but uses cheap SpEL-style
@@ -582,15 +591,17 @@ class SpELPGDSameProjection(SpEL):
         pgd_direction_normalization: PGDDirectionNormalization = "none",
         projection_mode: ProjectionMode = "fallback_exact",
         projection_rank: int = 1,
-        tangent_project_after_msign: bool = True,
+        tangent_project_after_msign: bool = False,
         **kwargs: Any,
     ) -> None:
         if branch_mode not in ("auto", "spel", "pgd"):
             raise ValueError("branch_mode must be one of: 'auto', 'spel', 'pgd'")
         if sigma2_power_iteration_steps < 1:
             raise ValueError("sigma2_power_iteration_steps must be at least 1")
-        if pgd_direction_normalization not in ("none", "fro"):
-            raise ValueError("pgd_direction_normalization must be one of: 'none', 'fro'")
+        if pgd_direction_normalization not in ("none", "fro", "spectral"):
+            raise ValueError(
+                "pgd_direction_normalization must be one of: 'none', 'fro', 'spectral'"
+            )
         if gap_threshold_rel < 0.0:
             raise ValueError("gap_threshold_rel must be non-negative")
         if projection_mode not in (
@@ -626,6 +637,10 @@ class SpELPGDSameProjection(SpEL):
         self.pgd_branch_count = 0
         self.zero_lr_branch_count = 0
         self.post_projection_count = 0
+        self.cumulative_spel_branch_count = 0
+        self.cumulative_pgd_branch_count = 0
+        self.cumulative_zero_lr_branch_count = 0
+        self.cumulative_post_projection_count = 0
         self.branch_info_dict: Dict[str, Dict[str, float | str]] = {}
         self.post_retract_bias_dict: Dict[str, float] = {}
         self.trial_spectral_norm_dict: Dict[str, float] = {}
@@ -650,12 +665,16 @@ class SpELPGDSameProjection(SpEL):
     ) -> None:
         if info.branch == "spel":
             self.spel_branch_count += 1
+            self.cumulative_spel_branch_count += 1
         elif info.branch == "pgd":
             self.pgd_branch_count += 1
+            self.cumulative_pgd_branch_count += 1
         elif info.branch == "zero_lr":
             self.zero_lr_branch_count += 1
+            self.cumulative_zero_lr_branch_count += 1
         if info.branch == "pgd" or info.projection_mode.startswith("shared_"):
             self.post_projection_count += 1
+            self.cumulative_post_projection_count += 1
 
         if param_name is None and component_label is None:
             return
@@ -819,6 +838,11 @@ class SpELPGDSameProjection(SpEL):
     def get_branch_stats(self) -> Dict[str, int | float]:
         """Return per-step branch counts and fallback rate."""
         total = self.spel_branch_count + self.pgd_branch_count + self.zero_lr_branch_count
+        cumulative_total = (
+            self.cumulative_spel_branch_count
+            + self.cumulative_pgd_branch_count
+            + self.cumulative_zero_lr_branch_count
+        )
         return {
             "spel_branch_count": self.spel_branch_count,
             "pgd_branch_count": self.pgd_branch_count,
@@ -827,6 +851,21 @@ class SpELPGDSameProjection(SpEL):
             "total_matrix_updates": total,
             "pgd_fallback_rate": (self.pgd_branch_count / total) if total else 0.0,
             "post_projection_rate": (self.post_projection_count / total) if total else 0.0,
+            "cumulative_spel_branch_count": self.cumulative_spel_branch_count,
+            "cumulative_pgd_branch_count": self.cumulative_pgd_branch_count,
+            "cumulative_zero_lr_branch_count": self.cumulative_zero_lr_branch_count,
+            "cumulative_post_projection_count": self.cumulative_post_projection_count,
+            "cumulative_total_matrix_updates": cumulative_total,
+            "cumulative_pgd_fallback_rate": (
+                self.cumulative_pgd_branch_count / cumulative_total
+            )
+            if cumulative_total
+            else 0.0,
+            "cumulative_post_projection_rate": (
+                self.cumulative_post_projection_count / cumulative_total
+            )
+            if cumulative_total
+            else 0.0,
         }
 
     def get_branch_info_dict(self) -> Optional[Dict[str, Dict[str, float | str]]]:
