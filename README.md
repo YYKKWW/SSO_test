@@ -254,38 +254,42 @@ Interpretation:
   useful experiment is `block2_fp32_gap_only + cold + main_power_dtype=fp32`
   with gaps around `1e-4` to `3e-4`, sweeping `pgd_lr_scale=0.2/0.5/1`.
 
-1B focused follow-up, 2026-07-10: the broader 1B sanity sweep jobs
-`3754433`-`3754444` were cancelled before completion because warm-start and
-coupled-block2 rows are no longer the main line. They are replaced by a focused
-1B sweep that only runs `block2_fp32_gap_only + main_power_dtype=fp32 +
-warm_start_uv=0`.
+1B focused follow-up completed on 2026-07-11. The broader 1B sanity sweep jobs
+`3754433`-`3754444` were cancelled before completion. The main line is
+`block2_fp32_gap_only + main_power_dtype=fp32 + warm_start_uv=0`; the
+lower-priority contrast is coupled `block2_fp32 + warm_start_uv=1`.
 
-| Gap | PGD lr | Job |
-|---:|---:|---:|
-| `1e-4` | `0.2` | `3754476` |
-| `2e-4` | `0.2` | `3754477` |
-| `3e-4` | `0.2` | `3754478` |
-| `1e-4` | `0.5` | `3754479` |
-| `2e-4` | `0.5` | `3754480` |
-| `3e-4` | `0.5` | `3754481` |
-| `1e-4` | `1.0` | `3754482` |
-| `2e-4` | `1.0` | `3754483` |
-| `3e-4` | `1.0` | `3754484` |
+Main gap-only cold results:
 
-Additional coupled-block2 warm-start ablation submitted on 2026-07-10. This is
-a lower-priority contrast for the block2 top-vector path: `gap_estimator_mode=
-block2_fp32`, `warm_start_uv=1`, `main_power_dtype=fp32`,
-`sigma2_power_iteration_steps=10`, `shared_topk k=8`, fixed default seed, and
-spectral PGD direction normalization. Mis-submitted `k=4/16` jobs `3754547`,
-`3754548`, `3754551`, and `3754552` were cancelled after about 2 minutes and
-should not be used.
+| Gap | PGD lr | Val loss | PPL | PGD branches | Elapsed | Job |
+|---:|---:|---:|---:|---:|---:|---:|
+| `1e-4` | `0.2` | `3.571691` | `35.57670` | `17/478800` (`0.004%`) | `05:53:32` | `3754476` |
+| `2e-4` | `0.2` | `3.570711` | `35.54184` | `65/478800` (`0.014%`) | `05:52:05` | `3754477` |
+| `3e-4` | `0.2` | `3.571269` | `35.56169` | `229/478800` (`0.048%`) | `05:51:17` | `3754478` |
+| `1e-4` | `0.5` | `3.571257` | `35.56128` | `18/478800` (`0.004%`) | `05:51:43` | `3754479` |
+| `2e-4` | `0.5` | `3.570093` | `35.51990` | `69/478800` (`0.014%`) | `05:51:57` | `3754480` |
+| `3e-4` | `0.5` | **`3.569919`** | **`35.51371`** | `102/478800` (`0.021%`) | `05:52:10` | `3754481` |
+| `1e-4` | `1.0` | `3.570949` | `35.55031` | `5/478800` (`0.001%`) | `05:51:20` | `3754482` |
+| `2e-4` | `1.0` | `3.571085` | `35.55515` | `21/478800` (`0.004%`) | `05:52:30` | `3754483` |
+| `3e-4` | `1.0` | `3.572173` | `35.59387` | `118/478800` (`0.025%`) | `05:51:53` | `3754484` |
 
-| Gap | PGD lr | Job |
-|---:|---:|---:|
-| `1e-4` | `0.2` | `3754549` |
-| `1e-4` | `0.5` | `3754550` |
-| `2e-4` | `0.2` | `3754558` |
-| `2e-4` | `0.5` | `3754559` |
+Coupled block2 warm results:
+
+| Gap | PGD lr | Val loss | PPL | PGD branches | Elapsed | Job |
+|---:|---:|---:|---:|---:|---:|---:|
+| `1e-4` | `0.2` | `3.572953` | `35.62162` | `238/478800` (`0.050%`) | `05:50:07` | `3754549` |
+| `1e-4` | `0.5` | `3.579248` | `35.84659` | `265/478800` (`0.055%`) | `05:50:58` | `3754550` |
+| `2e-4` | `0.2` | `3.575163` | `35.70044` | `1022/478800` (`0.213%`) | `05:50:11` | `3754558` |
+| `2e-4` | `0.5` | `3.575118` | `35.69882` | `1215/478800` (`0.254%`) | `05:50:10` | `3754559` |
+
+Interpretation: `gap_only + cold` is still the cleaner implementation. Its best
+row, `gap=3e-4, pgd_lr_scale=0.5`, slightly beats the SSO width-256 row in this
+README (`3.569919` vs `3.570953`) but remains worse than the older plain SpEL
+and sigma2=5 SpEL-PGD rows. PGD usage is still very small under gap-only
+estimation. Coupled `block2_fp32 + warm` triggers more PGD but gives worse loss,
+so replacing the SpEL top-vector path with block2 Ritz vectors remains a bad
+tradeoff. Mis-submitted `k=4/16` jobs `3754547`, `3754548`, `3754551`, and
+`3754552` were cancelled after about 2 minutes and should not be used.
 
 Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows may be labeled `MCSD-TP-PGD` when they used the TP branch. From 2026-07-09 onward, unqualified `MCSD-PGD` means plain `spel_pgd_dist` with post-msign TP disabled.
 
@@ -299,6 +303,7 @@ Best completed results:
 | `256` | plain SpEL `spel_dist`, `topk k=8` | `1.5e-2` | `3.566394` | `35.38876` | `05:32:28` | `3744521` |
 | `256` | SpEL-TP / MCSD-TP `spel_tp_dist`, `topk k=8` | `1.5e-2` | `3.566694` | `35.39936` | `05:34:38` | `3740137` |
 | `256` | MCSD-TP-PGD `spel_pgd_dist`, `shared_topk k=8` | `1.5e-2` | `3.566973` | `35.40925` | `05:37:55` | `3744524` |
+| `256` | MCSD-PGD `block2_fp32_gap_only`, FP32 main, `gap=3e-4`, `pgd_lr=0.5` | `1.5e-2` | `3.569919` | `35.51371` | `05:52:10` | `3754481` |
 | `256` | SSO `spectral_ball_dist` | `1.5e-2` | `3.570953` | `35.55044` | `06:02:39` | `3725134` |
 | `512` | plain SpEL `spel_dist`, `topk k=4` | `1.5e-2` | **`3.318744`** | `27.62564` | `10:25:33` | `3744526` |
 | `512` | SpEL-TP / MCSD-TP `spel_tp_dist`, `topk k=4` | `1.5e-2` | `3.319634` | `27.65023` | `10:27:54` | `3743072` |

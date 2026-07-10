@@ -1066,7 +1066,7 @@ path and does not beat gap-only cold. Gap `1e-4` remains too conservative under
 the block2-FP32 region test; PGD is selected only a few times, so these rows
 mainly test main-path precision rather than the PGD fallback.
 
-1B focused follow-ups submitted on 2026-07-10:
+1B focused follow-ups completed on 2026-07-11:
 
 ```bash
 bash slurm/submit_width256_pgd_fp32_gaponly_cold_focused_1b.sh
@@ -1081,28 +1081,46 @@ main_power_dtype=fp32` path and searches gaps `1e-4`, `2e-4`, `3e-4` with
 `main_power_dtype=fp32`, and only tests gaps `1e-4` / `2e-4` with
 `pgd_lr_scale=0.2/0.5`.
 
-Main gap-only cold jobs:
+Main gap-only cold results:
 
-| Gap | PGD lr | Job |
-|---:|---:|---:|
-| `1e-4` | `0.2` | `3754476` |
-| `2e-4` | `0.2` | `3754477` |
-| `3e-4` | `0.2` | `3754478` |
-| `1e-4` | `0.5` | `3754479` |
-| `2e-4` | `0.5` | `3754480` |
-| `3e-4` | `0.5` | `3754481` |
-| `1e-4` | `1.0` | `3754482` |
-| `2e-4` | `1.0` | `3754483` |
-| `3e-4` | `1.0` | `3754484` |
+| Gap | PGD lr | Val loss | PPL | PGD branches | Elapsed | Job |
+|---:|---:|---:|---:|---:|---:|---:|
+| `1e-4` | `0.2` | `3.571691` | `35.57670` | `17/478800` (`0.004%`) | `05:53:32` | `3754476` |
+| `2e-4` | `0.2` | `3.570711` | `35.54184` | `65/478800` (`0.014%`) | `05:52:05` | `3754477` |
+| `3e-4` | `0.2` | `3.571269` | `35.56169` | `229/478800` (`0.048%`) | `05:51:17` | `3754478` |
+| `1e-4` | `0.5` | `3.571257` | `35.56128` | `18/478800` (`0.004%`) | `05:51:43` | `3754479` |
+| `2e-4` | `0.5` | `3.570093` | `35.51990` | `69/478800` (`0.014%`) | `05:51:57` | `3754480` |
+| `3e-4` | `0.5` | **`3.569919`** | **`35.51371`** | `102/478800` (`0.021%`) | `05:52:10` | `3754481` |
+| `1e-4` | `1.0` | `3.570949` | `35.55031` | `5/478800` (`0.001%`) | `05:51:20` | `3754482` |
+| `2e-4` | `1.0` | `3.571085` | `35.55515` | `21/478800` (`0.004%`) | `05:52:30` | `3754483` |
+| `3e-4` | `1.0` | `3.572173` | `35.59387` | `118/478800` (`0.025%`) | `05:51:53` | `3754484` |
 
-Coupled block2 warm jobs:
+Coupled block2 warm results:
 
-| Gap | PGD lr | Job |
-|---:|---:|---:|
-| `1e-4` | `0.2` | `3754549` |
-| `1e-4` | `0.5` | `3754550` |
-| `2e-4` | `0.2` | `3754558` |
-| `2e-4` | `0.5` | `3754559` |
+| Gap | PGD lr | Val loss | PPL | PGD branches | Elapsed | Job |
+|---:|---:|---:|---:|---:|---:|---:|
+| `1e-4` | `0.2` | `3.572953` | `35.62162` | `238/478800` (`0.050%`) | `05:50:07` | `3754549` |
+| `1e-4` | `0.5` | `3.579248` | `35.84659` | `265/478800` (`0.055%`) | `05:50:58` | `3754550` |
+| `2e-4` | `0.2` | `3.575163` | `35.70044` | `1022/478800` (`0.213%`) | `05:50:11` | `3754558` |
+| `2e-4` | `0.5` | `3.575118` | `35.69882` | `1215/478800` (`0.254%`) | `05:50:10` | `3754559` |
+
+Interpretation:
+
+- The best row in this follow-up is `block2_fp32_gap_only + cold +
+  gap=3e-4 + pgd_lr_scale=0.5` with validation loss `3.569919`. It slightly
+  improves over the width-256 SSO row in this document (`3.570953`) but remains
+  worse than the earlier plain SpEL and sigma2=5 SpEL-PGD rows.
+- PGD usage under gap-only estimation remains tiny: the best row only uses
+  `102/478800` PGD branches (`0.021%`). This means the current improvement is
+  not evidence that frequent PGD fallback is beneficial.
+- `pgd_lr_scale=1.0` is not useful in this grid. It does not improve the
+  low-gap rows and is worse at `gap=3e-4`.
+- Coupled `block2_fp32 + warm` remains inferior. It triggers more PGD
+  (`0.050%` to `0.254%`) but all four rows are worse than gap-only cold, so the
+  top-vector path should still not be replaced by block2 Ritz vectors.
+- Runtime is stable: all completed 1B follow-up jobs are about `05:50` to
+  `05:53`. The FP32 gap estimator does not create a large wall-clock penalty in
+  this setup.
 
 Mis-submitted `k=4/16` jobs `3754547`, `3754548`, `3754551`, and `3754552`
 were cancelled after about two minutes and should not be compared.
