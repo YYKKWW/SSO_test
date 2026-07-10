@@ -9,7 +9,7 @@ comparison: SSO vs plain SpEL vs SpEL-TP / MCSD-TP vs plain MCSD-PGD
 widths:     256 and 512
 LR grid:    5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
 cluster:    HKU HPC2021 H20 Slurm partition
-status:     completed baseline, high-LR, projection, MuonBall, and width-256 PGD sigma2 sweeps
+status:     completed baseline, high-LR, projection, MuonBall, width-256 PGD sigma2, and block2-FP32 gap sweeps
 ```
 
 ## Current Testing Goal
@@ -25,7 +25,7 @@ The current paper-facing goal is to compare SSO-style spectral optimizers on a c
 - MCSD-TP-PGD historical rows only; future MCSD-PGD runs default to the plain variant
 - MuonBall / `muon_ball_dist` as a width-256 seven-LR supplement
 
-Current completed-result conclusion: at `LR=1.5e-2`, plain SpEL with top-k projection `k=4` is still the best completed row for both `width=256` and `width=512`. The new width-256 MuonBall sweep is competitive and beats SSO at its best LR, but remains slightly behind plain SpEL `topk k=4`. The new width-256 plain SpEL-PGD sigma2 sweep is also competitive when `sigma2_power_iteration_steps=5`, but still trails plain SpEL `topk k=4`. Width-512 high-LR tests at `2e-2` and `3e-2` are worse, so the current width-512 minimum remains near `1.5e-2`.
+Current completed-result conclusion: at `LR=1.5e-2`, plain SpEL with top-k projection `k=4` is still the best completed row for both `width=256` and `width=512`. The new width-256 MuonBall sweep is competitive and beats SSO at its best LR, but remains slightly behind plain SpEL `topk k=4`. The width-256 plain SpEL-PGD sigma2 sweep is also competitive when `sigma2_power_iteration_steps=5`, but still trails plain SpEL `topk k=4`. The block2-FP32 gap-control sweep did not improve MCSD-PGD: tight gaps almost never trigger PGD, while larger gaps trigger too much PGD and hurt validation loss. Width-512 high-LR tests at `2e-2` and `3e-2` are worse, so the current width-512 minimum remains near `1.5e-2`.
 
 Forward rule for PGD experiments: `MCSD-PGD` now means the plain `spel_pgd_dist` variant with `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`. Do not submit new `MCSD-TP-PGD` jobs unless a later experiment explicitly reopens the TP ablation.
 
@@ -34,6 +34,7 @@ Forward rule for PGD experiments: `MCSD-PGD` now means the plain `spel_pgd_dist`
 | Document | Purpose |
 |---|---|
 | [docs/README.md](docs/README.md) | Documentation index, naming rules, and where to add new experiment records. |
+| [docs/algorithms/mcsd_pgd_block2_fp32.md](docs/algorithms/mcsd_pgd_block2_fp32.md) | Algorithm note for optional MCSD-PGD FP32 gap estimators. |
 | [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) | Main experiment record. Includes algorithm definitions, dataset source and acquisition, preprocessing, Slurm configuration, completed results, and instructions for adding new optimizers or learning rates. |
 | [docs/runbooks/h20_spel_megatron_runbook.md](docs/runbooks/h20_spel_megatron_runbook.md) | Historical H20 setup and debugging runbook. Useful for understanding earlier environment, Megatron rebase, and data-preparation decisions. |
 | [docs/templates/experiment_record_template.md](docs/templates/experiment_record_template.md) | Template for adding a new paper-facing experiment. |
@@ -97,9 +98,9 @@ Older server-local checkouts such as `~/projects/Megatron-LM-active` and `~/proj
 
 ## Current Result Summary
 
-Status as of 2026-07-09: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=512`, `SpEL-TP top-k k=4`, `LR=1.5e-2` supplement job `3743072` completed successfully. The width-512 high-LR sweep for `2e-2` and `3e-2` completed successfully as jobs `3743116`-`3743125`. The plain SpEL vs MCSD-TP-PGD projection supplement also completed successfully: width-256 jobs `3744519`-`3744524` and width-512 jobs `3744525`-`3744530`. The width-256 plain SpEL-PGD / SpEL-TP-PGD sigma2 supplement completed as jobs `3747964`-`3747969`. The width-256 MuonBall seven-LR supplement completed as jobs `3747994`-`3748000`. The width-1024 two-iteration memory smoke completed as jobs `3748023`-`3748025`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
+Status as of 2026-07-09: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=512`, `SpEL-TP top-k k=4`, `LR=1.5e-2` supplement job `3743072` completed successfully. The width-512 high-LR sweep for `2e-2` and `3e-2` completed successfully as jobs `3743116`-`3743125`. The plain SpEL vs MCSD-TP-PGD projection supplement also completed successfully: width-256 jobs `3744519`-`3744524` and width-512 jobs `3744525`-`3744530`. The width-256 plain SpEL-PGD / SpEL-TP-PGD sigma2 supplement completed as jobs `3747964`-`3747969`. The width-256 MuonBall seven-LR supplement completed as jobs `3747994`-`3748000`. The width-1024 two-iteration memory smoke completed as jobs `3748023`-`3748025`. The width-256 block2-FP32 MCSD-PGD gap-control sweep completed as jobs `3750634`-`3750641`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
-The 250M-token MCSD-PGD gap-threshold tuning on 2026-07-09 completed successfully. It used the plain variant only, `width=256`, `LR=1.5e-2`, `shared_topk k=8`, and `sigma2_power_iteration_steps=5`. Best row: spectral direction normalization with `gap_threshold_rel` in `1e-4` to `2e-3`, final val loss `3.990190`, PPL `54.06516`, and cumulative PGD branch rate about `0.5%`. This is the preferred MCSD-PGD setting for the next 1B-token follow-up.
+The 250M-token MCSD-PGD gap-threshold tuning on 2026-07-09 completed successfully. It used the plain variant only, `width=256`, `LR=1.5e-2`, `shared_topk k=8`, and `sigma2_power_iteration_steps=5`. Best row: spectral direction normalization with `gap_threshold_rel` in `1e-4` to `2e-3`, final val loss `3.990190`, PPL `54.06516`, and cumulative PGD branch rate about `0.5%`.
 
 | Direction normalization | Best gap | Best val loss | PPL | Cumulative PGD rate | Jobs |
 |---|---:|---:|---:|---:|---|
@@ -109,7 +110,115 @@ The 250M-token MCSD-PGD gap-threshold tuning on 2026-07-09 completed successfull
 
 Interpretation: spectral normalization helps slightly over both unnormalized PGD and Frobenius normalization. Larger `gap_threshold_rel=1e-2` is worse across all normalizations, so the PGD fallback should remain rare.
 
-Active follow-up submitted on 2026-07-09: keep `spectral` normalization and test `sigma2_power_iteration_steps=3,8,10` against `gap_threshold_rel = 1e-4, 5e-4, 1e-3, 2e-3, 5e-3` at the same 250M-token budget. Jobs: `3750042`-`3750046` for `sigma2=3`, `3750047`-`3750051` for `sigma2=8`, and `3750052`-`3750056` for `sigma2=10`. Existing `sigma2=5` results above are reused as the comparison point.
+The phase-B sigma2/gap follow-up also completed on 2026-07-09. It kept spectral normalization and tested `sigma2_power_iteration_steps=3,8,10` against conservative gap thresholds. `sigma2=3` is close but almost never triggers PGD; `sigma2=8` and `10` trigger PGD much more often and are worse.
+
+| sigma2 steps | Best val loss | PPL | Cumulative PGD rate | Jobs |
+|---:|---:|---:|---:|---|
+| `3` | `3.990414` | `54.07725` | `7/118440` (`0.000`) | `3750042`-`3750046` |
+| `5` | **`3.990190`** | `54.06516` | `555/118440` (`0.005`) | `3749613`-`3749616` |
+| `8` | `4.003870` | `54.80988` | `10790/118440` (`0.091`) | `3750047`-`3750050` |
+| `10` | `4.095759` | `60.08492` | `43638/118440` (`0.368`) | `3750056` |
+
+The block2-FP32 gap-control sweep also completed on 2026-07-09. It fixed `sigma2_power_iteration_steps=10`, `gap_estimator_mode=block2_fp32`, spectral PGD direction normalization, `pgd_lr_scale=0.5`, `shared_topk k=8`, `width=256`, `LR=1.5e-2`, and `250M` train tokens. Runtime was about `01:30` to `01:31` per job, versus about `01:26` for the comparable deflated-estimator sigma2 sweeps, so the observed overhead is roughly 5%. The result is not preferred: the best final loss is only the nearly no-PGD row, and larger gaps become worse as PGD rate rises. The `gap=0` row is also worse than the earlier deflated-estimator MCSD-PGD baseline because this coupled `block2_fp32` mode replaces the SpEL branch's top singular vectors with block-2 Ritz vectors even when PGD is never selected.
+
+| block2-FP32 gap | Val loss | PPL | Cumulative PGD rate | Elapsed | Job |
+|---:|---:|---:|---:|---:|---:|
+| `0` | `4.030535` | `56.29100` | `0/118440` (`0.000`) | `01:31:26` | `3750634` |
+| `1e-6` | `4.030535` | `56.29100` | `0/118440` (`0.000`) | `01:31:18` | `3750635` |
+| `3e-6` | `4.030535` | `56.29100` | `0/118440` (`0.000`) | `01:30:56` | `3750636` |
+| `1e-5` | `4.030484` | `56.28816` | `3/118440` (`0.000`) | `01:31:27` | `3750637` |
+| `3e-5` | **`4.030419`** | `56.28451` | `51/118440` (`0.000`) | `01:30:55` | `3750638` |
+| `1e-4` | `4.031507` | `56.34573` | `665/118440` (`0.006`) | `01:31:05` | `3750639` |
+| `3e-4` | `4.046161` | `57.17754` | `7081/118440` (`0.060`) | `01:31:10` | `3750640` |
+| `1e-3` | `4.141737` | `62.91203` | `37562/118440` (`0.317`) | `01:30:14` | `3750641` |
+
+Current preferred MCSD-PGD setting remains the earlier deflated-estimator setting: `sigma2_power_iteration_steps=5`, `gap_threshold_rel=1e-3`, `pgd_direction_normalization=spectral`, and `pgd_lr_scale=0.5` for future runs. The smaller PGD-specific step is the current mitigation for repeated PGD triggers caused by near-degenerate spectra; if future logs still show harmful consecutive PGD bursts, add an explicit cooldown or hysteresis rule. The earlier sigma2=10 deflated-estimator follow-ups `3750496`-`3750505` and `3750507`-`3750512` were cancelled.
+
+Active follow-up submitted on 2026-07-10: test whether warm-started SpEL `u/v`
+fixes the block2 gauge issue while comparing gap-only high-precision branch
+rules. It uses `width=256`, `LR=1.5e-2`, `250M` train tokens, `shared_topk k=8`,
+`sigma2_power_iteration_steps=10`, `pgd_lr_scale=0.5`, and gaps `0`, `3e-5`,
+`1e-4`.
+
+| Gap estimator | Warm start `u/v` | Gap jobs |
+|---|---:|---|
+| `deflated_fp32_gap_only` | `0` | `3751735` (`0`), `3751736` (`3e-5`), `3751737` (`1e-4`) |
+| `deflated_fp32_gap_only` | `1` | `3751738` (`0`), `3751739` (`3e-5`), `3751740` (`1e-4`) |
+| `block2_fp32_gap_only` | `0` | `3751741` (`0`), `3751742` (`3e-5`), `3751743` (`1e-4`) |
+| `block2_fp32_gap_only` | `1` | `3751744` (`0`), `3751745` (`3e-5`), `3751746` (`1e-4`) |
+| `block2_fp32` | `0` | `3751747` (`0`), `3751748` (`3e-5`), `3751749` (`1e-4`) |
+| `block2_fp32` | `1` | `3751750` (`0`), `3751751` (`3e-5`), `3751752` (`1e-4`) |
+
+Additional warm-start PGD step-size follow-up submitted on 2026-07-10 before
+the Slurm QOS submit limit was reached. These use `warm_start_uv=1`,
+`shared_topk k=8`, `sigma2_power_iteration_steps=10`, and add `gap=3e-4` to
+test whether a smaller PGD step can tolerate more frequent PGD triggers.
+
+| Gap estimator | PGD lr scale | Gap jobs |
+|---|---:|---|
+| `deflated_fp32_gap_only` | `0.05` | `3751767` (`3e-5`), `3751768` (`1e-4`), `3751769` (`3e-4`) |
+| `deflated_fp32_gap_only` | `0.1` | `3751770` (`3e-5`), `3751771` (`1e-4`), `3751772` (`3e-4`) |
+| `deflated_fp32_gap_only` | `0.2` | `3751773` (`3e-5`), `3751774` (`1e-4`), `3751775` (`3e-4`) |
+| `block2_fp32_gap_only` | `0.05` | `3751776` (`3e-5`) |
+
+Because the user submit limit was reached, a lightweight deferred submitter was
+started on the H20 login node. It waits until the active Slurm job count drops
+below `26`, then submits the remaining finite task list and exits after either
+completion or an eight-hour deadline. Log:
+`logs/deferred_submit_width256_pgd_extra_20260710.log`.
+
+Deferred task list:
+
+| Group | Pending combinations |
+|---|---|
+| `block2_fp32_gap_only` lr-scale remainder | `pgd_lr_scale=0.05` with gaps `1e-4`, `3e-4`; `pgd_lr_scale=0.1,0.2` with gaps `3e-5`, `1e-4`, `3e-4` |
+| `deflated_power` warm/cold baseline | `warm_start_uv=0,1`, `pgd_lr_scale=0.5`, gaps `0`, `3e-5`, `1e-4`, `3e-4` |
+
+Latest result update, 2026-07-10 09:25 HKT: the deferred submitter completed
+its finite submission list. Most jobs completed successfully; only the
+`deflated_power warm_start_uv=1` baseline jobs `3752230`, `3752390`-`3752392`
+were still running at this checkpoint. Main conclusion: the old coupled
+`block2_fp32` failure was indeed mostly a top-vector/gauge issue, but warm
+starting the SpEL `u/v` path is not preferred. The cleanest result is
+`block2_fp32_gap_only` with `warm_start_uv=0`, which preserves the original SpEL
+path and recovers the no-PGD baseline.
+
+| Gap estimator | Warm `u/v` | PGD lr | Gap | Val loss | PPL | PGD rate | Job |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `block2_fp32_gap_only` | `0` | `0.5` | `0` | **`3.991379`** | `54.12947` | `0/118440` (`0.000`) | `3751741` |
+| `block2_fp32_gap_only` | `0` | `0.5` | `3e-5` | **`3.991379`** | `54.12947` | `0/118440` (`0.000`) | `3751742` |
+| `block2_fp32_gap_only` | `0` | `0.5` | `1e-4` | `3.991830` | `54.15391` | `4/118440` (`0.000`) | `3751743` |
+| `block2_fp32_gap_only` | `1` | `0.5` | `0` | `4.004952` | `54.86921` | `0/118440` (`0.000`) | `3751744` |
+| `block2_fp32` | `0` | `0.5` | `0` | `4.030535` | `56.29100` | `0/118440` (`0.000`) | `3751747` |
+| `block2_fp32` | `1` | `0.5` | `0` | `4.001238` | `54.66580` | `0/118440` (`0.000`) | `3751750` |
+| `block2_fp32` | `1` | `0.5` | `1e-4` | `3.999915` | `54.59349` | `59/118440` (`0.000`) | `3751752` |
+| `deflated_fp32_gap_only` | `0` | `0.5` | `0` | `3.991379` | `54.12947` | `0/118440` (`0.000`) | `3751735` |
+| `deflated_fp32_gap_only` | `0` | `0.5` | `3e-5` | `4.089620` | `59.71717` | `41034/118440` (`0.346`) | `3751736` |
+| `deflated_fp32_gap_only` | `1` | `0.05` | `1e-4` | `4.076410` | `58.93351` | `48823/118440` (`0.412`) | `3751768` |
+| `deflated_power` | `0` | `0.5` | `0` | `3.991379` | `54.12947` | `0/118440` (`0.000`) | `3752226` |
+| `deflated_power` | `0` | `0.5` | `3e-5` | `4.109033` | `60.88779` | `47267/118440` (`0.399`) | `3752227` |
+
+Interpretation:
+
+- `block2_fp32_gap_only + cold` is the cleanest high-precision region-test
+  implementation so far. It keeps the SpEL `u/v` path intact and recovers the
+  no-PGD baseline. At gaps up to `1e-4`, however, it almost never triggers PGD
+  and therefore does not improve over the baseline.
+- Coupled `block2_fp32` improves dramatically with warm start (`4.030535` to
+  about `4.00` at `gap=0`), confirming the previous failure was largely a
+  top-vector gauge issue. It still does not beat `block2_fp32_gap_only + cold`.
+- `deflated_fp32_gap_only` and `deflated_power` with `sigma2=10` are too
+  aggressive: even tiny nonzero gaps trigger PGD about 35-43% of matrix updates
+  and validation loss degrades. Reducing `pgd_lr_scale` to `0.05` does not fix
+  this because PGD has already become too frequent.
+- Warm-starting the original SpEL `u/v` path is not currently helpful; it raises
+  the `gap=0` baseline from `3.991379` to roughly `4.00`.
+
+Next useful experiment is not more deflated-FP32 tuning. It is the missing cold
+`block2_fp32_gap_only` higher-gap test: keep `warm_start_uv=0`, use
+`gap=3e-4` and possibly `1e-3`, and sweep smaller `pgd_lr_scale` values. That
+is the first setting that preserves the SpEL path while allowing PGD to trigger
+often enough to matter.
 
 Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows may be labeled `MCSD-TP-PGD` when they used the TP branch. From 2026-07-09 onward, unqualified `MCSD-PGD` means plain `spel_pgd_dist` with post-msign TP disabled.
 

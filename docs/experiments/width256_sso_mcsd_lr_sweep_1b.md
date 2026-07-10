@@ -17,12 +17,12 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
 | Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, plain MCSD-PGD / `spel_pgd_dist`, MuonBall / `muon_ball_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3` |
-| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` are complete; PGD sigma2 jobs `3747964`-`3747969`, MuonBall jobs `3747994`-`3748000`, and width-1024 memory jobs `3748023`-`3748025` are complete |
-| Completed tuning jobs | 250M-token plain MCSD-PGD gap-threshold tuning at `width=256`, `LR=1.5e-2`, `shared_topk k=8`, `sigma2=5`: no direction normalization `3749547`-`3749553`, Frobenius normalization `3749569`-`3749575`, spectral normalization `3749612`-`3749618`; all `COMPLETED`, exit code `0:0` |
-| Active tuning jobs | Spectral-normalized phase-B sigma2/gap sweep: `sigma2=3` jobs `3750042`-`3750046`, `sigma2=8` jobs `3750047`-`3750051`, `sigma2=10` jobs `3750052`-`3750056` |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3`; MCSD-PGD phase-B sigma2/gap tuning: `15/15` |
+| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` are complete; PGD sigma2 jobs `3747964`-`3747969`, MuonBall jobs `3747994`-`3748000`, width-1024 memory jobs `3748023`-`3748025`, and phase-B sigma2/gap jobs `3750042`-`3750056` are complete |
+| Completed tuning jobs | 250M-token plain MCSD-PGD gap-threshold tuning at `width=256`, `LR=1.5e-2`, `shared_topk k=8`: phase-A `sigma2=5` jobs with no direction normalization `3749547`-`3749553`, Frobenius normalization `3749569`-`3749575`, spectral normalization `3749612`-`3749618`; phase-B spectral-normalized sigma2/gap jobs `3750042`-`3750056`; all `COMPLETED`, exit code `0:0` |
+| Selected PGD default | `sigma2_power_iteration_steps=5`, `gap_threshold_rel=1e-3`, `pgd_direction_normalization=spectral`, `pgd_lr_scale=0.5` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
-| Next likely extension | run width-512 plain SpEL-PGD with the selected `shared_topk k=8`, `sigma2=5` setting if this optimizer remains in the paper comparison; only then consider expensive width-1024 full training |
+| Next likely extension | run width-512 plain SpEL-PGD with the selected `shared_topk k=8`, `sigma2=5`, `gap=1e-3`, `spectral`, `pgd_lr_scale=0.5` setting if this optimizer remains in the paper comparison; only then consider expensive width-1024 full training |
 
 ## Scope And Caveats
 
@@ -114,11 +114,13 @@ Important naming note: the codebase does not expose an optimizer literally named
 MCSD-PGD / plain SpEL-PGD in this project is the first new algorithm extension after the SSO/MCSD baseline:
 
 - It subclasses the SpEL path and keeps the same spectral-sphere retraction operator: `power_iteration + apply_retract`.
-- It does not use an exact SVD projection.
+- It supports exact, retraction, and top-k post-projection modes; the preferred H20 runs avoid full exact SVD and use `projection_mode=shared_topk`.
 - In `branch_mode=auto`, it estimates the relative top-singular-value gap and switches to a PGD-style momentum direction when the gap is below `gap_threshold_rel`.
-- Both the SpEL branch and PGD branch form a trial point and apply the same post-step SpEL-style retraction.
+- In `shared_*` modes both the SpEL branch and PGD branch form a trial point and apply the same post-step projection; in `fallback_*` modes the SpEL branch preserves the original SpEL direction and only the PGD branch encodes a projected trial point.
 - The historical sweep uses `branch_mode=auto`, `gap_threshold_rel=5e-3`, `sigma2_power_iteration_steps=3`, and `pgd_direction_normalization=none`.
 - The 2026-07-09 plain SpEL-PGD sigma2 supplement fixes `projection_mode=shared_topk`, `rank=8`, `LR=1.5e-2`, and tests `sigma2_power_iteration_steps=5,8,10`. It also contains a completed TP ablation; future MCSD-PGD runs should keep `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`.
+- The selected forward default is `sigma2_power_iteration_steps=5`, `gap_threshold_rel=1e-3`, `pgd_direction_normalization=spectral`, and `pgd_lr_scale=0.5`.
+- The optional `gap_estimator_mode=block2_fp32` uses one FP32 two-dimensional subspace to estimate `sigma1,u1,v1,sigma2` and therefore changes both the SpEL top-vector path and the branch rule. Cleaner theory-facing options are `gap_estimator_mode=deflated_fp32_gap_only`, which keeps the original rank-one deflation branch rule but evaluates it in FP32, and `gap_estimator_mode=block2_fp32_gap_only`, which keeps the original SpEL `u/v` path while using an FP32 block-2 top-2 estimate only for `sigma2/sigma1` and the PGD-region test. See [../algorithms/mcsd_pgd_block2_fp32.md](../algorithms/mcsd_pgd_block2_fp32.md).
 - `pgd_direction_normalization` supports `none`, `fro`, and `spectral`. The `spectral` mode estimates the PGD fallback direction's leading singular value with the same `power_iteration` helper used by SpEL/SSO, then divides by that value to align update scale under spectral norm.
 - Runs after the 2026-07-09 logging update report PGD branch usage at every `LOG_INTERVAL`: stdout includes per-step `spel-pgd pgd branches: used/total (rate)` and cumulative `cumulative pgd branches: used/total (rate)`, and TensorBoard/W&B receive `spel-pgd/pgd-branch-count`, `spel-pgd/total-matrix-updates`, `spel-pgd/pgd-fallback-rate`, plus the matching `spel-pgd/cumulative-*` counters.
 
@@ -987,7 +989,7 @@ Spectral-normalized detail:
 
 Current phase-A interpretation: `spectral` normalization is the best direction scaling choice. `gap_threshold_rel=1e-2` is clearly too permissive. The useful range is narrow and conservative, roughly `1e-4` to `2e-3`; `1e-3` is the safest default within that plateau.
 
-Active phase B keeps `spectral` normalization and tests whether changing `sigma2_power_iteration_steps` improves over the current `sigma2=5` default. It reuses the phase-A `sigma2=5` results and submits only the missing values:
+Completed phase B keeps `spectral` normalization and tests whether changing `sigma2_power_iteration_steps` improves over the current `sigma2=5` default. It reuses the phase-A `sigma2=5` results and submits only the missing values:
 
 | sigma2 steps | Gap thresholds | Jobs | Run root |
 |---:|---|---|---|
@@ -995,13 +997,51 @@ Active phase B keeps `spectral` normalization and tests whether changing `sigma2
 | `8` | `1e-4`, `5e-4`, `1e-3`, `2e-3`, `5e-3` | `3750047`-`3750051` | `/home/u3013198/projects/SSO_test/results/olmo_250m_width256_pgd_spectral_sigma2_gap_sweep/sigma2_8` |
 | `10` | `1e-4`, `5e-4`, `1e-3`, `2e-3`, `5e-3` | `3750052`-`3750056` | `/home/u3013198/projects/SSO_test/results/olmo_250m_width256_pgd_spectral_sigma2_gap_sweep/sigma2_10` |
 
-The parameter decision rule after phase B is: choose the lowest validation loss; if several settings tie within `0.001`, choose the lower PGD branch rate and lower `sigma2_power_iteration_steps` for speed.
+Phase-B final results:
+
+| sigma2 steps | Best gap | Best job(s) | Val loss | PPL | Cumulative PGD branches |
+|---:|---:|---|---:|---:|---:|
+| `3` | `1e-4` to `5e-3` | `3750042`-`3750046` | `3.990414` | `54.07725` | `7/118440` (`0.000`) |
+| `5` | `1e-4` to `2e-3` | `3749613`-`3749616` | **`3.990190`** | `54.06516` | `555/118440` (`0.005`) |
+| `8` | `1e-4` to `2e-3` | `3750047`-`3750050` | `4.003870` | `54.80988` | `10790/118440` (`0.091`) |
+| `10` | `5e-3` | `3750056` | `4.095759` | `60.08492` | `43638/118440` (`0.368`) |
+
+Current parameter decision: keep `sigma2_power_iteration_steps=5`, `gap_threshold_rel=1e-3`, and `pgd_direction_normalization=spectral`. This keeps PGD useful but rare. The code now also exposes `pgd_lr_scale`, defaulting to `0.5`, so a PGD fallback takes a smaller branch-specific step instead of immediately perturbing a near-degenerate matrix as strongly as the SpEL branch. There is still no sticky PGD state or cooldown; if future logs show consecutive PGD bursts that remain harmful even with `pgd_lr_scale=0.5`, add a separate cooldown or hysteresis rule.
+
+The earlier sigma2=10 deflated-estimator follow-up was submitted and then cancelled on 2026-07-09 after the `block2_fp32` estimator was added. Cancelled jobs: `3750496`-`3750505` and `3750507`-`3750512`. Those jobs should not be used as completed results.
+
+Submitted block2-FP32 gap-control follow-up on 2026-07-09:
+
+```bash
+bash slurm/submit_width256_pgd_block2_fp32_gap_control_sweep.sh
+```
+
+This follow-up fixes `gap_estimator_mode=block2_fp32`, `sigma2_power_iteration_steps=10`, `pgd_direction_normalization=spectral`, `pgd_lr_scale=0.5`, `projection_mode=shared_topk`, and `projection_rank=8`. It searches gap thresholds in a range that is meaningful under FP32 estimation and should control PGD usage by the measured top-2 spectral gap rather than by BF16/deflation noise.
+
+```text
+0, 1e-6, 3e-6, 1e-5, 3e-5, 1e-4, 3e-4, 1e-3
+```
+
+Decision rule for this follow-up: target a cumulative PGD branch rate of roughly `0.5%` to `2%`; within that subset, choose the lowest validation loss. If all nonzero gaps remain worse than `gap=0`, treat PGD fallback as unhelpful under this theoretically cleaner estimator and keep the best non-PGD/rare-PGD setting.
+
+Submitted jobs:
+
+| gap_estimator_mode | pgd_lr_scale | Gap | Job |
+|---|---:|---:|---:|
+| `block2_fp32` | `0.5` | `0` | `3750634` |
+| `block2_fp32` | `0.5` | `1e-6` | `3750635` |
+| `block2_fp32` | `0.5` | `3e-6` | `3750636` |
+| `block2_fp32` | `0.5` | `1e-5` | `3750637` |
+| `block2_fp32` | `0.5` | `3e-5` | `3750638` |
+| `block2_fp32` | `0.5` | `1e-4` | `3750639` |
+| `block2_fp32` | `0.5` | `3e-4` | `3750640` |
+| `block2_fp32` | `0.5` | `1e-3` | `3750641` |
 
 Remaining coverage if plain SpEL-PGD stays in the paper comparison:
 
 | Width | LR | Projection modes | Jobs needed |
 |---:|---:|---|---:|
-| `512` | `1.5e-2` | `shared_topk k=8`, `sigma2=5` | `1` |
+| `512` | `1.5e-2` | `shared_topk k=8`, `sigma2=5`, `gap=1e-3`, `spectral`, `pgd_lr_scale=0.5` | `1` |
 | `256`, `512` | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` | best plain SpEL-PGD setting if selected | optional grid |
 
 ## Width-1024 Memory Smoke

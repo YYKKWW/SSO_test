@@ -6,6 +6,7 @@ This directory is the documentation entry point for the H20 experiment repositor
 
 | Path | Purpose |
 |---|---|
+| `algorithms/` | Notes for optimizer variants and implementation-level algorithm changes that are not standalone experiment records. |
 | `experiments/` | One document per reproducible experiment family. Put results, exact Slurm job IDs, data paths, model settings, and follow-up runs here. |
 | `runbooks/` | Environment setup, H20 operational notes, debugging records, and cluster-specific procedures. |
 | `templates/` | Copyable templates for new experiments or new project tracks. |
@@ -14,6 +15,7 @@ This directory is the documentation entry point for the H20 experiment repositor
 
 | Document | Purpose |
 |---|---|
+| [algorithms/mcsd_pgd_block2_fp32.md](algorithms/mcsd_pgd_block2_fp32.md) | Algorithm note for optional MCSD-PGD FP32 gap estimators. |
 | [experiments/width256_sso_mcsd_lr_sweep_1b.md](experiments/width256_sso_mcsd_lr_sweep_1b.md) | Main width-256/512 optimizer LR sweep on the 1B-token OLMo mix sample, covering SSO, MCSD-TP/SpEL-TP, MCSD-PGD, and the 250M-token MCSD-PGD projection tuning run. |
 | [runbooks/h20_spel_megatron_runbook.md](runbooks/h20_spel_megatron_runbook.md) | Historical H20 setup and debugging runbook for SpEL/Megatron experiments. |
 | [templates/experiment_record_template.md](templates/experiment_record_template.md) | Starting point for a new experiment record. |

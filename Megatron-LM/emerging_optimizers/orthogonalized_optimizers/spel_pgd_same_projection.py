@@ -51,6 +51,12 @@ from .spectral_ball_utils import (
 
 
 BranchMode = Literal["auto", "spel", "pgd"]
+GapEstimatorMode = Literal[
+    "deflated_power",
+    "deflated_fp32_gap_only",
+    "block2_fp32",
+    "block2_fp32_gap_only",
+]
 PGDDirectionNormalization = Literal["none", "fro", "spectral"]
 ProjectionMode = Literal[
     "fallback_exact",
@@ -60,6 +66,7 @@ ProjectionMode = Literal[
     "shared_retraction",
     "shared_topk",
 ]
+MainPowerDtype = Literal["bf16", "fp32"]
 
 __all__ = [
     "SpELPGDSameProjection",
@@ -67,7 +74,11 @@ __all__ = [
     "SpELPGDUpdateInfo",
     "apply_spel_style_spectral_projection_",
     "compute_spel_pgd_same_projection_update",
+    "estimate_top2_singular_values_block2_fp32",
     "estimate_second_singular_value",
+    "estimate_second_singular_value_fp32",
+    "power_iteration_fp32",
+    "power_iteration_warm_start",
     "project_to_spectral_sphere_exact",
     "project_to_spectral_sphere_topk",
 ]
@@ -80,12 +91,14 @@ class SpELPGDUpdateInfo:
     branch: str
     rel_gap: float
     sigma1: float
+    gap_sigma1: float
     sigma2: float
     pre_retract_bias: float
     trial_sigma: float
     post_retract_bias: float
     projection_mode: str
     projection_rank: int
+    next_v: Optional[torch.Tensor] = None
 
 
 @torch.no_grad()
@@ -154,6 +167,204 @@ def estimate_second_singular_value(
     )
     sigma2, _, _ = power_iteration(residual, steps=steps)
     return float(sigma2.item())
+
+
+@torch.no_grad()
+def _prepare_right_warm_start(
+    W: torch.Tensor,
+    v_init: Optional[torch.Tensor],
+    *,
+    dtype: torch.dtype,
+    eps: float,
+) -> torch.Tensor:
+    """Return a compatible normalized right-vector initial state."""
+    default_v = torch.ones_like(W[..., :1, :].transpose(-2, -1), dtype=dtype)
+    if v_init is None:
+        return default_v
+
+    candidate = v_init.detach().to(device=W.device, dtype=dtype)
+    if candidate.shape != default_v.shape:
+        return default_v
+
+    return torch.nn.functional.normalize(candidate, dim=-2, eps=eps)
+
+
+@torch.no_grad()
+def power_iteration_warm_start(
+    W: torch.Tensor,
+    *,
+    steps: int,
+    v_init: Optional[torch.Tensor] = None,
+    eps: float = 1e-20,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Original BF16 leading singular triplet with an optional warm-started v."""
+    if steps < 1:
+        raise ValueError("steps must be at least 1")
+    if W.ndim < 2:
+        raise ValueError("Input tensor must have at least 2 dimensions.")
+
+    W_bf16 = W.to(torch.bfloat16)
+    v = _prepare_right_warm_start(W_bf16, v_init, dtype=W_bf16.dtype, eps=eps)
+    for _ in range(steps):
+        v = torch.nn.functional.normalize(
+            W_bf16.transpose(-2, -1) @ (W_bf16 @ v),
+            dim=-2,
+            eps=eps,
+        )
+    u = torch.nn.functional.normalize(W_bf16 @ v, dim=-2, eps=eps)
+    sigma = (u.transpose(-2, -1) @ W_bf16 @ v).squeeze(-1).squeeze(-1)
+    return sigma, u, v
+
+
+@torch.no_grad()
+def power_iteration_fp32(
+    W: torch.Tensor,
+    *,
+    steps: int,
+    v_init: Optional[torch.Tensor] = None,
+    eps: float = 1e-12,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Leading singular triplet via the original PI structure, but in FP32."""
+    if steps < 1:
+        raise ValueError("steps must be at least 1")
+    if W.ndim < 2:
+        raise ValueError("Input tensor must have at least 2 dimensions.")
+
+    W_fp32 = W.to(torch.float32)
+    v = _prepare_right_warm_start(W_fp32, v_init, dtype=W_fp32.dtype, eps=eps)
+    for _ in range(steps):
+        v = torch.nn.functional.normalize(
+            W_fp32.transpose(-2, -1) @ (W_fp32 @ v),
+            dim=-2,
+            eps=eps,
+        )
+    u = torch.nn.functional.normalize(W_fp32 @ v, dim=-2, eps=eps)
+    sigma = (u.transpose(-2, -1) @ W_fp32 @ v).squeeze(-1).squeeze(-1)
+    return sigma, u, v
+
+
+@torch.no_grad()
+def _main_power_iteration(
+    W: torch.Tensor,
+    *,
+    steps: int,
+    v_init: Optional[torch.Tensor],
+    main_power_dtype: MainPowerDtype,
+    eps: float,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Estimate the SpEL branch top triplet in the selected main-path dtype."""
+    if main_power_dtype == "bf16":
+        if v_init is None:
+            return power_iteration(W, steps=steps)
+        return power_iteration_warm_start(W, steps=steps, v_init=v_init, eps=eps)
+    if main_power_dtype == "fp32":
+        return power_iteration_fp32(W, steps=steps, v_init=v_init, eps=eps)
+    raise ValueError("main_power_dtype must be one of: 'bf16', 'fp32'")
+
+
+@torch.no_grad()
+def estimate_second_singular_value_fp32(
+    W: torch.Tensor,
+    sigma1: torch.Tensor,
+    u: torch.Tensor,
+    v: torch.Tensor,
+    *,
+    steps: int,
+    eps: float = 1e-8,
+) -> float:
+    """Estimate sigma_2 by FP32 rank-one deflation and FP32 power iteration."""
+    if steps < 1:
+        return 0.0
+
+    W_fp32 = W.to(torch.float32)
+    u_col, v_col = _canonicalize_uv_for_matrix(W_fp32, u, v, eps=eps)
+    residual = W_fp32 - sigma1.to(torch.float32) * torch.matmul(
+        u_col, v_col.transpose(-2, -1)
+    )
+    sigma2, _, _ = power_iteration_fp32(residual, steps=steps, eps=eps)
+    return float(sigma2.item())
+
+
+@torch.no_grad()
+def _deterministic_right_block(
+    n: int,
+    block_size: int,
+    *,
+    device: torch.device,
+    dtype: torch.dtype,
+    v_init: Optional[torch.Tensor] = None,
+    eps: float = 1e-8,
+) -> torch.Tensor:
+    """Build a deterministic orthonormal right block for subspace iteration."""
+    if block_size < 1:
+        raise ValueError("block_size must be at least 1")
+
+    idx = torch.arange(1, n + 1, device=device, dtype=dtype)
+    cols = []
+    if v_init is not None:
+        candidate = v_init.detach().to(device=device, dtype=dtype)
+        if candidate.shape == (n, 1):
+            cols.append(candidate.squeeze(-1))
+
+    cols.append(torch.sin(0.73 * idx) + torch.cos(0.37 * idx))
+    cols.append(torch.sin(1.37 * idx) + torch.cos(0.19 * idx))
+    cols.append(torch.sin(2.11 * idx) + torch.cos(0.53 * idx))
+
+    V0 = torch.stack(cols, dim=-1)
+    Q, _ = torch.linalg.qr(V0, mode="reduced")
+    return Q[:, :block_size]
+
+
+@torch.no_grad()
+def estimate_top2_singular_values_block2_fp32(
+    W: torch.Tensor,
+    *,
+    steps: int = 10,
+    v_init: Optional[torch.Tensor] = None,
+    eps: float = 1e-8,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, float]:
+    """Estimate ``sigma1,u1,v1,sigma2`` with FP32 block subspace iteration.
+
+    Unlike the cheaper deflated estimator, this computes the top two Ritz
+    singular values from the same two-dimensional subspace.  The returned
+    ``u1`` and ``v1`` are the first Ritz singular vectors and can be used by the
+    SpEL branch exactly as the ordinary power-iteration vectors are used.
+    """
+    if steps < 1:
+        raise ValueError("steps must be at least 1")
+    if W.ndim != 2:
+        raise ValueError("block2_fp32 gap estimator expects one 2D matrix")
+
+    W_fp32 = W.to(torch.float32)
+    m, n = W_fp32.shape
+    block_size = min(2, m, n)
+    if block_size < 1:
+        zero = W_fp32.new_tensor(0.0)
+        u = W_fp32.new_zeros((m, 1))
+        v = W_fp32.new_zeros((n, 1))
+        return zero, u, v, 0.0
+
+    V = _deterministic_right_block(
+        n,
+        block_size,
+        device=W_fp32.device,
+        dtype=W_fp32.dtype,
+        v_init=v_init,
+        eps=eps,
+    )
+
+    for _ in range(steps):
+        U, _ = torch.linalg.qr(W_fp32 @ V, mode="reduced")
+        V, _ = torch.linalg.qr(W_fp32.transpose(-2, -1) @ U, mode="reduced")
+
+    B = U.transpose(-2, -1) @ W_fp32 @ V
+    U_small, S, Vh_small = torch.linalg.svd(B, full_matrices=False)
+    u1 = U @ U_small[:, :1]
+    v1 = V @ Vh_small.transpose(-2, -1)[:, :1]
+
+    sigma1 = S[0].clamp_min(eps)
+    sigma2 = float(S[1].item()) if S.numel() > 1 else 0.0
+    return sigma1, u1, v1, sigma2
 
 
 @torch.no_grad()
@@ -380,12 +591,16 @@ def compute_spel_pgd_same_projection_update(
     current_lr: Optional[float] = None,
     use_pgd_fallback: bool = True,
     branch_mode: BranchMode = "auto",
-    gap_threshold_rel: float = 5e-3,
-    sigma2_power_iteration_steps: int = 3,
-    pgd_direction_normalization: PGDDirectionNormalization = "none",
+    gap_threshold_rel: float = 1e-3,
+    sigma2_power_iteration_steps: int = 5,
+    gap_estimator_mode: GapEstimatorMode = "deflated_power",
+    pgd_direction_normalization: PGDDirectionNormalization = "spectral",
+    pgd_lr_scale: float = 0.5,
     projection_mode: ProjectionMode = "fallback_exact",
     projection_rank: int = 1,
     tangent_project_after_msign: bool = False,
+    main_power_dtype: MainPowerDtype = "bf16",
+    warm_start_v: Optional[torch.Tensor] = None,
     eps: float = 1e-8,
 ) -> Tuple[torch.Tensor, SpELPGDUpdateInfo]:
     """Compute a SpEL--PGD update.
@@ -413,6 +628,21 @@ def compute_spel_pgd_same_projection_update(
         raise ValueError("msign_steps must be at least 1")
     if gap_threshold_rel < 0.0:
         raise ValueError("gap_threshold_rel must be non-negative")
+    if main_power_dtype not in ("bf16", "fp32"):
+        raise ValueError("main_power_dtype must be one of: 'bf16', 'fp32'")
+    if gap_estimator_mode not in (
+        "deflated_power",
+        "deflated_fp32_gap_only",
+        "block2_fp32",
+        "block2_fp32_gap_only",
+    ):
+        raise ValueError(
+            "gap_estimator_mode must be one of: 'deflated_power', "
+            "'deflated_fp32_gap_only', "
+            "'block2_fp32', 'block2_fp32_gap_only'"
+        )
+    if pgd_lr_scale <= 0.0:
+        raise ValueError("pgd_lr_scale must be positive")
     if projection_mode not in (
         "fallback_exact",
         "fallback_retraction",
@@ -440,12 +670,34 @@ def compute_spel_pgd_same_projection_update(
         W_work = W
         M_work = M
 
-    # Estimate top singular data on the incoming current matrix.  This mirrors
-    # original SpEL and also supplies the gap-test data.
-    sigma1, u, v = power_iteration(W_work, steps=power_iteration_steps)
-    sigma1_value = float(sigma1.item())
+    should_estimate_gap = branch_mode == "auto" and use_pgd_fallback
+    if should_estimate_gap and gap_estimator_mode == "block2_fp32":
+        # The top Ritz triplet is still the SpEL tangent object; sigma2 is only
+        # used for deciding whether that object is sufficiently well separated.
+        block_steps = max(power_iteration_steps, sigma2_power_iteration_steps)
+        sigma1, u, v, sigma2_value = estimate_top2_singular_values_block2_fp32(
+            W_work,
+            steps=block_steps,
+            v_init=warm_start_v,
+            eps=eps,
+        )
+        sigma1_value = float(sigma1.item())
+        gap_sigma1_value = sigma1_value
+        rel_gap = max(0.0, 1.0 - sigma2_value / max(gap_sigma1_value, eps))
+    else:
+        # Estimate top singular data on the incoming current matrix.  This mirrors
+        # original SpEL in bf16 mode and supplies the default deflated gap-test data.
+        sigma1, u, v = _main_power_iteration(
+            W_work,
+            steps=power_iteration_steps,
+            v_init=warm_start_v,
+            main_power_dtype=main_power_dtype,
+            eps=eps,
+        )
+        sigma1_value = float(sigma1.item())
+        gap_sigma1_value = sigma1_value
 
-    if branch_mode == "auto" and use_pgd_fallback:
+    if should_estimate_gap and gap_estimator_mode == "deflated_power":
         sigma2_value = estimate_second_singular_value(
             W_work,
             sigma1,
@@ -454,9 +706,41 @@ def compute_spel_pgd_same_projection_update(
             steps=sigma2_power_iteration_steps,
             eps=eps,
         )
-        rel_gap = max(0.0, 1.0 - sigma2_value / max(sigma1_value, eps))
-    else:
+        rel_gap = max(0.0, 1.0 - sigma2_value / max(gap_sigma1_value, eps))
+    elif should_estimate_gap and gap_estimator_mode == "deflated_fp32_gap_only":
+        # Preserve the original SpEL top-vector path above, but recompute the
+        # original deflated gap rule in FP32 for a cleaner region test.
+        gap_sigma1, gap_u, gap_v = power_iteration_fp32(
+            W_work,
+            steps=power_iteration_steps,
+            v_init=warm_start_v,
+            eps=eps,
+        )
+        gap_sigma1_value = float(gap_sigma1.item())
+        sigma2_value = estimate_second_singular_value_fp32(
+            W_work,
+            gap_sigma1,
+            gap_u,
+            gap_v,
+            steps=sigma2_power_iteration_steps,
+            eps=eps,
+        )
+        rel_gap = max(0.0, 1.0 - sigma2_value / max(gap_sigma1_value, eps))
+    elif should_estimate_gap and gap_estimator_mode == "block2_fp32_gap_only":
+        # Preserve the original SpEL top-vector path above, but use a separate
+        # FP32 block-2 estimate only for the region/gap decision.
+        block_steps = max(power_iteration_steps, sigma2_power_iteration_steps)
+        gap_sigma1, _, _, sigma2_value = estimate_top2_singular_values_block2_fp32(
+            W_work,
+            steps=block_steps,
+            v_init=warm_start_v,
+            eps=eps,
+        )
+        gap_sigma1_value = float(gap_sigma1.item())
+        rel_gap = max(0.0, 1.0 - sigma2_value / max(gap_sigma1_value, eps))
+    elif not should_estimate_gap:
         sigma2_value = 0.0
+        gap_sigma1_value = sigma1_value
         rel_gap = float("inf")
 
     # First make the current point feasible using the exact same pre-step
@@ -479,12 +763,14 @@ def compute_spel_pgd_same_projection_update(
             branch="zero_lr",
             rel_gap=rel_gap,
             sigma1=sigma1_value,
+            gap_sigma1=gap_sigma1_value,
             sigma2=sigma2_value,
             pre_retract_bias=float(pre_retract_bias),
             trial_sigma=sigma1_value,
             post_retract_bias=0.0,
             projection_mode=projection_mode,
             projection_rank=projection_rank,
+            next_v=v.detach(),
         )
     else:
         branch = _select_branch(
@@ -518,7 +804,8 @@ def compute_spel_pgd_same_projection_update(
             post_retract_bias = 0.0
             trial_sigma = sigma1_value
         else:
-            Y = W_base - effective_lr_value * D.to(torch.float32)
+            trial_lr = effective_lr_value * (pgd_lr_scale if branch == "pgd" else 1.0)
+            Y = W_base - trial_lr * D.to(torch.float32)
             Y, post_retract_bias, trial_sigma = _post_project_trial(
                 Y,
                 target_radius,
@@ -535,12 +822,14 @@ def compute_spel_pgd_same_projection_update(
             branch=branch,
             rel_gap=rel_gap,
             sigma1=sigma1_value,
+            gap_sigma1=gap_sigma1_value,
             sigma2=sigma2_value,
             pre_retract_bias=float(pre_retract_bias),
             trial_sigma=float(trial_sigma),
             post_retract_bias=float(post_retract_bias),
             projection_mode=projection_mode,
             projection_rank=projection_rank,
+            next_v=v.detach(),
         )
 
     if tp_enabled:
@@ -569,9 +858,19 @@ class SpELPGDSameProjection(SpEL):
             momentum direction.
         gap_threshold_rel: Threshold for ``1 - sigma2 / sigma1``.
         sigma2_power_iteration_steps: Power iterations on the rank-one residual.
+        gap_estimator_mode: ``'deflated_power'`` preserves the original cheap
+            sigma2 estimator. ``'deflated_fp32_gap_only'`` keeps the original
+            SpEL top-vector path and recomputes the deflated gap rule in FP32.
+            ``'block2_fp32'`` estimates ``sigma1,u1,v1,sigma2`` from one FP32
+            two-dimensional subspace and uses those vectors for the SpEL
+            branch. ``'block2_fp32_gap_only'`` keeps the original SpEL top-vector
+            path and uses a separate FP32 block-2 estimate only for branch
+            selection.
         pgd_direction_normalization: ``'none'`` for standard momentum PGD;
             ``'fro'`` for Frobenius-normalized momentum fallback; ``'spectral'``
             for spectral-norm-normalized PGD fallback.
+        pgd_lr_scale: Extra step-size multiplier used only when the PGD fallback
+            branch is selected.
         projection_mode: ``'fallback_exact'`` preserves original SpEL in the
             safe branch and uses exact SVD projection only for PGD fallback.
             ``'fallback_retraction'`` does the same but uses cheap SpEL-style
@@ -579,6 +878,12 @@ class SpELPGDSameProjection(SpEL):
             project both branches after the trial step and are intended for
             ablations.
         projection_rank: Rank used by the top-k approximate projection modes.
+        main_power_dtype: Dtype for the ordinary SpEL top-vector power
+            iteration. ``'bf16'`` preserves the original path; ``'fp32'`` is a
+            high-precision ablation. ``gap_estimator_mode='block2_fp32'`` uses
+            the block2 vectors for the main path regardless of this setting.
+        warm_start_uv: If True, cache the previous right singular vector per
+            matrix/component and use it to initialize the next power iteration.
     """
 
     def __init__(
@@ -586,24 +891,43 @@ class SpELPGDSameProjection(SpEL):
         *args: Any,
         use_pgd_fallback: bool = True,
         branch_mode: BranchMode = "auto",
-        gap_threshold_rel: float = 5e-3,
-        sigma2_power_iteration_steps: int = 3,
-        pgd_direction_normalization: PGDDirectionNormalization = "none",
+        gap_threshold_rel: float = 1e-3,
+        sigma2_power_iteration_steps: int = 5,
+        gap_estimator_mode: GapEstimatorMode = "deflated_power",
+        pgd_direction_normalization: PGDDirectionNormalization = "spectral",
+        pgd_lr_scale: float = 0.5,
         projection_mode: ProjectionMode = "fallback_exact",
         projection_rank: int = 1,
         tangent_project_after_msign: bool = False,
+        main_power_dtype: MainPowerDtype = "bf16",
+        warm_start_uv: bool = False,
         **kwargs: Any,
     ) -> None:
         if branch_mode not in ("auto", "spel", "pgd"):
             raise ValueError("branch_mode must be one of: 'auto', 'spel', 'pgd'")
         if sigma2_power_iteration_steps < 1:
             raise ValueError("sigma2_power_iteration_steps must be at least 1")
+        if main_power_dtype not in ("bf16", "fp32"):
+            raise ValueError("main_power_dtype must be one of: 'bf16', 'fp32'")
+        if gap_estimator_mode not in (
+            "deflated_power",
+            "deflated_fp32_gap_only",
+            "block2_fp32",
+            "block2_fp32_gap_only",
+        ):
+            raise ValueError(
+                "gap_estimator_mode must be one of: 'deflated_power', "
+                "'deflated_fp32_gap_only', "
+                "'block2_fp32', 'block2_fp32_gap_only'"
+            )
         if pgd_direction_normalization not in ("none", "fro", "spectral"):
             raise ValueError(
                 "pgd_direction_normalization must be one of: 'none', 'fro', 'spectral'"
             )
         if gap_threshold_rel < 0.0:
             raise ValueError("gap_threshold_rel must be non-negative")
+        if pgd_lr_scale <= 0.0:
+            raise ValueError("pgd_lr_scale must be positive")
         if projection_mode not in (
             "fallback_exact",
             "fallback_retraction",
@@ -629,9 +953,13 @@ class SpELPGDSameProjection(SpEL):
         self.branch_mode = branch_mode
         self.gap_threshold_rel = gap_threshold_rel
         self.sigma2_power_iteration_steps = sigma2_power_iteration_steps
+        self.gap_estimator_mode = gap_estimator_mode
         self.pgd_direction_normalization = pgd_direction_normalization
+        self.pgd_lr_scale = pgd_lr_scale
         self.projection_mode = projection_mode
         self.projection_rank = projection_rank
+        self.main_power_dtype = main_power_dtype
+        self.warm_start_uv = bool(warm_start_uv)
 
         self.spel_branch_count = 0
         self.pgd_branch_count = 0
@@ -644,6 +972,7 @@ class SpELPGDSameProjection(SpEL):
         self.branch_info_dict: Dict[str, Dict[str, float | str]] = {}
         self.post_retract_bias_dict: Dict[str, float] = {}
         self.trial_spectral_norm_dict: Dict[str, float] = {}
+        self._warm_start_v_cache: Dict[str, torch.Tensor] = {}
 
     def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:
         """Perform one optimizer step and clear per-step diagnostics."""
@@ -690,6 +1019,7 @@ class SpELPGDSameProjection(SpEL):
             "branch": info.branch,
             "rel_gap": info.rel_gap,
             "sigma1": info.sigma1,
+            "gap_sigma1": info.gap_sigma1,
             "sigma2": info.sigma2,
             "pre_retract_bias": info.pre_retract_bias,
             "trial_sigma": info.trial_sigma,
@@ -705,6 +1035,23 @@ class SpELPGDSameProjection(SpEL):
             if info.post_retract_bias != 0.0:
                 self.post_retract_bias_dict[key] = info.post_retract_bias
                 self.trial_spectral_norm_dict[key] = info.trial_sigma
+
+    def _warm_start_key(
+        self,
+        W: torch.Tensor,
+        *,
+        param_name: Optional[str],
+        component_label: Optional[str],
+    ) -> str:
+        """Stable cache key for one matrix/component warm-start vector."""
+        key_parts = []
+        if param_name:
+            key_parts.append(str(param_name))
+        if component_label:
+            key_parts.append(str(component_label))
+        if key_parts:
+            return ".".join(key_parts)
+        return f"anonymous:{id(W)}"
 
     def _compute_component_update(
         self,
@@ -734,6 +1081,16 @@ class SpELPGDSameProjection(SpEL):
             W.shape[0], W.shape[1], mode=self.scale_mode
         )
         effective_lr = current_lr_value * float(scale_factor)
+        warm_start_key = self._warm_start_key(
+            W,
+            param_name=param_name,
+            component_label=component_label,
+        )
+        warm_start_v = (
+            self._warm_start_v_cache.get(warm_start_key)
+            if self.warm_start_uv
+            else None
+        )
 
         update_unscaled, info = compute_spel_pgd_same_projection_update(
             W=W,
@@ -751,11 +1108,18 @@ class SpELPGDSameProjection(SpEL):
             branch_mode=self.branch_mode,
             gap_threshold_rel=self.gap_threshold_rel,
             sigma2_power_iteration_steps=self.sigma2_power_iteration_steps,
+            gap_estimator_mode=self.gap_estimator_mode,
             pgd_direction_normalization=self.pgd_direction_normalization,
+            pgd_lr_scale=self.pgd_lr_scale,
             projection_mode=self.projection_mode,
             projection_rank=self.projection_rank,
             tangent_project_after_msign=self.tangent_project_after_msign,
+            main_power_dtype=self.main_power_dtype,
+            warm_start_v=warm_start_v,
         )
+
+        if self.warm_start_uv and info.next_v is not None:
+            self._warm_start_v_cache[warm_start_key] = info.next_v.detach().clone()
 
         self._record_update_info(
             info,

@@ -448,6 +448,9 @@ class OptimizerConfig:
     spel_pgd_power_iteration_steps: int = 10
     """Power iteration steps used to estimate spectral norm in SpEL-PGD."""
 
+    spel_pgd_main_power_dtype: str = "bf16"
+    """Dtype for the ordinary SpEL-PGD top-vector power iteration: bf16 or fp32."""
+
     spel_pgd_scale_mode: str = 'spectral_mup'
     """Update scaling mode for SpEL-PGD."""
 
@@ -463,14 +466,24 @@ class OptimizerConfig:
     spel_pgd_branch_mode: str = "auto"
     """Branch mode for SpEL-PGD: auto, spel, or pgd."""
 
-    spel_pgd_gap_threshold_rel: float = 5e-3
+    spel_pgd_gap_threshold_rel: float = 1e-3
     """Relative singular-value gap threshold for PGD fallback."""
 
-    spel_pgd_sigma2_power_iteration_steps: int = 3
+    spel_pgd_sigma2_power_iteration_steps: int = 5
     """Power iteration steps used to estimate the second singular value."""
 
-    spel_pgd_pgd_direction_normalization: str = "none"
+    spel_pgd_gap_estimator_mode: str = "deflated_power"
+    """Gap estimator for SpEL-PGD branch selection.
+
+    Supported values are deflated_power, deflated_fp32_gap_only, block2_fp32,
+    and block2_fp32_gap_only.
+    """
+
+    spel_pgd_pgd_direction_normalization: str = "spectral"
     """PGD branch direction normalization mode: none, fro, or spectral."""
+
+    spel_pgd_pgd_lr_scale: float = 0.5
+    """Extra step-size multiplier used only for the SpEL-PGD PGD fallback branch."""
 
     spel_pgd_projection_mode: str = "fallback_exact"
     """SpEL-PGD projection mode: fallback_exact, fallback_retraction, fallback_topk, shared_exact, shared_retraction, or shared_topk."""
@@ -480,6 +493,9 @@ class OptimizerConfig:
 
     spel_pgd_tangent_project_after_msign: bool = False
     """Whether the SpEL branch in SpEL-PGD re-projects msign to the tangent plane."""
+
+    spel_pgd_warm_start_uv: bool = False
+    """Whether SpEL-PGD power iteration reuses the previous right singular vector."""
 
     # Lion.
     lion_beta1: float = 0.95

@@ -3501,6 +3501,13 @@ def _add_regularization_args(parser):
     )
     group.add_argument('--spel-pgd-power-iteration-steps', type=int, default=10, help='Power iteration steps for SpEL-PGD spectral norm')
     group.add_argument(
+        '--spel-pgd-main-power-dtype',
+        type=str,
+        default='bf16',
+        choices=['bf16', 'fp32'],
+        help='Dtype for the ordinary SpEL-PGD top-vector power iteration: bf16 preserves the original path, fp32 is a high-precision ablation',
+    )
+    group.add_argument(
         '--spel-pgd-scale-mode',
         type=str,
         default='spectral_mup',
@@ -3532,22 +3539,43 @@ def _add_regularization_args(parser):
     group.add_argument(
         '--spel-pgd-gap-threshold-rel',
         type=float,
-        default=5e-3,
+        default=1e-3,
         help='Relative singular-value gap threshold for SpEL-PGD PGD fallback',
     )
     group.add_argument(
         '--spel-pgd-sigma2-power-iteration-steps',
         type=int,
-        default=3,
+        default=5,
         help='Power iteration steps used by SpEL-PGD to estimate the second singular value',
+    )
+    group.add_argument(
+        '--spel-pgd-gap-estimator-mode',
+        type=str,
+        default='deflated_power',
+        choices=[
+            'deflated_power',
+            'deflated_fp32_gap_only',
+            'block2_fp32',
+            'block2_fp32_gap_only',
+        ],
+        help=(
+            'Gap estimator for SpEL-PGD branch selection: deflated_power, '
+            'deflated_fp32_gap_only, block2_fp32, or block2_fp32_gap_only'
+        ),
     )
     group.add_argument(
         '--spel-pgd-direction-normalization',
         type=str,
-        default='none',
+        default='spectral',
         choices=['none', 'fro', 'spectral'],
         dest='spel_pgd_pgd_direction_normalization',
         help='PGD branch direction normalization for SpEL-PGD: none, fro, or spectral',
+    )
+    group.add_argument(
+        '--spel-pgd-pgd-lr-scale',
+        type=float,
+        default=0.5,
+        help='Extra step-size multiplier used only when SpEL-PGD selects the PGD fallback branch',
     )
     group.add_argument(
         '--spel-pgd-projection-mode',
@@ -3585,6 +3613,18 @@ def _add_regularization_args(parser):
         action='store_false',
         dest='spel_pgd_tangent_project_after_msign',
         help='Disable post-msign tangent projection in the SpEL branch of SpEL-PGD',
+    )
+    group.add_argument(
+        '--spel-pgd-warm-start-uv',
+        action='store_true',
+        default=False,
+        help='Warm-start SpEL-PGD power iteration from the previous right singular vector',
+    )
+    group.add_argument(
+        '--spel-pgd-no-warm-start-uv',
+        action='store_false',
+        dest='spel_pgd_warm_start_uv',
+        help='Disable SpEL-PGD power-iteration warm start',
     )
     group.add_argument(
         '--lion-beta1',

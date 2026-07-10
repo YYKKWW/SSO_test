@@ -248,13 +248,16 @@ TRAINING_ARGS=(
   --spel-pgd-msign-steps "${SPEL_PGD_MSIGN_STEPS:-8}"
   --spel-pgd-radius-mode spectral_mup
   --spel-pgd-power-iteration-steps "${SPEL_PGD_POWER_ITERATION_STEPS:-10}"
+  --spel-pgd-main-power-dtype "${SPEL_PGD_MAIN_POWER_DTYPE:-bf16}"
   --spel-pgd-scale-mode spectral_mup
   --spel-pgd-retract-mode hard
   --spel-pgd-retract-alpha "${SPEL_PGD_RETRACT_ALPHA:-0.05}"
   --spel-pgd-branch-mode "${SPEL_PGD_BRANCH_MODE:-auto}"
-  --spel-pgd-gap-threshold-rel "${SPEL_PGD_GAP_THRESHOLD_REL:-5e-3}"
-  --spel-pgd-sigma2-power-iteration-steps "${SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS:-3}"
-  --spel-pgd-direction-normalization "${SPEL_PGD_DIRECTION_NORMALIZATION:-none}"
+  --spel-pgd-gap-threshold-rel "${SPEL_PGD_GAP_THRESHOLD_REL:-1e-3}"
+  --spel-pgd-sigma2-power-iteration-steps "${SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS:-5}"
+  --spel-pgd-gap-estimator-mode "${SPEL_PGD_GAP_ESTIMATOR_MODE:-deflated_power}"
+  --spel-pgd-direction-normalization "${SPEL_PGD_DIRECTION_NORMALIZATION:-spectral}"
+  --spel-pgd-pgd-lr-scale "${SPEL_PGD_PGD_LR_SCALE:-0.5}"
   --spel-pgd-projection-mode "${SPEL_PGD_PROJECTION_MODE:-fallback_exact}"
   --spel-pgd-projection-rank "${SPEL_PGD_PROJECTION_RANK:-1}"
 )
@@ -272,6 +275,12 @@ if [[ "${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-0}" == "0" || "${SPEL_PGD_TANGENT
   TRAINING_ARGS+=(--spel-pgd-no-tangent-project-after-msign)
 else
   TRAINING_ARGS+=(--spel-pgd-tangent-project-after-msign)
+fi
+
+if [[ "${SPEL_PGD_WARM_START_UV:-0}" == "1" || "${SPEL_PGD_WARM_START_UV:-}" == "true" ]]; then
+  TRAINING_ARGS+=(--spel-pgd-warm-start-uv)
+else
+  TRAINING_ARGS+=(--spel-pgd-no-warm-start-uv)
 fi
 
 PARALLEL_ARGS=(
@@ -318,7 +327,7 @@ echo "seq=$SEQ_LENGTH micro=$MICRO_BATCH global=$GLOBAL_BATCH train_tokens=$TRAI
 echo "optimizer=$OPTIMIZER lr=$LR min_lr=$MIN_LR warmup=$LR_WARMUP_ITERS"
 echo "muon_ball_msign_steps=${MUON_BALL_MSIGN_STEPS:-8} muon_ball_power_iteration_steps=${MUON_BALL_POWER_ITERATION_STEPS:-10}"
 echo "spel_projection=${SPEL_PROJECTION_MODE:-retraction} rank=${SPEL_PROJECTION_RANK:-1} tp_after_msign=${SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE}"
-echo "spel_pgd_projection=${SPEL_PGD_PROJECTION_MODE:-fallback_exact} rank=${SPEL_PGD_PROJECTION_RANK:-1} tp_after_msign=${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-0}"
+echo "spel_pgd_projection=${SPEL_PGD_PROJECTION_MODE:-fallback_exact} rank=${SPEL_PGD_PROJECTION_RANK:-1} gap_estimator=${SPEL_PGD_GAP_ESTIMATOR_MODE:-deflated_power} main_power_dtype=${SPEL_PGD_MAIN_POWER_DTYPE:-bf16} warm_start_uv=${SPEL_PGD_WARM_START_UV:-0} tp_after_msign=${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-0}"
 echo "transformer_impl=$TRANSFORMER_IMPL attention_backend=${ATTENTION_BACKEND:-auto}"
 echo "train_data=$TRAIN_DATA_PREFIX"
 echo "valid_data=$VALID_DATA_PREFIX"
