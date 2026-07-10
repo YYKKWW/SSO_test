@@ -504,6 +504,30 @@ This two-iteration smoke test checks whether `width=1024`, `num_layers=28`, `seq
 
 Current interpretation: width 1024 does not OOM at `micro_batch=4`, `seq_length=4096` on H20 for these three optimizers. SSO has the highest observed allocation and is closest to the limit.
 
+### Width-1024 SSO/MuonBall LR Sweep
+
+Submitted on 2026-07-11 after the width-1024 memory smoke. This run uses the
+same 1B-token setup, `global_batch=128`, `micro_batch=4`, and the width-256
+MuonBall seven-LR grid. Slurm wall time is explicitly set to `2-00:00:00`
+because the smoke test estimates SSO at more than 24 hours for 1B tokens.
+
+| Optimizer | LR | Job | State at submit |
+|---|---:|---:|---|
+| SSO | `5e-3` | `3756214` | `RUNNING` |
+| SSO | `7e-3` | `3756215` | `RUNNING` |
+| SSO | `9e-3` | `3756216` | `RUNNING` |
+| SSO | `1e-2` | `3756217` | `RUNNING` |
+| SSO | `1.5e-2` | `3756218` | `RUNNING` |
+| SSO | `2e-2` | `3756219` | `RUNNING` |
+| SSO | `3e-2` | `3756220` | `RUNNING` |
+| MuonBall | `5e-3` | `3756221` | `RUNNING` |
+| MuonBall | `7e-3` | `3756222` | `RUNNING` |
+| MuonBall | `9e-3` | `3756223` | `RUNNING` |
+| MuonBall | `1e-2` | `3756224` | `RUNNING` |
+| MuonBall | `1.5e-2` | `3756225` | `RUNNING` |
+| MuonBall | `2e-2` | `3756226` | `RUNNING` |
+| MuonBall | `3e-2` | `3756227` | `RUNNING` |
+
 ### Remaining Plain SpEL-PGD Coverage
 
 The completed plain SpEL-PGD sigma2 supplement covers only `width=256`, `shared_topk k=8`, and `LR=1.5e-2`. The remaining minimum coverage, if this optimizer stays in the paper comparison, is:

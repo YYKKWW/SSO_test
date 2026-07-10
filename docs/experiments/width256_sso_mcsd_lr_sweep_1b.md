@@ -12,17 +12,17 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 |---|---|
 | Experiment family | Small-scale pretraining LR sweep |
 | Paper role | One supporting experiment for optimizer comparison |
-| Width | `256`, `512` |
+| Width | `256`, `512`; width-1024 SSO/MuonBall follow-up submitted |
 | Data budget | `1B` training tokens |
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
 | Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, plain MCSD-PGD / `spel_pgd_dist`, MuonBall / `muon_ball_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3`; MCSD-PGD phase-B sigma2/gap tuning: `15/15` |
-| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` are complete; PGD sigma2 jobs `3747964`-`3747969`, MuonBall jobs `3747994`-`3748000`, width-1024 memory jobs `3748023`-`3748025`, and phase-B sigma2/gap jobs `3750042`-`3750056` are complete |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3`; MCSD-PGD phase-B sigma2/gap tuning: `15/15`; width-1024 SSO/MuonBall LR sweep: submitted `14/14` |
+| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` are complete; PGD sigma2 jobs `3747964`-`3747969`, MuonBall jobs `3747994`-`3748000`, width-1024 memory jobs `3748023`-`3748025`, and phase-B sigma2/gap jobs `3750042`-`3750056` are complete; width-1024 SSO/MuonBall jobs `3756214`-`3756227` were submitted and initially `RUNNING` |
 | Completed tuning jobs | 250M-token plain MCSD-PGD gap-threshold tuning at `width=256`, `LR=1.5e-2`, `shared_topk k=8`: phase-A `sigma2=5` jobs with no direction normalization `3749547`-`3749553`, Frobenius normalization `3749569`-`3749575`, spectral normalization `3749612`-`3749618`; phase-B spectral-normalized sigma2/gap jobs `3750042`-`3750056`; all `COMPLETED`, exit code `0:0` |
 | Selected PGD default | `sigma2_power_iteration_steps=5`, `gap_threshold_rel=1e-3`, `pgd_direction_normalization=spectral`, `pgd_lr_scale=0.5` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
-| Next likely extension | run width-512 plain SpEL-PGD with the selected `shared_topk k=8`, `sigma2=5`, `gap=1e-3`, `spectral`, `pgd_lr_scale=0.5` setting if this optimizer remains in the paper comparison; only then consider expensive width-1024 full training |
+| Next likely extension | collect width-1024 SSO/MuonBall results; then decide whether width-1024 SpEL/MCSD variants are worth the cost |
 
 ## Scope And Caveats
 
@@ -1143,6 +1143,50 @@ This two-iteration smoke test checks whether `width=1024`, `num_layers=28`, `seq
 | MuonBall / `muon_ball_dist` | `3748025` | `COMPLETED` | `74531.72` | `78978.00` | `00:02:54` |
 
 Current interpretation: width 1024 does not OOM at `micro_batch=4`, `seq_length=4096` on H20 for these three optimizers. SSO has the highest observed allocation and is closest to the limit.
+
+## Width-1024 SSO/MuonBall LR Sweep
+
+Submitted on 2026-07-11:
+
+```bash
+bash slurm/submit_width1024_sso_muonball_lr_sweep.sh
+```
+
+This is the first full width-1024 1B-token comparison. It uses the same model
+shape validated by the smoke test: `num_layers=28`, `hidden_size=1024`,
+`seq_length=4096`, `global_batch=128`, `micro_batch=4`, and one H20 GPU per job.
+The LR grid matches the width-256 MuonBall supplement:
+`5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2`, `2e-2`, `3e-2`.
+
+The submit script sets `SBATCH_TIME=2-00:00:00`. This is intentional: the
+two-iteration smoke measured SSO around `50`-`57` seconds per training
+iteration, so a 1B-token run with `1908` iterations can exceed the previous
+1-day default.
+
+Run root:
+
+```text
+/home/u3013198/projects/SSO_test/results/olmo_1b_width1024_sso_muonball_lr_sweep
+```
+
+Submitted jobs:
+
+| Optimizer | LR | Job | Initial state |
+|---|---:|---:|---|
+| SSO / `spectral_ball_dist` | `5e-3` | `3756214` | `RUNNING` |
+| SSO / `spectral_ball_dist` | `7e-3` | `3756215` | `RUNNING` |
+| SSO / `spectral_ball_dist` | `9e-3` | `3756216` | `RUNNING` |
+| SSO / `spectral_ball_dist` | `1e-2` | `3756217` | `RUNNING` |
+| SSO / `spectral_ball_dist` | `1.5e-2` | `3756218` | `RUNNING` |
+| SSO / `spectral_ball_dist` | `2e-2` | `3756219` | `RUNNING` |
+| SSO / `spectral_ball_dist` | `3e-2` | `3756220` | `RUNNING` |
+| MuonBall / `muon_ball_dist` | `5e-3` | `3756221` | `RUNNING` |
+| MuonBall / `muon_ball_dist` | `7e-3` | `3756222` | `RUNNING` |
+| MuonBall / `muon_ball_dist` | `9e-3` | `3756223` | `RUNNING` |
+| MuonBall / `muon_ball_dist` | `1e-2` | `3756224` | `RUNNING` |
+| MuonBall / `muon_ball_dist` | `1.5e-2` | `3756225` | `RUNNING` |
+| MuonBall / `muon_ball_dist` | `2e-2` | `3756226` | `RUNNING` |
+| MuonBall / `muon_ball_dist` | `3e-2` | `3756227` | `RUNNING` |
 
 ## Historical Baseline
 
