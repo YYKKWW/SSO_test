@@ -226,6 +226,26 @@ main-path ablation. However, `gap=1e-4` still triggers PGD only `2`-`5` times
 out of `118440` matrix updates in the gap-only runs, so the PGD fallback itself
 has not shown a benefit in this setting.
 
+Precision comparison note: these are not true FP16 training runs. The model
+uses `--bf16`; the comparison below is between the original BF16/default SpEL
+power-iteration path and the new FP32 SpEL main-power path inside
+`spel_pgd_dist`. No completed plain `spel_dist` FP32-vs-FP16 pair exists yet.
+
+| Setting | Gap estimator | Warm `u/v` | Gap | PGD lr | Val loss | PPL | PGD rate | Job |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| BF16/default SpEL main path | `block2_fp32_gap_only` | `0` | `0` | `0.5` | `3.991379` | `54.12947` | `0/118440` (`0.000`) | `3751741` |
+| FP32 SpEL main path | `block2_fp32_gap_only` | `0` | `0` | `0.5` | **`3.987389`** | **`53.91395`** | `0/118440` (`0.000`) | `3752962` |
+| BF16/default SpEL main path | `block2_fp32_gap_only` | `0` | `1e-4` | `0.5` | `3.991830` | `54.15391` | `4/118440` (`0.000`) | `3751743` |
+| FP32 SpEL main path | `block2_fp32_gap_only` | `0` | `1e-4` | `0.5` | **`3.990730`** | **`54.09435`** | `3/118440` (`0.000`) | `3752964` |
+| BF16/default SpEL main path | `block2_fp32_gap_only` | `1` | `0` | `0.5` | `4.004952` | `54.86921` | `0/118440` (`0.000`) | `3751744` |
+| FP32 SpEL main path | `block2_fp32_gap_only` | `1` | `0` | `0.5` | **`4.002185`** | **`54.71757`** | `0/118440` (`0.000`) | `3752966` |
+
+Interpretation: FP32 improves the ordinary SpEL top-vector path by about
+`0.001`-`0.004` validation loss in the matched rows above, but the absolute
+effect is modest. This supports using FP32 for the SpEL main power iteration
+when testing MCSD-PGD, while keeping the PGD region estimator separated from
+the main `u/v` path.
+
 | Gap estimator | Main power dtype | Warm `u/v` | Gap | PGD lr | Val loss | PPL | PGD rate | Job |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | `block2_fp32_gap_only` | `fp32` | `0` | `0` | `0.5` | **`3.987389`** | `53.91395` | `0/118440` (`0.000`) | `3752962` |
