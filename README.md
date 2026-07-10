@@ -214,11 +214,45 @@ Interpretation:
 - Warm-starting the original SpEL `u/v` path is not currently helpful; it raises
   the `gap=0` baseline from `3.991379` to roughly `4.00`.
 
-Next useful experiment is not more deflated-FP32 tuning. It is the missing cold
-`block2_fp32_gap_only` higher-gap test: keep `warm_start_uv=0`, use
-`gap=3e-4` and possibly `1e-3`, and sweep smaller `pgd_lr_scale` values. That
-is the first setting that preserves the SpEL path while allowing PGD to trigger
-often enough to matter.
+Latest result update, 2026-07-10 12:45 HKT: the FP32 main-power follow-up
+completed as jobs `3752962`-`3752973`. These jobs set
+`spel_pgd_main_power_dtype=fp32`, `width=256`, `LR=1.5e-2`, `250M` train tokens,
+`shared_topk k=8`, `sigma2_power_iteration_steps=10`, spectral PGD direction
+normalization, and gaps `0` / `1e-4`. The best result is
+`block2_fp32_gap_only + cold + gap=0`, final val loss `3.987389`, PPL
+`53.91395`. This is better than the matching BF16 main-path no-PGD baseline
+`3.991379`, suggesting that FP32 ordinary SpEL power iteration is a useful
+main-path ablation. However, `gap=1e-4` still triggers PGD only `2`-`5` times
+out of `118440` matrix updates in the gap-only runs, so the PGD fallback itself
+has not shown a benefit in this setting.
+
+| Gap estimator | Main power dtype | Warm `u/v` | Gap | PGD lr | Val loss | PPL | PGD rate | Job |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| `block2_fp32_gap_only` | `fp32` | `0` | `0` | `0.5` | **`3.987389`** | `53.91395` | `0/118440` (`0.000`) | `3752962` |
+| `block2_fp32_gap_only` | `fp32` | `0` | `1e-4` | `0.2` | `3.992790` | `54.20593` | `5/118440` (`0.000`) | `3752963` |
+| `block2_fp32_gap_only` | `fp32` | `0` | `1e-4` | `0.5` | `3.990730` | `54.09435` | `3/118440` (`0.000`) | `3752964` |
+| `block2_fp32_gap_only` | `fp32` | `0` | `1e-4` | `1.0` | `3.990568` | `54.08558` | `2/118440` (`0.000`) | `3752965` |
+| `block2_fp32_gap_only` | `fp32` | `1` | `0` | `0.5` | `4.002185` | `54.71757` | `0/118440` (`0.000`) | `3752966` |
+| `block2_fp32_gap_only` | `fp32` | `1` | `1e-4` | `0.2` | `3.999950` | `54.59540` | `2/118440` (`0.000`) | `3752967` |
+| `block2_fp32_gap_only` | `fp32` | `1` | `1e-4` | `0.5` | `4.002501` | `54.73490` | `2/118440` (`0.000`) | `3752968` |
+| `block2_fp32_gap_only` | `fp32` | `1` | `1e-4` | `1.0` | `3.999609` | `54.57683` | `2/118440` (`0.000`) | `3752969` |
+| `block2_fp32` | `fp32` | `1` | `0` | `0.5` | `3.999673` | `54.58032` | `0/118440` (`0.000`) | `3752970` |
+| `block2_fp32` | `fp32` | `1` | `1e-4` | `0.2` | `3.998521` | `54.51746` | `64/118440` (`0.001`) | `3752971` |
+| `block2_fp32` | `fp32` | `1` | `1e-4` | `0.5` | `4.001473` | `54.67866` | `104/118440` (`0.001`) | `3752972` |
+| `block2_fp32` | `fp32` | `1` | `1e-4` | `1.0` | `4.002787` | `54.75053` | `97/118440` (`0.001`) | `3752973` |
+
+Interpretation:
+
+- `main_power_dtype=fp32` improves the cold no-PGD baseline relative to the
+  BF16/default main path (`3.987389` vs `3.991379`).
+- Warm-starting the ordinary SpEL `u/v` path remains harmful: the gap-only
+  `gap=0` baseline worsens from `3.987389` to `4.002185`.
+- Coupled `block2_fp32 + warm` is now reasonable but still worse than
+  gap-only cold. It changes the SpEL top-vector path, so it is not the preferred
+  theory-facing implementation.
+- `gap=1e-4` is too conservative under block2-FP32 gap estimation. The next
+  useful experiment is still `block2_fp32_gap_only + cold + main_power_dtype=fp32`
+  with higher gaps such as `3e-4` and `1e-3`, sweeping `pgd_lr_scale=0.2/0.5/1`.
 
 Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows may be labeled `MCSD-TP-PGD` when they used the TP branch. From 2026-07-09 onward, unqualified `MCSD-PGD` means plain `spel_pgd_dist` with post-msign TP disabled.
 

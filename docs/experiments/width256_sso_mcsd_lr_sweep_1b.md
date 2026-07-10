@@ -1037,6 +1037,35 @@ Submitted jobs:
 | `block2_fp32` | `0.5` | `3e-4` | `3750640` |
 | `block2_fp32` | `0.5` | `1e-3` | `3750641` |
 
+Completed FP32 main-power follow-up on 2026-07-10:
+
+```bash
+bash slurm/submit_width256_pgd_fp32_main_power_gap_lr_sweep.sh
+```
+
+This follow-up tests `spel_pgd_main_power_dtype=fp32`, while keeping
+`width=256`, `LR=1.5e-2`, `250M` train tokens, `shared_topk k=8`,
+`sigma2_power_iteration_steps=10`, and spectral PGD direction normalization.
+It compares `block2_fp32_gap_only + cold`, `block2_fp32_gap_only + warm`, and
+`block2_fp32 + warm` at gaps `0` / `1e-4`.
+
+Summary results:
+
+| Setting | Best job | Gap | PGD lr | Val loss | PPL | PGD branches |
+|---|---:|---:|---:|---:|---:|---:|
+| `block2_fp32_gap_only`, cold, FP32 main path | `3752962` | `0` | `0.5` | **`3.987389`** | `53.91395` | `0/118440` |
+| `block2_fp32_gap_only`, cold, FP32 main path | `3752965` | `1e-4` | `1.0` | `3.990568` | `54.08558` | `2/118440` |
+| `block2_fp32_gap_only`, warm, FP32 main path | `3752969` | `1e-4` | `1.0` | `3.999609` | `54.57683` | `2/118440` |
+| `block2_fp32`, warm | `3752971` | `1e-4` | `0.2` | `3.998521` | `54.51746` | `64/118440` |
+
+Interpretation: FP32 ordinary SpEL power iteration improves the cold no-PGD
+baseline over the BF16/default path (`3.987389` versus `3.991379`). Warm-starting
+the ordinary SpEL `u/v` path remains worse. Coupled `block2_fp32 + warm` is much
+healthier than cold coupled block2, but it still changes the SpEL top-vector
+path and does not beat gap-only cold. Gap `1e-4` remains too conservative under
+the block2-FP32 region test; PGD is selected only a few times, so these rows
+mainly test main-path precision rather than the PGD fallback.
+
 Remaining coverage if plain SpEL-PGD stays in the paper comparison:
 
 | Width | LR | Projection modes | Jobs needed |
