@@ -1066,6 +1066,47 @@ path and does not beat gap-only cold. Gap `1e-4` remains too conservative under
 the block2-FP32 region test; PGD is selected only a few times, so these rows
 mainly test main-path precision rather than the PGD fallback.
 
+1B focused follow-ups submitted on 2026-07-10:
+
+```bash
+bash slurm/submit_width256_pgd_fp32_gaponly_cold_focused_1b.sh
+bash slurm/submit_width256_pgd_block2_warm_gap_lr_1b.sh
+```
+
+The broader 1B sanity sweep jobs `3754433`-`3754444` were cancelled before
+completion. The main follow-up keeps the clean `block2_fp32_gap_only + cold +
+main_power_dtype=fp32` path and searches gaps `1e-4`, `2e-4`, `3e-4` with
+`pgd_lr_scale=0.2/0.5/1`. The lower-priority coupled-block2 contrast keeps
+`block2_fp32 + warm_start_uv=1`, `shared_topk k=8`, fixed default seed,
+`main_power_dtype=fp32`, and only tests gaps `1e-4` / `2e-4` with
+`pgd_lr_scale=0.2/0.5`.
+
+Main gap-only cold jobs:
+
+| Gap | PGD lr | Job |
+|---:|---:|---:|
+| `1e-4` | `0.2` | `3754476` |
+| `2e-4` | `0.2` | `3754477` |
+| `3e-4` | `0.2` | `3754478` |
+| `1e-4` | `0.5` | `3754479` |
+| `2e-4` | `0.5` | `3754480` |
+| `3e-4` | `0.5` | `3754481` |
+| `1e-4` | `1.0` | `3754482` |
+| `2e-4` | `1.0` | `3754483` |
+| `3e-4` | `1.0` | `3754484` |
+
+Coupled block2 warm jobs:
+
+| Gap | PGD lr | Job |
+|---:|---:|---:|
+| `1e-4` | `0.2` | `3754549` |
+| `1e-4` | `0.5` | `3754550` |
+| `2e-4` | `0.2` | `3754558` |
+| `2e-4` | `0.5` | `3754559` |
+
+Mis-submitted `k=4/16` jobs `3754547`, `3754548`, `3754551`, and `3754552`
+were cancelled after about two minutes and should not be compared.
+
 Remaining coverage if plain SpEL-PGD stays in the paper comparison:
 
 | Width | LR | Projection modes | Jobs needed |

@@ -251,8 +251,41 @@ Interpretation:
   gap-only cold. It changes the SpEL top-vector path, so it is not the preferred
   theory-facing implementation.
 - `gap=1e-4` is too conservative under block2-FP32 gap estimation. The next
-  useful experiment is still `block2_fp32_gap_only + cold + main_power_dtype=fp32`
-  with higher gaps such as `3e-4` and `1e-3`, sweeping `pgd_lr_scale=0.2/0.5/1`.
+  useful experiment is `block2_fp32_gap_only + cold + main_power_dtype=fp32`
+  with gaps around `1e-4` to `3e-4`, sweeping `pgd_lr_scale=0.2/0.5/1`.
+
+1B focused follow-up, 2026-07-10: the broader 1B sanity sweep jobs
+`3754433`-`3754444` were cancelled before completion because warm-start and
+coupled-block2 rows are no longer the main line. They are replaced by a focused
+1B sweep that only runs `block2_fp32_gap_only + main_power_dtype=fp32 +
+warm_start_uv=0`.
+
+| Gap | PGD lr | Job |
+|---:|---:|---:|
+| `1e-4` | `0.2` | `3754476` |
+| `2e-4` | `0.2` | `3754477` |
+| `3e-4` | `0.2` | `3754478` |
+| `1e-4` | `0.5` | `3754479` |
+| `2e-4` | `0.5` | `3754480` |
+| `3e-4` | `0.5` | `3754481` |
+| `1e-4` | `1.0` | `3754482` |
+| `2e-4` | `1.0` | `3754483` |
+| `3e-4` | `1.0` | `3754484` |
+
+Additional coupled-block2 warm-start ablation submitted on 2026-07-10. This is
+a lower-priority contrast for the block2 top-vector path: `gap_estimator_mode=
+block2_fp32`, `warm_start_uv=1`, `main_power_dtype=fp32`,
+`sigma2_power_iteration_steps=10`, `shared_topk k=8`, fixed default seed, and
+spectral PGD direction normalization. Mis-submitted `k=4/16` jobs `3754547`,
+`3754548`, `3754551`, and `3754552` were cancelled after about 2 minutes and
+should not be used.
+
+| Gap | PGD lr | Job |
+|---:|---:|---:|
+| `1e-4` | `0.2` | `3754549` |
+| `1e-4` | `0.5` | `3754550` |
+| `2e-4` | `0.2` | `3754558` |
+| `2e-4` | `0.5` | `3754559` |
 
 Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows may be labeled `MCSD-TP-PGD` when they used the TP branch. From 2026-07-09 onward, unqualified `MCSD-PGD` means plain `spel_pgd_dist` with post-msign TP disabled.
 
