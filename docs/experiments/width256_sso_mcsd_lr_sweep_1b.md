@@ -1,6 +1,6 @@
 # Experiment Record: Width-256/512 Optimizer LR Sweep on OLMo Mix 1B
 
-Last updated: 2026-07-09
+Last updated: 2026-07-12
 
 This document is the primary experiment record for the `width=256` and `width=512` optimizer learning-rate sweeps. It is intended to support paper development, later reproduction, and future extensions with new optimizers or additional learning rates.
 
@@ -12,13 +12,13 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 |---|---|
 | Experiment family | Small-scale pretraining LR sweep |
 | Paper role | One supporting experiment for optimizer comparison |
-| Width | `256`, `512`; width-1024 SSO/MuonBall follow-up submitted |
+| Width | `256`, `512`; width-1024 MuonBall complete and SSO still running |
 | Data budget | `1B` training tokens |
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
 | Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, plain MCSD-PGD / `spel_pgd_dist`, MuonBall / `muon_ball_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3`; MCSD-PGD phase-B sigma2/gap tuning: `15/15`; width-1024 SSO/MuonBall LR sweep: submitted `14/14` |
-| Slurm status | completed rows are all `COMPLETED`, all exit code `0:0`; SpEL-TP top-k `k=4`, `LR=1.5e-2` supplement jobs `3743071` and `3743072` are complete; width-512 high-LR jobs `3743116`-`3743125` are complete; plain SpEL / MCSD-TP-PGD projection supplement jobs `3744519`-`3744530` are complete; PGD sigma2 jobs `3747964`-`3747969`, MuonBall jobs `3747994`-`3748000`, width-1024 memory jobs `3748023`-`3748025`, and phase-B sigma2/gap jobs `3750042`-`3750056` are complete; width-1024 SSO/MuonBall jobs `3756214`-`3756227` were submitted and initially `RUNNING` |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3`; MCSD-PGD phase-B sigma2/gap tuning: `15/15`; adaptive gap-probe 1B comparison: `2/2`; width-1024 SSO/MuonBall LR sweep: `7/14` complete |
+| Slurm status | adaptive gap-probe jobs `3756922`-`3756923` and width-1024 MuonBall jobs `3756221`-`3756227` completed with exit code `0:0`; width-1024 SSO jobs `3756214`-`3756220` remain `RUNNING` |
 | Completed tuning jobs | 250M-token plain MCSD-PGD gap-threshold tuning at `width=256`, `LR=1.5e-2`, `shared_topk k=8`: phase-A `sigma2=5` jobs with no direction normalization `3749547`-`3749553`, Frobenius normalization `3749569`-`3749575`, spectral normalization `3749612`-`3749618`; phase-B spectral-normalized sigma2/gap jobs `3750042`-`3750056`; all `COMPLETED`, exit code `0:0` |
 | Selected PGD default | `sigma2_power_iteration_steps=5`, `gap_threshold_rel=1e-3`, `pgd_direction_normalization=spectral`, `pgd_lr_scale=0.5` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
@@ -1122,6 +1122,24 @@ Interpretation:
   `05:53`. The FP32 gap estimator does not create a large wall-clock penalty in
   this setup.
 
+Adaptive gap-probe follow-up completed on 2026-07-11. It fixes the best
+gap-only configuration above and reduces FP32 gap estimation only when the
+last measured `rel_gap` for that matrix is greater than `10 * gap_threshold`.
+Matrices inside that warning region continue to probe every step.
+
+| Probe interval | Val loss | PPL | Gap probes at iter 1900 | PGD branches at iter 1900 | Elapsed | Saving | Job |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| Every step | `3.569919` | `35.51371` | every matrix update | `102/478800` | `05:52:10` | baseline | `3754481` |
+| `5` | **`3.569197`** | **`35.48809`** | `98880/478800` (`20.65%`) | `122/478800` | `05:37:45` | `4.09%` | `3756922` |
+| `10` | `3.569514` | `35.49934` | `50623/478800` (`10.57%`) | `144/478800` | **`05:37:05`** | `4.28%` | `3756923` |
+
+K=10 is only 40 seconds faster than K=5, so halving the probe rate from about
+20.7% to 10.6% has little additional wall-clock value. K=5 is preferred from
+this pair. Its validation result is also best, but all three losses are within
+`0.001` under one fixed seed and should be treated as effectively tied. Initial
+jobs `3756915` and `3756916` were cancelled after a split-component cache-key
+bug was detected and are excluded.
+
 Mis-submitted `k=4/16` jobs `3754547`, `3754548`, `3754551`, and `3754552`
 were cancelled after about two minutes and should not be compared.
 
@@ -1169,24 +1187,36 @@ Run root:
 /home/u3013198/projects/SSO_test/results/olmo_1b_width1024_sso_muonball_lr_sweep
 ```
 
-Submitted jobs:
+MuonBall completed on 2026-07-12:
 
-| Optimizer | LR | Job | Initial state |
-|---|---:|---:|---|
-| SSO / `spectral_ball_dist` | `5e-3` | `3756214` | `RUNNING` |
-| SSO / `spectral_ball_dist` | `7e-3` | `3756215` | `RUNNING` |
-| SSO / `spectral_ball_dist` | `9e-3` | `3756216` | `RUNNING` |
-| SSO / `spectral_ball_dist` | `1e-2` | `3756217` | `RUNNING` |
-| SSO / `spectral_ball_dist` | `1.5e-2` | `3756218` | `RUNNING` |
-| SSO / `spectral_ball_dist` | `2e-2` | `3756219` | `RUNNING` |
-| SSO / `spectral_ball_dist` | `3e-2` | `3756220` | `RUNNING` |
-| MuonBall / `muon_ball_dist` | `5e-3` | `3756221` | `RUNNING` |
-| MuonBall / `muon_ball_dist` | `7e-3` | `3756222` | `RUNNING` |
-| MuonBall / `muon_ball_dist` | `9e-3` | `3756223` | `RUNNING` |
-| MuonBall / `muon_ball_dist` | `1e-2` | `3756224` | `RUNNING` |
-| MuonBall / `muon_ball_dist` | `1.5e-2` | `3756225` | `RUNNING` |
-| MuonBall / `muon_ball_dist` | `2e-2` | `3756226` | `RUNNING` |
-| MuonBall / `muon_ball_dist` | `3e-2` | `3756227` | `RUNNING` |
+| LR | Val loss | PPL | Elapsed | Job |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3.224939` | `25.15204` | `21:10:55` | `3756221` |
+| `7e-3` | `3.177335` | `23.98275` | `21:15:52` | `3756222` |
+| `9e-3` | `3.154934` | `23.45149` | `21:14:30` | `3756223` |
+| `1e-2` | **`3.148978`** | **`23.31222`** | `21:09:34` | `3756224` |
+| `1.5e-2` | `3.149347` | `23.32083` | `21:10:36` | `3756225` |
+| `2e-2` | `3.174094` | `23.90515` | `21:14:51` | `3756226` |
+| `3e-2` | `3.234591` | `25.39598` | `21:18:39` | `3756227` |
+
+MuonBall is best at `1e-2`; `1.5e-2` is effectively tied. The useful LR range
+is approximately `9e-3` to `1.5e-2`.
+
+SSO jobs `3756214`-`3756220` are still running as of 2026-07-12. The latest
+common validation checkpoint is iteration 1750:
+
+| LR | Interim val loss | Interim PPL | Job |
+|---:|---:|---:|---:|
+| `5e-3` | `3.241580` | `25.57410` | `3756214` |
+| `7e-3` | `3.194677` | `24.40230` | `3756215` |
+| `9e-3` | `3.171328` | `23.83912` | `3756216` |
+| `1e-2` | `3.165558` | `23.70197` | `3756217` |
+| `1.5e-2` | **`3.157638`** | **`23.51499`** | `3756218` |
+| `2e-2` | `3.175557` | `23.94014` | `3756219` |
+| `3e-2` | `3.235303` | `25.41408` | `3756220` |
+
+These SSO values are not final results. At iteration 1750, the current best LR
+is `1.5e-2`; final optimizer comparisons must wait for iteration 1908.
 
 ## Historical Baseline
 

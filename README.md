@@ -311,7 +311,7 @@ so replacing the SpEL top-vector path with block2 Ritz vectors remains a bad
 tradeoff. Mis-submitted `k=4/16` jobs `3754547`, `3754548`, `3754551`, and
 `3754552` were cancelled after about 2 minutes and should not be used.
 
-Adaptive gap-probe timing follow-up submitted on 2026-07-11. The optimizer now
+Adaptive gap-probe timing follow-up completed on 2026-07-11. The optimizer now
 tracks the last measured relative gap separately for every matrix/component.
 When `rel_gap > gap_probe_safe_multiplier * gap_threshold_rel`, it runs the
 FP32 gap estimator every `gap_probe_interval` optimizer steps; otherwise it
@@ -322,13 +322,24 @@ The default interval is `1`, which preserves the previous behavior.
 The first 1B comparison fixes the best previous configuration:
 `block2_fp32_gap_only`, `main_power_dtype=fp32`, `warm_start_uv=0`,
 `gap=3e-4`, `pgd_lr_scale=0.5`, `shared_topk k=8`, sigma2 steps `10`, and
-seed `1234`. Job `3756922` uses interval `5`; job `3756923` uses interval
-`10`. Both use safe multiplier `10`. Initial jobs `3756915` and `3756916`
+seed `1234`. Both adaptive jobs use safe multiplier `10`.
+
+| Probe interval | Val loss | PPL | Gap probes at iter 1900 | PGD branches at iter 1900 | Elapsed | Saving vs every-step | Job |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| Every step | `3.569919` | `35.51371` | every matrix update | `102/478800` (`0.021%`) | `05:52:10` | baseline | `3754481` |
+| `5` | **`3.569197`** | **`35.48809`** | `98880/478800` (`20.65%`) | `122/478800` (`0.025%`) | `05:37:45` | `00:14:25` (`4.09%`) | `3756922` |
+| `10` | `3.569514` | `35.49934` | `50623/478800` (`10.57%`) | `144/478800` (`0.030%`) | **`05:37:05`** | `00:15:05` (`4.28%`) | `3756923` |
+
+K=10 saves only 40 seconds over K=5, despite halving the gap-probe rate. This
+shows that FP32 gap estimation is only part of the runtime; the FP32 SpEL main
+path and shared top-k projection still run every step. K=5 is the preferred
+setting from this pair because it has the best validation loss with essentially
+the same runtime. The loss differences are below `0.001` in a single-seed
+comparison, so they should be treated as neutral rather than evidence that
+less frequent probing improves optimization. Initial jobs `3756915` and `3756916`
 were cancelled after 1 minute 43 seconds because their anonymous split-component
 cache keys were not parameter-specific; no result from those jobs should be
-used. Compare the replacement jobs' elapsed time, validation
-loss, PGD count, and logged cumulative gap-probe count against the every-step
-baseline job `3754481` (`05:52:10`, val loss `3.569919`).
+used.
 
 Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows may be labeled `MCSD-TP-PGD` when they used the TP branch. From 2026-07-09 onward, unqualified `MCSD-PGD` means plain `spel_pgd_dist` with post-msign TP disabled.
 
@@ -342,6 +353,7 @@ Best completed results:
 | `256` | plain SpEL `spel_dist`, `topk k=8` | `1.5e-2` | `3.566394` | `35.38876` | `05:32:28` | `3744521` |
 | `256` | SpEL-TP / MCSD-TP `spel_tp_dist`, `topk k=8` | `1.5e-2` | `3.566694` | `35.39936` | `05:34:38` | `3740137` |
 | `256` | MCSD-TP-PGD `spel_pgd_dist`, `shared_topk k=8` | `1.5e-2` | `3.566973` | `35.40925` | `05:37:55` | `3744524` |
+| `256` | adaptive MCSD-PGD, FP32 main, probe interval `5` | `1.5e-2` | `3.569197` | `35.48809` | `05:37:45` | `3756922` |
 | `256` | MCSD-PGD `block2_fp32_gap_only`, FP32 main, `gap=3e-4`, `pgd_lr=0.5` | `1.5e-2` | `3.569919` | `35.51371` | `05:52:10` | `3754481` |
 | `256` | SSO `spectral_ball_dist` | `1.5e-2` | `3.570953` | `35.55044` | `06:02:39` | `3725134` |
 | `512` | plain SpEL `spel_dist`, `topk k=4` | `1.5e-2` | **`3.318744`** | `27.62564` | `10:25:33` | `3744526` |
@@ -550,22 +562,38 @@ same 1B-token setup, `global_batch=128`, `micro_batch=4`, and the width-256
 MuonBall seven-LR grid. Slurm wall time is explicitly set to `2-00:00:00`
 because the smoke test estimates SSO at more than 24 hours for 1B tokens.
 
-| Optimizer | LR | Job | State at submit |
-|---|---:|---:|---|
-| SSO | `5e-3` | `3756214` | `RUNNING` |
-| SSO | `7e-3` | `3756215` | `RUNNING` |
-| SSO | `9e-3` | `3756216` | `RUNNING` |
-| SSO | `1e-2` | `3756217` | `RUNNING` |
-| SSO | `1.5e-2` | `3756218` | `RUNNING` |
-| SSO | `2e-2` | `3756219` | `RUNNING` |
-| SSO | `3e-2` | `3756220` | `RUNNING` |
-| MuonBall | `5e-3` | `3756221` | `RUNNING` |
-| MuonBall | `7e-3` | `3756222` | `RUNNING` |
-| MuonBall | `9e-3` | `3756223` | `RUNNING` |
-| MuonBall | `1e-2` | `3756224` | `RUNNING` |
-| MuonBall | `1.5e-2` | `3756225` | `RUNNING` |
-| MuonBall | `2e-2` | `3756226` | `RUNNING` |
-| MuonBall | `3e-2` | `3756227` | `RUNNING` |
+MuonBall completed on 2026-07-12:
+
+| LR | Val loss | PPL | Elapsed | Job |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3.224939` | `25.15204` | `21:10:55` | `3756221` |
+| `7e-3` | `3.177335` | `23.98275` | `21:15:52` | `3756222` |
+| `9e-3` | `3.154934` | `23.45149` | `21:14:30` | `3756223` |
+| `1e-2` | **`3.148978`** | **`23.31222`** | `21:09:34` | `3756224` |
+| `1.5e-2` | `3.149347` | `23.32083` | `21:10:36` | `3756225` |
+| `2e-2` | `3.174094` | `23.90515` | `21:14:51` | `3756226` |
+| `3e-2` | `3.234591` | `25.39598` | `21:18:39` | `3756227` |
+
+MuonBall's best LR is `1e-2`; `1.5e-2` is effectively tied, only `0.000369`
+worse. The useful LR region is narrow around `9e-3` to `1.5e-2`; both low LR
+`5e-3` and high LR `3e-2` are clearly worse.
+
+The seven SSO jobs `3756214`-`3756220` are still running as of 2026-07-12,
+currently around iteration `1830`-`1880` of `1908`. Their latest common
+validation checkpoint is iteration `1750`, so these are interim values only:
+
+| LR | Interim val loss at iter 1750 | Interim PPL | Job |
+|---:|---:|---:|---:|
+| `5e-3` | `3.241580` | `25.57410` | `3756214` |
+| `7e-3` | `3.194677` | `24.40230` | `3756215` |
+| `9e-3` | `3.171328` | `23.83912` | `3756216` |
+| `1e-2` | `3.165558` | `23.70197` | `3756217` |
+| `1.5e-2` | **`3.157638`** | **`23.51499`** | `3756218` |
+| `2e-2` | `3.175557` | `23.94014` | `3756219` |
+| `3e-2` | `3.235303` | `25.41408` | `3756220` |
+
+At iteration 1750, SSO currently favors `1.5e-2`, but no final SSO comparison
+should be made until all seven jobs reach iteration 1908 and final validation.
 
 ### Remaining Plain SpEL-PGD Coverage
 
