@@ -4,6 +4,12 @@ Last updated: 2026-07-12
 
 This document is the primary experiment record for the `width=256` and `width=512` optimizer learning-rate sweeps. It is intended to support paper development, later reproduction, and future extensions with new optimizers or additional learning rates.
 
+The locked paper-facing `width=256/512/1024`, seven-LR, four-optimizer matrix
+is now maintained at the top of the repository `README.md`. Unless a row
+exactly matches that locked optimizer and precision configuration, tables in
+this document are supplementary tuning or historical exploration and must not
+be used to mark a primary-matrix cell complete.
+
 Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or other secrets in this file.
 
 ## Status Summary

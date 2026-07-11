@@ -5,29 +5,147 @@ This repository manages one experiment track for a paper project on SSO-style op
 The active experiment track is a width-scaling learning-rate sweep on a weighted 1B-token OLMo mix sample:
 
 ```text
-comparison: SSO vs plain SpEL vs SpEL-TP / MCSD-TP vs plain MCSD-PGD
-widths:     256 and 512
-LR grid:    5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
+comparison: SSO vs MuonBall vs plain SpEL/MCSD top-k 8 vs MCSD-PGD top-k 8
+widths:     256, 512, and 1024
+LR grid:    5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2, 2e-2, 3e-2
 cluster:    HKU HPC2021 H20 Slurm partition
-status:     width-256/512 sweeps complete; width-1024 MuonBall complete and SSO running
+budget:     1B training tokens per run, seed 1234
 ```
 
-## Current Testing Goal
+## Primary 1B Paper Matrix
 
-The current paper-facing goal is to compare SSO-style spectral optimizers on a controlled 1B-token OLMo mix pretraining task at small widths. The immediate comparison set is:
+This is the priority experiment. A result belongs in the primary matrix only
+when it matches the locked configuration below. All other runs in this README
+are supplementary tuning, ablations, or historical exploration.
 
-- `width=256` and `width=512`
-- LR grid `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2`
-- SSO / `spectral_ball_dist`
-- plain SpEL / `spel_dist`
-- SpEL-TP / MCSD-TP / `spel_tp_dist`
-- plain SpEL-PGD / `spel_pgd_dist` with post-msign TP disabled
-- MCSD-TP-PGD historical rows only; future MCSD-PGD runs default to the plain variant
-- MuonBall / `muon_ball_dist` as width-256 and width-512 completed seven-LR supplements, with width-1024 follow-up in progress
+### Locked Configurations
 
-Current completed-result conclusion: at `width=256`, plain SpEL with top-k projection `k=4` remains best. At `width=512`, MuonBall with `LR=1.5e-2` is currently best at `3.317970`, narrowly ahead of plain SpEL top-k `k=4` at `3.318744`. At `width=1024`, MuonBall is complete and best at `LR=1e-2`; the matching SSO jobs are still running. The adaptive MCSD-PGD gap probe reduces width-256 runtime by about 4% without a material validation-loss change.
+| Label | Megatron optimizer | Locked optimizer configuration | Precision |
+|---|---|---|---|
+| SSO | `spectral_ball_dist` | Existing SSO defaults used by the completed LR sweeps | BF16 training |
+| MuonBall | `muon_ball_dist` | `msign_steps=8`, power steps `10`, hard retraction | BF16 training |
+| SpEL / MCSD | `spel_dist` | `projection_mode=topk`, `projection_rank=8`, post-msign TP disabled | BF16 training; main and top-k singular-triplet power iterations are BF16; projection accumulation is FP32 |
+| MCSD-PGD | `spel_pgd_dist` | `shared_topk k=8`, `gap=3e-4`, `pgd_lr_scale=0.5`, spectral PGD normalization, cold start | Original BF16 SpEL power path; FP32 block-2 gap decision; mixed BF16-estimate/FP32-accumulation top-k projection |
 
-Forward rule for PGD experiments: `MCSD-PGD` now means the plain `spel_pgd_dist` variant with `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`. Do not submit new `MCSD-TP-PGD` jobs unless a later experiment explicitly reopens the TP ablation.
+The MCSD-PGD gap rule is fixed to
+`block2_fp32_gap_only`, `sigma2_power_iteration_steps=10`,
+`gap_probe_interval=5`, and `gap_probe_safe_multiplier=10`. It preserves the
+BF16 SpEL `u/v` path and uses FP32 block-2 only for the region decision. If the
+last measured `rel_gap <= 10 * gap_threshold`, that matrix is checked every
+step; safely separated matrices are checked every five optimizer steps.
+
+The original SpEL `power_iteration` explicitly casts `W` to BF16, initializes
+`v` to all ones, and runs 10 cold-start bilateral iterations in these jobs. Its
+`sigma/u/v` estimates are therefore BF16. The tangent projection then casts
+`M/u/v` to FP32. Top-k projection keeps an FP32 residual and correction, but
+each singular-triplet estimate still calls the same BF16 power iteration.
+
+The project currently trains with `--bf16`, not IEEE FP16. In this document,
+the requested "FP16 MCSD path" therefore means this existing BF16 spectral
+estimate path. Switching to true FP16 would require rerunning the entire matrix
+and is not mixed with these results.
+
+Common controls: 1B training tokens, seed `1234`, 28 layers, sequence length
+`4096`, global batch `128`, micro batch `4`, one H20 per job, and LR grid
+`5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2`, `2e-2`, `3e-2`.
+
+### Completion Status
+
+| Width | SSO | MuonBall | SpEL/MCSD top-k 8 | MCSD-PGD locked config | Missing after active jobs |
+|---:|---:|---:|---:|---:|---:|
+| `256` | `5/7` complete | `7/7` complete | `1/7` complete | `0/7` complete | `15` |
+| `512` | `7/7` complete | `7/7` complete | `1/7` complete | `0/7` complete | `13` |
+| `1024` | `7/7` running | `7/7` complete | `0/7` complete | `0/7` complete | `14` |
+| **Total** | `12` complete + `7` running | `21` complete | `2` complete | `0` complete | **`42`** |
+
+Across all `3 * 7 * 4 = 84` primary cells, `35` are complete, `7` are
+currently running, and `42` still need to be run. Historical SpEL-TP/MCSD-TP,
+FP32-main MCSD-PGD, old deflated-gap PGD, other top-k ranks, and 250M tuning
+rows do not count toward this completion table.
+
+### Primary Results
+
+Width 256 final validation loss:
+
+| LR | SSO | MuonBall | SpEL/MCSD top-k 8 | MCSD-PGD |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3.658330` | `3.639009` | pending | pending |
+| `7e-3` | `3.625447` | `3.600150` | pending | pending |
+| `9e-3` | `3.595198` | `3.581582` | pending | pending |
+| `1e-2` | `3.590277` | `3.575525` | pending | pending |
+| `1.5e-2` | `3.570953` | **`3.564250`** | `3.566394` | pending |
+| `2e-2` | pending | `3.571979` | pending | pending |
+| `3e-2` | pending | `3.611113` | pending | pending |
+
+Width 512 final validation loss:
+
+| LR | SSO | MuonBall | SpEL/MCSD top-k 8 | MCSD-PGD |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3.423116` | `3.398522` | pending | pending |
+| `7e-3` | `3.371309` | `3.351419` | pending | pending |
+| `9e-3` | `3.345420` | `3.329687` | pending | pending |
+| `1e-2` | `3.338379` | `3.323978` | pending | pending |
+| `1.5e-2` | `3.322861` | **`3.317970`** | `3.321280` | pending |
+| `2e-2` | `3.327370` | `3.331416` | pending | pending |
+| `3e-2` | `3.364925` | `3.382643` | pending | pending |
+
+Width 1024 final validation loss:
+
+| LR | SSO | MuonBall | SpEL/MCSD top-k 8 | MCSD-PGD |
+|---:|---:|---:|---:|---:|
+| `5e-3` | running | `3.224939` | pending | pending |
+| `7e-3` | running | `3.177335` | pending | pending |
+| `9e-3` | running | `3.154934` | pending | pending |
+| `1e-2` | running | **`3.148978`** | pending | pending |
+| `1.5e-2` | running | `3.149347` | pending | pending |
+| `2e-2` | running | `3.174094` | pending | pending |
+| `3e-2` | running | `3.234591` | pending | pending |
+
+### Unfinished Schedule
+
+Run the exact MCSD-PGD configuration for a two-iteration width-1024 memory
+smoke before launching its seven full jobs. After the smoke passes, prioritize
+the longest width-1024 jobs so shorter width-256/512 jobs can backfill released
+Slurm capacity.
+
+| Priority | Batch | Jobs | Approximate GPU time | Submit condition |
+|---:|---|---:|---:|---|
+| `0` | Finish active width-1024 SSO and run MCSD-PGD width-1024 smoke | `1` new smoke | less than 10 minutes | now / before full PGD |
+| `1` | Width-1024 SpEL/MCSD `7` + MCSD-PGD `7` | `14` | `294-336` GPU-hours | PGD smoke passes |
+| `2` | Width-512 SpEL/MCSD missing `6` + MCSD-PGD `7` | `13` | about `137` GPU-hours | submit as slots free |
+| `3` | Width-256 SSO missing `2` + SpEL/MCSD missing `6` + MCSD-PGD `7` | `15` | about `84` GPU-hours | submit as slots free |
+
+Remaining full runs require roughly `515-557` H20 GPU-hours. With 16 jobs able
+to run concurrently and no queue delay, the lower bound is about `33-35`
+hours; a practical allowance is two to three days. The launcher
+`slurm/submit_primary_1b_missing_matrix.sh` defaults to dry-run and supports
+the batches `smoke1024_pgd`, `width1024`, `width512`, and `width256`.
+
+```bash
+# Inspect exact sbatch commands without submitting.
+bash slurm/submit_primary_1b_missing_matrix.sh smoke1024_pgd
+bash slurm/submit_primary_1b_missing_matrix.sh width1024
+bash slurm/submit_primary_1b_missing_matrix.sh width512
+bash slurm/submit_primary_1b_missing_matrix.sh width256
+
+# Submit one reviewed batch explicitly.
+DRY_RUN=0 bash slurm/submit_primary_1b_missing_matrix.sh smoke1024_pgd
+```
+
+Do not submit the full width-1024 MCSD-PGD batch until the smoke job completes
+without OOM and its launch log confirms `main_power_dtype=bf16`,
+`gap_estimator=block2_fp32_gap_only`, probe interval `5`, and top-k rank `8`.
+
+## Supplementary Exploration Context
+
+Everything below records supporting evidence: historical TP variants, projection
+and sigma2 tuning, FP32-main ablations, warm starts, adaptive probe timing, and
+other optimizer comparisons. These runs motivate the locked configuration but
+must not replace missing cells in the primary matrix above.
+
+Primary MCSD-PGD uses the plain `spel_pgd_dist` variant with
+`SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`. Historical MCSD-TP-PGD rows remain
+supplementary unless the primary definition is explicitly changed.
 
 ## Documentation
 
@@ -96,7 +214,7 @@ export MEGATRON_PATH=$PWD/Megatron-LM
 
 Older server-local checkouts such as `~/projects/Megatron-LM-active` and `~/projects/Megatron-LM-dev-spel-v3` were used during development and are not the default path for the current experiment scripts.
 
-## Current Result Summary
+## Supplementary Results and Detailed Records
 
 Status as of 2026-07-12: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The width-512 high-LR sweep and plain SpEL/MCSD-TP-PGD projection supplements are complete. The width-256 and width-512 MuonBall seven-LR supplements completed as jobs `3747994`-`3748000` and `3751693`-`3751699`. The adaptive MCSD-PGD jobs `3756922`-`3756923` and width-1024 MuonBall jobs `3756221`-`3756227` are complete. Width-1024 SSO jobs `3756214`-`3756220` are still running. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
