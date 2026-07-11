@@ -98,6 +98,7 @@ class SpELPGDUpdateInfo:
     post_retract_bias: float
     projection_mode: str
     projection_rank: int
+    gap_probed: bool
     next_v: Optional[torch.Tensor] = None
 
 
@@ -770,6 +771,7 @@ def compute_spel_pgd_same_projection_update(
             post_retract_bias=0.0,
             projection_mode=projection_mode,
             projection_rank=projection_rank,
+            gap_probed=should_estimate_gap,
             next_v=v.detach(),
         )
     else:
@@ -829,6 +831,7 @@ def compute_spel_pgd_same_projection_update(
             post_retract_bias=float(post_retract_bias),
             projection_mode=projection_mode,
             projection_rank=projection_rank,
+            gap_probed=should_estimate_gap,
             next_v=v.detach(),
         )
 
@@ -884,6 +887,11 @@ class SpELPGDSameProjection(SpEL):
             the block2 vectors for the main path regardless of this setting.
         warm_start_uv: If True, cache the previous right singular vector per
             matrix/component and use it to initialize the next power iteration.
+        gap_probe_interval: Run the automatic sigma2/gap estimator once every
+            this many optimizer steps while the last measured gap is safe.
+            Non-probe steps use the SpEL branch.
+        gap_probe_safe_multiplier: Treat a measured relative gap larger than
+            this multiple of ``gap_threshold_rel`` as safe for reduced probing.
     """
 
     def __init__(
@@ -901,6 +909,8 @@ class SpELPGDSameProjection(SpEL):
         tangent_project_after_msign: bool = False,
         main_power_dtype: MainPowerDtype = "bf16",
         warm_start_uv: bool = False,
+        gap_probe_interval: int = 1,
+        gap_probe_safe_multiplier: float = 10.0,
         **kwargs: Any,
     ) -> None:
         if branch_mode not in ("auto", "spel", "pgd"):
@@ -942,6 +952,10 @@ class SpELPGDSameProjection(SpEL):
             )
         if projection_rank < 1:
             raise ValueError("projection_rank must be at least 1")
+        if gap_probe_interval < 1:
+            raise ValueError("gap_probe_interval must be at least 1")
+        if gap_probe_safe_multiplier < 1.0:
+            raise ValueError("gap_probe_safe_multiplier must be at least 1")
 
         super().__init__(
             *args,
@@ -960,19 +974,25 @@ class SpELPGDSameProjection(SpEL):
         self.projection_rank = projection_rank
         self.main_power_dtype = main_power_dtype
         self.warm_start_uv = bool(warm_start_uv)
+        self.gap_probe_interval = int(gap_probe_interval)
+        self.gap_probe_safe_multiplier = float(gap_probe_safe_multiplier)
+        self._optimizer_step = 0
 
         self.spel_branch_count = 0
         self.pgd_branch_count = 0
         self.zero_lr_branch_count = 0
         self.post_projection_count = 0
+        self.gap_probe_count = 0
         self.cumulative_spel_branch_count = 0
         self.cumulative_pgd_branch_count = 0
         self.cumulative_zero_lr_branch_count = 0
         self.cumulative_post_projection_count = 0
-        self.branch_info_dict: Dict[str, Dict[str, float | str]] = {}
+        self.cumulative_gap_probe_count = 0
+        self.branch_info_dict: Dict[str, Dict[str, bool | float | str]] = {}
         self.post_retract_bias_dict: Dict[str, float] = {}
         self.trial_spectral_norm_dict: Dict[str, float] = {}
         self._warm_start_v_cache: Dict[str, torch.Tensor] = {}
+        self._next_gap_probe_step_cache: Dict[str, int] = {}
 
     def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:
         """Perform one optimizer step and clear per-step diagnostics."""
@@ -980,10 +1000,13 @@ class SpELPGDSameProjection(SpEL):
         self.pgd_branch_count = 0
         self.zero_lr_branch_count = 0
         self.post_projection_count = 0
+        self.gap_probe_count = 0
         self.branch_info_dict.clear()
         self.post_retract_bias_dict.clear()
         self.trial_spectral_norm_dict.clear()
-        return super().step(closure)
+        result = super().step(closure)
+        self._optimizer_step += 1
+        return result
 
     def _record_update_info(
         self,
@@ -1004,6 +1027,9 @@ class SpELPGDSameProjection(SpEL):
         if info.branch == "pgd" or info.projection_mode.startswith("shared_"):
             self.post_projection_count += 1
             self.cumulative_post_projection_count += 1
+        if info.gap_probed:
+            self.gap_probe_count += 1
+            self.cumulative_gap_probe_count += 1
 
         if param_name is None and component_label is None:
             return
@@ -1026,6 +1052,7 @@ class SpELPGDSameProjection(SpEL):
             "post_retract_bias": info.post_retract_bias,
             "projection_mode": info.projection_mode,
             "projection_rank": info.projection_rank,
+            "gap_probed": info.gap_probed,
         }
 
         if self.retract_mode == "dynamic":
@@ -1052,6 +1079,29 @@ class SpELPGDSameProjection(SpEL):
         if key_parts:
             return ".".join(key_parts)
         return f"anonymous:{id(W)}"
+
+    def _should_probe_gap(self, cache_key: str) -> bool:
+        """Return whether this matrix should run the gap estimator now."""
+        if self.branch_mode != "auto" or not self.use_pgd_fallback:
+            return False
+        if self.gap_probe_interval == 1:
+            return True
+        return self._optimizer_step >= self._next_gap_probe_step_cache.get(cache_key, 0)
+
+    def _update_gap_probe_schedule(
+        self,
+        cache_key: str,
+        info: SpELPGDUpdateInfo,
+    ) -> None:
+        """Reduce probing only after a comfortably separated measured gap."""
+        if not info.gap_probed:
+            return
+        safe_gap = self.gap_probe_safe_multiplier * self.gap_threshold_rel
+        if info.rel_gap > safe_gap:
+            next_probe_step = self._optimizer_step + self.gap_probe_interval
+        else:
+            next_probe_step = self._optimizer_step + 1
+        self._next_gap_probe_step_cache[cache_key] = next_probe_step
 
     def _compute_component_update(
         self,
@@ -1091,6 +1141,7 @@ class SpELPGDSameProjection(SpEL):
             if self.warm_start_uv
             else None
         )
+        should_probe_gap = self._should_probe_gap(warm_start_key)
 
         update_unscaled, info = compute_spel_pgd_same_projection_update(
             W=W,
@@ -1104,7 +1155,7 @@ class SpELPGDSameProjection(SpEL):
             retract_mode=self.retract_mode,
             retract_alpha=self.retract_alpha,
             current_lr=current_lr_value,
-            use_pgd_fallback=self.use_pgd_fallback,
+            use_pgd_fallback=should_probe_gap,
             branch_mode=self.branch_mode,
             gap_threshold_rel=self.gap_threshold_rel,
             sigma2_power_iteration_steps=self.sigma2_power_iteration_steps,
@@ -1117,6 +1168,7 @@ class SpELPGDSameProjection(SpEL):
             main_power_dtype=self.main_power_dtype,
             warm_start_v=warm_start_v,
         )
+        self._update_gap_probe_schedule(warm_start_key, info)
 
         if self.warm_start_uv and info.next_v is not None:
             self._warm_start_v_cache[warm_start_key] = info.next_v.detach().clone()
@@ -1212,6 +1264,7 @@ class SpELPGDSameProjection(SpEL):
             "pgd_branch_count": self.pgd_branch_count,
             "zero_lr_branch_count": self.zero_lr_branch_count,
             "post_projection_count": self.post_projection_count,
+            "gap_probe_count": self.gap_probe_count,
             "total_matrix_updates": total,
             "pgd_fallback_rate": (self.pgd_branch_count / total) if total else 0.0,
             "post_projection_rate": (self.post_projection_count / total) if total else 0.0,
@@ -1219,6 +1272,7 @@ class SpELPGDSameProjection(SpEL):
             "cumulative_pgd_branch_count": self.cumulative_pgd_branch_count,
             "cumulative_zero_lr_branch_count": self.cumulative_zero_lr_branch_count,
             "cumulative_post_projection_count": self.cumulative_post_projection_count,
+            "cumulative_gap_probe_count": self.cumulative_gap_probe_count,
             "cumulative_total_matrix_updates": cumulative_total,
             "cumulative_pgd_fallback_rate": (
                 self.cumulative_pgd_branch_count / cumulative_total
@@ -1232,7 +1286,7 @@ class SpELPGDSameProjection(SpEL):
             else 0.0,
         }
 
-    def get_branch_info_dict(self) -> Optional[Dict[str, Dict[str, float | str]]]:
+    def get_branch_info_dict(self) -> Optional[Dict[str, Dict[str, bool | float | str]]]:
         """Return detailed per-component branch diagnostics for the last step."""
         return self.branch_info_dict if self.branch_info_dict else None
 

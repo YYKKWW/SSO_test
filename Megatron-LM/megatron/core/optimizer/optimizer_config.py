@@ -497,6 +497,12 @@ class OptimizerConfig:
     spel_pgd_warm_start_uv: bool = False
     """Whether SpEL-PGD power iteration reuses the previous right singular vector."""
 
+    spel_pgd_gap_probe_interval: int = 1
+    """Run the automatic SpEL-PGD gap estimator every N steps in the safe region."""
+
+    spel_pgd_gap_probe_safe_multiplier: float = 10.0
+    """Gap/threshold ratio above which SpEL-PGD reduces gap-probe frequency."""
+
     # Lion.
     lion_beta1: float = 0.95
     """First beta coefficient for Lion optimizer (used in sign update). Defaults to 0.95."""

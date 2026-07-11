@@ -3627,6 +3627,24 @@ def _add_regularization_args(parser):
         help='Disable SpEL-PGD power-iteration warm start',
     )
     group.add_argument(
+        '--spel-pgd-gap-probe-interval',
+        type=int,
+        default=1,
+        help=(
+            'Run the automatic SpEL-PGD sigma2/gap estimator every N optimizer '
+            'steps while the last measured gap is safely separated'
+        ),
+    )
+    group.add_argument(
+        '--spel-pgd-gap-probe-safe-multiplier',
+        type=float,
+        default=10.0,
+        help=(
+            'Reduce gap-probe frequency only when the last relative gap exceeds '
+            'this multiple of the PGD gap threshold'
+        ),
+    )
+    group.add_argument(
         '--lion-beta1',
         type=float,
         default=0.95,

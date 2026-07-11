@@ -288,11 +288,13 @@ def _collect_spel_pgd_branch_stats(optimizer) -> Optional[Dict[str, float]]:
                     'pgd_branch_count',
                     'zero_lr_branch_count',
                     'post_projection_count',
+                    'gap_probe_count',
                     'total_matrix_updates',
                     'cumulative_spel_branch_count',
                     'cumulative_pgd_branch_count',
                     'cumulative_zero_lr_branch_count',
                     'cumulative_post_projection_count',
+                    'cumulative_gap_probe_count',
                     'cumulative_total_matrix_updates',
                 ):
                     totals[key] += float(stats.get(key, 0) or 0)
@@ -3313,6 +3315,7 @@ def training_log(
             zero_lr_count = int(spel_pgd_branch_stats.get('zero_lr_branch_count', 0))
             total_count = int(spel_pgd_branch_stats.get('total_matrix_updates', 0))
             post_projection_count = int(spel_pgd_branch_stats.get('post_projection_count', 0))
+            gap_probe_count = int(spel_pgd_branch_stats.get('gap_probe_count', 0))
             pgd_rate = spel_pgd_branch_stats.get('pgd_fallback_rate', 0.0)
             post_projection_rate = spel_pgd_branch_stats.get('post_projection_rate', 0.0)
             cumulative_pgd_count = int(
@@ -3320,6 +3323,9 @@ def training_log(
             )
             cumulative_total_count = int(
                 spel_pgd_branch_stats.get('cumulative_total_matrix_updates', 0)
+            )
+            cumulative_gap_probe_count = int(
+                spel_pgd_branch_stats.get('cumulative_gap_probe_count', 0)
             )
             cumulative_pgd_rate = spel_pgd_branch_stats.get(
                 'cumulative_pgd_fallback_rate', 0.0
@@ -3332,6 +3338,8 @@ def training_log(
                 f' zero-lr branches: {zero_lr_count} |'
                 f' post projections: {post_projection_count}/{total_count}'
                 f' ({post_projection_rate:.3f}) |'
+                f' gap probes: {gap_probe_count}/{total_count} |'
+                f' cumulative gap probes: {cumulative_gap_probe_count}/{cumulative_total_count} |'
             )
         log_string += ' number of skipped iterations: {:3d} |'.format(
             total_loss_dict[skipped_iters_key]
