@@ -9,7 +9,7 @@ comparison: SSO vs plain SpEL vs SpEL-TP / MCSD-TP vs plain MCSD-PGD
 widths:     256 and 512
 LR grid:    5e-3, 7e-3, 9e-3, 1e-2, 1.5e-2
 cluster:    HKU HPC2021 H20 Slurm partition
-status:     completed baseline, high-LR, projection, MuonBall, width-256 PGD sigma2, and block2-FP32 gap sweeps
+status:     width-256/512 sweeps complete; width-1024 MuonBall complete and SSO running
 ```
 
 ## Current Testing Goal
@@ -23,9 +23,9 @@ The current paper-facing goal is to compare SSO-style spectral optimizers on a c
 - SpEL-TP / MCSD-TP / `spel_tp_dist`
 - plain SpEL-PGD / `spel_pgd_dist` with post-msign TP disabled
 - MCSD-TP-PGD historical rows only; future MCSD-PGD runs default to the plain variant
-- MuonBall / `muon_ball_dist` as a width-256 seven-LR supplement
+- MuonBall / `muon_ball_dist` as width-256 and width-512 completed seven-LR supplements, with width-1024 follow-up in progress
 
-Current completed-result conclusion: at `LR=1.5e-2`, plain SpEL with top-k projection `k=4` is still the best completed row for both `width=256` and `width=512`. The new width-256 MuonBall sweep is competitive and beats SSO at its best LR, but remains slightly behind plain SpEL `topk k=4`. The width-256 plain SpEL-PGD sigma2 sweep is also competitive when `sigma2_power_iteration_steps=5`, but still trails plain SpEL `topk k=4`. The block2-FP32 gap-control sweep did not improve MCSD-PGD: tight gaps almost never trigger PGD, while larger gaps trigger too much PGD and hurt validation loss. Width-512 high-LR tests at `2e-2` and `3e-2` are worse, so the current width-512 minimum remains near `1.5e-2`.
+Current completed-result conclusion: at `width=256`, plain SpEL with top-k projection `k=4` remains best. At `width=512`, MuonBall with `LR=1.5e-2` is currently best at `3.317970`, narrowly ahead of plain SpEL top-k `k=4` at `3.318744`. At `width=1024`, MuonBall is complete and best at `LR=1e-2`; the matching SSO jobs are still running. The adaptive MCSD-PGD gap probe reduces width-256 runtime by about 4% without a material validation-loss change.
 
 Forward rule for PGD experiments: `MCSD-PGD` now means the plain `spel_pgd_dist` variant with `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`. Do not submit new `MCSD-TP-PGD` jobs unless a later experiment explicitly reopens the TP ablation.
 
@@ -98,7 +98,7 @@ Older server-local checkouts such as `~/projects/Megatron-LM-active` and `~/proj
 
 ## Current Result Summary
 
-Status as of 2026-07-09: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The `width=512`, `SpEL-TP top-k k=4`, `LR=1.5e-2` supplement job `3743072` completed successfully. The width-512 high-LR sweep for `2e-2` and `3e-2` completed successfully as jobs `3743116`-`3743125`. The plain SpEL vs MCSD-TP-PGD projection supplement also completed successfully: width-256 jobs `3744519`-`3744524` and width-512 jobs `3744525`-`3744530`. The width-256 plain SpEL-PGD / SpEL-TP-PGD sigma2 supplement completed as jobs `3747964`-`3747969`. The width-256 MuonBall seven-LR supplement completed as jobs `3747994`-`3748000`. The width-1024 two-iteration memory smoke completed as jobs `3748023`-`3748025`. The width-256 block2-FP32 MCSD-PGD gap-control sweep completed as jobs `3750634`-`3750641`. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
+Status as of 2026-07-12: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The width-512 high-LR sweep and plain SpEL/MCSD-TP-PGD projection supplements are complete. The width-256 and width-512 MuonBall seven-LR supplements completed as jobs `3747994`-`3748000` and `3751693`-`3751699`. The adaptive MCSD-PGD jobs `3756922`-`3756923` and width-1024 MuonBall jobs `3756221`-`3756227` are complete. Width-1024 SSO jobs `3756214`-`3756220` are still running. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
 The 250M-token MCSD-PGD gap-threshold tuning on 2026-07-09 completed successfully. It used the plain variant only, `width=256`, `LR=1.5e-2`, `shared_topk k=8`, and `sigma2_power_iteration_steps=5`. Best row: spectral direction normalization with `gap_threshold_rel` in `1e-4` to `2e-3`, final val loss `3.990190`, PPL `54.06516`, and cumulative PGD branch rate about `0.5%`.
 
@@ -356,7 +356,8 @@ Best completed results:
 | `256` | adaptive MCSD-PGD, FP32 main, probe interval `5` | `1.5e-2` | `3.569197` | `35.48809` | `05:37:45` | `3756922` |
 | `256` | MCSD-PGD `block2_fp32_gap_only`, FP32 main, `gap=3e-4`, `pgd_lr=0.5` | `1.5e-2` | `3.569919` | `35.51371` | `05:52:10` | `3754481` |
 | `256` | SSO `spectral_ball_dist` | `1.5e-2` | `3.570953` | `35.55044` | `06:02:39` | `3725134` |
-| `512` | plain SpEL `spel_dist`, `topk k=4` | `1.5e-2` | **`3.318744`** | `27.62564` | `10:25:33` | `3744526` |
+| `512` | MuonBall `muon_ball_dist` | `1.5e-2` | **`3.317970`** | `27.60424` | `10:14:49` | `3751697` |
+| `512` | plain SpEL `spel_dist`, `topk k=4` | `1.5e-2` | `3.318744` | `27.62564` | `10:25:33` | `3744526` |
 | `512` | SpEL-TP / MCSD-TP `spel_tp_dist`, `topk k=4` | `1.5e-2` | `3.319634` | `27.65023` | `10:27:54` | `3743072` |
 | `512` | MCSD-TP-PGD `spel_pgd_dist`, `shared_topk k=4` | `1.5e-2` | `3.320985` | `27.68762` | `10:32:18` | `3744529` |
 | `512` | plain SpEL `spel_dist`, `topk k=8` | `1.5e-2` | `3.321280` | `27.69578` | `10:28:18` | `3744527` |
@@ -542,6 +543,22 @@ Submitted on 2026-07-09 with the same width-256 1B-token setup and the MuonBall 
 | `3e-2` | `3.611113` | `37.00722` | `05:25:05` | `3748000` |
 
 Current interpretation: MuonBall's best width-256 row is `LR=1.5e-2`, with val loss `3.564250`. It beats width-256 SSO at the same LR (`3.570953`) and is close to plain SpEL, but it is still slightly worse than plain SpEL `topk k=4` (`3.562941`).
+
+### MuonBall Width-512 Seven-LR Supplement
+
+| LR | Val loss | PPL | Elapsed | Job |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3.398522` | `29.91984` | `10:16:03` | `3751693` |
+| `7e-3` | `3.351419` | `28.54322` | `10:15:21` | `3751694` |
+| `9e-3` | `3.329687` | `27.92960` | `10:15:07` | `3751695` |
+| `1e-2` | `3.323978` | `27.77059` | `10:15:34` | `3751696` |
+| `1.5e-2` | **`3.317970`** | **`27.60424`** | `10:14:49` | `3751697` |
+| `2e-2` | `3.331416` | `27.97792` | `10:13:29` | `3751698` |
+| `3e-2` | `3.382643` | `29.44849` | `10:14:00` | `3751699` |
+
+MuonBall's best width-512 row is `LR=1.5e-2`. It is the strongest completed
+width-512 result, narrowly ahead of plain SpEL top-k `k=4` (`3.318744`) by
+`0.000774`; this is still a single-seed difference below `0.001`.
 
 ### Width-1024 Memory Smoke
 

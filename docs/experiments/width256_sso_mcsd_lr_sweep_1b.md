@@ -17,8 +17,8 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
 | Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, plain MCSD-PGD / `spel_pgd_dist`, MuonBall / `muon_ball_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3`; MCSD-PGD phase-B sigma2/gap tuning: `15/15`; adaptive gap-probe 1B comparison: `2/2`; width-1024 SSO/MuonBall LR sweep: `7/14` complete |
-| Slurm status | adaptive gap-probe jobs `3756922`-`3756923` and width-1024 MuonBall jobs `3756221`-`3756227` completed with exit code `0:0`; width-1024 SSO jobs `3756214`-`3756220` remain `RUNNING` |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-512 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3`; MCSD-PGD phase-B sigma2/gap tuning: `15/15`; adaptive gap-probe 1B comparison: `2/2`; width-1024 SSO/MuonBall LR sweep: `7/14` complete |
+| Slurm status | width-512 MuonBall jobs `3751693`-`3751699`, adaptive gap-probe jobs `3756922`-`3756923`, and width-1024 MuonBall jobs `3756221`-`3756227` completed with exit code `0:0`; width-1024 SSO jobs `3756214`-`3756220` remain `RUNNING` |
 | Completed tuning jobs | 250M-token plain MCSD-PGD gap-threshold tuning at `width=256`, `LR=1.5e-2`, `shared_topk k=8`: phase-A `sigma2=5` jobs with no direction normalization `3749547`-`3749553`, Frobenius normalization `3749569`-`3749575`, spectral normalization `3749612`-`3749618`; phase-B spectral-normalized sigma2/gap jobs `3750042`-`3750056`; all `COMPLETED`, exit code `0:0` |
 | Selected PGD default | `sigma2_power_iteration_steps=5`, `gap_threshold_rel=1e-3`, `pgd_direction_normalization=spectral`, `pgd_lr_scale=0.5` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
@@ -802,8 +802,9 @@ This table aligns the current width-256 and width-512 rows at the highest LR. It
 | `256` | MCSD-TP-PGD shared top-k / `spel_pgd_dist`, `k=4` | `3744523` | `1908` | `3.568926` | `35.47848` | `05:35:00` | `SPG-7-2` |
 | `256` | MCSD-TP-PGD shared top-k / `spel_pgd_dist`, `k=8` | `3744524` | `1908` | `3.566973` | `35.40925` | `05:37:55` | `SPG-7-1` |
 | `512` | SSO / `spectral_ball_dist` | `3737718` | `1908` | `3.322861` | `27.73959` | `11:21:05` | `SPG-7-1` |
+| `512` | MuonBall / `muon_ball_dist` | `3751697` | `1908` | **`3.317970`** | `27.60424` | `10:14:49` | `SPG-7-1` |
 | `512` | plain SpEL / `spel_dist`, retraction | `3744525` | `1908` | `3.322735` | `27.73611` | `10:16:56` | `SPG-7-1` |
-| `512` | plain SpEL / `spel_dist`, top-k `k=4` | `3744526` | `1908` | **`3.318744`** | `27.62564` | `10:25:33` | `SPG-7-1` |
+| `512` | plain SpEL / `spel_dist`, top-k `k=4` | `3744526` | `1908` | `3.318744` | `27.62564` | `10:25:33` | `SPG-7-1` |
 | `512` | plain SpEL / `spel_dist`, top-k `k=8` | `3744527` | `1908` | `3.321280` | `27.69578` | `10:28:18` | `SPG-7-2` |
 | `512` | SpEL-TP original retraction / `spel_dist` | `3737723` | `1908` | `3.321666` | `27.70647` | `10:17:51` | `SPG-7-2` |
 | `512` | SpEL-TP top-k / `spel_dist`, `k=4` | `3743072` | `1908` | `3.319634` | `27.65023` | `10:27:54` | `SPG-7-1` |
@@ -916,6 +917,26 @@ Comparison against the completed width-256 SSO / SpEL-TP grid:
 | `3e-2` | not run at width 256 | not run at width 256 | high-LR extension point |
 
 Current interpretation: MuonBall's best width-256 row is `LR=1.5e-2`, with val loss `3.564250`. It beats width-256 SSO at the same LR (`3.570953`) and is close to plain SpEL, but remains slightly worse than plain SpEL `topk k=4` (`3.562941`).
+
+## MuonBall Width-512 Seven-LR Supplement
+
+This completed supplement uses the same width-512 1B-token setup and MuonBall
+optimizer constants as the width-256 supplement.
+
+| LR | Val loss | PPL | Elapsed | Job |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3.398522` | `29.91984` | `10:16:03` | `3751693` |
+| `7e-3` | `3.351419` | `28.54322` | `10:15:21` | `3751694` |
+| `9e-3` | `3.329687` | `27.92960` | `10:15:07` | `3751695` |
+| `1e-2` | `3.323978` | `27.77059` | `10:15:34` | `3751696` |
+| `1.5e-2` | **`3.317970`** | **`27.60424`** | `10:14:49` | `3751697` |
+| `2e-2` | `3.331416` | `27.97792` | `10:13:29` | `3751698` |
+| `3e-2` | `3.382643` | `29.44849` | `10:14:00` | `3751699` |
+
+The best LR is `1.5e-2`. This is the strongest completed width-512 row,
+slightly ahead of plain SpEL top-k `k=4` (`3.318744`) and SSO (`3.322861`).
+The margin over plain SpEL is `0.000774` under one seed, so it is suggestive
+rather than a robust ranking claim.
 
 ## Plain SpEL-PGD Sigma2 Supplement
 
