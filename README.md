@@ -55,10 +55,10 @@ Common controls: 1B training tokens, seed `1234`, 28 layers, sequence length
 |---:|---:|---:|---:|---:|---:|
 | `256` | `5/7` complete | `7/7` complete | `1/7` complete | `0/7` complete | `15` |
 | `512` | `7/7` complete | `7/7` complete | `1/7` complete | `0/7` complete | `13` |
-| `1024` | `7/7` running | `7/7` complete | `0/7` complete | `0/7` complete | `14` |
-| **Total** | `12` complete + `7` running | `21` complete | `2` complete | `0` complete | **`42`** |
+| `1024` | `1/7` complete + `6/7` running | `7/7` complete | `0/7` complete | `0/7` complete | `14` |
+| **Total** | `13` complete + `6` running | `21` complete | `2` complete | `0` complete | **`42`** |
 
-Across all `3 * 7 * 4 = 84` primary cells, `35` are complete, `7` are
+Across all `3 * 7 * 4 = 84` primary cells, `36` are complete, `6` are
 currently running, and `42` still need to be run. Historical SpEL-TP/MCSD-TP,
 FP32-main MCSD-PGD, old deflated-gap PGD, other top-k ranks, and 250M tuning
 rows do not count toward this completion table.
@@ -93,7 +93,7 @@ Width 1024 final validation loss:
 
 | LR | SSO | MuonBall | SpEL/MCSD top-k 8 | MCSD-PGD |
 |---:|---:|---:|---:|---:|
-| `5e-3` | running | `3.224939` | pending | pending |
+| `5e-3` | `3.246347` | `3.224939` | pending | pending |
 | `7e-3` | running | `3.177335` | pending | pending |
 | `9e-3` | running | `3.154934` | pending | pending |
 | `1e-2` | running | **`3.148978`** | pending | pending |
@@ -110,7 +110,7 @@ Slurm capacity.
 
 | Priority | Batch | Jobs | Approximate GPU time | Submit condition |
 |---:|---|---:|---:|---|
-| `0` | Finish active width-1024 SSO and run MCSD-PGD width-1024 smoke | `1` new smoke | less than 10 minutes | now / before full PGD |
+| `0` | Finish the six active width-1024 SSO jobs and run MCSD-PGD width-1024 smoke | `1` new smoke | less than 10 minutes | now / before full PGD |
 | `1` | Width-1024 SpEL/MCSD `7` + MCSD-PGD `7` | `14` | `294-336` GPU-hours | PGD smoke passes |
 | `2` | Width-512 SpEL/MCSD missing `6` + MCSD-PGD `7` | `13` | about `137` GPU-hours | submit as slots free |
 | `3` | Width-256 SSO missing `2` + SpEL/MCSD missing `6` + MCSD-PGD `7` | `15` | about `84` GPU-hours | submit as slots free |
@@ -216,7 +216,7 @@ Older server-local checkouts such as `~/projects/Megatron-LM-active` and `~/proj
 
 ## Supplementary Results and Detailed Records
 
-Status as of 2026-07-12: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The width-512 high-LR sweep and plain SpEL/MCSD-TP-PGD projection supplements are complete. The width-256 and width-512 MuonBall seven-LR supplements completed as jobs `3747994`-`3748000` and `3751693`-`3751699`. The adaptive MCSD-PGD jobs `3756922`-`3756923` and width-1024 MuonBall jobs `3756221`-`3756227` are complete. Width-1024 SSO jobs `3756214`-`3756220` are still running. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
+Status as of 2026-07-12: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The width-512 high-LR sweep and plain SpEL/MCSD-TP-PGD projection supplements are complete. The width-256 and width-512 MuonBall seven-LR supplements completed as jobs `3747994`-`3748000` and `3751693`-`3751699`. The adaptive MCSD-PGD jobs `3756922`-`3756923` and width-1024 MuonBall jobs `3756221`-`3756227` are complete. Width-1024 SSO job `3756214` is complete; jobs `3756215`-`3756220` are still running. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
 The 250M-token MCSD-PGD gap-threshold tuning on 2026-07-09 completed successfully. It used the plain variant only, `width=256`, `LR=1.5e-2`, `shared_topk k=8`, and `sigma2_power_iteration_steps=5`. Best row: spectral direction normalization with `gap_threshold_rel` in `1e-4` to `2e-3`, final val loss `3.990190`, PPL `54.06516`, and cumulative PGD branch rate about `0.5%`.
 
@@ -713,9 +713,10 @@ MuonBall's best LR is `1e-2`; `1.5e-2` is effectively tied, only `0.000369`
 worse. The useful LR region is narrow around `9e-3` to `1.5e-2`; both low LR
 `5e-3` and high LR `3e-2` are clearly worse.
 
-The seven SSO jobs `3756214`-`3756220` are still running as of 2026-07-12,
-currently around iteration `1830`-`1880` of `1908`. Their latest common
-validation checkpoint is iteration `1750`, so these are interim values only:
+SSO job `3756214` (`LR=5e-3`) completed with final val loss `3.246347`, PPL
+`25.69631`, and elapsed time `23:10:10`. Jobs `3756215`-`3756220` remain
+running as of 2026-07-12. Their latest common validation checkpoint is
+iteration `1750`, so the remaining values below are interim only:
 
 | LR | Interim val loss at iter 1750 | Interim PPL | Job |
 |---:|---:|---:|---:|
