@@ -322,8 +322,11 @@ The default interval is `1`, which preserves the previous behavior.
 The first 1B comparison fixes the best previous configuration:
 `block2_fp32_gap_only`, `main_power_dtype=fp32`, `warm_start_uv=0`,
 `gap=3e-4`, `pgd_lr_scale=0.5`, `shared_topk k=8`, sigma2 steps `10`, and
-seed `1234`. Job `3756915` uses interval `5`; job `3756916` uses interval
-`10`. Both use safe multiplier `10`. Compare their elapsed time, validation
+seed `1234`. Job `3756922` uses interval `5`; job `3756923` uses interval
+`10`. Both use safe multiplier `10`. Initial jobs `3756915` and `3756916`
+were cancelled after 1 minute 43 seconds because their anonymous split-component
+cache keys were not parameter-specific; no result from those jobs should be
+used. Compare the replacement jobs' elapsed time, validation
 loss, PGD count, and logged cumulative gap-probe count against the every-step
 baseline job `3754481` (`05:52:10`, val loss `3.569919`).
 
