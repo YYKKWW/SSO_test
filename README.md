@@ -311,6 +311,22 @@ so replacing the SpEL top-vector path with block2 Ritz vectors remains a bad
 tradeoff. Mis-submitted `k=4/16` jobs `3754547`, `3754548`, `3754551`, and
 `3754552` were cancelled after about 2 minutes and should not be used.
 
+Adaptive gap-probe timing follow-up submitted on 2026-07-11. The optimizer now
+tracks the last measured relative gap separately for every matrix/component.
+When `rel_gap > gap_probe_safe_multiplier * gap_threshold_rel`, it runs the
+FP32 gap estimator every `gap_probe_interval` optimizer steps; otherwise it
+returns to probing every step. The first step is always probed, and skipped
+steps use the ordinary SpEL branch without reusing a previous PGD decision.
+The default interval is `1`, which preserves the previous behavior.
+
+The first 1B comparison fixes the best previous configuration:
+`block2_fp32_gap_only`, `main_power_dtype=fp32`, `warm_start_uv=0`,
+`gap=3e-4`, `pgd_lr_scale=0.5`, `shared_topk k=8`, sigma2 steps `10`, and
+seed `1234`. Job `3756915` uses interval `5`; job `3756916` uses interval
+`10`. Both use safe multiplier `10`. Compare their elapsed time, validation
+loss, PGD count, and logged cumulative gap-probe count against the every-step
+baseline job `3754481` (`05:52:10`, val loss `3.569919`).
+
 Naming audit, 2026-07-08: all historical `spel_dist` rows in this repository were run while the code always executed the post-msign tangent re-projection line `Phi = project_to_tangent_plane(Phi, u, v)`. These rows are therefore labeled `SpEL-TP` or `MCSD-TP`. The current launcher now exposes that behavior explicitly as `spel_tp_dist`; new plain `spel_dist` rows mean the post-msign TP step is disabled. Historical `spel_pgd_dist` rows may be labeled `MCSD-TP-PGD` when they used the TP branch. From 2026-07-09 onward, unqualified `MCSD-PGD` means plain `spel_pgd_dist` with post-msign TP disabled.
 
 Best completed results:
