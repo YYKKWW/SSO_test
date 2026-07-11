@@ -993,6 +993,7 @@ class SpELPGDSameProjection(SpEL):
         self.trial_spectral_norm_dict: Dict[str, float] = {}
         self._warm_start_v_cache: Dict[str, torch.Tensor] = {}
         self._next_gap_probe_step_cache: Dict[str, int] = {}
+        self._active_param_cache_key: Optional[str] = None
 
     def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:
         """Perform one optimizer step and clear per-step diagnostics."""
@@ -1071,14 +1072,14 @@ class SpELPGDSameProjection(SpEL):
         component_label: Optional[str],
     ) -> str:
         """Stable cache key for one matrix/component warm-start vector."""
-        key_parts = []
-        if param_name:
-            key_parts.append(str(param_name))
+        key_parts = [
+            str(param_name)
+            if param_name
+            else self._active_param_cache_key or f"anonymous_param:{id(W)}"
+        ]
         if component_label:
             key_parts.append(str(component_label))
-        if key_parts:
-            return ".".join(key_parts)
-        return f"anonymous:{id(W)}"
+        return ".".join(key_parts)
 
     def _should_probe_gap(self, cache_key: str) -> bool:
         """Return whether this matrix should run the gap estimator now."""
@@ -1236,20 +1237,26 @@ class SpELPGDSameProjection(SpEL):
                 "the post-projection target as an outer optimizer update."
             )
 
-        if self._uses_split_path(p):
-            return super().orthogonalize(p, grad, **kwargs)
-
-        tp_group, partition_dim = self._resolve_tp_context(p)
         param_name = getattr(p, "param_name", None)
-        return self._compute_component_update(
-            p.data,
-            grad,
-            tp_group,
-            partition_dim,
-            current_lr=current_lr,
-            param_name=param_name,
-            component_label="matrix" if param_name else None,
+        self._active_param_cache_key = (
+            str(param_name) if param_name else f"anonymous_param:{id(p)}"
         )
+        try:
+            if self._uses_split_path(p):
+                return super().orthogonalize(p, grad, **kwargs)
+
+            tp_group, partition_dim = self._resolve_tp_context(p)
+            return self._compute_component_update(
+                p.data,
+                grad,
+                tp_group,
+                partition_dim,
+                current_lr=current_lr,
+                param_name=param_name,
+                component_label="matrix" if param_name else None,
+            )
+        finally:
+            self._active_param_cache_key = None
 
     def get_branch_stats(self) -> Dict[str, int | float]:
         """Return per-step branch counts and fallback rate."""
