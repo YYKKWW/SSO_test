@@ -55,11 +55,12 @@ Common controls: 1B training tokens, seed `1234`, 28 layers, sequence length
 |---:|---:|---:|---:|---:|---:|
 | `256` | `5/7` complete | `7/7` complete | `1/7` complete | `0/7` complete | `15` |
 | `512` | `7/7` complete | `7/7` complete | `1/7` complete | `0/7` complete | `13` |
-| `1024` | `1/7` complete + `6/7` running | `7/7` complete | `0/7` complete | `0/7` complete | `14` |
-| **Total** | `13` complete + `6` running | `21` complete | `2` complete | `0` complete | **`42`** |
+| `1024` | `4/7` complete + `3/7` running | `7/7` complete | `0/7` complete | `0/7` complete | `14` |
+| **Total** | `16` complete + `3` running | `21` complete | `2` complete | `0` complete | **`42`** |
 
-Across all `3 * 7 * 4 = 84` primary cells, `36` are complete, `6` are
-currently running, and `42` still need to be run. Historical SpEL-TP/MCSD-TP,
+Across all `3 * 7 * 4 = 84` primary cells, `39` are complete, `31` are now
+running or dependency-submitted, and the final `14` width-1024 cells are under
+the deferred sequential submitter. Historical SpEL-TP/MCSD-TP,
 FP32-main MCSD-PGD, old deflated-gap PGD, other top-k ranks, and 250M tuning
 rows do not count toward this completion table.
 
@@ -94,9 +95,9 @@ Width 1024 final validation loss:
 | LR | SSO | MuonBall | SpEL/MCSD top-k 8 | MCSD-PGD |
 |---:|---:|---:|---:|---:|
 | `5e-3` | `3.246347` | `3.224939` | pending | pending |
-| `7e-3` | running | `3.177335` | pending | pending |
-| `9e-3` | running | `3.154934` | pending | pending |
-| `1e-2` | running | **`3.148978`** | pending | pending |
+| `7e-3` | `3.195720` | `3.177335` | pending | pending |
+| `9e-3` | `3.169205` | `3.154934` | pending | pending |
+| `1e-2` | `3.163919` | **`3.148978`** | pending | pending |
 | `1.5e-2` | running | `3.149347` | pending | pending |
 | `2e-2` | running | `3.174094` | pending | pending |
 | `3e-2` | running | `3.234591` | pending | pending |
@@ -135,6 +136,20 @@ DRY_RUN=0 bash slurm/submit_primary_1b_missing_matrix.sh smoke1024_pgd
 Do not submit the full width-1024 MCSD-PGD batch until the smoke job completes
 without OOM and its launch log confirms `main_power_dtype=bf16`,
 `gap_estimator=block2_fp32_gap_only`, probe interval `5`, and top-k rank `8`.
+
+Execution status on 2026-07-12:
+
+| Stage | Jobs | State |
+|---|---|---|
+| Width-1024 MCSD-PGD smoke | `3759810` | `COMPLETED`, exit `0:0`, max allocated `71507.22 MB` |
+| Width-256 missing primary cells | `3759826`-`3759840` | submitted/running |
+| Width-512 missing primary cells | `3759844`-`3759856` | submitted with `afterok:3759826:...:3759840` |
+| Width-1024 missing primary cells | next 14 IDs | deferred until submit slots are free; then submitted with `afterok:3759844:...:3759856` |
+
+The deferred submitter log is
+`logs/deferred_submit_primary_width1024_20260712.log`. This enforces the formal
+training order width 256, then width 512, then width 1024. The completed
+width-1024 smoke is only a memory/parameter check and is not a training result.
 
 ## Supplementary Exploration Context
 
@@ -217,7 +232,7 @@ Older server-local checkouts such as `~/projects/Megatron-LM-active` and `~/proj
 
 ## Supplementary Results and Detailed Records
 
-Status as of 2026-07-12: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The width-512 high-LR sweep and plain SpEL/MCSD-TP-PGD projection supplements are complete. The width-256 and width-512 MuonBall seven-LR supplements completed as jobs `3747994`-`3748000` and `3751693`-`3751699`. The adaptive MCSD-PGD jobs `3756922`-`3756923` and width-1024 MuonBall jobs `3756221`-`3756227` are complete. Width-1024 SSO job `3756214` is complete; jobs `3756215`-`3756220` are still running. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
+Status as of 2026-07-12: the baseline `width=256` and `width=512` five-LR sweeps are complete on H20. The width-512 high-LR sweep and plain SpEL/MCSD-TP-PGD projection supplements are complete. The width-256 and width-512 MuonBall seven-LR supplements completed as jobs `3747994`-`3748000` and `3751693`-`3751699`. The adaptive MCSD-PGD jobs `3756922`-`3756923` and width-1024 MuonBall jobs `3756221`-`3756227` are complete. Width-1024 SSO jobs `3756214`-`3756217` are complete; jobs `3756218`-`3756220` are still running. `Elapsed` is Slurm wall-clock time from `sacct` on the H20 partition.
 
 The 250M-token MCSD-PGD gap-threshold tuning on 2026-07-09 completed successfully. It used the plain variant only, `width=256`, `LR=1.5e-2`, `shared_topk k=8`, and `sigma2_power_iteration_steps=5`. Best row: spectral direction normalization with `gap_threshold_rel` in `1e-4` to `2e-3`, final val loss `3.990190`, PPL `54.06516`, and cumulative PGD branch rate about `0.5%`.
 
@@ -714,23 +729,27 @@ MuonBall's best LR is `1e-2`; `1.5e-2` is effectively tied, only `0.000369`
 worse. The useful LR region is narrow around `9e-3` to `1.5e-2`; both low LR
 `5e-3` and high LR `3e-2` are clearly worse.
 
-SSO job `3756214` (`LR=5e-3`) completed with final val loss `3.246347`, PPL
-`25.69631`, and elapsed time `23:10:10`. Jobs `3756215`-`3756220` remain
-running as of 2026-07-12. Their latest common validation checkpoint is
-iteration `1750`, so the remaining values below are interim only:
+SSO jobs `3756214`-`3756217` completed:
+
+| LR | Final val loss | PPL | Elapsed | Job |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3.246347` | `25.69631` | `23:10:10` | `3756214` |
+| `7e-3` | `3.195720` | `24.42775` | `23:20:11` | `3756215` |
+| `9e-3` | `3.169205` | `23.78856` | `23:17:48` | `3756216` |
+| `1e-2` | `3.163919` | `23.66315` | `23:20:10` | `3756217` |
+
+Jobs `3756218`-`3756220` remain running as of 2026-07-12. Their latest common
+validation checkpoint is iteration `1750`, so the remaining values below are
+interim only:
 
 | LR | Interim val loss at iter 1750 | Interim PPL | Job |
 |---:|---:|---:|---:|
-| `5e-3` | `3.241580` | `25.57410` | `3756214` |
-| `7e-3` | `3.194677` | `24.40230` | `3756215` |
-| `9e-3` | `3.171328` | `23.83912` | `3756216` |
-| `1e-2` | `3.165558` | `23.70197` | `3756217` |
 | `1.5e-2` | **`3.157638`** | **`23.51499`** | `3756218` |
 | `2e-2` | `3.175557` | `23.94014` | `3756219` |
 | `3e-2` | `3.235303` | `25.41408` | `3756220` |
 
 At iteration 1750, SSO currently favors `1.5e-2`, but no final SSO comparison
-should be made until all seven jobs reach iteration 1908 and final validation.
+should be made until the final three jobs reach iteration 1908 and validation.
 
 ### Remaining Plain SpEL-PGD Coverage
 

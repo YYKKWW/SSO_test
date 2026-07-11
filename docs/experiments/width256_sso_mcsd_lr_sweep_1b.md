@@ -18,13 +18,13 @@ Do not put passwords, SSH private keys, Hugging Face tokens, HPC passwords, or o
 |---|---|
 | Experiment family | Small-scale pretraining LR sweep |
 | Paper role | One supporting experiment for optimizer comparison |
-| Width | `256`, `512`; width-1024 MuonBall complete, one SSO row complete, and six SSO rows running |
+| Width | `256`, `512`; width-1024 MuonBall complete, four SSO rows complete, and three SSO rows running |
 | Data budget | `1B` training tokens |
 | Dataset | Weighted sample from `allenai/olmo-mix-1124` |
 | Compared optimizers | SSO / `spectral_ball_dist`, plain SpEL / `spel_dist`, MCSD-TP/SpEL-TP / `spel_tp_dist` for new runs, plain MCSD-PGD / `spel_pgd_dist`, MuonBall / `muon_ball_dist` |
 | LR grid | `5e-3`, `7e-3`, `9e-3`, `1e-2`, `1.5e-2` |
-| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-512 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3`; MCSD-PGD phase-B sigma2/gap tuning: `15/15`; adaptive gap-probe 1B comparison: `2/2`; width-1024 SSO/MuonBall LR sweep: `8/14` complete |
-| Slurm status | width-512 MuonBall jobs `3751693`-`3751699`, adaptive gap-probe jobs `3756922`-`3756923`, width-1024 MuonBall jobs `3756221`-`3756227`, and width-1024 SSO job `3756214` completed with exit code `0:0`; SSO jobs `3756215`-`3756220` remain `RUNNING` |
+| Jobs completed | width-256 1B sweep: `15/15`; MCSD-PGD 250M tuning: `18/18`; SpEL projection 250M ablation: `9/9`; width-512 1B sweep: `15/15`; width-256 supplemental top-k sweep: `15/15`; width-512 supplemental top-k sweep: `15/15`; plain SpEL / MCSD-TP-PGD projection supplement: `12/12`; width-256 PGD sigma2 supplement: `6/6`; width-256 MuonBall supplement: `7/7`; width-512 MuonBall supplement: `7/7`; width-1024 memory smoke: `3/3`; MCSD-PGD phase-B sigma2/gap tuning: `15/15`; adaptive gap-probe 1B comparison: `2/2`; width-1024 SSO/MuonBall LR sweep: `11/14` complete |
+| Slurm status | width-512 MuonBall jobs `3751693`-`3751699`, adaptive gap-probe jobs `3756922`-`3756923`, width-1024 MuonBall jobs `3756221`-`3756227`, and width-1024 SSO jobs `3756214`-`3756217` completed with exit code `0:0`; SSO jobs `3756218`-`3756220` remain `RUNNING` |
 | Completed tuning jobs | 250M-token plain MCSD-PGD gap-threshold tuning at `width=256`, `LR=1.5e-2`, `shared_topk k=8`: phase-A `sigma2=5` jobs with no direction normalization `3749547`-`3749553`, Frobenius normalization `3749569`-`3749575`, spectral normalization `3749612`-`3749618`; phase-B spectral-normalized sigma2/gap jobs `3750042`-`3750056`; all `COMPLETED`, exit code `0:0` |
 | Selected PGD default | `sigma2_power_iteration_steps=5`, `gap_threshold_rel=1e-3`, `pgd_direction_normalization=spectral`, `pgd_lr_scale=0.5` |
 | Main result table | [Completed Sweep Results](#completed-sweep-results) |
@@ -1229,23 +1229,26 @@ MuonBall completed on 2026-07-12:
 MuonBall is best at `1e-2`; `1.5e-2` is effectively tied. The useful LR range
 is approximately `9e-3` to `1.5e-2`.
 
-SSO job `3756214` (`LR=5e-3`) completed with final val loss `3.246347`, PPL
-`25.69631`, and elapsed time `23:10:10`. Jobs `3756215`-`3756220` are still
-running as of 2026-07-12. Their latest common validation checkpoint is
-iteration 1750:
+SSO jobs `3756214`-`3756217` completed:
+
+| LR | Final val loss | PPL | Elapsed | Job |
+|---:|---:|---:|---:|---:|
+| `5e-3` | `3.246347` | `25.69631` | `23:10:10` | `3756214` |
+| `7e-3` | `3.195720` | `24.42775` | `23:20:11` | `3756215` |
+| `9e-3` | `3.169205` | `23.78856` | `23:17:48` | `3756216` |
+| `1e-2` | `3.163919` | `23.66315` | `23:20:10` | `3756217` |
+
+Jobs `3756218`-`3756220` are still running as of 2026-07-12. Their latest
+common validation checkpoint is iteration 1750:
 
 | LR | Interim val loss | Interim PPL | Job |
 |---:|---:|---:|---:|
-| `5e-3` | `3.241580` | `25.57410` | `3756214` |
-| `7e-3` | `3.194677` | `24.40230` | `3756215` |
-| `9e-3` | `3.171328` | `23.83912` | `3756216` |
-| `1e-2` | `3.165558` | `23.70197` | `3756217` |
 | `1.5e-2` | **`3.157638`** | **`23.51499`** | `3756218` |
 | `2e-2` | `3.175557` | `23.94014` | `3756219` |
 | `3e-2` | `3.235303` | `25.41408` | `3756220` |
 
-These SSO values are not final results. At iteration 1750, the current best LR
-is `1.5e-2`; final optimizer comparisons must wait for iteration 1908.
+These three SSO values are not final results. At iteration 1750, the current
+best LR is `1.5e-2`; final comparisons must wait for iteration 1908.
 
 ## Historical Baseline
 

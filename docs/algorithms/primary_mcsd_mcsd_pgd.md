@@ -163,6 +163,12 @@ rel_gap < 3e-4.
 The MCSD branch computes the same BF16-main-path tangent direction and
 Newton-Schulz `msign` direction described above.
 
+For the locked primary configuration, the MCSD branch stops at
+`D = msign(M_tan)`: `SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN=0`, so it does not
+project `D` onto the tangent plane again. The PGD branch never calls that
+post-msign tangent projection. The later `shared_topk` operation is a
+spectral-sphere projection of the trial weight, not a tangent-plane projection.
+
 The PGD branch starts from the FP32 Nesterov momentum. With spectral direction
 normalization it divides by an estimated leading singular value:
 
