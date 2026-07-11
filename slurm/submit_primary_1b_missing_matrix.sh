@@ -5,6 +5,7 @@ PROJECT_DIR="${PROJECT_DIR:-$HOME/projects/SSO_test}"
 SBATCH_SCRIPT="${SBATCH_SCRIPT:-$PROJECT_DIR/slurm/spel_olmo_1b_h20.sbatch}"
 RUN_ROOT_BASE="${RUN_ROOT_BASE:-$PROJECT_DIR/results/primary_1b_matrix}"
 DRY_RUN="${DRY_RUN:-1}"
+DEPENDENCY="${DEPENDENCY:-}"
 BATCH="${1:-}"
 
 LRS_ALL="5e-3 7e-3 9e-3 1e-2 1.5e-2 2e-2 3e-2"
@@ -42,14 +43,17 @@ run_sbatch() {
   local export_values=$2
   local job_time=$3
   local cpus=$4
-  local command=(
-    sbatch
-    --time="$job_time"
-    --cpus-per-task="$cpus"
-    -J "$job_name"
-    --export="$export_values"
-    "$SBATCH_SCRIPT"
-  )
+  local command=(sbatch)
+  if [[ -n "$DEPENDENCY" ]]; then
+    command+=(--dependency="$DEPENDENCY")
+  fi
+  command+=(
+      --time="$job_time"
+      --cpus-per-task="$cpus"
+      -J "$job_name"
+      --export="$export_values"
+      "$SBATCH_SCRIPT"
+    )
 
   if [[ "$DRY_RUN" == "1" ]]; then
     printf "DRY-RUN"

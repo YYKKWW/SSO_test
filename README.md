@@ -152,6 +152,7 @@ supplementary unless the primary definition is explicitly changed.
 | Document | Purpose |
 |---|---|
 | [docs/README.md](docs/README.md) | Documentation index, naming rules, and where to add new experiment records. |
+| [docs/algorithms/primary_mcsd_mcsd_pgd.md](docs/algorithms/primary_mcsd_mcsd_pgd.md) | Exact primary-matrix MCSD and MCSD-PGD implementation, branch rule, projection, and dtype flow. |
 | [docs/algorithms/mcsd_pgd_block2_fp32.md](docs/algorithms/mcsd_pgd_block2_fp32.md) | Algorithm note for optional MCSD-PGD FP32 gap estimators. |
 | [docs/experiments/width256_sso_mcsd_lr_sweep_1b.md](docs/experiments/width256_sso_mcsd_lr_sweep_1b.md) | Main experiment record. Includes algorithm definitions, dataset source and acquisition, preprocessing, Slurm configuration, completed results, and instructions for adding new optimizers or learning rates. |
 | [docs/runbooks/h20_spel_megatron_runbook.md](docs/runbooks/h20_spel_megatron_runbook.md) | Historical H20 setup and debugging runbook. Useful for understanding earlier environment, Megatron rebase, and data-preparation decisions. |
