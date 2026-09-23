@@ -126,6 +126,24 @@ def git_output(project: Path, *args: str) -> str:
     return subprocess.check_output(["git", "-C", str(project), *args], text=True).strip()
 
 
+def validate_resume(cfg: dict) -> None:
+    """Do not silently mix geometry, data or LR horizons during continuation."""
+    if not cfg["resume"]:
+        return
+    original_path = Path(cfg["resume"]).parent / "resolved_config.json"
+    if not original_path.is_file():
+        raise ValueError("resume needs its original resolved_config.json beside checkpoints")
+    original = json.loads(original_path.read_text())
+    keys = ("protocol_id", "method", "geometry", "model", "numerics", "train_iters",
+            "warmup_iters", "train_prefix", "valid_prefix", "tokenizer", "checkpoint_format")
+    changed = [key for key in keys if cfg[key] != original[key]]
+    for key in ("global_batch", "micro_batch", "seed", "lr", "min_lr_ratio", "aux_lr", "momentum_beta", "nesterov"):
+        if cfg["training"][key] != original["training"][key]:
+            changed.append("training." + key)
+    if changed:
+        raise ValueError("resume protocol mismatch: " + ", ".join(changed))
+
+
 def validate_submission(cfg: dict) -> None:
     project = Path(cfg["project"])
     if git_output(project, "status", "--porcelain"):
@@ -139,6 +157,7 @@ def validate_submission(cfg: dict) -> None:
         raise FileNotFoundError("missing runtime inputs: " + ", ".join(missing))
     if (project / "Megatron-LM/megatron/core/models").is_symlink():
         raise ValueError("model source must be the tracked snapshot, not a mutable symlink")
+    validate_resume(cfg)
 
 
 def main() -> None:

@@ -1,6 +1,7 @@
 """CPU-only launch contract; does not require Slurm or training data."""
 
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -66,3 +67,17 @@ def test_native_spectral_baselines_have_nesterov_by_default():
     cfg = config("--method", "manifold_sso", "--geometry", "spectral")
     assert cfg["training"]["nesterov"] is True
     assert cfg["training"]["momentum_beta"] == .9
+
+
+def test_resume_rejects_changed_method_and_learning_rate(tmp_path):
+    original = config("--stage", "main")
+    (tmp_path / "resolved_config.json").write_text(json.dumps(original))
+    continued = config("--stage", "main", "--resume", str(tmp_path / "checkpoints"))
+    launch.validate_resume(continued)
+    continued["training"]["lr"] *= 2
+    with pytest.raises(ValueError, match="training.lr"):
+        launch.validate_resume(continued)
+    continued["training"]["lr"] = original["training"]["lr"]
+    continued["method"] = "manifold_muonh"
+    with pytest.raises(ValueError, match="method"):
+        launch.validate_resume(continued)

@@ -16,8 +16,8 @@ set -euo pipefail
 module purge
 module load python/3.12.1
 module load cuda/12.4
-ENV_DIR=$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["env_dir"])' "$MANIFOLD_RUN_CONFIG")
-PROJECT_DIR=$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["project"])' "$MANIFOLD_RUN_CONFIG")
+ENV_DIR=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["env_dir"])' "$MANIFOLD_RUN_CONFIG")
+PROJECT_DIR=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["project"])' "$MANIFOLD_RUN_CONFIG")
 source "$ENV_DIR/bin/activate"
 export PYTHONPATH="$PROJECT_DIR/Megatron-LM${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONUNBUFFERED=1
