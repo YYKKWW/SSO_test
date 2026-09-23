@@ -19,8 +19,8 @@
 
 | 目标 | 当前证据 | 尚缺内容 |
 | --- | --- | --- |
-| 复用 Megatron Dense 训练 | Slurm 脚本调用 `pretrain_gpt.py`，没有重写网络训练循环 | 完整 H20 forward/backward、参数同步与恢复检查 |
-| 三种约束的 MCSD/MCSD-TP | `manifold_mcsd.py`、geometry/layout/polar/spectral 模块及本地单元测试 | 三种几何的真实 LM 短训练通过记录 |
+| 复用 Megatron Dense 训练 | H20 已通过实际 forward/backward；单卡恢复后模型、优化器、scheduler、RNG 逐项一致 | 额外 DP 检查与长程稳定性 |
+| 三种约束的 MCSD/MCSD-TP | 全部 10 个方法/约束组合已通过真实 LM 短训练，本地 68 项检查通过 | 真实训练中的近似残差统计和长预算结果 |
 | 50--200M 模型 | width 256/384/512 已接入；H20 实测 width 384 为 126,641,024 参数 | 其他规模的实际训练复核 |
 | 每组使用 3B 数据 | 新入口默认已有 3B 索引；main 为 11445 步，100-step 限制仅用于 smoke | 完整预算的训练曲线和最终评估 |
 | 完整强基线 | SSO、MuonSphere、MuonH、iMuon 的匹配适配已接入 | 正式等预算调参；不能称为各原论文原封不动的配方 |

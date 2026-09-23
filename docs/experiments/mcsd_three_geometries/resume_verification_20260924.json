@@ -1,0 +1,30 @@
+{
+  "resumed": {
+    "iteration": 4,
+    "logical_components": 196,
+    "fp32_master_tensors": 227,
+    "model_tensor_dtypes": [
+      "torch.bfloat16"
+    ],
+    "constrained_weight_decay": 0
+  },
+  "continuous": {
+    "iteration": 4,
+    "logical_components": 196,
+    "fp32_master_tensors": 227,
+    "model_tensor_dtypes": [
+      "torch.bfloat16"
+    ],
+    "constrained_weight_decay": 0
+  },
+  "checked": [
+    "iteration",
+    "model",
+    "optimizer",
+    "opt_param_scheduler",
+    "rng_state"
+  ],
+  "exact_match": true,
+  "mismatch_count": 0,
+  "mismatches": []
+}

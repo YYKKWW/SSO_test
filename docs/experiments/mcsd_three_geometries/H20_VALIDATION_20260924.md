@@ -10,7 +10,8 @@ trains best or give steady-state optimizer overhead.
 - Isolated H20 checkout: `/home/u3013198/projects/SSO_test-three-geometries`.
 - Existing environment and indexed data are reused read-only. The original
   `SSO_test` source and its four active long jobs were not modified/cancelled.
-- Algorithm checks below ran source `9ca16b6`. Recovery fixes are in `92b9ed5`.
+- Algorithm checks below ran source `9ca16b6`. Recovery fixes are in `92b9ed5`;
+  automated GPU verification ran the same kernels under launcher `bd76e91`.
 - No new upstream framework was substituted. Missing model, training-model
   configuration and tokenizer source is now tracked in the experiment branch.
 - At most two extra H20 GPUs were used concurrently, keeping this user's total
@@ -87,10 +88,22 @@ in the **H20 environment's PyTorch 2.6.0**, including exact restored state and
 next-update equality. The private DataLoader generator preserves global CPU
 RNG in that environment. These checks do not replace GPU model-level recovery.
 
-Jobs **4104181** (stop after step 2) and **4104182** (continuous four steps)
-were submitted for the corrected implementation. They were waiting for shared
-H20 capacity at the report's last status check. The corrected GPU resume and
-strict comparison are therefore **pending**, not certified complete.
+The corrected GPU verification **passed**:
+
+| Role | Job | Slurm elapsed | Result |
+| --- | ---: | --- | --- |
+| Save and stop at step 2 | 4104181 | 00:01:05 | Completed |
+| Continuous four-step control | 4104182 | 00:01:41 | Completed |
+| Resume to step 4 and compare | 4104211 | 00:01:31 | Completed, exact match |
+
+Model weights, optimizer state (including all component metadata), scheduler,
+iteration and all saved RNG states have **zero mismatches**. See the actual
+machine-readable [verification result](resume_verification_20260924.json).
+This demonstrates clean-boundary single-GPU recovery in this protocol, not
+mid-step failure recovery or arbitrary changes in world size.
+
+An additional two-GPU Stiefel MCSD-TP smoke, **4104214**, is queued behind the
+successful verifier. Its status is separate from the completed single-GPU gate.
 
 ## Resolved startup failures
 
@@ -104,7 +117,7 @@ strict comparison are therefore **pending**, not certified complete.
 
 ## Remaining gates
 
-- Complete corrected strict checkpoint/resume comparison and a DP>1 smoke.
+- Complete the additional DP>1 smoke; single-GPU strict resume passed.
 - Run longer practical-accuracy/stability pilots, including Stiefel
   orthogonality defect, spectral sphere defect and sampled LMO error.
 - Freeze LR/momentum/precision settings using equal development budgets.

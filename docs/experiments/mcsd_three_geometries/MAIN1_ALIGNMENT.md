@@ -53,6 +53,12 @@ verification of the stated rate or its unbiased-oracle assumptions.
 
 ## Paper evidence gate
 
+Engineering update (2026-09-24): all ten matched method/geometry pairs passed
+single-H20 real-model short runs. Clean-boundary single-GPU resume also passed
+exact model/optimizer/scheduler/RNG comparison. See `H20_VALIDATION_20260924.md`.
+The longer empirical evidence below is still needed; startup checks are not
+optimizer-quality results.
+
 The current `main1.tex` reports stochastic PCA and Brockett experiments on
 Stiefel. It does not contain this three-geometry LLM experiment. Its own
 discussion states that spectral safe-region certification and projection

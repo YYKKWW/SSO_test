@@ -13,7 +13,7 @@ launch support are now implemented. It is
 a plan, not a report of completed language-model experiments.
 
 See [H20 validation](H20_VALIDATION_20260924.md) for actual job IDs and the
-remaining recovery gate, and [environment loading](ENVIRONMENT.md) for the
+exact GPU recovery comparison, and [environment loading](ENVIRONMENT.md) for the
 verified runtime and portable path overrides.
 
 ## Method IDs
@@ -157,7 +157,8 @@ learning rate; constrained matrices receive no weight decay.
 
 Baseline adapters and full-budget launch support are implemented. All ten
 method/constraint pairs passed real-model single-H20 short integration checks.
-Formal comparisons still require corrected strict resume verification,
+Single-GPU model/optimizer/scheduler/RNG recovery passed exact comparison.
+Formal comparisons still require longer stability and precision pilots,
 multiple seeds, validation-only selection, held-out evaluation and measured
 timing. Short smoke losses are not paper results. Do not compare a practical
 variant with an exact reference as if only the algorithmic direction changed.
