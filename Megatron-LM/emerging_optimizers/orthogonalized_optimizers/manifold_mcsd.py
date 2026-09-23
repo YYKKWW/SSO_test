@@ -136,6 +136,27 @@ class ManifoldMCSD(torch.optim.Optimizer):
         self.last_step_stats: dict[str, float | int] = {}
         self._row_indices: dict[torch.Tensor, list[torch.Tensor]] = {}
 
+    def load_state_dict(self, state_dict: dict) -> None:
+        """Restore numeric state and rebuild labels from the validated layout.
+
+        PyTorch 2.6 recursively casts iterable state values, including strings.
+        Keep labels outside that conversion and never reuse stale row caches.
+        """
+        super().load_state_dict(state_dict)
+        self._row_indices.clear()
+        for group in self.param_groups:
+            for param in group["params"]:
+                components = self.state.get(param, {}).get("components")
+                if components is None:
+                    continue
+                specs = getattr(param, "manifold_spec", ())
+                if len(components) != len(specs):
+                    raise ValueError("checkpoint component count does not match model layout")
+                for component, spec in zip(components, specs):
+                    if tuple(component["rows"]) != tuple(spec["rows"]):
+                        raise ValueError("checkpoint component rows do not match model layout")
+                    component["label"] = spec["label"]
+
     def _init_group(self, group: dict, skip_non_grad_params: bool = True) -> None:
         """Initialize states also when Megatron prepares sharded checkpoints."""
         for param in group["params"]:

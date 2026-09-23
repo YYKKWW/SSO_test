@@ -104,6 +104,10 @@ def build_pretraining_data_loader(dataset, consumed_samples):
         extra_kwargs = {"collate_fn": lambda x: x}
     else:
         extra_kwargs = {}
+    if getattr(args, "optimizer", "").startswith("manifold_"):
+        # The indexed GPT dataset is deterministic. Isolate worker base seeds
+        # so recreating its iterator after resume does not advance model RNG.
+        extra_kwargs["generator"] = torch.Generator().manual_seed(args.seed)
     return torch.utils.data.DataLoader(
         dataset,
         batch_sampler=batch_sampler,

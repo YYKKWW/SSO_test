@@ -4,25 +4,15 @@ import copy
 
 import pytest
 import torch
-
 from emerging_optimizers.orthogonalized_optimizers.manifold_geometry import (
-    GeometryFailure,
-    constraint_defect,
-    full_polar_msign,
-    initialize_matrix,
-    partial_polar,
-    return_to_manifold,
-    tangent_project,
-)
+    GeometryFailure, constraint_defect, full_polar_msign, initialize_matrix,
+    partial_polar, return_to_manifold, tangent_project)
 from emerging_optimizers.orthogonalized_optimizers.manifold_layout import (
-    components_for_parameter,
-    validate_layout,
-)
+    components_for_parameter, validate_layout)
 from emerging_optimizers.orthogonalized_optimizers.manifold_mcsd import (
-    ManifoldMCSD,
-    prepare_manifold_model,
-)
-from emerging_optimizers.orthogonalized_optimizers.manifold_polar import polar_express_msign
+    ManifoldMCSD, prepare_manifold_model)
+from emerging_optimizers.orthogonalized_optimizers.manifold_polar import \
+    polar_express_msign
 
 
 @pytest.mark.parametrize("shape", [(5, 3), (3, 5), (4, 4)])
@@ -163,16 +153,34 @@ def test_optimizer_two_steps_and_resume(geometry, method):
         [resumed], lr=0.02, geometry=geometry, method=method, **reference
     )
     resumed_optimizer.load_state_dict(state_before)
+    assert resumed_optimizer.state[resumed]["components"][0]["label"] == "attention.o"
     resumed.grad = gradient.clone()
     resumed_optimizer.step()
     assert resumed_optimizer._row_indices[resumed][0].dtype == torch.long
     assert torch.allclose(resumed, expected, atol=2e-6)
     values = optimizer.state[param]["components"][0]
-    from emerging_optimizers.orthogonalized_optimizers.manifold_geometry import GeometryParameters
+    from emerging_optimizers.orthogonalized_optimizers.manifold_geometry import \
+        GeometryParameters
 
     params = GeometryParameters(geometry, values["radius"], values["scale"])
     assert constraint_defect(param, params) < 2e-6
     assert optimizer.last_step_stats["components"] == 1
+
+
+def test_checkpoint_component_layout_is_validated_and_labels_rebuilt():
+    p = torch.nn.Parameter(torch.eye(2))
+    p.manifold_spec = [dict(label="attention.o", rows=(0, 1), radius=1.0, scale=1.0)]
+    opt = ManifoldMCSD([p], lr=.01, geometry="spectral", method="mcsd_tp")
+    p.grad = torch.zeros_like(p)
+    opt._init_group(opt.param_groups[0])
+    state = copy.deepcopy(opt.state_dict())
+    state["state"][0]["components"][0]["label"] = "legacy-corrupted-label"
+    opt.load_state_dict(state)
+    assert not opt._row_indices
+    assert opt.state[p]["components"][0]["label"] == "attention.o"
+    state["state"][0]["components"][0]["rows"] = (1, 0)
+    with pytest.raises(ValueError, match="rows"):
+        opt.load_state_dict(state)
 
 
 def test_prepared_fp32_initialization_survives_bf16_model_conversion():

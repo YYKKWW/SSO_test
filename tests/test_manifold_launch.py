@@ -20,6 +20,19 @@ def load_module(name):
 launch, run = load_module("launch"), load_module("run")
 
 
+def test_resume_comparison_detects_nested_momentum_and_dtype_changes():
+    import torch
+
+    check = load_module("check_resume")
+    left = {"components": [{"radius": 1.2, "momentum": torch.eye(2)}]}
+    right = {"components": [{"radius": 1.2, "momentum": torch.eye(2)}]}
+    assert not check.differences(left, right)
+    right["components"][0]["momentum"][0, 0] += .1
+    assert check.differences(left, right) == ["root.components[0].momentum: tensor"]
+    right["components"][0]["momentum"] = torch.eye(2).bfloat16()
+    assert check.differences(left, right)
+
+
 def test_framework_models_are_not_ignored_as_weights():
     paths = [
         "Megatron-LM/megatron/core/models/gpt/gpt_model.py",
