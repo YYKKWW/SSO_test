@@ -3273,6 +3273,24 @@ def _add_regularization_args(parser):
         'when using muon. Defaults to adam.',
     )
 
+    group.add_argument(
+        '--manifold-geometry', choices=['frobenius', 'spectral', 'stiefel'],
+        default='frobenius',
+    )
+    group.add_argument('--manifold-momentum-beta', type=float, default=0.95)
+    group.add_argument('--manifold-aux-lr', type=float, default=1e-3)
+    group.add_argument('--manifold-gap-warning', type=float, default=1e-4)
+    group.add_argument('--manifold-lmo-mode', choices=['exact', 'ns'], default='ns')
+    group.add_argument(
+        '--manifold-stiefel-return-mode', choices=['exact', 'ns'], default='ns'
+    )
+    group.add_argument(
+        '--manifold-spectral-solver', choices=['exact', 'pi_topk'], default='pi_topk'
+    )
+    group.add_argument('--manifold-power-steps', type=int, default=10)
+    group.add_argument('--manifold-topk-rank', type=int, default=8)
+    group.add_argument('--manifold-spectral-audit-interval', type=int, default=200)
+
     group.add_argument('--spectral-ball-momentum', type=float, default=0.9, help='Momentum coefficient for Spectral Ball optimizer')
     group.add_argument('--spectral-ball-use-nesterov', action='store_true', default=True, help='Use Nesterov-style momentum in Spectral Ball')
     group.add_argument(
@@ -4049,7 +4067,7 @@ def _add_training_args(parser):
         '--optimizer',
         type=str,
         default='adam',
-        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'muon_ball', 'muon_ball_dist', 'spel', 'spel_dist', 'spel_tp', 'spel_tp_dist', 'spel_pgd', 'spel_pgd_dist', 'lion', 'soap', 'adaptive_muon'],
+        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'muon_ball', 'muon_ball_dist', 'spel', 'spel_dist', 'spel_tp', 'spel_tp_dist', 'spel_pgd', 'spel_pgd_dist', 'manifold_mcsd', 'manifold_mcsd_tp', 'lion', 'soap', 'adaptive_muon'],
         help='Optimizer function. '
         'Note: dist_muon is deprecated; use --optimizer muon '
         'with --use-distributed-optimizer instead.',

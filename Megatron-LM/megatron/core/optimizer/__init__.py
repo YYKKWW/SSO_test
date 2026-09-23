@@ -823,6 +823,22 @@ def _get_megatron_emerging_optimizer(
 
     # Apply optimizer-specific default param overrides (e.g. muon: non-linear -> adam).
     config_overrides.update(_EMERGING_OPTIMIZERS[eopt_name].default_param_overrides)
+    if eopt_name in ('manifold_mcsd', 'manifold_mcsd_tp'):
+        if config.lr is None or config.min_lr is None or config.lr <= 0:
+            raise ValueError('manifold optimizer requires positive lr and explicit min_lr')
+        aux_min_lr = config.manifold_aux_lr * config.min_lr / config.lr
+        config_overrides[ParamKey(
+            predicate=ParamPredicate(
+                name='manifold_aux_lr',
+                fn=lambda p: not bool(getattr(p, 'manifold_spec', None)),
+            )
+        )] = {'max_lr': config.manifold_aux_lr, 'min_lr': aux_min_lr}
+        config_overrides[ParamKey(
+            predicate=ParamPredicate(
+                name='manifold_matrix_no_decay',
+                fn=lambda p: bool(getattr(p, 'manifold_spec', None)),
+            )
+        )] = {'wd_mult': 0.0}
 
     # Build param groups and bucket by (optimizer_name, is_expert_parallel).
     # Layer-wise distributed optimizer handles expert params internally so we skip that split.

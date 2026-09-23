@@ -209,6 +209,17 @@ class OptimizerConfig:
     """Optimizer name (e.g., 'adam', 'sgd', 'muon'). Can be overridden per-parameter group
     via config_overrides to use different optimizers for different parameters."""
 
+    manifold_geometry: str = 'frobenius'
+    manifold_momentum_beta: float = 0.95
+    manifold_aux_lr: float = 1e-3
+    manifold_gap_warning: float = 1e-4
+    manifold_lmo_mode: str = 'ns'
+    manifold_stiefel_return_mode: str = 'ns'
+    manifold_spectral_solver: str = 'pi_topk'
+    manifold_power_steps: int = 10
+    manifold_topk_rank: int = 8
+    manifold_spectral_audit_interval: int = 200
+
     ###############
     # Loss scaling
     ###############

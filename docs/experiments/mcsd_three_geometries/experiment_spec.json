@@ -1,0 +1,340 @@
+{
+  "schema_version": 2,
+  "kind": "implementation_contract_not_an_existing_Megatron_config",
+  "project": "MCSD fixed-architecture three-constraint language-model study",
+  "date": "2026-09-23",
+  "source": {
+    "repository": "https://github.com/YYKKWW/SSO_test",
+    "audited_commit": "d48cfc1da011cce68e94b2552ed095e62eac2df3",
+    "paper_read_only": "main1.tex",
+    "paper_sha256": "0FE624F3A4CF4558DA2032D1D4C286929F1EEA5029FAB075C17B799D6B516BAA"
+  },
+  "workflow": {
+    "proposed_branch": "exp/mcsd-three-geometries",
+    "initial_phase": "implement_and_smoke",
+    "default_launcher_mode": "dry_run",
+    "long_run_gate": [
+      "geometry_tests",
+      "optimizer_integration",
+      "resume_equivalence",
+      "measured_H20_budget"
+    ],
+    "max_planned_gpu_hours": 4000,
+    "reserved_gpu_hours": 1760
+  },
+  "research": {
+    "guide": "RESEARCH_OBJECTIVES.md",
+    "objective": "Test coverage, within-constraint competitiveness, quality-cost tradeoffs, and mechanisms; use evidence to improve algorithms without overwriting the reference definitions.",
+    "hypotheses": ["H1", "H2", "H3", "H4", "H5", "H6"],
+    "primary_endpoint": "Final-checkpoint held-out NLL at equal actual training tokens, compared within each constraint; report every paired seed difference.",
+    "cost_endpoint": "NLL versus synchronized training time and GPU-hours, with evaluation and diagnostic costs disclosed separately.",
+    "development_selection_data": "validation only; never final held-out evaluation",
+    "require_formal_protocol_lock": true,
+    "practical_effect_thresholds": "Set and justify on development evidence before formal evaluation; not a universal fixed threshold.",
+    "mechanism_controls": [
+      "Frobenius: input/output tangent-projection 2x2 with common EMA, LMO, return and scale",
+      "Frobenius: effective-step and actual-angle matching at the same state",
+      "Stiefel: square versus rectangular block tangency and update differences",
+      "Spectral: matched-return controls only in audited smooth local regions",
+      "Separate LMO approximation and return approximation effects"
+    ],
+    "controls_are_additional_to_main_run_matrix": true,
+    "max_structural_candidates_per_iteration": 2,
+    "initial_smoke_max_steps_per_method_or_registered_variant": 100,
+    "initial_scope_includes": [
+      "reference implementation and tests",
+      "evidence-based bug fixes",
+      "mathematically equivalent performance optimization",
+      "separately registered single-factor variant development and short checks",
+      "research diagnosis and next-stage costed commands"
+    ],
+    "structural_change_requires": [
+      "new method and config identifiers",
+      "retained original reference",
+      "explicit equation or order change",
+      "theory applicability statement",
+      "minimal control and rejection criterion",
+      "logged exploratory compute cost"
+    ],
+    "protocol_change_requires": "New protocol version and comparable reruns for affected methods; do not mix with the frozen main table.",
+    "decision_log": "research/algorithm_decisions.md",
+    "theory_alignment": "research/theory_alignment.md",
+    "claim_evidence": "research/claim_evidence.md",
+    "three_geometries_do_not_complete_nonsmooth_mcsd_pgd_validation": true,
+    "must_beat_every_baseline": false
+  },
+  "model": {
+    "family": "Qwen3-style dense decoder, proposed small research configuration",
+    "from_scratch": true,
+    "num_layers": 28,
+    "hidden_size": 384,
+    "ffn_hidden_size": 1152,
+    "num_attention_heads": 6,
+    "num_query_groups": 3,
+    "kv_channels": 64,
+    "normalization": "RMSNorm",
+    "norm_epsilon": 0.000001,
+    "qk_layernorm": true,
+    "activation": "SwiGLU",
+    "position_embedding": "RoPE",
+    "rotary_base": 1000000,
+    "seq_length": 2048,
+    "max_position_embeddings": 2048,
+    "tie_embeddings_and_output": false,
+    "linear_bias": false,
+    "dropout": 0,
+    "tokenizer": "existing OLMo-2-1124-7B tokenizer; record actual revision and vocabulary",
+    "assumed_vocab_for_estimate": 100352,
+    "estimated_matrix_parameters_excluding_norms": 126615552,
+    "estimated_nonembedding_matrix_parameters": 49545216
+  },
+  "data": {
+    "mixture": "reuse existing weighted OLMo-mix protocol",
+    "tokenizer_change": false,
+    "train_manifest": "REQUIRED_ON_TARGET_DEVICE",
+    "validation_manifest": "REQUIRED_ON_TARGET_DEVICE",
+    "final_eval_manifest": "REQUIRED_ON_TARGET_DEVICE",
+    "unique_train_tokens_available": "MEASURE_ON_TARGET_DEVICE",
+    "allow_silent_data_repetition": false,
+    "paired_order_across_methods": true
+  },
+  "modules": {
+    "logical_blocks": [
+      "attention.q",
+      "attention.k",
+      "attention.v",
+      "attention.o",
+      "mlp.gate",
+      "mlp.up",
+      "mlp.down"
+    ],
+    "granularity": "component, not per-head",
+    "excluded": [
+      "token_embedding",
+      "lm_head",
+      "normalization",
+      "bias"
+    ],
+    "explicit_qkv_layout_mapping": true,
+    "split_fc1_gate_up": true,
+    "emit_parameter_manifest": true
+  },
+  "initialization": {
+    "base": "one saved unconstrained Gaussian initialization per seed, using audited existing init",
+    "frobenius": "W0=A; R=||A||F",
+    "spectral": "W0=A; s=||A||op, exact initialization audit",
+    "stiefel": "W0=(||A||F/sqrt(min(shape)))*polar_full(A)",
+    "within_geometry_bitwise_equal": true,
+    "cross_geometry_identical_weights": false,
+    "shared_stiefel_initialization_for_spectral_forbidden": true,
+    "layer_scale": "c=||A||F/sqrt(min(shape)), fixed after initialization"
+  },
+  "training": {
+    "precision": "bf16 forward/backward with fp32 master parameters and fp32 momentum",
+    "global_batch_sequences": 128,
+    "batch_tokens": 262144,
+    "micro_batch_sequences_initial": 4,
+    "gradient_accumulation": "128/(data_parallel_size*micro_batch), must be integer",
+    "tensor_parallel_size": 1,
+    "pipeline_parallel_size": 1,
+    "expert_parallel_size": 1,
+    "distributed_optimizer": false,
+    "schedule": {
+      "kind": "cosine",
+      "warmup_fraction": 0.02,
+      "min_lr_ratio": 0.1,
+      "complete_per_budget": true
+    },
+    "global_grad_clip": 1,
+    "clip_is_empirical_variant": true,
+    "auxiliary_optimizer": {
+      "name": "AdamW",
+      "lr": 0.001,
+      "betas": [
+        0.9,
+        0.95
+      ],
+      "eps": 1e-8,
+      "weight_decay_embedding_and_head": 0.1,
+      "weight_decay_norm_and_bias": 0
+    },
+    "budgets": [
+      {
+        "id": "pilot",
+        "target_tokens": 100000000,
+        "steps": 382,
+        "actual_tokens": 100139008
+      },
+      {
+        "id": "tune",
+        "target_tokens": 1000000000,
+        "steps": 3815,
+        "actual_tokens": 1000079360
+      },
+      {
+        "id": "main",
+        "target_tokens": 3000000000,
+        "steps": 11445,
+        "actual_tokens": 3000238080
+      },
+      {
+        "id": "extended",
+        "target_tokens": 6000000000,
+        "steps": 22889,
+        "actual_tokens": 6000214016
+      }
+    ],
+    "development_seeds": [
+      1234
+    ],
+    "formal_seeds": [
+      2027,
+      2028,
+      2029
+    ]
+  },
+  "mcsd": {
+    "momentum": "current-sample ambient EMA",
+    "beta_initial": 0.95,
+    "nesterov": false,
+    "transport": false,
+    "lmo": "spectral-norm ball, rank-aware partial polar",
+    "post_tp_renormalization": false,
+    "constrained_weight_decay": 0,
+    "step_scale": "alpha_l=eta*c_l",
+    "reference_lmo": "SVD partial polar",
+    "reference_returns": {
+      "frobenius": "exact Frobenius radial projection for both methods",
+      "stiefel": "scaled full polar for both methods",
+      "spectral_mcsd": "exact metric projection via singular-value clipping",
+      "spectral_mcsd_tp": "radial spectral retraction applied to tangent step; exact norm in reference"
+    },
+    "practical_lmo": {
+      "kind": "NS",
+      "coefficient_source": "pin exact coefficient list and source revision before use",
+      "steps": 8,
+      "compute_dtype": "explicitly logged, never inferred from input dtype",
+      "is_exact_lmo_certificate": false
+    },
+    "implicit_return_substitution": false
+  },
+  "spectral_guard": {
+    "relative_gap_warning": 0.001,
+    "relative_gap_stop_when_observed": 0.0001,
+    "known_singularity_action": "record_and_stop_pure_smooth_run",
+    "reuse_svd_for_gap": true,
+    "periodic_gap_audit_interval": 200,
+    "periodic_audit_is_certificate": false,
+    "silent_pgd_switch": false,
+    "legacy_topk_path_label": "Practical-SPEL; empirical approximation, not exact MCSD"
+  },
+  "runs": [
+    {
+      "id": "f_mcsd",
+      "geometry": "frobenius",
+      "algorithm": "mcsd"
+    },
+    {
+      "id": "f_mcsd_tp",
+      "geometry": "frobenius",
+      "algorithm": "mcsd_tp"
+    },
+    {
+      "id": "f_muonh",
+      "geometry": "frobenius",
+      "algorithm": "muon_hyperball_new_baseline"
+    },
+    {
+      "id": "s_mcsd",
+      "geometry": "spectral",
+      "algorithm": "mcsd_exact_return",
+      "long_run_requires_gate": true
+    },
+    {
+      "id": "s_mcsd_tp",
+      "geometry": "spectral",
+      "algorithm": "mcsd_tp_radial_return",
+      "long_run_requires_gate": true
+    },
+    {
+      "id": "s_sso_legacy",
+      "geometry": "spectral",
+      "algorithm": "existing_sso_native"
+    },
+    {
+      "id": "s_muonsphere_legacy",
+      "geometry": "spectral",
+      "algorithm": "existing_muon_ball_native_NOT_MuonH"
+    },
+    {
+      "id": "st_mcsd",
+      "geometry": "stiefel",
+      "algorithm": "mcsd"
+    },
+    {
+      "id": "st_mcsd_tp",
+      "geometry": "stiefel",
+      "algorithm": "mcsd_tp"
+    },
+    {
+      "id": "st_imuon",
+      "geometry": "stiefel",
+      "algorithm": "imuon_common_ambient_ema_adaptation"
+    },
+    {
+      "id": "adamw",
+      "geometry": "unconstrained",
+      "algorithm": "adamw_native"
+    },
+    {
+      "id": "muonw",
+      "geometry": "unconstrained",
+      "algorithm": "muonw_native"
+    }
+  ],
+  "tuning": {
+    "initial_equal_candidates_per_method": 6,
+    "lr_candidates": "3 log-spaced values around a method-specific center, calibrated before final evaluation",
+    "secondary_candidates": "2 values: beta for momentum methods, WD for AdamW/MuonW, explicitly chosen per native baseline",
+    "boundary_expansion": "same extra candidate allowance for every method",
+    "one_billion_selected_config_at_three_billion_label": "budget transfer, unless equal-budget 3B tuning is added",
+    "best_test_selection": false
+  },
+  "evaluation": {
+    "validation_interval_steps": 200,
+    "validation_tokens": "fixed held-out subset, recommended at least 10M when available",
+    "final_eval_tokens": "separate held-out subset, recommended at least 20M when available",
+    "diagnostic_interval_steps": 200,
+    "diagnostic_overhead_separate": true,
+    "required_metrics": [
+      "heldout_nll",
+      "perplexity",
+      "actual_tokens",
+      "elapsed_training_seconds",
+      "evaluation_seconds",
+      "tokens_per_second",
+      "peak_memory",
+      "optimizer_seconds",
+      "constraint_defect",
+      "direction_norm",
+      "step_angle",
+      "spectral_gap_when_audited",
+      "failure_reason"
+    ]
+  },
+  "artifacts": {
+    "checkpoint_optimizer_state": true,
+    "checkpoint_radius_and_scaling": true,
+    "checkpoint_rng_and_data_cursor": true,
+    "checkpoint_scheduler": true,
+    "no_save_optim_forbidden": true,
+    "result_layout": "runs/<architecture_hash>/<geometry>/<algorithm>/<budget>/<seed>/<config_hash>/",
+    "upload_large_data_to_git": false
+  },
+  "notes": [
+    "This JSON must be interpreted by a new launcher/adapter; existing Megatron does not consume this schema.",
+    "No optimizer implementation or H20 run has been performed by creating this contract.",
+    "Fixed architecture means identical graph and dimensions, not identical feasible function class across constraints.",
+    "All three geometries must be implemented and audited; do not hide a failed spectral smooth run or rename a radial heuristic as exact MCSD."
+  ]
+}

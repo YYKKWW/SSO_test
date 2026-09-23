@@ -40,6 +40,7 @@ import dataclasses
 import functools
 import gc
 import inspect
+import json
 import logging
 import math
 import os
@@ -2232,6 +2233,31 @@ def get_model(
     ):
         for model_module in model:
             model_module.cuda(torch.cuda.current_device())
+
+    if args.optimizer in ('manifold_mcsd', 'manifold_mcsd_tp'):
+        if args.init_model_with_meta_device or get_pg_size(pg_collection.tp) != 1:
+            raise ValueError('manifold reference optimizer requires materialized full matrices and TP=1')
+        from emerging_optimizers.orthogonalized_optimizers.manifold_mcsd import (
+            prepare_manifold_model,
+        )
+
+        manifold_manifest = []
+        for model_module in model:
+            manifold_manifest.extend(prepare_manifold_model(
+                model_module,
+                geometry=args.manifold_geometry,
+                hidden_size=args.hidden_size,
+                ffn_hidden_size=args.ffn_hidden_size,
+                num_attention_heads=args.num_attention_heads,
+                num_query_groups=args.num_query_groups,
+                kv_channels=args.kv_channels,
+                initialize=args.load is None,
+                polar_mode=args.manifold_stiefel_return_mode,
+            ))
+        manifest_path = os.environ.get('MCSD_MANIFOLD_MANIFEST_PATH')
+        if manifest_path and get_pg_rank(pg_collection.dp) == 0:
+            with open(manifest_path, 'w', encoding='utf-8') as stream:
+                json.dump(manifold_manifest, stream, indent=2)
 
     # Fp16 conversion.
     if args.fp16 or args.bf16:

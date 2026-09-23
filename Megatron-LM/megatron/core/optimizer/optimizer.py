@@ -128,6 +128,8 @@ def copy_optimizer_param_metadata(destination: torch.Tensor, source: torch.Tenso
         destination.shared = source.shared
     if hasattr(source, GRAD_NORM_GROUP_ATTR):
         setattr(destination, GRAD_NORM_GROUP_ATTR, getattr(source, GRAD_NORM_GROUP_ATTR))
+    if hasattr(source, 'manifold_spec'):
+        destination.manifold_spec = source.manifold_spec
 
 
 class MegatronOptimizer(ABC):
@@ -824,10 +826,17 @@ class Float16OptimizerWithFloat16Params(MixedPrecisionOptimizer):
                         if param.type() in ['torch.cuda.HalfTensor', 'torch.cuda.BFloat16Tensor']:
                             float16_params_this_group.append(param)
                             # Create a copy
-                            main_param = param.detach().clone().float()
+                            manifold_initial = getattr(param, 'manifold_initial_fp32', None)
+                            main_param = (
+                                manifold_initial.detach().clone()
+                                if manifold_initial is not None
+                                else param.detach().clone().float()
+                            )
                             # Copy tensor model parallel attributes.
                             tensor_parallel.copy_tensor_model_parallel_attributes(main_param, param)
                             copy_optimizer_param_metadata(main_param, param)
+                            if manifold_initial is not None:
+                                del param.manifold_initial_fp32
                             # Replace the optimizer params with the new fp32 copy.
                             param_group['params'][i] = main_param
 

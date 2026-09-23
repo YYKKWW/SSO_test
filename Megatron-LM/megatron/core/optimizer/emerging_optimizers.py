@@ -29,15 +29,16 @@ try:
     except ImportError:
         registry = None
 
+    from emerging_optimizers.orthogonalized_optimizers.manifold_mcsd import ManifoldMCSD
+    from emerging_optimizers.orthogonalized_optimizers.muon_ball import MuonBall
     from emerging_optimizers.orthogonalized_optimizers.orthogonalized_optimizer import (
         OrthogonalizedOptimizer,
     )
+    from emerging_optimizers.orthogonalized_optimizers.spectral_ball import SpectralBall
     from emerging_optimizers.orthogonalized_optimizers.spel import SpEL
     from emerging_optimizers.orthogonalized_optimizers.spel_pgd_same_projection import (
         SpELPGDSameProjection,
     )
-    from emerging_optimizers.orthogonalized_optimizers.muon_ball import MuonBall
-    from emerging_optimizers.orthogonalized_optimizers.spectral_ball import SpectralBall
 
     try:
         from emerging_optimizers.orthogonalized_optimizers import AdaptiveMuon
@@ -170,6 +171,10 @@ def _create_emerging_optimizer(config, param_groups, eopt_name, model_chunks, pg
 def _is_nonlinear_or_embedding(param):
     """True for parameters that should NOT use the emerging optimizer."""
     return getattr(param, 'is_embedding_or_output_parameter', False) or len(param.shape) != 2
+
+
+def _is_not_manifold_parameter(param):
+    return not bool(getattr(param, 'manifold_spec', None))
 
 
 def _get_qkv_split_shapes(model_cfg) -> list[int]:
@@ -548,6 +553,30 @@ def _spel_pgd_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str,
     return kwargs
 
 
+def _manifold_config_to_kwargs(config, method: str) -> Dict[str, Any]:
+    return dict(
+        lr=config.lr,
+        geometry=config.manifold_geometry,
+        method=method,
+        momentum_beta=config.manifold_momentum_beta,
+        gap_warning=config.manifold_gap_warning,
+        lmo_mode=config.manifold_lmo_mode,
+        stiefel_return_mode=config.manifold_stiefel_return_mode,
+        spectral_solver=config.manifold_spectral_solver,
+        power_steps=config.manifold_power_steps,
+        topk_rank=config.manifold_topk_rank,
+        spectral_audit_interval=config.manifold_spectral_audit_interval,
+    )
+
+
+def _manifold_mcsd_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any]:
+    return _manifold_config_to_kwargs(config, "mcsd")
+
+
+def _manifold_mcsd_tp_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any]:
+    return _manifold_config_to_kwargs(config, "mcsd_tp")
+
+
 def _default_adam_based_eopt_config_to_kwargs(
     eopt_name, config, model_chunks, pg_collection
 ) -> Dict[str, Any]:
@@ -630,6 +659,30 @@ _EMERGING_OPTIMIZERS.update(
                 ParamKey(
                     predicate=ParamPredicate(
                         name="nonlinear_or_embedding", fn=_is_nonlinear_or_embedding
+                    )
+                ): {'optimizer': 'adam'}
+            },
+        ),
+        "manifold_mcsd": EmergingOptimizerEntry(
+            optimizer_cls=ManifoldMCSD,
+            init_state_fn=_eopt_init_state_fn,
+            config_to_kwargs=_manifold_mcsd_config_to_kwargs,
+            default_param_overrides={
+                ParamKey(
+                    predicate=ParamPredicate(
+                        name="not_manifold_parameter", fn=_is_not_manifold_parameter
+                    )
+                ): {'optimizer': 'adam'}
+            },
+        ),
+        "manifold_mcsd_tp": EmergingOptimizerEntry(
+            optimizer_cls=ManifoldMCSD,
+            init_state_fn=_eopt_init_state_fn,
+            config_to_kwargs=_manifold_mcsd_tp_config_to_kwargs,
+            default_param_overrides={
+                ParamKey(
+                    predicate=ParamPredicate(
+                        name="not_manifold_parameter", fn=_is_not_manifold_parameter
                     )
                 ): {'optimizer': 'adam'}
             },
