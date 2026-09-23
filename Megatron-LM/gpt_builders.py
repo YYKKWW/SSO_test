@@ -1,5 +1,7 @@
 # Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 
+import torch
+
 from megatron.core.models.gpt import GPTModel
 from megatron.core.models.gpt.experimental_attention_variant_module_specs import (
     get_transformer_block_with_experimental_attention_variant_spec,
@@ -85,6 +87,12 @@ def gpt_builder(args, pre_process, post_process, vp_stage=None, config=None, pg_
             config, transformer_layer_spec_for_mtp, use_transformer_engine=use_te, vp_stage=vp_stage
         )
 
+    # Manifold radii and master weights must be initialized before BF16 rounding.
+    # Restore the runtime dtype after construction; Float16Module casts the model
+    # only after prepare_manifold_model has captured the FP32 initialization.
+    runtime_params_dtype = config.params_dtype
+    if args.optimizer.startswith("manifold_"):
+        config.params_dtype = torch.float32
     model = GPTModel(
         config=config,
         transformer_layer_spec=transformer_layer_spec,
@@ -104,6 +112,7 @@ def gpt_builder(args, pre_process, post_process, vp_stage=None, config=None, pg_
         pg_collection=pg_collection,
     )
 
+    config.params_dtype = runtime_params_dtype
     return model
 
 
