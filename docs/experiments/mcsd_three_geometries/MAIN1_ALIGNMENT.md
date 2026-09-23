@@ -71,8 +71,9 @@ Before using an LLM result as a conference claim:
    23.7 tokens per parameter, respectively.
 3. Run geometry-matched strong baselines: MuonH for Frobenius, SSO and
    MuonSphere for spectral, and an explicitly labeled iMuon adaptation for
-   Stiefel. Add AdamW/Muon as application references. These baselines are
-   specified in the handoff but not implemented in this branch.
+   Stiefel. The four matched adapters are now implemented in
+   `manifold_baselines.py`; formal budget-matched evaluations remain to be run.
+   AdamW/Muon application references remain separate from this matched protocol.
 4. Tune on the same development budget and LR grid, freeze the winning
    settings, then evaluate at least three paired seeds per method on held-out
    data. Report means, uncertainty, full trajectories and failures, not only

@@ -77,6 +77,8 @@ def main() -> None:
     args = p.parse_args()
     cfg = json.loads(args.config.read_text())
     project, run_dir = Path(cfg["project"]), Path(cfg["run_dir"])
+    if cfg["resume"] and not (Path(cfg["resume"]) / "latest_checkpointed_iteration.txt").is_file():
+        raise RuntimeError("resume producer did not save a checkpoint; refusing a fresh run")
     mismatches = [name for name, digest in cfg["source_hashes"].items()
                   if not (project / name).is_file() or hashlib.sha256((project / name).read_bytes()).hexdigest() != digest]
     if mismatches:
@@ -106,11 +108,21 @@ def main() -> None:
     print(f"Run: {run_dir}\nActual tokens: {cfg['actual_tokens']}", flush=True)
     start = time.monotonic()
     result = subprocess.run(cmd, cwd=project / "Megatron-LM", check=False)
+    verification = None
+    if result.returncode == 0 and cfg.get("verify_against_run"):
+        checkpoint = Path(f"checkpoints/iter_{cfg['train_iters']:07d}/mp_rank_00/model_optim_rng.pt")
+        verification = subprocess.run([
+            sys.executable, str(project / "scripts/manifold/check_resume.py"),
+            str(run_dir / checkpoint), str(Path(cfg["verify_against_run"]) / checkpoint),
+            "--output", str(run_dir / "resume_verification.json"),
+        ], check=False).returncode
+    exit_code = result.returncode or (verification or 0)
     (run_dir / "completion.json").write_text(json.dumps({
-        "exit_code": result.returncode, "process_seconds": time.monotonic() - start,
-        "note": "Includes startup, indexing, evaluation and checkpoint time; not optimizer-only time.",
+        "exit_code": exit_code, "training_exit_code": result.returncode,
+        "resume_verification_exit_code": verification, "process_seconds": time.monotonic() - start,
+        "note": "Includes startup, indexing, evaluation, checkpoint and optional verification time; not optimizer-only time.",
     }, indent=2) + "\n")
-    raise SystemExit(result.returncode)
+    raise SystemExit(exit_code)
 
 
 if __name__ == "__main__":

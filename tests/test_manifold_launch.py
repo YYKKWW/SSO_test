@@ -106,3 +106,25 @@ def test_resume_rejects_changed_method_and_learning_rate(tmp_path):
     continued["method"] = "manifold_muonh"
     with pytest.raises(ValueError, match="method"):
         launch.validate_resume(continued)
+
+
+def test_deferred_resume_requires_successful_exact_producer(tmp_path):
+    (tmp_path / "job_id.txt").write_text("12345\n")
+    cfg = config("--resume", str(tmp_path / "checkpoints"))
+    with pytest.raises(ValueError, match="exact producer"):
+        launch.validate_checkpoint_dependency(cfg)
+    cfg["dependency"] = "afterany:12345"
+    with pytest.raises(ValueError):
+        launch.validate_checkpoint_dependency(cfg)
+    cfg["dependency"] = "afterok:23456"
+    with pytest.raises(ValueError):
+        launch.validate_checkpoint_dependency(cfg)
+    cfg["dependency"] = "afterok:12345:23456"
+    launch.validate_checkpoint_dependency(cfg)
+
+
+def test_resume_comparison_is_only_enabled_for_controlled_smoke():
+    with pytest.raises(ValueError, match="verification"):
+        config("--verify-against-run", "/tmp/control")
+    cfg = config("--resume", "/tmp/ckpt", "--save-interval", "2", "--verify-against-run", "/tmp/control")
+    assert cfg["verify_against_run"] == str(Path("/tmp/control").resolve())

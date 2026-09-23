@@ -15,6 +15,9 @@ optimizer and experiment repositories. No new model-training framework is used.
 - [Publication plan](docs/experiments/mcsd_three_geometries/EXPERIMENT3_PUBLICATION_PLAN.md):
   hypotheses, fair comparisons and limitations.
 - [Runtime source provenance](docs/experiments/mcsd_three_geometries/RUNTIME_SOURCE.md).
+- [H20 integration verification](docs/experiments/mcsd_three_geometries/H20_VALIDATION_20260924.md):
+  ten successful short method/constraint checks, recovery fixes and remaining gates.
+- [Environment and loading](docs/experiments/mcsd_three_geometries/ENVIRONMENT.md).
 
 ```bash
 # Preview, without submitting or consuming GPUs.

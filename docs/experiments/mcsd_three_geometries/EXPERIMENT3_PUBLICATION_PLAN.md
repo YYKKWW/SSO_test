@@ -1,6 +1,6 @@
 # 实验 3：面向论文投稿的 Dense LM 主实验
 
-更新：2026-09-24。状态：代码与论文审查、待执行方案，不是已完成结果。
+更新：2026-09-24。状态：实现与投稿实验方案，不是已完成的 3B 结果。
 
 本文按作者最新目标整理：复用原有 Megatron 与 OLMo 数据流程，主要在 optimizer
 侧增加三类约束下的 MCSD、MCSD-TP 和对比算法，用 50--200M Dense 模型进行
@@ -9,28 +9,28 @@
 
 论文依据：作者提供的 `main1.tex`，SHA256
 `6c6354c50b0d8b1917446680cf56fdae191ecf2e3218b7167cec553499407ad0`。
-本次未修改论文、未提交长任务、未生成新的训练结果。
+本次未修改论文、未提交长任务。工程短测试不作为方法效果的证据。
 
 ## 1. 审查结论
 
-**项目方向贴合，但目前仍是实验 3 的优化器原型，尚不是可直接提交论文的完整
-3B 对照实验系统。** 小模型实验可以为这篇理论与方法论文提供实用性证据；
+**项目已按“Megatron 优化器实现 + 外层实验调用”的方式接入，尚需完成正式
+3B 对照实验才能形成投稿结果。** 小模型实验可以为这篇理论与方法论文提供实用性证据；
 模型规模本身既不是会议录用门槛，也不能保证录用。
 
 | 目标 | 当前证据 | 尚缺内容 |
 | --- | --- | --- |
 | 复用 Megatron Dense 训练 | Slurm 脚本调用 `pretrain_gpt.py`，没有重写网络训练循环 | 完整 H20 forward/backward、参数同步与恢复检查 |
 | 三种约束的 MCSD/MCSD-TP | `manifold_mcsd.py`、geometry/layout/polar/spectral 模块及本地单元测试 | 三种几何的真实 LM 短训练通过记录 |
-| 50--200M 模型 | 当前配置为约 126.6M 矩阵参数，加归一化参数约 127M | 实例化后的准确参数清单；其他规模尚未接入 launcher |
-| 每组使用 3B 数据 | 原 H20 工程已有 3B 索引；新协议写有 3B 预算 | 新脚本仍默认 1B 数据路径，launcher 仍限制 1--100 steps |
-| 完整强基线 | 老工程有 SSO、MuonSphere | 新实验入口尚未接入；MuonH、iMuon 适配未实现 |
-| 可复现代码包 | 新 optimizer 与训练适配已追踪 | `megatron/core/models` 本地新副本缺失；H20 外部源码依赖需记录 |
+| 50--200M 模型 | width 256/384/512 已接入；H20 实测 width 384 为 126,641,024 参数 | 其他规模的实际训练复核 |
+| 每组使用 3B 数据 | 新入口默认已有 3B 索引；main 为 11445 步，100-step 限制仅用于 smoke | 完整预算的训练曲线和最终评估 |
+| 完整强基线 | SSO、MuonSphere、MuonH、iMuon 的匹配适配已接入 | 正式等预算调参；不能称为各原论文原封不动的配方 |
+| 可复现代码包 | 必要 Megatron model/config/tokenizer 源码已纳入版本控制，提交记录源码哈希 | 完整数据来源与最终环境冻结清单 |
 
-关键源码位置：`scripts/manifold/launch.py` 的步数限制与 method choices；
-`slurm/manifold_dense_h20.sbatch` 的数据默认值与模型参数；
+关键源码位置：`scripts/manifold/launch.py` 的 budget 与 method choices；
+`configs/manifold/dense_lm.json` 的数据预算与模型参数；
 `Megatron-LM/megatron/training/training.py` 的新方法专用初始化钩子。
-现有基线不会自动进入这个共同初始化路径，所以仅增加一个 optimizer 名称
-还不能证明同约束对照已经匹配。
+所有 `manifold_*` 入口均使用共同初始化、逻辑矩阵及辅助 AdamW 路由。
+旧 `spectral_ball_dist` / `muon_ball_dist` 入口不改变，保留历史实验语义。
 
 ## 2. 这组实验应支持什么主张
 
@@ -64,7 +64,7 @@ Algorithm 3 的 closed-set PGD 分支，因此也不能宣称验证了其非光�
 `1e6`，无 bias/dropout，sequence length 2048，untied embedding/head，暂按
 padded vocabulary 100352 计算。它们是研究用 Qwen3-style decoder，不是官方
 预训练模型。上述估计为 `28 * 12*d^2 + 2*100352*d`，不含归一化参数；最终以
-实例化模型清单为准。小/大配置是建议，不是已经实现或运行的配置。
+实例化模型清单为准。小/大配置已实现，但不代表其 3B 训练已完成。
 
 全局 batch 128，每步 `128*2048=262144` tokens。每组 3B 对应 11445 步，
 实际为 3,000,238,080 tokens。约 127M 模型的 tokens/parameter 约 23.7；
@@ -182,14 +182,12 @@ H20 可以直接复用原来存在的 Megatron 源码与环境，不需要每次
 每个运行记录 `module.__file__`、关键文件 SHA、外部源码真实路径、环境版本和
 差异补丁。Git 未追踪不妨碍当场运行，但不足以让别人重建相同实验。
 
-下一轮工程优先级：
+已实现与下一轮工程优先级：
 
-1. 支持受控的现有 Megatron 路径，解决缺少 `core/models` 的可复现依赖接入，
-   不绕过完整性检查、不修改正在运行的旧源码。
-2. 把 smoke/tune/main 的 tokens、数据 prefix、model config 做成实际可执行配置；
-   校验 3B 数据与迭代数，保留安全 dry-run，不再让 100-step 限制充当主训练入口。
-3. 接入 geometry-matched 基线与共同初始化/辅助参数协议，发出实际参数清单。
-4. 完成 H20 短训练与恢复，再生成有资源上限的调参和主实验队列。
+1. 已恢复并追踪运行所需源码；新 H20 独立目录复用旧环境和数据，不修改旧源码。
+2. 已实现 smoke/pilot/tune/main、tokens、数据 prefix、模型配置与安全 dry-run。
+3. 已接入 geometry-matched 基线、共同初始化、辅助参数协议及实际参数清单。
+4. 完成 H20 短训练与恢复核验后，再安排受资源预算约束的调参和主实验队列。
 
 不为此删除旧探索、不改动论文复现冻结库、不把旧不同架构结果合并进新表。
 

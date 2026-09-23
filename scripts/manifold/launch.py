@@ -40,6 +40,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--save-interval", type=int)
     p.add_argument("--eval-iters", type=int)
     p.add_argument("--resume", type=Path, help="restore optimizer, RNG, master weights and scheduler")
+    p.add_argument("--verify-against-run", type=Path, help="single-GPU smoke: compare the resumed final checkpoint to a continuous run")
     p.add_argument("--exit-interval", type=int, help="exit early without shortening the LR horizon")
     home = Path.home()
     p.add_argument("--data-root", default=os.environ.get("DATA_ROOT", str(home / "projects/SSO_test/data/olmo_mix_1124_3b")))
@@ -107,6 +108,11 @@ def resolve_config(args: argparse.Namespace) -> dict:
         raise ValueError("native SSO/MuonSphere kernels require NS")
     if args.exit_interval is not None and args.exit_interval < 1:
         raise ValueError("exit interval must be positive")
+    if args.verify_against_run and (
+        not args.resume or args.stage != "smoke" or args.gpus != 1
+        or not train["save_interval"] or args.exit_interval
+    ):
+        raise ValueError("resume verification requires single-GPU smoke, checkpoints and no early exit")
     data_root = Path(args.data_root).expanduser().resolve()
     cfg.update(
         project=str(project), stage=args.stage, geometry=args.geometry, method=args.method,
@@ -117,6 +123,8 @@ def resolve_config(args: argparse.Namespace) -> dict:
         tokenizer=str(Path(args.tokenizer).expanduser().resolve()),
         env_dir=str(Path(args.env_dir).expanduser().resolve()),
         resume=str(args.resume.expanduser().resolve()) if args.resume else None,
+        verify_against_run=str(args.verify_against_run.expanduser().resolve()) if args.verify_against_run else None,
+        dependency=args.dependency,
         exit_interval=args.exit_interval, checkpoint_format="torch",
     )
     return cfg
@@ -144,20 +152,33 @@ def validate_resume(cfg: dict) -> None:
         raise ValueError("resume protocol mismatch: " + ", ".join(changed))
 
 
+def validate_checkpoint_dependency(cfg: dict) -> None:
+    """Allow a queued parent only when afterok names that exact producer job."""
+    if not cfg["resume"] or (Path(cfg["resume"]) / "latest_checkpointed_iteration.txt").is_file():
+        return
+    producer = Path(cfg["resume"]).parent / "job_id.txt"
+    dependencies = (cfg.get("dependency") or "").split(":")
+    if not producer.is_file() or dependencies[0] != "afterok" or producer.read_text().strip() not in dependencies[1:]:
+        raise ValueError("missing checkpoint: use afterok dependency on its exact producer job")
+
+
 def validate_submission(cfg: dict) -> None:
     project = Path(cfg["project"])
     if git_output(project, "status", "--porcelain"):
         raise ValueError("commit the experiment worktree before submission")
     required = [project / "Megatron-LM/megatron/core/models/gpt/gpt_model.py", Path(cfg["tokenizer"]), Path(cfg["env_dir"]) / "bin/python"]
     required += [Path(cfg[key] + suffix) for key in ("train_prefix", "valid_prefix") for suffix in (".bin", ".idx")]
-    if cfg["resume"]:
-        required.append(Path(cfg["resume"]) / "latest_checkpointed_iteration.txt")
     missing = [str(path) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError("missing runtime inputs: " + ", ".join(missing))
     if (project / "Megatron-LM/megatron/core/models").is_symlink():
         raise ValueError("model source must be the tracked snapshot, not a mutable symlink")
     validate_resume(cfg)
+    validate_checkpoint_dependency(cfg)
+    if cfg["verify_against_run"]:
+        comparison = dict(cfg, resume=str(Path(cfg["verify_against_run"]) / "checkpoints"))
+        validate_resume(comparison)
+        validate_checkpoint_dependency(comparison)
 
 
 def main() -> None:

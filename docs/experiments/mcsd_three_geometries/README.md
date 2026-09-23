@@ -8,8 +8,13 @@ the initial research contract. `PROTOCOL_DELTA.md` records later decisions.
 publication-oriented plan: reuse Megatron, compare the two methods and matched
 baselines on three constraints, and use a roughly 127M dense model with 3B
 tokens per main run. It distinguishes implemented components from missing
-baseline integration, full-budget launch support, and H20 validation. It is
+formal evaluations and H20 validation. Baseline integration and full-budget
+launch support are now implemented. It is
 a plan, not a report of completed language-model experiments.
+
+See [H20 validation](H20_VALIDATION_20260924.md) for actual job IDs and the
+remaining recovery gate, and [environment loading](ENVIRONMENT.md) for the
+verified runtime and portable path overrides.
 
 ## Method IDs
 
@@ -29,7 +34,7 @@ top singular value the chosen rank-one normal has no unique smooth-stratum
 tangent interpretation, so such a run is empirical rather than a direct
 validation of the smooth-region theorem.
 For the practical spectral mode, exact gap and constraint checks are audits
-every 200 component updates by default (every 20 in the H20 smoke script),
+every 200 component updates by default (`--audit-interval 20` for denser checks),
 not per-step decisions; events between audits may be missed.
 The same interval staggers LMO feasibility and return-defect audits across
 logical components. The reported LMO ball excess and model error are measured
@@ -118,15 +123,31 @@ geometry, method, radii, data or schedule. Runtime records distinguish early
 exit from full horizon using the training logs; a zero exit code alone is not
 proof that all target tokens were processed.
 
+If the checkpoint producer is still queued, a resume may be submitted with
+`--dependency afterok:<producer-job-id>`; the launcher checks that this is the
+exact job owning the source run. It refuses to silently start afresh when the
+checkpoint is missing on the compute node. For a single-GPU smoke add
+`--verify-against-run /path/to/continuous-run` and depend on both producer and
+control jobs (`afterok:<producer>:<control>`). This writes
+`resume_verification.json` and fails the job if the model, optimizer, schedule
+or RNG states differ. It is not a speed or final-quality comparison.
+
 Each submission writes a new `results/manifold/<run-id>/` with configuration,
 source hashes, command, module provenance, parameter layout, runtime and exit
 status. Slurm stdout/stderr are in `logs/`. Keep logs and configs even if
 checkpoint storage must later be reduced. No training data or checkpoints
 belong in Git.
 
+The launcher submits one job but does not enforce an account-wide GPU cap.
+Check existing use before submission and use `--dependency afterok:<job-id>`
+to serialize runs. Keep total concurrent use within the agreed 4--6 H20 GPUs
+(absolute maximum eight), leaving public capacity available. Checkpoints are
+not pruned automatically; budget disk space before starting parallel 3B runs.
+
 ## Reproducibility boundaries
 
-The model is a 28-layer, width-384, FFN-1152 decoder with 6 query heads,
+The model has 126,641,024 trainable parameters as instantiated on H20. It is
+a 28-layer, width-384, FFN-1152 decoder with 6 query heads,
 3 KV groups, head dimension 64, sequence length 2048, SwiGLU, QK norm,
 RMSNorm and RoPE. Each transformer block is split into logical Q/K/V/O and
 gate/up/down matrices. The optimizer stores a fixed radius and shape scale
@@ -134,8 +155,9 @@ per logical component, with FP32 master weights and momentum. The forward
 model remains BF16. Auxiliary parameters are routed to AdamW with their own
 learning rate; constrained matrices receive no weight decay.
 
-Baseline adapters and full-budget launch support are implemented. Formal
-comparisons still require completed real H20 integration/resume checks,
+Baseline adapters and full-budget launch support are implemented. All ten
+method/constraint pairs passed real-model single-H20 short integration checks.
+Formal comparisons still require corrected strict resume verification,
 multiple seeds, validation-only selection, held-out evaluation and measured
 timing. Short smoke losses are not paper results. Do not compare a practical
 variant with an exact reference as if only the algorithmic direction changed.
