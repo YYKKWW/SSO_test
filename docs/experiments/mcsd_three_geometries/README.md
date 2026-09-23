@@ -24,6 +24,11 @@ validation of the smooth-region theorem.
 For the practical spectral mode, exact gap and constraint checks are audits
 every 200 component updates by default (every 20 in the H20 smoke script),
 not per-step decisions; events between audits may be missed.
+The same interval staggers LMO feasibility and return-defect audits across
+logical components. The reported LMO ball excess and model error are measured
+before MCSD-TP projects the direction for the second time. Exact spectral
+returns cache the chosen top normal for the next step, avoiding a repeated
+SVD of the current master matrix after the first step.
 
 ## Local checks
 
@@ -54,6 +59,11 @@ seeds, validation-only selection, final held-out evaluation, full timing,
 checkpoint-resume checks on H20, and per-step constraint audits at a stated
 frequency. Do not compare a practical variant with an exact reference as if
 only the algorithmic direction changed.
+
+`MAIN1_ALIGNMENT.md` compares this implementation with the current paper and
+lists the evidence still needed before using the new study as a publication
+result. The paper's current experiment section contains Stiefel PCA/Brockett
+tests, not this LLM study.
 
 Primary implementation references:
 [Polar Express msign](https://github.com/thinking-machines-lab/manifolds/blob/main/src/msign.py),

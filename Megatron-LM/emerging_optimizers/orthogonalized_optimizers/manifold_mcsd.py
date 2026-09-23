@@ -6,6 +6,7 @@ Auxiliary parameters belong to a separate AdamW optimizer.
 """
 
 import logging
+import math
 from typing import Iterable, Literal
 
 import torch
@@ -83,7 +84,7 @@ def prepare_manifold_model(
 
 
 class ManifoldMCSD(torch.optim.Optimizer):
-    """Current-sample ambient EMA with exact partial-polar LMO and return."""
+    """Current-sample ambient EMA with selectable polar LMO and return."""
 
     def __init__(
         self,
@@ -133,6 +134,7 @@ class ManifoldMCSD(torch.optim.Optimizer):
         )
         super().__init__(params, defaults)
         self.last_step_stats: dict[str, float | int] = {}
+        self._row_indices: dict[torch.Tensor, list[torch.Tensor]] = {}
 
     def _init_group(self, group: dict, skip_non_grad_params: bool = True) -> None:
         """Initialize states also when Megatron prepares sharded checkpoints."""
@@ -141,6 +143,11 @@ class ManifoldMCSD(torch.optim.Optimizer):
                 continue
             state = self.state[param]
             if "components" in state:
+                if param not in self._row_indices:
+                    self._row_indices[param] = [
+                        torch.tensor(component["rows"], dtype=torch.long, device=param.device)
+                        for component in state["components"]
+                    ]
                 continue
             specs = getattr(param, "manifold_spec", None)
             if not specs:
@@ -160,6 +167,10 @@ class ManifoldMCSD(torch.optim.Optimizer):
                 }
                 components.append(component)
             state["components"] = components
+            self._row_indices[param] = [
+                torch.tensor(component["rows"], dtype=torch.long, device=param.device)
+                for component in components
+            ]
 
     @torch.no_grad()
     def step(self, closure=None):
@@ -173,6 +184,9 @@ class ManifoldMCSD(torch.optim.Optimizer):
         min_gap = float("inf")
         audited = 0
         defect_measured = 0
+        lmo_audits = 0
+        max_lmo_ball_excess = 0.0
+        max_lmo_model_error = 0.0
         max_update_count = 0
         for group in self.param_groups:
             if group.get("wd_mult", 0.0) != 0 or group.get("weight_decay", 0.0) != 0:
@@ -184,14 +198,17 @@ class ManifoldMCSD(torch.optim.Optimizer):
                 if param.dtype != torch.float32 or param.ndim != 2:
                     raise ValueError("ManifoldMCSD requires FP32 master matrices")
                 grad = param.grad.detach().float()
-                for component in self.state[param]["components"]:
-                    rows = torch.tensor(component["rows"], device=param.device)
+                for component_index, component in enumerate(self.state[param]["components"]):
+                    should_audit = (
+                        component["update_count"] + decisions + 1
+                    ) % group["spectral_audit_interval"] == 0
+                    rows = self._row_indices[param][component_index]
                     w = param.data.index_select(0, rows)
                     g = grad.index_select(0, rows)
                     values = GeometryParameters(
                         group["geometry"], component["radius"], component["scale"]
                     )
-                    if not torch.isfinite(torch.tensor((values.radius, values.scale))).all():
+                    if not math.isfinite(values.radius) or not math.isfinite(values.scale):
                         raise ValueError("missing initialized radii; load optimizer checkpoint")
                     momentum = component["momentum"]
                     momentum.mul_(group["momentum_beta"]).add_(
@@ -206,7 +223,9 @@ class ManifoldMCSD(torch.optim.Optimizer):
                             _, u, v = leading_triplet(w, steps=group["power_steps"])
                             normal = torch.outer(u, v)
                         else:
-                            normal = spectral_tangent_normal(w)
+                            normal = component.get("spectral_normal")
+                            if normal is None:
+                                normal = spectral_tangent_normal(w)
 
                         def project_spectral(vector):
                             return vector - torch.sum(normal * vector) * normal
@@ -219,6 +238,13 @@ class ManifoldMCSD(torch.optim.Optimizer):
                         if group["lmo_mode"] == "exact"
                         else polar_express_msign(q)
                     )
+                    if should_audit:
+                        direction_norm = torch.linalg.matrix_norm(direction, ord=2).item()
+                        nuclear_norm = torch.linalg.svdvals(q).sum().item()
+                        model_error = torch.sum(q * direction).item() + nuclear_norm
+                        max_lmo_ball_excess = max(max_lmo_ball_excess, direction_norm - 1.0)
+                        max_lmo_model_error = max(max_lmo_model_error, model_error)
+                        lmo_audits += 1
                     if group["method"] == "mcsd_tp":
                         direction = (
                             project_spectral(direction)
@@ -248,13 +274,13 @@ class ManifoldMCSD(torch.optim.Optimizer):
                             gap_stop=group["gap_warning"],
                             polar_mode=group["stiefel_return_mode"],
                         )
+                        if group["geometry"] == "spectral":
+                            component["spectral_normal"] = info.returned_top_normal
                     param.data.index_copy_(0, rows, updated)
                     component["update_count"] += 1
                     max_update_count = max(max_update_count, component["update_count"])
                     decisions += 1
-                    if use_spectral_pi and (
-                        component["update_count"] % group["spectral_audit_interval"] == 0
-                    ):
+                    if use_spectral_pi and should_audit:
                         sigma = torch.linalg.svdvals(updated)
                         measured_gap = (1.0 - sigma[1] / sigma[0]).item()
                         min_gap = min(min_gap, measured_gap)
@@ -264,7 +290,7 @@ class ManifoldMCSD(torch.optim.Optimizer):
                         )
                         audited += 1
                         defect_measured += 1
-                    elif not use_spectral_pi:
+                    elif should_audit:
                         max_defect = max(max_defect, constraint_defect(updated, values))
                         defect_measured += 1
                     if info is not None and info.returned_relative_gap is not None:
@@ -275,11 +301,14 @@ class ManifoldMCSD(torch.optim.Optimizer):
             "components": decisions,
             "spectral_near_tie": warnings,
             "spectral_gap_audits": audited,
+            "lmo_audits": lmo_audits,
+            "maximum_lmo_ball_excess": max_lmo_ball_excess if lmo_audits else float("nan"),
+            "maximum_lmo_model_error": max_lmo_model_error if lmo_audits else float("nan"),
             "minimum_relative_gap": min_gap if min_gap != float("inf") else float("nan"),
             "maximum_constraint_defect": max_defect if defect_measured else float("nan"),
         }
-        if audited and (
+        if (lmo_audits or audited) and max_update_count % 50 == 0 and (
             not torch.distributed.is_initialized() or torch.distributed.get_rank() == 0
         ):
-            logger.info("manifold spectral audit: %s", self.last_step_stats)
+            logger.info("manifold numerical audit: %s", self.last_step_stats)
         return loss

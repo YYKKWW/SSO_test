@@ -39,6 +39,7 @@ class ReturnInfo:
 
     trial_sigma_min: float | None = None
     returned_relative_gap: float | None = None
+    returned_top_normal: torch.Tensor | None = None
     top_gap_below_warning: bool = False
     return_approximate: bool = False
 
@@ -198,7 +199,9 @@ def return_to_manifold(
         else:
             raise ValueError(f"unknown spectral return: {mode}")
         return returned, ReturnInfo(
-            returned_relative_gap=gap, top_gap_below_warning=gap <= gap_stop
+            returned_relative_gap=gap,
+            returned_top_normal=torch.outer(u[:, 0], vh[0, :]),
+            top_gap_below_warning=gap <= gap_stop,
         )
     raise ValueError(f"unknown geometry: {params.name}")
 
