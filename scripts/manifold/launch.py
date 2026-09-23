@@ -17,8 +17,23 @@ def build_submission(args: argparse.Namespace) -> tuple[list[str], dict[str, str
         raise ValueError("first-phase smoke runs must have 1-100 optimizer steps")
     if args.gpus < 1 or args.gpus > 8 or 128 % (args.gpus * 4):
         raise ValueError("GPU count must be 1, 2, 4, or 8 for batch 128/micro 4")
+    source_commit = subprocess.run(
+        ["git", "-C", str(project), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    dirty = subprocess.run(
+        ["git", "-C", str(project), "status", "--porcelain"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    if dirty:
+        raise ValueError("commit the experiment worktree before submitting a smoke run")
     settings = {
         "PROJECT_DIR": str(project),
+        "SOURCE_COMMIT": source_commit,
         "GEOMETRY": args.geometry,
         "OPTIMIZER": args.method,
         "LMO_MODE": args.lmo_mode,

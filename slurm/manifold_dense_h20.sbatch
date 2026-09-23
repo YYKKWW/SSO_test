@@ -63,8 +63,12 @@ export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-12}"
 export MCSD_MANIFOLD_MANIFEST_PATH="$RUN_DIR/parameter_manifest.json"
 
 cd "$MEGATRON_PATH"
-git rev-parse HEAD > "$RUN_DIR/source_commit.txt"
-git status --short > "$RUN_DIR/source_dirty.txt"
+[[ -n "${SOURCE_COMMIT:-}" ]] || {
+  echo "SOURCE_COMMIT is required; submit with scripts/manifold/launch.py" >&2
+  exit 2
+}
+printf '%s\n' "$SOURCE_COMMIT" > "$RUN_DIR/source_commit.txt"
+printf 'clean at submission (checked by launch.py)\n' > "$RUN_DIR/source_dirty.txt"
 python -c 'import torch; print(torch.__version__, torch.version.cuda, torch.cuda.get_device_name(0))' \
   > "$RUN_DIR/runtime.txt"
 
