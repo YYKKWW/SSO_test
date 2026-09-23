@@ -823,7 +823,7 @@ def _get_megatron_emerging_optimizer(
 
     # Apply optimizer-specific default param overrides (e.g. muon: non-linear -> adam).
     config_overrides.update(_EMERGING_OPTIMIZERS[eopt_name].default_param_overrides)
-    if eopt_name in ('manifold_mcsd', 'manifold_mcsd_tp'):
+    if eopt_name.startswith('manifold_'):
         if config.lr is None or config.min_lr is None or config.lr <= 0:
             raise ValueError('manifold optimizer requires positive lr and explicit min_lr')
         aux_min_lr = config.manifold_aux_lr * config.min_lr / config.lr

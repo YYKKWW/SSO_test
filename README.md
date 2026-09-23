@@ -1,4 +1,31 @@
-# SSO Test Experiments
+# MCSD Dense LM Experiments
+
+## Active Branch: Three-Geometry Experiment 3
+
+On `exp/mcsd-three-geometries`, the current study reuses Megatron's Dense LM
+training and OLMo-Mix data pipeline. Optimizers live in
+`Megatron-LM/emerging_optimizers/orthogonalized_optimizers/`; outer configs and
+scripts launch them, following the separation used by the upstream SSO
+optimizer and experiment repositories. No new model-training framework is used.
+
+- [Experiment 3 guide](docs/experiments/mcsd_three_geometries/README.md): methods,
+  geometry-matched baseline adaptations, environment, launch and resume.
+- [Model and training defaults](configs/manifold/dense_lm.json): approximately
+  127M Dense, 3B processed tokens per main run; optional widths 256/512.
+- [Publication plan](docs/experiments/mcsd_three_geometries/EXPERIMENT3_PUBLICATION_PLAN.md):
+  hypotheses, fair comparisons and limitations.
+- [Runtime source provenance](docs/experiments/mcsd_three_geometries/RUNTIME_SOURCE.md).
+
+```bash
+# Preview, without submitting or consuming GPUs.
+python scripts/manifold/launch.py --geometry stiefel --method manifold_mcsd_tp --stage main
+```
+
+The old experiment results below are retained as historical evidence. They do
+not measure the new geometry-matched 3B protocol. The original exploration
+checkout and the separately frozen paper reproduction repository are unchanged.
+
+## Historical SSO Test Experiments
 
 This repository manages one experiment track for a paper project on SSO-style optimizers in Megatron-LM. It keeps the runnable Slurm scripts, data-preparation utilities, experiment notes, and completed result summaries needed to reproduce and extend the current width-scaling study.
 

@@ -7,6 +7,9 @@ venv/
 .ipynb_checkpoints/
 data/
 models/
+!Megatron-LM/megatron/core/models/
+!Megatron-LM/megatron/core/models/**/
+!Megatron-LM/megatron/core/models/**/*.py
 results/
 outputs/
 wandb/

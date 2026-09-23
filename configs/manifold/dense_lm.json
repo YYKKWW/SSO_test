@@ -1,0 +1,7 @@
+{
+  "protocol_id": "dense-three-geometries-v3-practical",
+  "model": {"num_layers": 28, "hidden_size": 384, "ffn_hidden_size": 1152, "num_attention_heads": 6, "num_query_groups": 3, "kv_channels": 64, "seq_length": 2048},
+  "training": {"global_batch": 128, "micro_batch": 4, "seed": 1234, "lr": 0.01, "min_lr_ratio": 0.1, "warmup_fraction": 0.02, "aux_lr": 0.001, "eval_interval": 200, "eval_iters": 40, "save_interval": 2000},
+  "budgets": {"pilot": 100000000, "tune": 1000000000, "main": 3000000000},
+  "numerics": {"lmo_mode": "ns", "stiefel_return_mode": "ns", "spectral_solver": "pi_topk", "power_steps": 10, "topk_rank": 8, "audit_interval": 200, "baseline_msign_steps": 8, "baseline_solver_tolerance": 0.0002, "baseline_solver_iterations": 20}
+}

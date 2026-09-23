@@ -11,6 +11,7 @@ To add a new emerging optimizer:
 import inspect
 import logging
 from dataclasses import dataclass, field
+from functools import partial
 from typing import Any, Callable, Dict, Literal, Optional, get_args
 
 import torch
@@ -29,6 +30,7 @@ try:
     except ImportError:
         registry = None
 
+    from emerging_optimizers.orthogonalized_optimizers.manifold_baselines import ManifoldBaseline
     from emerging_optimizers.orthogonalized_optimizers.manifold_mcsd import ManifoldMCSD
     from emerging_optimizers.orthogonalized_optimizers.muon_ball import MuonBall
     from emerging_optimizers.orthogonalized_optimizers.orthogonalized_optimizer import (
@@ -82,6 +84,8 @@ except ImportError:
     SpEL = object
     MuonBall = object
     SpectralBall = object
+    ManifoldMCSD = object
+    ManifoldBaseline = object
 
 
 logger = logging.getLogger(__name__)
@@ -577,6 +581,18 @@ def _manifold_mcsd_tp_config_to_kwargs(config, model_chunks, pg_collection) -> D
     return _manifold_config_to_kwargs(config, "mcsd_tp")
 
 
+def _manifold_baseline_config_to_kwargs(config, model_chunks, pg_collection, *, baseline) -> Dict[str, Any]:
+    kwargs = _manifold_config_to_kwargs(config, "mcsd")
+    kwargs.update(
+        baseline=baseline,
+        use_nesterov=config.manifold_baseline_nesterov,
+        msign_steps=config.manifold_baseline_msign_steps,
+        solver_tolerance=config.manifold_baseline_solver_tolerance,
+        solver_iterations=config.manifold_baseline_solver_iterations,
+    )
+    return kwargs
+
+
 def _default_adam_based_eopt_config_to_kwargs(
     eopt_name, config, model_chunks, pg_collection
 ) -> Dict[str, Any]:
@@ -701,6 +717,17 @@ _EMERGING_OPTIMIZERS.update(
         ),
     }
 )
+
+for _baseline in ("muonh", "imuon", "sso", "muonsphere"):
+    _EMERGING_OPTIMIZERS[f"manifold_{_baseline}"] = EmergingOptimizerEntry(
+        optimizer_cls=ManifoldBaseline,
+        config_to_kwargs=partial(_manifold_baseline_config_to_kwargs, baseline=_baseline),
+        default_param_overrides={
+            ParamKey(predicate=ParamPredicate(
+                name="not_manifold_parameter", fn=_is_not_manifold_parameter
+            )): {'optimizer': 'adam'}
+        },
+    )
 
 # Register soap with default config
 # TODO(skyw): register all emerging optimizers.

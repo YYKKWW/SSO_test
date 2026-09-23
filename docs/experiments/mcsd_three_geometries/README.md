@@ -4,6 +4,13 @@ This branch implements a fixed-width dense decoder experiment based on the
 handoff in this directory. The original four files are retained verbatim as
 the initial research contract. `PROTOCOL_DELTA.md` records later decisions.
 
+`EXPERIMENT3_PUBLICATION_PLAN.md` records the 2026-09-24 scope audit and
+publication-oriented plan: reuse Megatron, compare the two methods and matched
+baselines on three constraints, and use a roughly 127M dense model with 3B
+tokens per main run. It distinguishes implemented components from missing
+baseline integration, full-budget launch support, and H20 validation. It is
+a plan, not a report of completed language-model experiments.
+
 ## Method IDs
 
 | Geometry | Optimizer | Main direction | Return |
@@ -33,15 +40,89 @@ SVD of the current master matrix after the first step.
 ## Local checks
 
 ```bash
-PYTHONPATH=Megatron-LM python -m pytest tests/test_manifold_mcsd.py -q
+PYTHONPATH=Megatron-LM python -m pytest tests/test_manifold_mcsd.py tests/test_manifold_baselines.py tests/test_manifold_launch.py -q
 python scripts/manifold/launch.py --geometry frobenius --method manifold_mcsd_tp
 ```
 
-The launcher prints its resolved Slurm command by default. `--submit` must be
-given explicitly. The first-phase launcher limits runs to 100 optimizer steps.
-The job script expects indexed OLMo-Mix data and an existing H20 environment;
-its paths can be overridden through environment variables without editing the
-tracked script. It writes a new run directory keyed by the Slurm job ID.
+The launcher prints the resolved configuration by default; only `--submit`
+consumes cluster resources. It submits one job, not a full sweep. The smoke
+stage is limited to 100 steps; pilot/tune/main budgets are 100M/1B/3B tokens.
+All stages default to the existing **3B** dataset, not repeats of the old 1B
+sample. At sequence 2048 and global batch 128, main training uses 11445 steps
+and 3,000,238,080 processed tokens. Verify the indexed corpus's actual unique
+tokens and split provenance before publishing a claim about distinct tokens.
+
+## Matched baseline adapters
+
+| Optimizer ID | Geometry | Direction and return |
+| --- | --- | --- |
+| `manifold_muonh` | Frobenius | Hyperball equation: normalize the Muon direction in Frobenius norm, trial step `lr * R`, radial normalization |
+| `manifold_imuon` | Stiefel | Separate vertical/horizontal polar directions, common ambient EMA, scaled polar return |
+| `manifold_sso` | spectral | Calls vendored SSO PI/hard pre-return/bisection/NS kernel |
+| `manifold_muonsphere` | spectral | Calls vendored MuonBall PI/hard pre-return/NS kernel, without bisection |
+
+These adapters use the same logical matrices, initialized radii and auxiliary
+AdamW routing as MCSD/TP. They are explicitly matched **adaptations**, not the
+original papers' complete recipes. Spectral baselines preserve upstream
+pre-return then update order; no additional post-step projection is hidden.
+Their fixed step scale is the common `c_l`, not the legacy native shape scaler.
+SSO/MuonSphere use native BF16 NS8/PI10 and SSO tolerance `2e-4`, maximum 20
+bisections. MuonH uses the common Polar Express implementation. Default beta
+is 0.9 with Nesterov for MuonH/SSO/MuonSphere; MCSD/TP and iMuon use beta 0.95
+without Nesterov. These are configurable and must be included in fair tuning.
+
+iMuon uses `K=skew(Q.T M)`, `H=(I-Q Q.T)M`, and direction
+`-Q partial_polar(K)-partial_polar(H)` for `Q=W/R`, with row-Stiefel handled by
+transposing wide matrices. Numerically negligible blocks are zeroed at
+`8 * eps(FP32) * ||M||F`; square matrices have zero horizontal block. This
+FP32 guard and finite-step polar are disclosed practical adaptations.
+
+## H20 environment and usage
+
+Reuse the original environment: Python 3.12.1 module, CUDA 12.4 module, and
+`$HOME/envs/sso_h20`. Do not recreate or upgrade the environment of active old
+jobs. The new checkout has the model source snapshot that was missing from Git;
+no new upstream checkout is required on each invocation. See `RUNTIME_SOURCE.md`.
+
+Paths may be set via `--data-root`, `--train-prefix`, `--valid-prefix`,
+`--tokenizer`, `--env-dir` (or the documented environment defaults in launch.py).
+The model and optimizer module paths are verified on the compute node to catch
+accidental imports from another checkout. Submission records all relevant
+tracked source hashes, and execution fails if those sources changed in queue.
+
+```bash
+# Start with a real-model short check on one H20.
+python scripts/manifold/launch.py --geometry frobenius --method manifold_mcsd_tp --steps 4 --time-limit 00:45:00 --submit
+
+# Full 3B run, after validation and parameter selection.
+python scripts/manifold/launch.py --geometry stiefel --method manifold_mcsd_tp --stage main --lr 1e-2 --seed 2027 --submit
+
+# Same model/data protocol for the spectral baseline.
+python scripts/manifold/launch.py --geometry spectral --method manifold_muonsphere --stage main --lr 1e-2 --seed 2027 --submit
+
+# Inspect a smaller/larger model without consuming GPUs.
+python scripts/manifold/launch.py --geometry frobenius --method manifold_muonh --stage main --width 256
+```
+
+Main runs save every 2000 steps by default; smoke does not save unless requested.
+Use `--save-interval` to change this. Checkpoints use Megatron's replicated
+`torch` format because the optimizer holds component-shaped nested states;
+generic `torch_dist` parameter-shaped optimizer sharding is not used. TP=PP=1,
+no distributed optimizer. DP may use 1/2/4/8 GPUs without changing global batch.
+
+For a controlled resume check, retain `--steps 4 --save-interval 2`, run with
+`--exit-interval 2`, then resubmit the same model/method/horizon with
+`--resume /absolute/path/to/checkpoints` and no early exit. Compare to a fresh
+uninterrupted four-step run. Do not resume with `--no-load-optim` or change
+geometry, method, radii, data or schedule. Runtime records distinguish early
+exit from full horizon using the training logs; a zero exit code alone is not
+proof that all target tokens were processed.
+
+Each submission writes a new `results/manifold/<run-id>/` with configuration,
+source hashes, command, module provenance, parameter layout, runtime and exit
+status. Slurm stdout/stderr are in `logs/`. Keep logs and configs even if
+checkpoint storage must later be reduced. No training data or checkpoints
+belong in Git.
 
 ## Reproducibility boundaries
 
@@ -53,12 +134,11 @@ per logical component, with FP32 master weights and momentum. The forward
 model remains BF16. Auxiliary parameters are routed to AdamW with their own
 learning rate; constrained matrices receive no weight decay.
 
-The initial phase is implementation and smoke only. Its losses are not a
-paper comparison. Formal comparisons still need matched baselines, multiple
-seeds, validation-only selection, final held-out evaluation, full timing,
-checkpoint-resume checks on H20, and per-step constraint audits at a stated
-frequency. Do not compare a practical variant with an exact reference as if
-only the algorithmic direction changed.
+Baseline adapters and full-budget launch support are implemented. Formal
+comparisons still require completed real H20 integration/resume checks,
+multiple seeds, validation-only selection, held-out evaluation and measured
+timing. Short smoke losses are not paper results. Do not compare a practical
+variant with an exact reference as if only the algorithmic direction changed.
 
 `MAIN1_ALIGNMENT.md` compares this implementation with the current paper and
 lists the evidence still needed before using the new study as a publication

@@ -2234,7 +2234,7 @@ def get_model(
         for model_module in model:
             model_module.cuda(torch.cuda.current_device())
 
-    if args.optimizer in ('manifold_mcsd', 'manifold_mcsd_tp'):
+    if args.optimizer.startswith('manifold_'):
         if args.init_model_with_meta_device or get_pg_size(pg_collection.tp) != 1:
             raise ValueError('manifold reference optimizer requires materialized full matrices and TP=1')
         from emerging_optimizers.orthogonalized_optimizers.manifold_mcsd import (

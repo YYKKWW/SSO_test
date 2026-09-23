@@ -219,6 +219,10 @@ class OptimizerConfig:
     manifold_power_steps: int = 10
     manifold_topk_rank: int = 8
     manifold_spectral_audit_interval: int = 200
+    manifold_baseline_nesterov: bool = False
+    manifold_baseline_msign_steps: int = 8
+    manifold_baseline_solver_tolerance: float = 2e-4
+    manifold_baseline_solver_iterations: int = 20
 
     ###############
     # Loss scaling
