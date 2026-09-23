@@ -86,6 +86,7 @@ def main() -> None:
     modules = {}
     for name in (
         "megatron.core.models.gpt.gpt_model",
+        "megatron.training",
         "emerging_optimizers.orthogonalized_optimizers.manifold_mcsd",
         "emerging_optimizers.orthogonalized_optimizers.manifold_baselines",
     ):

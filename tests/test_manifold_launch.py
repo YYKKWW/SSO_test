@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -17,6 +18,17 @@ def load_module(name):
 
 
 launch, run = load_module("launch"), load_module("run")
+
+
+def test_framework_models_are_not_ignored_as_weights():
+    paths = [
+        "Megatron-LM/megatron/core/models/gpt/gpt_model.py",
+        "Megatron-LM/megatron/training/models/gpt.py",
+        "Megatron-LM/megatron/core/tokenizers/text/models/gpt_tokenizer.py",
+    ]
+    for path in paths:
+        assert (ROOT / path).is_file()
+        assert subprocess.run(["git", "check-ignore", "-q", path], cwd=ROOT).returncode == 1
 
 
 def config(*extra):

@@ -10,6 +10,10 @@ models/
 !Megatron-LM/megatron/core/models/
 !Megatron-LM/megatron/core/models/**/
 !Megatron-LM/megatron/core/models/**/*.py
+!Megatron-LM/megatron/training/models/
+!Megatron-LM/megatron/training/models/**/*.py
+!Megatron-LM/megatron/core/tokenizers/**/models/
+!Megatron-LM/megatron/core/tokenizers/**/models/**/*.py
 results/
 outputs/
 wandb/

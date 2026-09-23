@@ -12,8 +12,9 @@ Upstream references:
 - https://github.com/Unakar/Spectral-Sphere-Optimizer
 
 The old broad `models/` ignore rule accidentally excluded framework source,
-not just model weights. On 2026-09-24 the Python-only `megatron/core/models`
-snapshot was copied from the existing H20 exploration runtime into this
+not just model weights. On 2026-09-24 the Python-only `megatron/core/models`,
+`megatron/training/models` and tokenizer `models` snapshots were copied
+from the existing H20 exploration runtime into this
 isolated branch. Original SPDX/license headers are retained. No old H20
 file was changed, and no checkpoints or tokenizer assets were copied to Git.
 The precise upstream commit of this older source is not known, so it is
