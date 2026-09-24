@@ -16,6 +16,14 @@ See [H20 validation](H20_VALIDATION_20260924.md) for actual job IDs and the
 exact GPU recovery comparison, and [environment loading](ENVIRONMENT.md) for the
 verified runtime and portable path overrides.
 
+The first longer, single-H20-per-run comparison is registered in
+[100M pilot, 2026-09-24](PILOT_20260924.md): ten method/constraint pairs,
+three concurrent jobs at most, with shared model/data settings and disclosed
+method-specific differences. All ten pilots have completed. The
+[first 3B batch](MAIN_3B_20260924.md) contains six Frobenius/Stiefel runs;
+the spectral group is deferred for return-accuracy investigation. These are
+not completed 3B results.
+
 ## Method IDs
 
 | Geometry | Optimizer | Main direction | Return |
@@ -110,7 +118,14 @@ python scripts/manifold/launch.py --geometry frobenius --method manifold_muonh -
 ```
 
 Main runs save every 2000 steps by default; smoke does not save unless requested.
-Use `--save-interval` to change this. Checkpoints use Megatron's replicated
+Use `--save-interval` to change this. For a space-bounded 11445-step main run,
+add `--save-interval 2000 --save-retain-interval 12000`: Megatron retains the
+latest successful checkpoint and removes its predecessor after the next save
+succeeds. Since milestone 12000 lies beyond this horizon, only the latest
+checkpoint remains. Reserve space for the old and new checkpoint during saves.
+This option only affects checkpoints in that run's own directory; it does not
+clean historical results. Without this option, all checkpoints are retained.
+Checkpoints use Megatron's replicated
 `torch` format because the optimizer holds component-shaped nested states;
 generic `torch_dist` parameter-shaped optimizer sharding is not used. TP=PP=1,
 no distributed optimizer. DP may use 1/2/4/8 GPUs without changing global batch.
@@ -141,8 +156,8 @@ belong in Git.
 The launcher submits one job but does not enforce an account-wide GPU cap.
 Check existing use before submission and use `--dependency afterok:<job-id>`
 to serialize runs. Keep total concurrent use within the agreed 4--6 H20 GPUs
-(absolute maximum eight), leaving public capacity available. Checkpoints are
-not pruned automatically; budget disk space before starting parallel 3B runs.
+(absolute maximum eight), leaving public capacity available. Checkpoint pruning
+is opt-in; budget disk space before starting parallel 3B runs.
 
 ## Reproducibility boundaries
 

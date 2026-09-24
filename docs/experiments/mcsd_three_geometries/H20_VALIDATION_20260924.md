@@ -102,8 +102,12 @@ machine-readable [verification result](resume_verification_20260924.json).
 This demonstrates clean-boundary single-GPU recovery in this protocol, not
 mid-step failure recovery or arbitrary changes in world size.
 
-An additional two-GPU Stiefel MCSD-TP smoke, **4104214**, is queued behind the
-successful verifier. Its status is separate from the completed single-GPU gate.
+The optional two-GPU Stiefel MCSD-TP smoke, **4104214**, timed out after
+00:20:24. The last model-stage message was `building GPT model ...`; no training
+iteration was logged. Its root cause is not established. This is not a passed
+DP check, even though accounting displays `0:0` beside the TIMEOUT state.
+The author's comparison protocol is one H20 per independent run, with
+TP=PP=DP=1. This optional DP failure does not block the passed single-GPU path.
 
 ## Resolved startup failures
 
@@ -117,7 +121,8 @@ successful verifier. Its status is separate from the completed single-GPU gate.
 
 ## Remaining gates
 
-- Complete the additional DP>1 smoke; single-GPU strict resume passed.
+- Keep the main comparison single-GPU. Investigate DP>1 only if it is requested;
+  single-GPU strict resume passed.
 - Run longer practical-accuracy/stability pilots, including Stiefel
   orthogonality defect, spectral sphere defect and sampled LMO error.
 - Freeze LR/momentum/precision settings using equal development budgets.
@@ -127,3 +132,6 @@ successful verifier. Its status is separate from the completed single-GPU gate.
 
 The 3B launcher is implemented and uses 3B data; **no new 3B main experiment
 has been submitted as part of this engineering verification**.
+
+The subsequent 100M stability/comparison pilot is recorded separately in
+[the pilot launch register](PILOT_20260924.md).
