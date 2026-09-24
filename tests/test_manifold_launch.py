@@ -58,6 +58,27 @@ def test_three_billion_uses_real_data_and_full_horizon():
     assert cfg["training"]["nesterov"] is False
 
 
+def test_rolling_checkpoint_retention_uses_native_megatron_option():
+    cfg = config("--stage", "main", "--save-interval", "2000", "--save-retain-interval", "12000")
+    cfg["run_dir"] = "/tmp/run"
+    args = run.training_args(cfg)
+    assert args[args.index("--save-retain-interval") + 1] == "12000"
+    assert cfg["train_iters"] < cfg["training"]["save_retain_interval"]
+    assert args[args.index("--save-interval") + 1] == "2000"
+
+
+@pytest.mark.parametrize("save,retain", [(0, 12000), (2000, 0), (2000, -1), (2000, 2100)])
+def test_invalid_checkpoint_retention(save, retain):
+    with pytest.raises(ValueError, match="retention"):
+        config("--stage", "main", "--save-interval", str(save), "--save-retain-interval", str(retain))
+
+
+def test_retention_remains_opt_in_for_historical_configs():
+    cfg = config("--stage", "main")
+    cfg["run_dir"] = "/tmp/run"
+    assert "--save-retain-interval" not in run.training_args(cfg)
+
+
 @pytest.mark.parametrize("width,heads,groups", [(256,4,2), (384,6,3), (512,8,4)])
 def test_dense_scales(width, heads, groups):
     cfg = config("--width", str(width))

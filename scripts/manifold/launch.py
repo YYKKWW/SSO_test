@@ -38,6 +38,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--spectral-solver", choices=("exact", "pi_topk"))
     p.add_argument("--audit-interval", type=int)
     p.add_argument("--save-interval", type=int)
+    p.add_argument("--save-retain-interval", type=int, help="keep milestone checkpoints plus the latest; must be a multiple of save interval")
     p.add_argument("--eval-iters", type=int)
     p.add_argument("--resume", type=Path, help="restore optimizer, RNG, master weights and scheduler")
     p.add_argument("--verify-against-run", type=Path, help="single-GPU smoke: compare the resumed final checkpoint to a continuous run")
@@ -97,6 +98,13 @@ def resolve_config(args: argparse.Namespace) -> dict:
             train[key] = getattr(args, key)
     if train["save_interval"] < 0 or train["eval_iters"] < 1:
         raise ValueError("invalid checkpoint or evaluation settings")
+    if args.save_retain_interval is not None:
+        train["save_retain_interval"] = args.save_retain_interval
+    retain = train.get("save_retain_interval")
+    if retain is not None and (
+        train["save_interval"] == 0 or retain <= 0 or retain % train["save_interval"]
+    ):
+        raise ValueError("checkpoint retention requires a positive multiple of save interval")
     native = args.method in ("manifold_muonh", "manifold_sso", "manifold_muonsphere")
     train["momentum_beta"] = args.momentum_beta if args.momentum_beta is not None else (0.9 if native else 0.95)
     train["nesterov"] = args.nesterov if args.nesterov is not None else native

@@ -64,6 +64,8 @@ def training_args(cfg: dict) -> list[str]:
     if t["save_interval"]:
         option("save", Path(cfg["run_dir"]) / "checkpoints")
         option("save-interval", t["save_interval"])
+        if t.get("save_retain_interval") is not None:
+            option("save-retain-interval", t["save_retain_interval"])
     if cfg["resume"]:
         option("load", cfg["resume"])
     if cfg["exit_interval"]:
