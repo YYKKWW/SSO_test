@@ -1,5 +1,8 @@
 # MCSD Dense LM Experiments
 
+Latest results: [Frobenius sphere 3B/6B summary](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md),
+covering learning rates, momentum, seeds, completed runs and missing experiments.
+
 ## Active Branch: Three-Geometry Experiment 3
 
 On `exp/mcsd-three-geometries`, the current study reuses Megatron's Dense LM
