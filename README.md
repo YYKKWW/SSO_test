@@ -1,7 +1,8 @@
 # MCSD Dense LM Experiments
 
 Latest results: [Frobenius sphere 3B/6B summary](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md),
-covering learning rates, momentum, seeds, completed runs and missing experiments.
+updated 2026-10-25: 50 completed runs, matched-momentum validation curves,
+two running Nesterov LR tests and two queued 6B replications.
 
 ## Active Branch: Three-Geometry Experiment 3
 

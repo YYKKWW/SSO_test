@@ -1,16 +1,17 @@
 {
-  "compiled_on": "2026-10-24",
+  "compiled_on": "2026-10-25",
   "scope": "width256 / Frobenius shape radius r=1 / 3B and 6B",
   "metric": "validation loss at final scheduled iteration, not best intermediate checkpoint",
   "counts": {
-    "completed_3b": 46,
+    "completed_3b": 48,
     "completed_6b": 2
   },
   "provenance": {
     "docs/experiments/mcsd_three_geometries/reports/width256_3b_20261008/curves_and_results.json": "73f8f5e3194111078f9290546cf659d2f43a2d00a5c92c97c8c5482642d5debe",
     "docs/experiments/mcsd_three_geometries/reports/followup_20261020/results.json": "27facb8d0ff91a6ca4469eeec743590094a6fbf7d26f57f8f518e3666cce0f28",
     "validation_6b_csv_sha256": "530b631a983db34655b74d44b0bc006826a73126b74596492b2f86c09243058b",
-    "lr_extension_remote_checked_at": "2026-10-24T01:27:40.231840+08:00"
+    "lr_extension_remote_checked_at": "2026-10-24T01:27:40.231840+08:00",
+    "latest_batch_checked_at": "2026-10-25T09:56:20.049134+08:00"
   },
   "runs": [
     {
@@ -948,6 +949,66 @@
       "final_val": 3.426804,
       "source_snapshot": "H20 final verification 2026-10-22",
       "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab"
+    },
+    {
+      "job_id": "4320101",
+      "method": "manifold_muonh",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": false,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:24:56",
+      "start": "2026-10-24T01:21:16",
+      "end": "2026-10-24T19:46:12",
+      "node": "SPG-7-2",
+      "width": 256,
+      "final_step": 11445,
+      "final_val": 3.464988,
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "tail_train_mean": 3.4416222,
+      "recent_seconds_per_step": 5.34133,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "log_sha256": "0441cd67ab8b02bfd12958f6ea5849d1391624fdff666af265c4783c12cff8c5",
+      "config_sha256": "e226792d2fb56d869d67d94a70d11242f8cef1670b0ae5abaa06451ece0fa489",
+      "label": "MuonH",
+      "direction": "none",
+      "source_snapshot": "H20 direct refresh 2026-10-25"
+    },
+    {
+      "job_id": "4320102",
+      "method": "manifold_normuon_sphere",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": false,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:25:14",
+      "start": "2026-10-24T05:52:57",
+      "end": "2026-10-25T00:18:11",
+      "node": "SPG-7-1",
+      "width": 256,
+      "final_step": 11445,
+      "final_val": 3.4635,
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "tail_train_mean": 3.4404163,
+      "recent_seconds_per_step": 5.34173,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "log_sha256": "ddc3889f8df785e50802c755a4cc35196a91a9d95ef2b203b2f564c8de75a4f4",
+      "config_sha256": "de7cbce4be27449860bf9dfcaec0b82588747428e2ad2737dab6b5fa36d85245",
+      "label": "NorMuon-Sphere",
+      "direction": "none",
+      "source_snapshot": "H20 direct refresh 2026-10-25"
     }
   ]
 }
