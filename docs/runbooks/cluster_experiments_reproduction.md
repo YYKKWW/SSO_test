@@ -1,6 +1,6 @@
 # 当前 cluster 实验：复现入口
 
-本页对应 `exp` 分支的 width-256 / 1B 与 3B 实验。算法见 [说明文档](../algorithms/current_comparison_pseudocode.md)，数据与结果口径见 [结果汇总](../experiments/cluster_results_20261026.md)。
+本页对应 `exp/mcsd-experiment-results` 分支的 width-256 / 1B 与 3B 实验。算法见 [说明文档](../algorithms/current_comparison_pseudocode.md)，数据与结果口径见 [结果汇总](../experiments/cluster_results_20261026.md)。
 
 ## 1. 环境与数据
 
