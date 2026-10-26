@@ -1,0 +1,708 @@
+{
+  "checked_utc": "2026-10-25T02:00:02.263802+00:00",
+  "metrics_through_step": 1900,
+  "final_validation_step": 1908,
+  "rows": [
+    {
+      "index": 0,
+      "lr": "2e-2",
+      "method": "spel_pgd_dist",
+      "mode": "control",
+      "k": 20,
+      "c": 1,
+      "final": 3.589549,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.676599
+        },
+        {
+          "step": 500,
+          "loss": 4.220201
+        },
+        {
+          "step": 750,
+          "loss": 4.071416
+        },
+        {
+          "step": 1000,
+          "loss": 3.963227
+        },
+        {
+          "step": 1250,
+          "loss": 3.799943
+        },
+        {
+          "step": 1500,
+          "loss": 3.703435
+        },
+        {
+          "step": 1750,
+          "loss": 3.5803
+        },
+        {
+          "step": 1908,
+          "loss": 3.589549
+        }
+      ],
+      "training_seconds": 21602,
+      "training_time": "06:00:02",
+      "train_loss1900": 3.564648,
+      "branch_count": 0,
+      "branch_percent": 0,
+      "repeat_percent": null,
+      "mean_burst": null,
+      "late_branch_percent": 0,
+      "step_seconds": 11.193299999999999,
+      "audit": {
+        "samples": 28,
+        "false_safe": 0,
+        "false_cluster": 0,
+        "max_returned_radius_abs_error": 0.00013697147369384766,
+        "mean_current_gap_abs_error": 0.00001167617941374591,
+        "mean_direction_relative_error": 0.013021847881775881,
+        "note": "Bounded, shape/early-cluster selected samples; not population error rates. FP32 full-SVD oracle. Control route discrepancies are hypothetical."
+      }
+    },
+    {
+      "index": 1,
+      "lr": "2e-2",
+      "method": "spel_pgd_dist",
+      "mode": "adaptive4",
+      "k": 20,
+      "c": 8,
+      "final": 3.587868,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.666765
+        },
+        {
+          "step": 500,
+          "loss": 4.220297
+        },
+        {
+          "step": 750,
+          "loss": 4.071321
+        },
+        {
+          "step": 1000,
+          "loss": 3.957721
+        },
+        {
+          "step": 1250,
+          "loss": 3.793969
+        },
+        {
+          "step": 1500,
+          "loss": 3.702245
+        },
+        {
+          "step": 1750,
+          "loss": 3.577758
+        },
+        {
+          "step": 1908,
+          "loss": 3.587868
+        }
+      ],
+      "training_seconds": 21549,
+      "training_time": "05:59:09",
+      "train_loss1900": 3.564293,
+      "branch_count": 4569,
+      "branch_percent": 0.9542606516290727,
+      "repeat_percent": 59.8161523309258,
+      "mean_burst": 2.488562091503268,
+      "late_branch_percent": 9.126984126984127,
+      "overflow": "145",
+      "step_seconds": 11.156600000000001,
+      "audit": {
+        "samples": 44,
+        "false_safe": 0,
+        "false_cluster": 1,
+        "max_returned_radius_abs_error": 0.00003516674041748047,
+        "mean_current_gap_abs_error": 0.0000058839620323875525,
+        "mean_direction_relative_error": 0.0252154788023134,
+        "note": "Bounded, shape/early-cluster selected samples; not population error rates. FP32 full-SVD oracle. Control route discrepancies are hypothetical."
+      }
+    },
+    {
+      "index": 2,
+      "lr": "2e-2",
+      "method": "muon_ball_dist",
+      "mode": "none",
+      "k": 20,
+      "c": 8,
+      "final": 3.593271,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.707709
+        },
+        {
+          "step": 500,
+          "loss": 4.245175
+        },
+        {
+          "step": 750,
+          "loss": 4.114932
+        },
+        {
+          "step": 1000,
+          "loss": 3.99605
+        },
+        {
+          "step": 1250,
+          "loss": 3.81296
+        },
+        {
+          "step": 1500,
+          "loss": 3.715518
+        },
+        {
+          "step": 1750,
+          "loss": 3.586274
+        },
+        {
+          "step": 1908,
+          "loss": 3.593271
+        }
+      ],
+      "training_seconds": 19551,
+      "training_time": "05:25:51",
+      "train_loss1900": 3.56899,
+      "branch_count": null,
+      "branch_percent": null,
+      "repeat_percent": null,
+      "mean_burst": null,
+      "late_branch_percent": null,
+      "step_seconds": 10.1375
+    },
+    {
+      "index": 3,
+      "lr": "2e-2",
+      "method": "spectral_ball_dist",
+      "mode": "none",
+      "k": 20,
+      "c": 8,
+      "final": 3.591197,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.687001
+        },
+        {
+          "step": 500,
+          "loss": 4.213323
+        },
+        {
+          "step": 750,
+          "loss": 4.083021
+        },
+        {
+          "step": 1000,
+          "loss": 3.967164
+        },
+        {
+          "step": 1250,
+          "loss": 3.794872
+        },
+        {
+          "step": 1500,
+          "loss": 3.704574
+        },
+        {
+          "step": 1750,
+          "loss": 3.581165
+        },
+        {
+          "step": 1908,
+          "loss": 3.591197
+        }
+      ],
+      "training_seconds": 21887,
+      "training_time": "06:04:47",
+      "train_loss1900": 3.565721,
+      "branch_count": null,
+      "branch_percent": null,
+      "repeat_percent": null,
+      "mean_burst": null,
+      "late_branch_percent": null,
+      "step_seconds": 11.1286
+    },
+    {
+      "index": 4,
+      "lr": "2e-2",
+      "method": "spel_pgd_dist",
+      "mode": "adaptive4",
+      "k": 20,
+      "c": 4,
+      "final": 3.588366,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.669369
+        },
+        {
+          "step": 500,
+          "loss": 4.212981
+        },
+        {
+          "step": 750,
+          "loss": 4.078507
+        },
+        {
+          "step": 1000,
+          "loss": 3.965672
+        },
+        {
+          "step": 1250,
+          "loss": 3.793449
+        },
+        {
+          "step": 1500,
+          "loss": 3.702326
+        },
+        {
+          "step": 1750,
+          "loss": 3.578515
+        },
+        {
+          "step": 1908,
+          "loss": 3.588366
+        }
+      ],
+      "training_seconds": 21603,
+      "training_time": "06:00:03",
+      "train_loss1900": 3.564336,
+      "branch_count": 7598,
+      "branch_percent": 1.5868838763575606,
+      "repeat_percent": 75.87523032376942,
+      "mean_burst": 4.145117294053464,
+      "late_branch_percent": 11.11111111111111,
+      "overflow": "137",
+      "step_seconds": 11.1921,
+      "audit": {
+        "samples": 44,
+        "false_safe": 0,
+        "false_cluster": 0,
+        "max_returned_radius_abs_error": 0.0001150369644165039,
+        "mean_current_gap_abs_error": 0.000004000535465267039,
+        "mean_direction_relative_error": 0.007647913575775514,
+        "note": "Bounded, shape/early-cluster selected samples; not population error rates. FP32 full-SVD oracle. Control route discrepancies are hypothetical."
+      }
+    },
+    {
+      "index": 5,
+      "lr": "2e-2",
+      "method": "spel_pgd_dist",
+      "mode": "adaptive4",
+      "k": 20,
+      "c": 12,
+      "final": 3.590739,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.696184
+        },
+        {
+          "step": 500,
+          "loss": 4.224908
+        },
+        {
+          "step": 750,
+          "loss": 4.086347
+        },
+        {
+          "step": 1000,
+          "loss": 3.962514
+        },
+        {
+          "step": 1250,
+          "loss": 3.794588
+        },
+        {
+          "step": 1500,
+          "loss": 3.704451
+        },
+        {
+          "step": 1750,
+          "loss": 3.58066
+        },
+        {
+          "step": 1908,
+          "loss": 3.590739
+        }
+      ],
+      "training_seconds": 21625,
+      "training_time": "06:00:25",
+      "train_loss1900": 3.567026,
+      "branch_count": 3766,
+      "branch_percent": 0.7865497076023392,
+      "repeat_percent": 46.62772172065852,
+      "mean_burst": 1.87363184079602,
+      "late_branch_percent": 3.9682539682539684,
+      "overflow": "74",
+      "step_seconds": 11.2071,
+      "audit": {
+        "samples": 44,
+        "false_safe": 0,
+        "false_cluster": 0,
+        "max_returned_radius_abs_error": 0.00006902217864990234,
+        "mean_current_gap_abs_error": 0.000004965180852106732,
+        "mean_direction_relative_error": 0.007527030065891616,
+        "note": "Bounded, shape/early-cluster selected samples; not population error rates. FP32 full-SVD oracle. Control route discrepancies are hypothetical."
+      }
+    },
+    {
+      "index": 6,
+      "lr": "2e-2",
+      "method": "spel_pgd_dist",
+      "mode": "control",
+      "k": 40,
+      "c": 1,
+      "final": 3.591258,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.665891
+        },
+        {
+          "step": 500,
+          "loss": 4.223557
+        },
+        {
+          "step": 750,
+          "loss": 4.09207
+        },
+        {
+          "step": 1000,
+          "loss": 3.96559
+        },
+        {
+          "step": 1250,
+          "loss": 3.796132
+        },
+        {
+          "step": 1500,
+          "loss": 3.704904
+        },
+        {
+          "step": 1750,
+          "loss": 3.58166
+        },
+        {
+          "step": 1908,
+          "loss": 3.591258
+        }
+      ],
+      "training_seconds": 23155,
+      "training_time": "06:25:55",
+      "train_loss1900": 3.567113,
+      "branch_count": 0,
+      "branch_percent": 0,
+      "repeat_percent": null,
+      "mean_burst": null,
+      "late_branch_percent": 0,
+      "step_seconds": 12.0395,
+      "audit": {
+        "samples": 28,
+        "false_safe": 0,
+        "false_cluster": 0,
+        "max_returned_radius_abs_error": 0.000003933906555175781,
+        "mean_current_gap_abs_error": 0.000001377441815588901,
+        "mean_direction_relative_error": 0.009388610288234693,
+        "note": "Bounded, shape/early-cluster selected samples; not population error rates. FP32 full-SVD oracle. Control route discrepancies are hypothetical."
+      }
+    },
+    {
+      "index": 7,
+      "lr": "2e-2",
+      "method": "spel_pgd_dist",
+      "mode": "adaptive4",
+      "k": 40,
+      "c": 8,
+      "final": 3.590239,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.668237
+        },
+        {
+          "step": 500,
+          "loss": 4.220868
+        },
+        {
+          "step": 750,
+          "loss": 4.077342
+        },
+        {
+          "step": 1000,
+          "loss": 3.964681
+        },
+        {
+          "step": 1250,
+          "loss": 3.795841
+        },
+        {
+          "step": 1500,
+          "loss": 3.704142
+        },
+        {
+          "step": 1750,
+          "loss": 3.57987
+        },
+        {
+          "step": 1908,
+          "loss": 3.590239
+        }
+      ],
+      "training_seconds": 23021,
+      "training_time": "06:23:41",
+      "train_loss1900": 3.56572,
+      "branch_count": 4998,
+      "branch_percent": 1.043859649122807,
+      "repeat_percent": 61.76470588235294,
+      "mean_burst": 2.6153846153846154,
+      "late_branch_percent": 7.5396825396825395,
+      "overflow": "155",
+      "step_seconds": 11.9495,
+      "audit": {
+        "samples": 44,
+        "false_safe": 0,
+        "false_cluster": 0,
+        "max_returned_radius_abs_error": 0.000005125999450683594,
+        "mean_current_gap_abs_error": 8.87921089484908e-7,
+        "mean_direction_relative_error": 0.006344606873305251,
+        "note": "Bounded, shape/early-cluster selected samples; not population error rates. FP32 full-SVD oracle. Control route discrepancies are hypothetical."
+      }
+    },
+    {
+      "index": 8,
+      "lr": "1.5e-2",
+      "method": "muon_ball_dist",
+      "mode": "none",
+      "k": 20,
+      "c": 8,
+      "final": 3.582948,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.709113
+        },
+        {
+          "step": 500,
+          "loss": 4.178473
+        },
+        {
+          "step": 750,
+          "loss": 4.032781
+        },
+        {
+          "step": 1000,
+          "loss": 3.930258
+        },
+        {
+          "step": 1250,
+          "loss": 3.76785
+        },
+        {
+          "step": 1500,
+          "loss": 3.686283
+        },
+        {
+          "step": 1750,
+          "loss": 3.572109
+        },
+        {
+          "step": 1908,
+          "loss": 3.582948
+        }
+      ],
+      "training_seconds": 19492,
+      "training_time": "05:24:52",
+      "train_loss1900": 3.558793,
+      "branch_count": null,
+      "branch_percent": null,
+      "repeat_percent": null,
+      "mean_burst": null,
+      "late_branch_percent": null,
+      "step_seconds": 10.1006
+    },
+    {
+      "index": 9,
+      "lr": "1.5e-2",
+      "method": "spectral_ball_dist",
+      "mode": "none",
+      "k": 20,
+      "c": 8,
+      "final": 3.59153,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.706229
+        },
+        {
+          "step": 500,
+          "loss": 4.153853
+        },
+        {
+          "step": 750,
+          "loss": 4.013672
+        },
+        {
+          "step": 1000,
+          "loss": 3.909077
+        },
+        {
+          "step": 1250,
+          "loss": 3.766512
+        },
+        {
+          "step": 1500,
+          "loss": 3.69017
+        },
+        {
+          "step": 1750,
+          "loss": 3.5794
+        },
+        {
+          "step": 1908,
+          "loss": 3.59153
+        }
+      ],
+      "training_seconds": 21821,
+      "training_time": "06:03:41",
+      "train_loss1900": 3.568384,
+      "branch_count": null,
+      "branch_percent": null,
+      "repeat_percent": null,
+      "mean_burst": null,
+      "late_branch_percent": null,
+      "step_seconds": 11.162600000000001
+    },
+    {
+      "index": 10,
+      "lr": "1.5e-2",
+      "method": "spel_pgd_dist",
+      "mode": "control",
+      "k": 20,
+      "c": 1,
+      "final": 3.588559,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.722102
+        },
+        {
+          "step": 500,
+          "loss": 4.16275
+        },
+        {
+          "step": 750,
+          "loss": 4.010001
+        },
+        {
+          "step": 1000,
+          "loss": 3.911795
+        },
+        {
+          "step": 1250,
+          "loss": 3.758674
+        },
+        {
+          "step": 1500,
+          "loss": 3.684464
+        },
+        {
+          "step": 1750,
+          "loss": 3.573816
+        },
+        {
+          "step": 1908,
+          "loss": 3.588559
+        }
+      ],
+      "training_seconds": 21580,
+      "training_time": "05:59:40",
+      "train_loss1900": 3.563145,
+      "branch_count": 0,
+      "branch_percent": 0,
+      "repeat_percent": null,
+      "mean_burst": null,
+      "late_branch_percent": 0,
+      "step_seconds": 11.1746,
+      "audit": {
+        "samples": 28,
+        "false_safe": 0,
+        "false_cluster": 0,
+        "max_returned_radius_abs_error": 0.0000073909759521484375,
+        "mean_current_gap_abs_error": 0.0000056350357423018416,
+        "mean_direction_relative_error": 0.010283411813101597,
+        "note": "Bounded, shape/early-cluster selected samples; not population error rates. FP32 full-SVD oracle. Control route discrepancies are hypothetical."
+      }
+    },
+    {
+      "index": 11,
+      "lr": "1.5e-2",
+      "method": "spel_pgd_dist",
+      "mode": "adaptive4",
+      "k": 20,
+      "c": 8,
+      "final": 3.587659,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.736781
+        },
+        {
+          "step": 500,
+          "loss": 4.169148
+        },
+        {
+          "step": 750,
+          "loss": 4.003537
+        },
+        {
+          "step": 1000,
+          "loss": 3.911073
+        },
+        {
+          "step": 1250,
+          "loss": 3.756013
+        },
+        {
+          "step": 1500,
+          "loss": 3.682583
+        },
+        {
+          "step": 1750,
+          "loss": 3.57276
+        },
+        {
+          "step": 1908,
+          "loss": 3.587659
+        }
+      ],
+      "training_seconds": 21766,
+      "training_time": "06:02:46",
+      "train_loss1900": 3.562106,
+      "branch_count": 9966,
+      "branch_percent": 2.081453634085213,
+      "repeat_percent": 69.12502508528999,
+      "mean_burst": 3.2388690282742933,
+      "late_branch_percent": 11.904761904761905,
+      "overflow": "1015",
+      "step_seconds": 11.2499,
+      "audit": {
+        "samples": 44,
+        "false_safe": 0,
+        "false_cluster": 0,
+        "max_returned_radius_abs_error": 0.000004887580871582031,
+        "mean_current_gap_abs_error": 0.000003914320181064806,
+        "mean_direction_relative_error": 0.006911353605655635,
+        "note": "Bounded, shape/early-cluster selected samples; not population error rates. FP32 full-SVD oracle. Control route discrepancies are hypothetical."
+      }
+    }
+  ]
+}

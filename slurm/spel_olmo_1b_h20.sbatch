@@ -16,10 +16,11 @@ set -euo pipefail
 PROJECT_DIR="${PROJECT_DIR:-$HOME/projects/SSO_test}"
 MEGATRON_PATH="${MEGATRON_PATH:-$PROJECT_DIR/Megatron-LM}"
 ENV_DIR="${ENV_DIR:-$HOME/envs/sso_h20}"
-DATA_ROOT="${DATA_ROOT:-$PROJECT_DIR/data/olmo_mix_1124_1b}"
+DATASET_LABEL="${DATASET_LABEL:-olmo_mix_1124_1b}"
+DATA_ROOT="${DATA_ROOT:-$PROJECT_DIR/data/$DATASET_LABEL}"
 TOKENIZER_MODEL="${TOKENIZER_MODEL:-$DATA_ROOT/tokenizer/OLMo-2-1124-7B}"
-TRAIN_DATA_PREFIX="${TRAIN_DATA_PREFIX:-$DATA_ROOT/indexed/train/olmo_mix_1124_1b_train_text_document}"
-VALID_DATA_PREFIX="${VALID_DATA_PREFIX:-$DATA_ROOT/indexed/valid/olmo_mix_1124_1b_valid_text_document}"
+TRAIN_DATA_PREFIX="${TRAIN_DATA_PREFIX:-$DATA_ROOT/indexed/train/${DATASET_LABEL}_train_text_document}"
+VALID_DATA_PREFIX="${VALID_DATA_PREFIX:-$DATA_ROOT/indexed/valid/${DATASET_LABEL}_valid_text_document}"
 
 export CUDA_DEVICE_MAX_CONNECTIONS=1
 export WANDB_MODE="${WANDB_MODE:-offline}"
@@ -37,6 +38,7 @@ GLOBAL_BATCH="${GLOBAL_BATCH:-64}"
 TRAIN_TOKENS="${TRAIN_TOKENS:-1000000000}"
 TRAIN_ITER="${TRAIN_ITER:-}"
 LR_WARMUP_ITERS="${LR_WARMUP_ITERS:-500}"
+LR_DECAY_ITERS="${LR_DECAY_ITERS:-}"
 EVAL_INTERVAL="${EVAL_INTERVAL:-500}"
 EVAL_ITERS="${EVAL_ITERS:-10}"
 LOG_INTERVAL="${LOG_INTERVAL:-10}"
@@ -55,10 +57,18 @@ ATTENTION_BACKEND="${ATTENTION_BACKEND:-}"
 
 SAVE_CHECKPOINT="${SAVE_CHECKPOINT:-0}"
 SAVE_INTERVAL="${SAVE_INTERVAL:-1000}"
+SAVE_OPTIMIZER="${SAVE_OPTIMIZER:-0}"
+SAVE_RETAIN_INTERVAL="${SAVE_RETAIN_INTERVAL:-}"
+LOAD_CHECKPOINT="${LOAD_CHECKPOINT:-}"
+EXIT_INTERVAL="${EXIT_INTERVAL:-}"
 
 if [ -z "$TRAIN_ITER" ]; then
   TOKENS_PER_ITER=$((GLOBAL_BATCH * SEQ_LENGTH))
   TRAIN_ITER=$(((TRAIN_TOKENS + TOKENS_PER_ITER - 1) / TOKENS_PER_ITER))
+fi
+
+if [ -z "$LR_DECAY_ITERS" ]; then
+  LR_DECAY_ITERS="$TRAIN_ITER"
 fi
 
 if (( LR_WARMUP_ITERS >= TRAIN_ITER )); then
@@ -118,6 +128,13 @@ source "$ENV_DIR/bin/activate"
 which python
 python --version
 
+if [ "$SAVE_CHECKPOINT" = "1" ]; then
+  python - <<'PY'
+import psutil
+print("psutil:", psutil.__version__)
+PY
+fi
+
 echo "==== GPU ===="
 nvidia-smi
 echo "CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset}"
@@ -147,7 +164,14 @@ else
 fi
 
 export PYTHONPATH="$MEGATRON_PATH:${PYTHONPATH:-}"
-export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-12}"
+CPUS_PER_RANK=$(( ${SLURM_CPUS_PER_TASK:-12} / GPUS_PER_NODE ))
+if (( CPUS_PER_RANK < 1 )); then
+  CPUS_PER_RANK=1
+fi
+export OMP_NUM_THREADS="${OMP_NUM_THREADS:-$CPUS_PER_RANK}"
+export MKL_NUM_THREADS="${MKL_NUM_THREADS:-$OMP_NUM_THREADS}"
+export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-$OMP_NUM_THREADS}"
+echo "cpu_threads_per_rank=$OMP_NUM_THREADS (cpus_per_task=${SLURM_CPUS_PER_TASK:-12}, ranks=$GPUS_PER_NODE)"
 
 DATA_ARGS=(
   --tokenizer-model "$TOKENIZER_MODEL"
@@ -206,7 +230,7 @@ TRAINING_ARGS=(
   --min-lr "$MIN_LR"
   --lr-warmup-iters "$LR_WARMUP_ITERS"
   --lr-decay-style cosine
-  --lr-decay-iters "$TRAIN_ITER"
+  --lr-decay-iters "$LR_DECAY_ITERS"
   --adam-beta1 0.9
   --adam-beta2 0.95
   --adam-eps 1e-8
@@ -237,8 +261,10 @@ TRAINING_ARGS=(
   --spel-use-nesterov
   --spel-qkv-split-mode head
   --spel-msign-steps 8
+  --spel-msign-spectral-norm-steps "${SPEL_MSIGN_SPECTRAL_NORM_STEPS:-2}"
   --spel-radius-mode spectral_mup
-  --spel-power-iteration-steps 10
+  --spel-power-iteration-steps "${SPEL_POWER_ITERATION_STEPS:-10}"
+  --mcsd-tp-main-power-dtype "${MCSD_TP_MAIN_POWER_DTYPE:-bf16}"
   --spel-scale-mode spectral_mup
   --spel-retract-mode hard
   --spel-retract-alpha 0.05
@@ -248,6 +274,7 @@ TRAINING_ARGS=(
   --spel-pgd-use-nesterov
   --spel-pgd-qkv-split-mode head
   --spel-pgd-msign-steps "${SPEL_PGD_MSIGN_STEPS:-8}"
+  --spel-pgd-msign-spectral-norm-steps "${SPEL_PGD_MSIGN_SPECTRAL_NORM_STEPS:-2}"
   --spel-pgd-radius-mode spectral_mup
   --spel-pgd-power-iteration-steps "${SPEL_PGD_POWER_ITERATION_STEPS:-10}"
   --spel-pgd-main-power-dtype "${SPEL_PGD_MAIN_POWER_DTYPE:-bf16}"
@@ -260,10 +287,24 @@ TRAINING_ARGS=(
   --spel-pgd-gap-estimator-mode "${SPEL_PGD_GAP_ESTIMATOR_MODE:-deflated_power}"
   --spel-pgd-gap-probe-interval "${SPEL_PGD_GAP_PROBE_INTERVAL:-1}"
   --spel-pgd-gap-probe-safe-multiplier "${SPEL_PGD_GAP_PROBE_SAFE_MULTIPLIER:-10}"
+  --spel-pgd-gap-audit-interval "${SPEL_PGD_GAP_AUDIT_INTERVAL:-0}"
   --spel-pgd-direction-normalization "${SPEL_PGD_DIRECTION_NORMALIZATION:-spectral}"
+  --spel-pgd-fallback-direction "${SPEL_PGD_FALLBACK_DIRECTION:-pgd}"
+  --spel-pgd-radial-cluster-mode "${SPEL_PGD_RADIAL_CLUSTER_MODE:-none}"
+  --spel-pgd-cluster-threshold-rel "${SPEL_PGD_CLUSTER_THRESHOLD_REL:-5e-5}"
+  --spel-pgd-cluster-spectrum-mode "${SPEL_PGD_CLUSTER_SPECTRUM_MODE:-exact}"
+  --spel-pgd-cluster-iterations "${SPEL_PGD_CLUSTER_ITERATIONS:-10}"
+  --spel-pgd-cluster-direction-mode "${SPEL_PGD_CLUSTER_DIRECTION_MODE:-matched_fro}"
   --spel-pgd-pgd-lr-scale "${SPEL_PGD_PGD_LR_SCALE:-0.5}"
   --spel-pgd-projection-mode "${SPEL_PGD_PROJECTION_MODE:-fallback_exact}"
   --spel-pgd-projection-rank "${SPEL_PGD_PROJECTION_RANK:-1}"
+  --spel-pgd-krylov-initial-iterations "${SPEL_PGD_KRYLOV_INITIAL_ITERATIONS:-8}"
+  --spel-pgd-krylov-max-iterations "${SPEL_PGD_KRYLOV_MAX_ITERATIONS:-40}"
+  --spel-pgd-krylov-safe-block-size "${SPEL_PGD_KRYLOV_SAFE_BLOCK_SIZE:-2}"
+  --spel-pgd-krylov-residual-tolerance "${SPEL_PGD_KRYLOV_RESIDUAL_TOLERANCE:-2e-6}"
+  --spel-pgd-krylov-gap-interval-fraction "${SPEL_PGD_KRYLOV_GAP_INTERVAL_FRACTION:-0.2}"
+  --spel-pgd-hierarchical-rank1-iterations "${SPEL_PGD_HIERARCHICAL_RANK1_ITERATIONS:-3}"
+  --spel-pgd-hierarchical-residual-gap-fraction "${SPEL_PGD_HIERARCHICAL_RESIDUAL_GAP_FRACTION:-0.1}"
 )
 
 SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE="${SPEL_TANGENT_PROJECT_AFTER_MSIGN:-0}"
@@ -275,16 +316,40 @@ if [[ "$SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE" == "1" || "$SPEL_TANGENT_PRO
   TRAINING_ARGS+=(--spel-tangent-project-after-msign)
 fi
 
+if [[ "${SPEL_NORMALIZE_MSIGN_SPECTRAL:-0}" == "1" || "${SPEL_NORMALIZE_MSIGN_SPECTRAL:-}" == "true" ]]; then
+  TRAINING_ARGS+=(--spel-normalize-msign-spectral)
+fi
+
+if [[ "${MCSD_TP_WARM_START_UV:-1}" == "1" || "${MCSD_TP_WARM_START_UV:-}" == "true" ]]; then
+  TRAINING_ARGS+=(--mcsd-tp-warm-start-uv)
+else
+  TRAINING_ARGS+=(--mcsd-tp-no-warm-start-uv)
+fi
+
 if [[ "${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-0}" == "0" || "${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-}" == "false" ]]; then
   TRAINING_ARGS+=(--spel-pgd-no-tangent-project-after-msign)
 else
   TRAINING_ARGS+=(--spel-pgd-tangent-project-after-msign)
 fi
 
+if [[ "${SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL:-0}" == "1" || "${SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL:-}" == "true" ]]; then
+  TRAINING_ARGS+=(--spel-pgd-normalize-msign-spectral)
+fi
+
 if [[ "${SPEL_PGD_WARM_START_UV:-0}" == "1" || "${SPEL_PGD_WARM_START_UV:-}" == "true" ]]; then
   TRAINING_ARGS+=(--spel-pgd-warm-start-uv)
 else
   TRAINING_ARGS+=(--spel-pgd-no-warm-start-uv)
+fi
+
+if [[ "${SPEL_PGD_POST_RETURN_SPECTRAL_CACHE:-0}" == "1" || "${SPEL_PGD_POST_RETURN_SPECTRAL_CACHE:-}" == "true" ]]; then
+  TRAINING_ARGS+=(--spel-pgd-post-return-spectral-cache)
+fi
+
+if [[ "${SPEL_PGD_MATRIX_WEIGHT_DECAY:-0}" == "1" || "${SPEL_PGD_MATRIX_WEIGHT_DECAY:-}" == "true" ]]; then
+  TRAINING_ARGS+=(--spel-pgd-apply-constrained-matrix-weight-decay)
+else
+  TRAINING_ARGS+=(--spel-pgd-no-constrained-matrix-weight-decay)
 fi
 
 PARALLEL_ARGS=(
@@ -315,8 +380,21 @@ if [ "$SAVE_CHECKPOINT" = "1" ]; then
   CKPT_ARGS+=(
     --save "$CHECKPOINT_PATH"
     --save-interval "$SAVE_INTERVAL"
-    --no-save-optim
   )
+  if [[ "$SAVE_OPTIMIZER" != "1" && "$SAVE_OPTIMIZER" != "true" ]]; then
+    CKPT_ARGS+=(--no-save-optim)
+  fi
+  if [ -n "$SAVE_RETAIN_INTERVAL" ]; then
+    CKPT_ARGS+=(--save-retain-interval "$SAVE_RETAIN_INTERVAL")
+  fi
+fi
+
+if [ -n "$LOAD_CHECKPOINT" ]; then
+  CKPT_ARGS+=(--load "$LOAD_CHECKPOINT")
+fi
+
+if [ -n "$EXIT_INTERVAL" ]; then
+  CKPT_ARGS+=(--exit-interval "$EXIT_INTERVAL")
 fi
 
 DISTRIBUTED_ARGS=(
@@ -329,20 +407,21 @@ echo "job_name=$JOB_NAME"
 echo "hidden=$HIDDEN_SIZE layers=$NUM_LAYERS heads=$NUM_ATTENTION_HEADS q_groups=$NUM_QUERY_GROUPS"
 echo "seq=$SEQ_LENGTH micro=$MICRO_BATCH global=$GLOBAL_BATCH train_tokens=$TRAIN_TOKENS train_iters=$TRAIN_ITER"
 echo "seed=$SEED"
-echo "optimizer=$OPTIMIZER lr=$LR min_lr=$MIN_LR warmup=$LR_WARMUP_ITERS"
+echo "optimizer=$OPTIMIZER lr=$LR min_lr=$MIN_LR warmup=$LR_WARMUP_ITERS decay_iters=$LR_DECAY_ITERS"
 echo "muon_ball_msign_steps=${MUON_BALL_MSIGN_STEPS:-8} muon_ball_power_iteration_steps=${MUON_BALL_POWER_ITERATION_STEPS:-10}"
-echo "spel_projection=${SPEL_PROJECTION_MODE:-retraction} rank=${SPEL_PROJECTION_RANK:-1} tp_after_msign=${SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE}"
-echo "spel_pgd_projection=${SPEL_PGD_PROJECTION_MODE:-fallback_exact} rank=${SPEL_PGD_PROJECTION_RANK:-1} gap_estimator=${SPEL_PGD_GAP_ESTIMATOR_MODE:-deflated_power} gap_probe_interval=${SPEL_PGD_GAP_PROBE_INTERVAL:-1} gap_probe_safe_multiplier=${SPEL_PGD_GAP_PROBE_SAFE_MULTIPLIER:-10} main_power_dtype=${SPEL_PGD_MAIN_POWER_DTYPE:-bf16} warm_start_uv=${SPEL_PGD_WARM_START_UV:-0} tp_after_msign=${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-0}"
+echo "spel_projection=${SPEL_PROJECTION_MODE:-retraction} rank=${SPEL_PROJECTION_RANK:-1} tp_after_msign=${SPEL_TANGENT_PROJECT_AFTER_MSIGN_EFFECTIVE} normalize_msign_spectral=${SPEL_NORMALIZE_MSIGN_SPECTRAL:-0} norm_steps=${SPEL_MSIGN_SPECTRAL_NORM_STEPS:-2}"
+echo "spel_pgd_projection=${SPEL_PGD_PROJECTION_MODE:-fallback_exact} rank=${SPEL_PGD_PROJECTION_RANK:-1} gap_estimator=${SPEL_PGD_GAP_ESTIMATOR_MODE:-deflated_power} gap_probe_interval=${SPEL_PGD_GAP_PROBE_INTERVAL:-1} gap_probe_safe_multiplier=${SPEL_PGD_GAP_PROBE_SAFE_MULTIPLIER:-10} gap_audit_interval=${SPEL_PGD_GAP_AUDIT_INTERVAL:-0} post_return_cache=${SPEL_PGD_POST_RETURN_SPECTRAL_CACHE:-0} main_power_dtype=${SPEL_PGD_MAIN_POWER_DTYPE:-bf16} warm_start_uv=${SPEL_PGD_WARM_START_UV:-0} constrained_matrix_wd=${SPEL_PGD_MATRIX_WEIGHT_DECAY:-0} tp_after_msign=${SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN:-0} normalize_msign_spectral=${SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL:-0} norm_steps=${SPEL_PGD_MSIGN_SPECTRAL_NORM_STEPS:-2} hierarchical_rank1=${SPEL_PGD_HIERARCHICAL_RANK1_ITERATIONS:-3} hierarchical_residual_gap_fraction=${SPEL_PGD_HIERARCHICAL_RESIDUAL_GAP_FRACTION:-0.1}"
 echo "transformer_impl=$TRANSFORMER_IMPL attention_backend=${ATTENTION_BACKEND:-auto}"
 echo "train_data=$TRAIN_DATA_PREFIX"
 echo "valid_data=$VALID_DATA_PREFIX"
 echo "data_cache=$DATA_CACHE_PATH"
 echo "tensorboard=$TENSORBOARD_PATH"
-echo "save_checkpoint=$SAVE_CHECKPOINT checkpoint=$CHECKPOINT_PATH"
+echo "save_checkpoint=$SAVE_CHECKPOINT save_optimizer=$SAVE_OPTIMIZER save_interval=$SAVE_INTERVAL save_retain_interval=${SAVE_RETAIN_INTERVAL:-none}"
+echo "checkpoint=$CHECKPOINT_PATH load_checkpoint=${LOAD_CHECKPOINT:-none} exit_interval=${EXIT_INTERVAL:-none}"
 
 torchrun \
   "${DISTRIBUTED_ARGS[@]}" \
-  pretrain_gpt.py \
+  "${PRETRAIN_ENTRYPOINT:-pretrain_gpt.py}" \
   "${DATA_ARGS[@]}" \
   "${MODEL_ARGS[@]}" \
   "${TRAINING_ARGS[@]}" \

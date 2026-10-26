@@ -14,6 +14,7 @@ DEBUG_NOT_CONVERGED = False
 __all__ = [
     "compute_target_radius",
     "compute_spectral_ball_update",
+    "normalize_direction_spectral_fp32",
     "solve_lambda_with_bisection",
     # "solve_lambda_with_bisection_gpu",
 ]
@@ -165,6 +166,42 @@ def power_iteration(w: torch.Tensor, steps: int = 50, eps: float = 1e-20):
     s = (u.transpose(-2, -1) @ w @ v).squeeze(-1).squeeze(-1)
 
     return s, u, v
+
+
+@torch.no_grad()
+def normalize_direction_spectral_fp32(
+    direction: torch.Tensor,
+    steps: int = 2,
+    eps: float = 1e-8,
+) -> torch.Tensor:
+    """Normalize a matrix direction by an FP32 spectral-norm estimate.
+
+    This is intended as a cheap correction after a low-precision matrix-sign
+    iteration. ``steps`` counts bilateral power-iteration rounds; it is not a
+    projection rank. The zero direction is returned unchanged.
+    """
+    if direction.ndim < 2:
+        raise ValueError("direction must have at least 2 dimensions")
+    if steps < 1:
+        raise ValueError(f"steps must be at least 1, got {steps}")
+
+    direction_fp32 = direction.to(torch.float32)
+    v = torch.ones_like(direction_fp32[..., :1, :].transpose(-2, -1))
+    v = torch.nn.functional.normalize(v, p=2, dim=-2, eps=eps)
+    for _ in range(steps):
+        v = torch.nn.functional.normalize(
+            direction_fp32.transpose(-2, -1) @ (direction_fp32 @ v),
+            p=2,
+            dim=-2,
+            eps=eps,
+        )
+
+    u = torch.nn.functional.normalize(direction_fp32 @ v, p=2, dim=-2, eps=eps)
+    sigma = (
+        u.transpose(-2, -1) @ direction_fp32 @ v
+    ).abs().squeeze(-1).squeeze(-1)
+    denominator = torch.where(sigma > eps, sigma, torch.ones_like(sigma))
+    return direction_fp32 / denominator[..., None, None]
 
 
 @torch.no_grad()

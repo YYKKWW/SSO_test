@@ -2,7 +2,41 @@
 
 This repository manages one experiment track for a paper project on SSO-style optimizers in Megatron-LM. It keeps the runnable Slurm scripts, data-preparation utilities, experiment notes, and completed result summaries needed to reproduce and extend the current width-scaling study.
 
-The active experiment track is a width-scaling learning-rate sweep on a weighted 1B-token OLMo mix sample:
+## exp Branch: Current Algorithm Comparisons
+
+本分支用于当前 MCSD-TP / MCSD–P²GD 型混合实验，保留历史论文结果，不覆盖独立的论文复现库。
+
+- [算法流程、伪代码与具体 Python 实现](docs/algorithms/current_comparison_pseudocode.md)
+- [2026-10-26 实验结果与任务状态汇总](docs/experiments/cluster_results_20261026.md)
+- [环境、测试与 H20 启动步骤](docs/runbooks/cluster_experiments_reproduction.md)
+
+**已核实：** width-256 的 12 组 1B 对照全部完成，无 NaN/skips。K20/c8 混合方法
+在两种 LR 下均小幅优于匹配 MCSD-TP；但跨已测 LR 的最佳 MuonSphere 仍更好。
+
+| 方法 | LR | Final val loss | 训练及验证耗时 |
+|---|---|---:|---|
+| MuonSphere | `1.5e-2` | **3.582948** | **5:24:52** |
+| SSO | `1.5e-2` | 3.591530 | 6:03:41 |
+| MCSD-TP K20 | `1.5e-2` | 3.588559 | 5:59:40 |
+| 混合 K20/c8 | `1.5e-2` | 3.587659 | 6:02:46 |
+| MuonSphere | `2e-2` | 3.593271 | 5:25:51 |
+| SSO | `2e-2` | 3.591197 | 6:04:47 |
+| MCSD-TP K20 | `2e-2` | 3.589549 | 6:00:02 |
+| 混合 K20/c8 | `2e-2` | **3.587868** | 5:59:09 |
+
+完整 12 组结果见汇总及 [JSON](docs/results/cluster_candidates_1b_20261024/final_summary.json)。
+这些是单 seed、相同 3B indexed 数据源上的 1B-budget 实验，不是下方历史论文的 1B 样本协议。
+
+**待核实：** 六组 3B 任务 `4329039_0` 至 `_5` 已于 10 月 25 日提交。
+10 月 26 日两次 H20 SSH 连接超时，无法确认实时进度；最后核实时间为
+**2026-10-25 11:00 HKT**，当时前三组在 step20，后三组排队。不能据此推断当前完成状态。
+
+本次发布目录通过 38 个针对性 CPU 测试；未在本次重新运行 CUDA/完整训练。
+数据集、checkpoint、环境目录及矩阵快照不随本分支上传。
+
+## Historical Paper Track
+
+The historical primary experiment is a width-scaling learning-rate sweep on a weighted 1B-token OLMo mix sample:
 
 ```text
 comparison: SSO vs MuonBall vs plain SpEL/MCSD top-k 8 vs MCSD-PGD top-k 8

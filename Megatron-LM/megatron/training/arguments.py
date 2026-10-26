@@ -3461,6 +3461,38 @@ def _add_regularization_args(parser):
         dest='spel_tangent_project_after_msign',
         help='Re-project the SpEL msign direction to the spectral-sphere tangent plane',
     )
+    group.add_argument(
+        '--spel-normalize-msign-spectral',
+        action='store_true',
+        default=False,
+        help='Normalize the final SpEL msign direction by an FP32 spectral-norm estimate',
+    )
+    group.add_argument(
+        '--spel-msign-spectral-norm-steps',
+        type=int,
+        default=2,
+        help='FP32 power-iteration rounds for SpEL post-msign spectral normalization',
+    )
+    group.add_argument(
+        '--mcsd-tp-main-power-dtype',
+        type=str,
+        default='bf16',
+        choices=['bf16', 'fp32', 'fp32_highest'],
+        help='Arithmetic used by standalone MCSD-TP leading-triplet power iteration',
+    )
+    group.add_argument(
+        '--mcsd-tp-warm-start-uv',
+        action='store_true',
+        default=True,
+        dest='mcsd_tp_warm_start_uv',
+        help='Warm-start standalone MCSD-TP trial-point power iteration',
+    )
+    group.add_argument(
+        '--mcsd-tp-no-warm-start-uv',
+        action='store_false',
+        dest='mcsd_tp_warm_start_uv',
+        help='Cold-start standalone MCSD-TP trial-point power iteration',
+    )
     group.add_argument('--spel-pgd-momentum', type=float, default=0.9, help='Momentum coefficient for SpEL-PGD optimizer')
     group.add_argument('--spel-pgd-use-nesterov', action='store_true', default=True, help='Use Nesterov-style momentum in SpEL-PGD')
     group.add_argument(
@@ -3504,8 +3536,12 @@ def _add_regularization_args(parser):
         '--spel-pgd-main-power-dtype',
         type=str,
         default='bf16',
-        choices=['bf16', 'fp32'],
-        help='Dtype for the ordinary SpEL-PGD top-vector power iteration: bf16 preserves the original path, fp32 is a high-precision ablation',
+        choices=['bf16', 'fp32', 'fp32_highest', 'fp64'],
+        help=(
+            'Dtype for the SpEL-PGD top-vector power iteration: bf16 preserves '
+            'the original path, fp32 uses the optimizer matmul policy, '
+            'fp32_highest disables TF32 for PI, and fp64 is a diagnostic oracle'
+        ),
     )
     group.add_argument(
         '--spel-pgd-scale-mode',
@@ -3557,19 +3593,53 @@ def _add_regularization_args(parser):
             'deflated_fp32_gap_only',
             'block2_fp32',
             'block2_fp32_gap_only',
+            'exact_svd_gap_only',
         ],
         help=(
             'Gap estimator for SpEL-PGD branch selection: deflated_power, '
-            'deflated_fp32_gap_only, block2_fp32, or block2_fp32_gap_only'
+            'deflated_fp32_gap_only, block2_fp32, block2_fp32_gap_only, '
+            'or exact_svd_gap_only'
         ),
     )
     group.add_argument(
         '--spel-pgd-direction-normalization',
         type=str,
         default='spectral',
-        choices=['none', 'fro', 'spectral'],
+        choices=['none', 'fro', 'spectral', 'exact_spectral'],
         dest='spel_pgd_pgd_direction_normalization',
-        help='PGD branch direction normalization for SpEL-PGD: none, fro, or spectral',
+        help=(
+            'PGD branch direction normalization for SpEL-PGD: none, fro, '
+            'BF16 power-iteration spectral, or FP32 exact_spectral'
+        ),
+    )
+    group.add_argument(
+        '--spel-pgd-fallback-direction',
+        type=str,
+        choices=['pgd', 'p2gd'],
+        default='pgd',
+        help='Fallback direction; P2GD requires cached exact returns and no normalization.',
+    )
+    group.add_argument(
+        '--spel-pgd-radial-cluster-mode', type=str, default='none',
+        choices=['none', 'control', 'fixed2', 'fixed4', 'adaptive4'],
+        help='Research override: near-cluster directions; both returns radial.',
+    )
+    group.add_argument(
+        '--spel-pgd-cluster-threshold-rel', type=float, default=5e-5,
+        help='Near-top cluster threshold, independent of branch routing.',
+    )
+    group.add_argument(
+        '--spel-pgd-cluster-spectrum-mode', choices=['exact', 'warm_block8'],
+        default='exact', help='Cluster-radial spectral solver; warm_block8 has no exact fallback.',
+    )
+    group.add_argument(
+        '--spel-pgd-cluster-iterations', type=int, default=10,
+        help='Fixed iteration count for ungated warm block-8 Ritz.',
+    )
+    group.add_argument(
+        '--spel-pgd-cluster-direction-mode', choices=['matched_fro', 'momentum_fro'],
+        default='matched_fro',
+        help='MCSD length matching, or normalize momentum in Frobenius norm BEFORE cone projection.',
     )
     group.add_argument(
         '--spel-pgd-pgd-lr-scale',
@@ -3584,15 +3654,44 @@ def _add_regularization_args(parser):
         choices=[
             'fallback_exact',
             'fallback_retraction',
+            'fallback_retraction_exact_norm',
             'fallback_topk',
+            'local_top1_fallback_exact',
             'shared_exact',
             'shared_retraction',
             'shared_topk',
+            'tp_radial_pgd_exact',
+            'tp_radial_pgd_topk',
+            'tp_radial_pgd_krylov_topk',
+            'tp_radial_pgd_adaptive_krylov',
+            'tp_radial_pgd_adaptive_block2',
+            'tp_radial_pgd_multirate',
+            'tp_radial_pgd_hierarchical',
+            'tp_radial_pi',
         ],
         help=(
             'Projection mode for SpEL-PGD. fallback_exact preserves original SpEL in '
             'the safe branch and uses exact PGD projection only for fallback; '
-            'fallback_topk uses approximate top-k singular correction.'
+            'fallback_retraction_exact_norm uses the exact FP32 radial return '
+            'R*Y/||Y||_2 on the PGD fallback; '
+            'fallback_topk uses approximate top-k singular correction; '
+            'local_top1_fallback_exact uses the FP32 local rank-one projection '
+            'in the safe branch and exact SVD in the PGD branch; '
+            'tp_radial_pgd_exact uses an exact-norm radial retraction after the '
+            'tangent MCSD trial and exact SVD projection after the ambient PGD trial; '
+            'tp_radial_pgd_topk keeps that radial MCSD branch and uses top-k only '
+            'for the ambient PGD projection; tp_radial_pgd_krylov_topk uses a '
+            'guarded FP32 block-Krylov top-k projection with exact fallback; '
+            'tp_radial_pgd_adaptive_krylov uses a warm, residual-controlled '
+            'FP32 block-Krylov return for both branches and caches its spectrum; '
+            'tp_radial_pgd_adaptive_block2 uses fixed warm block-2 iteration '
+            'for radial steps and reserves warm top-8 Krylov for PGD; '
+            'tp_radial_pgd_multirate uses fixed warm-subspace radial returns, '
+            'exact PGD projection, and scheduled exact current-gap refreshes; '
+            'tp_radial_pgd_hierarchical escalates warm rank-1 to block-4/8 and '
+            'then exact SVD under residual and gap guards; '
+            'tp_radial_pi is an MCSD-TP calibration mode that uses the selected '
+            'power iteration for both the tangent normal and radial norm.'
         ),
     )
     group.add_argument(
@@ -3600,6 +3699,49 @@ def _add_regularization_args(parser):
         type=int,
         default=1,
         help='Rank used by SpEL-PGD top-k approximate projection modes',
+    )
+    group.add_argument(
+        '--spel-pgd-krylov-initial-iterations',
+        type=int,
+        default=8,
+        help='Adaptive block-Krylov iterations before the first residual check',
+    )
+    group.add_argument(
+        '--spel-pgd-krylov-max-iterations',
+        type=int,
+        default=40,
+        help='Maximum adaptive block-Krylov iterations before exact fallback',
+    )
+    group.add_argument(
+        '--spel-pgd-krylov-safe-block-size',
+        type=int,
+        choices=(2, 4, 8),
+        default=2,
+        help='Fixed warm subspace width for adaptive MCSD radial returns',
+    )
+    group.add_argument(
+        '--spel-pgd-krylov-residual-tolerance',
+        type=float,
+        default=2e-6,
+        help='Relative Ritz residual tolerance for adaptive spectral returns',
+    )
+    group.add_argument(
+        '--spel-pgd-krylov-gap-interval-fraction',
+        type=float,
+        default=0.2,
+        help='Maximum gap interval width relative to the PGD threshold',
+    )
+    group.add_argument(
+        '--spel-pgd-hierarchical-rank1-iterations',
+        type=int,
+        default=3,
+        help='Warm rank-one iterations before hierarchical block escalation',
+    )
+    group.add_argument(
+        '--spel-pgd-hierarchical-residual-gap-fraction',
+        type=float,
+        default=0.1,
+        help='Maximum residual/gap ratio accepted by hierarchical spectral returns',
     )
     group.add_argument(
         '--spel-pgd-tangent-project-after-msign',
@@ -3615,6 +3757,18 @@ def _add_regularization_args(parser):
         help='Disable post-msign tangent projection in the SpEL branch of SpEL-PGD',
     )
     group.add_argument(
+        '--spel-pgd-normalize-msign-spectral',
+        action='store_true',
+        default=False,
+        help='Normalize the SpEL-PGD MCSD-branch msign direction by an FP32 spectral estimate',
+    )
+    group.add_argument(
+        '--spel-pgd-msign-spectral-norm-steps',
+        type=int,
+        default=2,
+        help='FP32 power-iteration rounds for SpEL-PGD post-msign spectral normalization',
+    )
+    group.add_argument(
         '--spel-pgd-warm-start-uv',
         action='store_true',
         default=False,
@@ -3625,6 +3779,21 @@ def _add_regularization_args(parser):
         action='store_false',
         dest='spel_pgd_warm_start_uv',
         help='Disable SpEL-PGD power-iteration warm start',
+    )
+    group.add_argument(
+        '--spel-pgd-apply-constrained-matrix-weight-decay',
+        action='store_true',
+        default=False,
+        help=(
+            'Apply the global weight decay to hidden matrix weights constrained '
+            'by SpEL-PGD; disabled by default'
+        ),
+    )
+    group.add_argument(
+        '--spel-pgd-no-constrained-matrix-weight-decay',
+        action='store_false',
+        dest='spel_pgd_apply_constrained_matrix_weight_decay',
+        help='Set wd_mult=0 for hidden matrix weights constrained by SpEL-PGD',
     )
     group.add_argument(
         '--spel-pgd-gap-probe-interval',
@@ -3642,6 +3811,26 @@ def _add_regularization_args(parser):
         help=(
             'Reduce gap-probe frequency only when the last relative gap exceeds '
             'this multiple of the PGD gap threshold'
+        ),
+    )
+    group.add_argument(
+        '--spel-pgd-gap-audit-interval',
+        type=int,
+        default=0,
+        help=(
+            'Run an FP32 full-SVD audit of sigma1, sigma2, the relative gap, '
+            'and the automatic branch decision every N optimizer steps; '
+            'zero disables the diagnostic'
+        ),
+    )
+    group.add_argument(
+        '--spel-pgd-post-return-spectral-cache',
+        action='store_true',
+        default=False,
+        help=(
+            'Reuse exact top-two singular values and leading vectors from the '
+            'previous tp_radial_pgd_exact return; cached top-two values also '
+            'replace the configured gap estimator'
         ),
     )
     group.add_argument(
@@ -4049,7 +4238,7 @@ def _add_training_args(parser):
         '--optimizer',
         type=str,
         default='adam',
-        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'muon_ball', 'muon_ball_dist', 'spel', 'spel_dist', 'spel_tp', 'spel_tp_dist', 'spel_pgd', 'spel_pgd_dist', 'lion', 'soap', 'adaptive_muon'],
+        choices=['adam', 'sgd', 'muon', 'dist_muon', 'spectral_ball', 'spectral_ball_dist', 'muon_ball', 'muon_ball_dist', 'spel', 'spel_dist', 'spel_tp', 'spel_tp_dist', 'mcsd_tp', 'mcsd_tp_dist', 'spel_pgd', 'spel_pgd_dist', 'lion', 'soap', 'adaptive_muon'],
         help='Optimizer function. '
         'Note: dist_muon is deprecated; use --optimizer muon '
         'with --use-distributed-optimizer instead.',

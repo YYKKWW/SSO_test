@@ -75,6 +75,7 @@ from .emerging_optimizers import (
     _EMERGING_OPTIMIZERS,
     HAVE_EMERGING_OPTIMIZERS,
     _create_emerging_optimizer,
+    _get_emerging_optimizer_param_overrides,
     _get_qkv_split_shapes,
 )
 from .grad_scaler import ConstantGradScaler, DynamicGradScaler
@@ -821,8 +822,8 @@ def _get_megatron_emerging_optimizer(
                         f"shape={tuple(param.shape)}, split_shapes={qkv_split_shapes}",
                     )
 
-    # Apply optimizer-specific default param overrides (e.g. muon: non-linear -> adam).
-    config_overrides.update(_EMERGING_OPTIMIZERS[eopt_name].default_param_overrides)
+    # Apply optimizer-specific defaults and configuration-dependent parameter routing.
+    config_overrides.update(_get_emerging_optimizer_param_overrides(eopt_name, config))
 
     # Build param groups and bucket by (optimizer_name, is_expert_parallel).
     # Layer-wise distributed optimizer handles expert params internally so we skip that split.

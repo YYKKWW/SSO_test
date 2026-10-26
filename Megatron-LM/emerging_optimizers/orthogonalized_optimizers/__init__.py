@@ -12,12 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from emerging_optimizers.orthogonalized_optimizers.mcsd_tp import *
 from emerging_optimizers.orthogonalized_optimizers.muon_ball import *
 from emerging_optimizers.orthogonalized_optimizers.orthogonalized_optimizer import *
-from emerging_optimizers.orthogonalized_optimizers.spel import *
-from emerging_optimizers.orthogonalized_optimizers.spel_pgd_same_projection import *
 from emerging_optimizers.orthogonalized_optimizers.spectral_ball import *
 from emerging_optimizers.orthogonalized_optimizers.spectral_ball_utils import *
+from emerging_optimizers.orthogonalized_optimizers.spel import *
+from emerging_optimizers.orthogonalized_optimizers.spel_pgd_same_projection import *
 
 
 def get_muon_scale_factor(size_out: int, size_in: int, mode: str = "spectral") -> float:

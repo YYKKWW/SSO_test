@@ -420,6 +420,20 @@ class OptimizerConfig:
     spel_tangent_project_after_msign: bool = False
     """Whether SpEL re-projects the msign direction to the tangent plane."""
 
+    spel_normalize_msign_spectral: bool = False
+    """Whether SpEL normalizes its final msign direction by an FP32 spectral estimate."""
+
+    spel_msign_spectral_norm_steps: int = 2
+    """FP32 power-iteration rounds used for post-msign spectral normalization."""
+
+    # Focused standalone MCSD-TP. It reuses the SpEL architecture settings
+    # above and adds only the numerical choices needed by its PI radial path.
+    mcsd_tp_main_power_dtype: str = "bf16"
+    """MCSD-TP leading-triplet PI mode: bf16, fp32, or fp32_highest."""
+
+    mcsd_tp_warm_start_uv: bool = True
+    """Warm-start trial-point PI from the cached current leading vector."""
+
     # SpEL-PGD, a SpEL variant with PGD-style fallback.
     spel_pgd_momentum: float = 0.9
     """Momentum coefficient for SpEL-PGD optimizer."""
@@ -449,7 +463,7 @@ class OptimizerConfig:
     """Power iteration steps used to estimate spectral norm in SpEL-PGD."""
 
     spel_pgd_main_power_dtype: str = "bf16"
-    """Dtype for the ordinary SpEL-PGD top-vector power iteration: bf16 or fp32."""
+    """PI mode: bf16, fp32, fp32_highest (no TF32), or diagnostic fp64."""
 
     spel_pgd_scale_mode: str = 'spectral_mup'
     """Update scaling mode for SpEL-PGD."""
@@ -476,17 +490,35 @@ class OptimizerConfig:
     """Gap estimator for SpEL-PGD branch selection.
 
     Supported values are deflated_power, deflated_fp32_gap_only, block2_fp32,
-    and block2_fp32_gap_only.
+    block2_fp32_gap_only, and exact_svd_gap_only.
     """
 
     spel_pgd_pgd_direction_normalization: str = "spectral"
-    """PGD branch direction normalization mode: none, fro, or spectral."""
+    """PGD direction normalization: none, fro, spectral PI, or exact_spectral."""
+
+    spel_pgd_fallback_direction: str = "pgd"
+    """Raw ambient PGD or Euclidean tangent-cone P2GD in the fallback."""
+
+    spel_pgd_radial_cluster_mode: str = "none"
+    """Opt-in research override: control/fixed2/fixed4/adaptive4, both returns radial."""
+
+    spel_pgd_cluster_threshold_rel: float = 5e-5
+    """Near-top cluster tolerance, separate from the routing threshold."""
+
+    spel_pgd_cluster_spectrum_mode: str = "exact"
+    """Cluster-radial spectrum: exact or ungated warm_block8."""
+
+    spel_pgd_cluster_iterations: int = 10
+    """Fixed iteration budget for the ungated warm block-8 spectrum."""
+
+    spel_pgd_cluster_direction_mode: str = "matched_fro"
+    """Cluster direction: MCSD length matching or Frobenius-normalized momentum."""
 
     spel_pgd_pgd_lr_scale: float = 0.5
     """Extra step-size multiplier used only for the SpEL-PGD PGD fallback branch."""
 
     spel_pgd_projection_mode: str = "fallback_exact"
-    """SpEL-PGD projection mode: fallback_exact, fallback_retraction, fallback_topk, shared_exact, shared_retraction, or shared_topk."""
+    """SpEL-PGD return mode, including exact and multi-rate TP/PGD paths."""
 
     spel_pgd_projection_rank: int = 1
     """Rank used by SpEL-PGD top-k approximate projection modes."""
@@ -494,14 +526,50 @@ class OptimizerConfig:
     spel_pgd_tangent_project_after_msign: bool = False
     """Whether the SpEL branch in SpEL-PGD re-projects msign to the tangent plane."""
 
+    spel_pgd_normalize_msign_spectral: bool = False
+    """Whether the SpEL-PGD MCSD branch normalizes msign by an FP32 spectral estimate."""
+
+    spel_pgd_msign_spectral_norm_steps: int = 2
+    """FP32 power-iteration rounds for SpEL-PGD post-msign spectral normalization."""
+
     spel_pgd_warm_start_uv: bool = False
     """Whether SpEL-PGD power iteration reuses the previous right singular vector."""
+
+    spel_pgd_apply_constrained_matrix_weight_decay: bool = False
+    """Whether constrained matrix weights inherit the global weight decay."""
 
     spel_pgd_gap_probe_interval: int = 1
     """Run the automatic SpEL-PGD gap estimator every N steps in the safe region."""
 
     spel_pgd_gap_probe_safe_multiplier: float = 10.0
     """Gap/threshold ratio above which SpEL-PGD reduces gap-probe frequency."""
+
+    spel_pgd_gap_audit_interval: int = 0
+    """Exact-SVD gap audit interval in optimizer steps; zero disables auditing."""
+
+    spel_pgd_post_return_spectral_cache: bool = False
+    """Reuse exact post-return top-two singular data at the next optimizer step."""
+
+    spel_pgd_krylov_initial_iterations: int = 8
+    """Initial FP32 block-Krylov iterations before checking convergence."""
+
+    spel_pgd_krylov_max_iterations: int = 40
+    """Maximum FP32 block-Krylov iterations before exact fallback."""
+
+    spel_pgd_krylov_safe_block_size: int = 2
+    """Fixed warm subspace width for adaptive MCSD radial returns."""
+
+    spel_pgd_krylov_residual_tolerance: float = 2e-6
+    """Relative Ritz residual tolerance for adaptive spectral returns."""
+
+    spel_pgd_krylov_gap_interval_fraction: float = 0.2
+    """Required gap-interval width as a fraction of the branch threshold."""
+
+    spel_pgd_hierarchical_rank1_iterations: int = 3
+    """Warm rank-one iterations before escalating to block spectral solves."""
+
+    spel_pgd_hierarchical_residual_gap_fraction: float = 0.1
+    """Maximum Ritz-residual/gap ratio accepted by hierarchical returns."""
 
     # Lion.
     lion_beta1: float = 0.95

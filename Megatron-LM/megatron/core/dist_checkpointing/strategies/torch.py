@@ -891,17 +891,18 @@ class TorchDistLoadShardedStrategy:
         fsr = _get_filesystem_reader(
             checkpoint_dir, cache_metadata=self.cache_metadata, async_strategy=async_strategy
         )
-        checkpoint.load(
-            pyt_state_dict,
-            fsr,
-            planner=MCoreLoadPlanner(
+        load_kwargs = {
+            "storage_reader": fsr,
+            "planner": MCoreLoadPlanner(
                 shapes_validation_sharded_tensors=flexible_shape_sharded_tensors,
                 allow_shape_mismatch_sharded_tensors=allow_shape_mismatch_sharded_tensors,
                 flatten_state_dict=False,
                 flatten_sharded_tensors=False,
             ),
-            no_dist=True,
-        )
+        }
+        if "no_dist" in inspect.signature(checkpoint.load).parameters:
+            load_kwargs["no_dist"] = True
+        checkpoint.load(pyt_state_dict, **load_kwargs)
 
         if self.cache_metadata:
             self.cached_global_metadata = (

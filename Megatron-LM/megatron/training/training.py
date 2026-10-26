@@ -16,6 +16,21 @@ _STARTUP_TIMESTAMPS = {
     'pretrain_entry': None,  # Set at top of pretrain()
 }
 
+_HIERARCHICAL_REJECTION_REASONS = (
+    'rank1_prior_bounds',
+    'rank1_top_identity',
+    'rank1_warning_gap',
+    'rank1_angle',
+    'rank1_residual',
+    'rank1_radial',
+    'block4_residual',
+    'block4_warning_gap',
+    'block4_residual_gap',
+    'block8_residual',
+    'block8_warning_gap',
+    'block8_residual_gap',
+)
+
 
 def set_startup_timestamps(program_start=None, main_entry=None):
     """Set startup timestamps from the entry script.
@@ -289,15 +304,97 @@ def _collect_spel_pgd_branch_stats(optimizer) -> Optional[Dict[str, float]]:
                     'zero_lr_branch_count',
                     'post_projection_count',
                     'gap_probe_count',
+                    'gap_audit_count',
+                    'gap_audit_estimate_count',
+                    'gap_audit_exact_pgd_count',
+                    'gap_audit_false_safe_count',
+                    'gap_audit_false_pgd_count',
+                    'gap_audit_delta1_sum',
+                    'gap_audit_delta2_sum',
+                    'gap_audit_gap_error_sum',
+                    'gap_audit_exact_gap_sum',
+                    'gap_audit_estimated_gap_sum',
+                    'gap_audit_main_sigma1_error_sum',
+                    'gap_audit_main_triplet_residual_sum',
+                    'pgd_burst_start_count',
+                    'pgd_repeat_count',
+                    'pgd_projection_diagnostic_count',
+                    'pgd_trial_gap_sum',
+                    'pgd_post_gap_sum',
+                    'pgd_zero_post_gap_count',
+                    'pgd_multi_clip_count',
+                    'pgd_clipped_singular_values_sum',
+                    'spectral_cache_hit_count',
+                    'spectral_cache_bootstrap_count',
+                    'approximate_spectral_count',
+                    'approximate_spectral_fallback_count',
+                    'approximate_spectral_iterations_sum',
+                    'approximate_spectral_residual_sum',
+                    'approximate_gap_interval_width_sum',
+                    'approximate_rank1_count',
+                    'approximate_block4_count',
+                    'approximate_block8_count',
                     'total_matrix_updates',
                     'cumulative_spel_branch_count',
                     'cumulative_pgd_branch_count',
+                    'cumulative_p2gd_count',
+                    'cumulative_p2gd_multiple_count',
+                    'cluster_rank1_count',
+                    'cluster_rank2_count',
+                    'cluster_rank3_count',
+                    'cluster_rank4_count',
+                    'cluster_overflow_count',
+                    'cluster_multiplier_sum',
                     'cumulative_zero_lr_branch_count',
                     'cumulative_post_projection_count',
                     'cumulative_gap_probe_count',
+                    'cumulative_gap_audit_count',
+                    'cumulative_gap_audit_estimate_count',
+                    'cumulative_gap_audit_exact_pgd_count',
+                    'cumulative_gap_audit_false_safe_count',
+                    'cumulative_gap_audit_false_pgd_count',
+                    'cumulative_gap_audit_delta1_sum',
+                    'cumulative_gap_audit_delta2_sum',
+                    'cumulative_gap_audit_gap_error_sum',
+                    'cumulative_gap_audit_exact_gap_sum',
+                    'cumulative_gap_audit_estimated_gap_sum',
+                    'cumulative_gap_audit_main_sigma1_error_sum',
+                    'cumulative_gap_audit_main_triplet_residual_sum',
+                    'cumulative_pgd_burst_start_count',
+                    'cumulative_pgd_repeat_count',
+                    'cumulative_pgd_projection_diagnostic_count',
+                    'cumulative_pgd_trial_gap_sum',
+                    'cumulative_pgd_post_gap_sum',
+                    'cumulative_pgd_zero_post_gap_count',
+                    'cumulative_pgd_multi_clip_count',
+                    'cumulative_pgd_clipped_singular_values_sum',
+                    'cumulative_spectral_cache_hit_count',
+                    'cumulative_spectral_cache_bootstrap_count',
+                    'cumulative_approximate_spectral_count',
+                    'cumulative_approximate_spectral_fallback_count',
+                    'cumulative_approximate_spectral_iterations_sum',
+                    'cumulative_approximate_spectral_residual_sum',
+                    'cumulative_approximate_gap_interval_width_sum',
+                    'cumulative_approximate_rank1_count',
+                    'cumulative_approximate_block4_count',
+                    'cumulative_approximate_block8_count',
                     'cumulative_total_matrix_updates',
                 ):
                     totals[key] += float(stats.get(key, 0) or 0)
+                totals['p2gd_max_top_multiplicity'] = max(
+                    totals['p2gd_max_top_multiplicity'],
+                    float(stats.get('p2gd_max_top_multiplicity', 0) or 0),
+                )
+                for key in ('cluster_radial_enabled', 'cluster_radial_ratio_max',
+                            'cluster_flatten_distance_max'):
+                    totals[key] = max(totals[key], float(stats.get(key, 0) or 0))
+                for reason in _HIERARCHICAL_REJECTION_REASONS:
+                    for prefix in (
+                        'approximate_reject_',
+                        'cumulative_approximate_reject_',
+                    ):
+                        key = f'{prefix}{reason}_count'
+                        totals[key] += float(stats.get(key, 0) or 0)
 
         for attr_name in ('chained_optimizers', 'optimizers', 'base_optimizers'):
             children = getattr(current, attr_name, None)
@@ -326,6 +423,190 @@ def _collect_spel_pgd_branch_stats(optimizer) -> Optional[Dict[str, float]]:
     totals['cumulative_post_projection_rate'] = (
         totals['cumulative_post_projection_count'] / cumulative_total if cumulative_total else 0.0
     )
+    approximate_count = totals['approximate_spectral_count']
+    cumulative_approximate_count = totals['cumulative_approximate_spectral_count']
+    totals['approximate_spectral_fallback_rate'] = (
+        totals['approximate_spectral_fallback_count'] / approximate_count
+        if approximate_count
+        else 0.0
+    )
+    totals['approximate_spectral_iterations_mean'] = (
+        totals['approximate_spectral_iterations_sum'] / approximate_count
+        if approximate_count
+        else 0.0
+    )
+    totals['approximate_spectral_residual_mean'] = (
+        totals['approximate_spectral_residual_sum'] / approximate_count
+        if approximate_count
+        else 0.0
+    )
+    totals['approximate_gap_interval_width_mean'] = (
+        totals['approximate_gap_interval_width_sum'] / approximate_count
+        if approximate_count
+        else 0.0
+    )
+    totals['cumulative_approximate_spectral_fallback_rate'] = (
+        totals['cumulative_approximate_spectral_fallback_count']
+        / cumulative_approximate_count
+        if cumulative_approximate_count
+        else 0.0
+    )
+    totals['cumulative_approximate_spectral_iterations_mean'] = (
+        totals['cumulative_approximate_spectral_iterations_sum']
+        / cumulative_approximate_count
+        if cumulative_approximate_count
+        else 0.0
+    )
+
+    pgd_count = totals['pgd_branch_count']
+    pgd_diag_count = totals['pgd_projection_diagnostic_count']
+    cumulative_pgd_count = totals['cumulative_pgd_branch_count']
+    cumulative_pgd_diag_count = totals['cumulative_pgd_projection_diagnostic_count']
+    totals['pgd_repeat_rate'] = (
+        totals['pgd_repeat_count'] / pgd_count if pgd_count else 0.0
+    )
+    totals['pgd_mean_burst_length'] = (
+        pgd_count / totals['pgd_burst_start_count']
+        if totals['pgd_burst_start_count']
+        else 0.0
+    )
+    totals['pgd_trial_gap_mean'] = (
+        totals['pgd_trial_gap_sum'] / pgd_diag_count if pgd_diag_count else 0.0
+    )
+    totals['pgd_post_gap_mean'] = (
+        totals['pgd_post_gap_sum'] / pgd_diag_count if pgd_diag_count else 0.0
+    )
+    totals['pgd_zero_post_gap_rate'] = (
+        totals['pgd_zero_post_gap_count'] / pgd_diag_count if pgd_diag_count else 0.0
+    )
+    totals['pgd_multi_clip_rate'] = (
+        totals['pgd_multi_clip_count'] / pgd_diag_count if pgd_diag_count else 0.0
+    )
+    totals['pgd_clipped_singular_values_mean'] = (
+        totals['pgd_clipped_singular_values_sum'] / pgd_diag_count
+        if pgd_diag_count
+        else 0.0
+    )
+    totals['cumulative_pgd_repeat_rate'] = (
+        totals['cumulative_pgd_repeat_count'] / cumulative_pgd_count
+        if cumulative_pgd_count
+        else 0.0
+    )
+    totals['cumulative_pgd_mean_burst_length'] = (
+        cumulative_pgd_count / totals['cumulative_pgd_burst_start_count']
+        if totals['cumulative_pgd_burst_start_count']
+        else 0.0
+    )
+    totals['cumulative_pgd_trial_gap_mean'] = (
+        totals['cumulative_pgd_trial_gap_sum'] / cumulative_pgd_diag_count
+        if cumulative_pgd_diag_count
+        else 0.0
+    )
+    totals['cumulative_pgd_post_gap_mean'] = (
+        totals['cumulative_pgd_post_gap_sum'] / cumulative_pgd_diag_count
+        if cumulative_pgd_diag_count
+        else 0.0
+    )
+    totals['cumulative_pgd_zero_post_gap_rate'] = (
+        totals['cumulative_pgd_zero_post_gap_count'] / cumulative_pgd_diag_count
+        if cumulative_pgd_diag_count
+        else 0.0
+    )
+    totals['cumulative_pgd_multi_clip_rate'] = (
+        totals['cumulative_pgd_multi_clip_count'] / cumulative_pgd_diag_count
+        if cumulative_pgd_diag_count
+        else 0.0
+    )
+    totals['cumulative_pgd_clipped_singular_values_mean'] = (
+        totals['cumulative_pgd_clipped_singular_values_sum']
+        / cumulative_pgd_diag_count
+        if cumulative_pgd_diag_count
+        else 0.0
+    )
+
+    audit_count = totals['gap_audit_count']
+    audit_estimate_count = totals['gap_audit_estimate_count']
+    cumulative_audit_count = totals['cumulative_gap_audit_count']
+    cumulative_audit_estimate_count = totals['cumulative_gap_audit_estimate_count']
+
+    def _mean(sum_key, count):
+        return totals[sum_key] / count if count else 0.0
+
+    totals['gap_audit_delta1_mean'] = _mean(
+        'gap_audit_delta1_sum', audit_estimate_count
+    )
+    totals['gap_audit_delta2_mean'] = _mean(
+        'gap_audit_delta2_sum', audit_estimate_count
+    )
+    totals['gap_audit_gap_error_mean'] = _mean(
+        'gap_audit_gap_error_sum', audit_estimate_count
+    )
+    totals['gap_audit_exact_gap_mean'] = _mean(
+        'gap_audit_exact_gap_sum', audit_count
+    )
+    totals['gap_audit_estimated_gap_mean'] = _mean(
+        'gap_audit_estimated_gap_sum', audit_estimate_count
+    )
+    totals['gap_audit_main_sigma1_error_mean'] = _mean(
+        'gap_audit_main_sigma1_error_sum', audit_count
+    )
+    totals['gap_audit_main_triplet_residual_mean'] = _mean(
+        'gap_audit_main_triplet_residual_sum', audit_count
+    )
+    totals['gap_audit_exact_pgd_rate'] = (
+        totals['gap_audit_exact_pgd_count'] / audit_count if audit_count else 0.0
+    )
+    totals['gap_audit_false_safe_rate'] = (
+        totals['gap_audit_false_safe_count'] / audit_count if audit_count else 0.0
+    )
+    totals['gap_audit_false_pgd_rate'] = (
+        totals['gap_audit_false_pgd_count'] / audit_count if audit_count else 0.0
+    )
+
+    totals['cumulative_gap_audit_delta1_mean'] = _mean(
+        'cumulative_gap_audit_delta1_sum', cumulative_audit_estimate_count
+    )
+    totals['cumulative_gap_audit_delta2_mean'] = _mean(
+        'cumulative_gap_audit_delta2_sum', cumulative_audit_estimate_count
+    )
+    totals['cumulative_gap_audit_gap_error_mean'] = _mean(
+        'cumulative_gap_audit_gap_error_sum', cumulative_audit_estimate_count
+    )
+    totals['cumulative_gap_audit_exact_gap_mean'] = _mean(
+        'cumulative_gap_audit_exact_gap_sum', cumulative_audit_count
+    )
+    totals['cumulative_gap_audit_estimated_gap_mean'] = _mean(
+        'cumulative_gap_audit_estimated_gap_sum', cumulative_audit_estimate_count
+    )
+    totals['cumulative_gap_audit_main_sigma1_error_mean'] = _mean(
+        'cumulative_gap_audit_main_sigma1_error_sum', cumulative_audit_count
+    )
+    totals['cumulative_gap_audit_main_triplet_residual_mean'] = _mean(
+        'cumulative_gap_audit_main_triplet_residual_sum', cumulative_audit_count
+    )
+    totals['cumulative_gap_audit_exact_pgd_rate'] = (
+        totals['cumulative_gap_audit_exact_pgd_count'] / cumulative_audit_count
+        if cumulative_audit_count
+        else 0.0
+    )
+    totals['cumulative_gap_audit_false_safe_rate'] = (
+        totals['cumulative_gap_audit_false_safe_count'] / cumulative_audit_count
+        if cumulative_audit_count
+        else 0.0
+    )
+    totals['cumulative_gap_audit_false_pgd_rate'] = (
+        totals['cumulative_gap_audit_false_pgd_count'] / cumulative_audit_count
+        if cumulative_audit_count
+        else 0.0
+    )
+
+    cluster_count = sum(totals[f'cluster_rank{q}_count'] for q in range(1, 5))
+    totals['cluster_multiplier_mean'] = (
+        totals['cluster_multiplier_sum'] / cluster_count if cluster_count else 0.0
+    )
+    for key in tuple(totals):
+        if key.endswith('_sum'):
+            totals.pop(key)
     return dict(totals)
 
 
@@ -3330,6 +3611,18 @@ def training_log(
             cumulative_pgd_rate = spel_pgd_branch_stats.get(
                 'cumulative_pgd_fallback_rate', 0.0
             )
+            gap_audit_count = int(spel_pgd_branch_stats.get('gap_audit_count', 0))
+            cumulative_gap_audit_count = int(
+                spel_pgd_branch_stats.get('cumulative_gap_audit_count', 0)
+            )
+            pgd_projection_diagnostic_count = int(
+                spel_pgd_branch_stats.get('pgd_projection_diagnostic_count', 0)
+            )
+            cumulative_pgd_projection_diagnostic_count = int(
+                spel_pgd_branch_stats.get(
+                    'cumulative_pgd_projection_diagnostic_count', 0
+                )
+            )
             log_string += (
                 f' spel-pgd pgd branches: {pgd_count}/{total_count} ({pgd_rate:.3f}) |'
                 f' cumulative pgd branches: {cumulative_pgd_count}/{cumulative_total_count}'
@@ -3341,6 +3634,163 @@ def training_log(
                 f' gap probes: {gap_probe_count}/{total_count} |'
                 f' cumulative gap probes: {cumulative_gap_probe_count}/{cumulative_total_count} |'
             )
+            spectral_cache_hits = int(
+                spel_pgd_branch_stats.get('spectral_cache_hit_count', 0)
+            )
+            spectral_cache_bootstraps = int(
+                spel_pgd_branch_stats.get('spectral_cache_bootstrap_count', 0)
+            )
+            if spectral_cache_hits or spectral_cache_bootstraps:
+                log_string += (
+                    f' spectral cache hits/bootstraps: '
+                    f'{spectral_cache_hits}/{spectral_cache_bootstraps} |'
+                    f' cumulative spectral cache hits/bootstraps: '
+                    f'{int(spel_pgd_branch_stats.get("cumulative_spectral_cache_hit_count", 0))}/'
+                    f'{int(spel_pgd_branch_stats.get("cumulative_spectral_cache_bootstrap_count", 0))} |'
+                )
+            approximate_count = int(
+                spel_pgd_branch_stats.get('approximate_spectral_count', 0)
+            )
+            if approximate_count:
+                log_string += (
+                    f' adaptive krylov count/fallback: {approximate_count}/'
+                    f'{int(spel_pgd_branch_stats.get("approximate_spectral_fallback_count", 0))} |'
+                    f' mean iterations/residual/gap-width: '
+                    f'{spel_pgd_branch_stats.get("approximate_spectral_iterations_mean", 0.0):.2f}/'
+                    f'{spel_pgd_branch_stats.get("approximate_spectral_residual_mean", 0.0):.3E}/'
+                    f'{spel_pgd_branch_stats.get("approximate_gap_interval_width_mean", 0.0):.3E} |'
+                    f' cumulative exact-SVD solver fallback rate: '
+                    f'{spel_pgd_branch_stats.get("cumulative_approximate_spectral_fallback_rate", 0.0):.3f} |'
+                    f' hierarchical rank1/block4/block8: '
+                    f'{int(spel_pgd_branch_stats.get("approximate_rank1_count", 0))}/'
+                    f'{int(spel_pgd_branch_stats.get("approximate_block4_count", 0))}/'
+                    f'{int(spel_pgd_branch_stats.get("approximate_block8_count", 0))} |'
+                    f' cumulative hierarchical rank1/block4/block8: '
+                    f'{int(spel_pgd_branch_stats.get("cumulative_approximate_rank1_count", 0))}/'
+                    f'{int(spel_pgd_branch_stats.get("cumulative_approximate_block4_count", 0))}/'
+                    f'{int(spel_pgd_branch_stats.get("cumulative_approximate_block8_count", 0))} |'
+                )
+                rank1_rejections = [
+                    int(
+                        spel_pgd_branch_stats.get(
+                            f'cumulative_approximate_reject_{reason}_count', 0
+                        )
+                    )
+                    for reason in _HIERARCHICAL_REJECTION_REASONS[:6]
+                ]
+                block_rejections = [
+                    int(
+                        spel_pgd_branch_stats.get(
+                            f'cumulative_approximate_reject_{reason}_count', 0
+                        )
+                    )
+                    for reason in _HIERARCHICAL_REJECTION_REASONS[6:]
+                ]
+                if any(rank1_rejections) or any(block_rejections):
+                    log_string += (
+                        ' hierarchical reject rank1 '
+                        'bounds/top/warn/angle/residual/radial: '
+                        f'{"/".join(str(value) for value in rank1_rejections)} |'
+                        ' block4 residual/warn/ratio; block8 residual/warn/ratio: '
+                        f'{"/".join(str(value) for value in block_rejections)} |'
+                    )
+            if pgd_count:
+                log_string += (
+                    f' pgd burst starts/repeats: '
+                    f'{int(spel_pgd_branch_stats.get("pgd_burst_start_count", 0))}/'
+                    f'{int(spel_pgd_branch_stats.get("pgd_repeat_count", 0))} |'
+                    f' pgd repeat rate: '
+                    f'{spel_pgd_branch_stats.get("pgd_repeat_rate", 0.0):.3f} |'
+                )
+            if pgd_projection_diagnostic_count:
+                log_string += (
+                    f' pgd trial/post gap: '
+                    f'{spel_pgd_branch_stats.get("pgd_trial_gap_mean", 0.0):.3E}/'
+                    f'{spel_pgd_branch_stats.get("pgd_post_gap_mean", 0.0):.3E} |'
+                    f' zero-post-gap/multi-clip rate: '
+                    f'{spel_pgd_branch_stats.get("pgd_zero_post_gap_rate", 0.0):.3f}/'
+                    f'{spel_pgd_branch_stats.get("pgd_multi_clip_rate", 0.0):.3f} |'
+                    f' clipped sv mean: '
+                    f'{spel_pgd_branch_stats.get("pgd_clipped_singular_values_mean", 0.0):.2f} |'
+                )
+            if spel_pgd_branch_stats.get('cumulative_p2gd_count', 0):
+                log_string += (
+                    f' p2gd cumulative/all-q>1/max-q: '
+                    f'{int(spel_pgd_branch_stats["cumulative_p2gd_count"])}/'
+                    f'{int(spel_pgd_branch_stats["cumulative_p2gd_multiple_count"])}/'
+                    f'{int(spel_pgd_branch_stats["p2gd_max_top_multiplicity"])} |'
+                )
+            if cumulative_pgd_count:
+                cluster_count = sum(
+                    spel_pgd_branch_stats.get(f'cluster_rank{q}_count', 0)
+                    for q in range(1, 5)
+                )
+                if cluster_count:
+                    rank_counts = '/'.join(
+                        str(int(spel_pgd_branch_stats.get(f'cluster_rank{q}_count', 0)))
+                        for q in range(1, 5)
+                    )
+                    log_string += (
+                        f' cluster cumulative q1/q2/q3/q4: {rank_counts} |'
+                        f' cluster overflow: {int(spel_pgd_branch_stats.get("cluster_overflow_count", 0))} |'
+                        f' cluster multiplier mean: '
+                        f'{spel_pgd_branch_stats.get("cluster_multiplier_mean", 0):.3E} |'
+                        f' cluster flatten max: '
+                        f'{spel_pgd_branch_stats.get("cluster_flatten_distance_max", 0):.3E} |'
+                    )
+                log_string += (
+                    f' cumulative pgd bursts/repeat rate/mean length: '
+                    f'{int(spel_pgd_branch_stats.get("cumulative_pgd_burst_start_count", 0))}/'
+                    f'{spel_pgd_branch_stats.get("cumulative_pgd_repeat_rate", 0.0):.3f}/'
+                    f'{spel_pgd_branch_stats.get("cumulative_pgd_mean_burst_length", 0.0):.2f} |'
+                )
+            if spel_pgd_branch_stats.get('cluster_radial_enabled', 0):
+                log_string += (
+                    f' radial change max: '
+                    f'{spel_pgd_branch_stats.get("cluster_radial_ratio_max", 0):.3E} |'
+                )
+            if cumulative_pgd_projection_diagnostic_count:
+                log_string += (
+                    f' cumulative pgd trial/post gap: '
+                    f'{spel_pgd_branch_stats.get("cumulative_pgd_trial_gap_mean", 0.0):.3E}/'
+                    f'{spel_pgd_branch_stats.get("cumulative_pgd_post_gap_mean", 0.0):.3E} |'
+                    f' cumulative zero-post-gap/multi-clip: '
+                    f'{spel_pgd_branch_stats.get("cumulative_pgd_zero_post_gap_rate", 0.0):.3f}/'
+                    f'{spel_pgd_branch_stats.get("cumulative_pgd_multi_clip_rate", 0.0):.3f} |'
+                )
+            if gap_audit_count:
+                log_string += (
+                    f' gap audit delta1/delta2: '
+                    f'{spel_pgd_branch_stats.get("gap_audit_delta1_mean", 0.0):.3E}/'
+                    f'{spel_pgd_branch_stats.get("gap_audit_delta2_mean", 0.0):.3E} |'
+                    f' gap audit error: '
+                    f'{spel_pgd_branch_stats.get("gap_audit_gap_error_mean", 0.0):.3E} |'
+                    f' main sigma1/triplet residual: '
+                    f'{spel_pgd_branch_stats.get("gap_audit_main_sigma1_error_mean", 0.0):.3E}/'
+                    f'{spel_pgd_branch_stats.get("gap_audit_main_triplet_residual_mean", 0.0):.3E} |'
+                    f' exact-pgd: '
+                    f'{int(spel_pgd_branch_stats.get("gap_audit_exact_pgd_count", 0))} |'
+                    f' false-safe/false-pgd: '
+                    f'{int(spel_pgd_branch_stats.get("gap_audit_false_safe_count", 0))}/'
+                    f'{int(spel_pgd_branch_stats.get("gap_audit_false_pgd_count", 0))} |'
+                )
+            if cumulative_gap_audit_count:
+                log_string += (
+                    f' cumulative gap audits: {cumulative_gap_audit_count} |'
+                    f' cumulative delta1/delta2: '
+                    f'{spel_pgd_branch_stats.get("cumulative_gap_audit_delta1_mean", 0.0):.3E}/'
+                    f'{spel_pgd_branch_stats.get("cumulative_gap_audit_delta2_mean", 0.0):.3E} |'
+                    f' cumulative gap error: '
+                    f'{spel_pgd_branch_stats.get("cumulative_gap_audit_gap_error_mean", 0.0):.3E} |'
+                    f' cumulative main sigma1/triplet residual: '
+                    f'{spel_pgd_branch_stats.get("cumulative_gap_audit_main_sigma1_error_mean", 0.0):.3E}/'
+                    f'{spel_pgd_branch_stats.get("cumulative_gap_audit_main_triplet_residual_mean", 0.0):.3E} |'
+                    f' cumulative exact-pgd: '
+                    f'{int(spel_pgd_branch_stats.get("cumulative_gap_audit_exact_pgd_count", 0))} |'
+                    f' cumulative false-safe/false-pgd: '
+                    f'{int(spel_pgd_branch_stats.get("cumulative_gap_audit_false_safe_count", 0))}/'
+                    f'{int(spel_pgd_branch_stats.get("cumulative_gap_audit_false_pgd_count", 0))} |'
+                )
         log_string += ' number of skipped iterations: {:3d} |'.format(
             total_loss_dict[skipped_iters_key]
         )

@@ -47,6 +47,7 @@ from emerging_optimizers.orthogonalized_optimizers.orthogonalized_optimizer impo
 from .spectral_ball_utils import (
     compute_target_radius,
     get_spectral_ball_scale_factor,
+    normalize_direction_spectral_fp32,
     power_iteration,
     apply_retract,
     msign,
@@ -269,6 +270,8 @@ def compute_spel_update(
     projection_mode: SpELProjectionMode = "retraction",
     projection_rank: int = 1,
     tangent_project_after_msign: bool = False,
+    normalize_msign_spectral: bool = False,
+    msign_spectral_norm_steps: int = 2,
     scale_factor: Optional[float] = None,
 ) -> Tuple[torch.Tensor, float, float]:
     """Compute SpEL update.
@@ -345,6 +348,12 @@ def compute_spel_update(
         # The map msign is nonlinear, so tangentness of M_projected does not
         # imply tangentness of msign(M_projected).
         Phi = project_to_tangent_plane(Phi, u, v)
+
+    if normalize_msign_spectral:
+        Phi = normalize_direction_spectral_fp32(
+            Phi,
+            steps=msign_spectral_norm_steps,
+        )
 
     Phi, _ = _post_project_spel_trial(
         W_work,
@@ -423,6 +432,8 @@ class SpEL(OrthogonalizedOptimizer):
         projection_mode: SpELProjectionMode = "retraction",
         projection_rank: int = 1,
         tangent_project_after_msign: bool = False,
+        normalize_msign_spectral: bool = False,
+        msign_spectral_norm_steps: int = 2,
         # QKV / TP support (optional)
         split_qkv: bool = False,
         is_qkv_fn: Optional[Callable[[torch.Tensor], bool]] = None,
@@ -452,6 +463,11 @@ class SpEL(OrthogonalizedOptimizer):
             )
         if projection_rank < 1:
             raise ValueError(f"projection_rank must be at least 1, got {projection_rank}")
+        if msign_spectral_norm_steps < 1:
+            raise ValueError(
+                "msign_spectral_norm_steps must be at least 1, "
+                f"got {msign_spectral_norm_steps}"
+            )
         if qkv_split_mode not in ("component", "group", "head"):
             raise ValueError(f"Invalid qkv_split_mode: {qkv_split_mode}, must be one of: component, group, head")
 
@@ -465,6 +481,8 @@ class SpEL(OrthogonalizedOptimizer):
         self.projection_mode = projection_mode
         self.projection_rank = projection_rank
         self.tangent_project_after_msign = tangent_project_after_msign
+        self.normalize_msign_spectral = bool(normalize_msign_spectral)
+        self.msign_spectral_norm_steps = int(msign_spectral_norm_steps)
         self.retract_bias_dict = {}  # For logging retract bias (only in dynamic mode)
         self.spectral_norm_dict = {}  # For logging spectral norms
         # QKV / TP
@@ -562,6 +580,8 @@ class SpEL(OrthogonalizedOptimizer):
             projection_mode=self.projection_mode,
             projection_rank=self.projection_rank,
             tangent_project_after_msign=self.tangent_project_after_msign,
+            normalize_msign_spectral=self.normalize_msign_spectral,
+            msign_spectral_norm_steps=self.msign_spectral_norm_steps,
             scale_factor=scale_factor,
         )
 
@@ -598,12 +618,6 @@ class SpEL(OrthogonalizedOptimizer):
         """
         # Extract current learning rate from kwargs (passed from param_group)
         current_lr = kwargs.get('lr', None)
-
-        # Compute target radius
-        target_radius = compute_target_radius(
-            shape=p.shape,
-            radius_mode=self.radius_mode,
-        )
 
         # Resolve TP group and partition dim if available
         tp_group = None
@@ -837,36 +851,18 @@ class SpEL(OrthogonalizedOptimizer):
             update = torch.cat([U_gate, U_up], dim=0)
             return update
 
-        # Standard 2D matrix path
-        update, bias, sigma = compute_spel_update(
-            W=p.data,
-            M=grad,
-            target_radius=target_radius,
-            power_iteration_steps=self.power_iteration_steps,
-            msign_steps=self.msign_steps,
-            tp_group=tp_group,
-            partition_dim=partition_dim,
-            retract_mode=self.retract_mode,
-            retract_alpha=self.retract_alpha,
-            current_lr=current_lr,
-            projection_mode=self.projection_mode,
-            projection_rank=self.projection_rank,
-            tangent_project_after_msign=self.tangent_project_after_msign,
-            scale_factor=get_spectral_ball_scale_factor(p.shape[0], p.shape[1], mode=self.scale_mode),
+        # Standard 2D matrix path.  Keep this routed through the component
+        # hook so focused subclasses such as MCSDTP can replace only the
+        # matrix algorithm while reusing the fused-QKV/FC1/MoE dispatch above.
+        return self._compute_component_update(
+            p.data,
+            grad,
+            tp_group,
+            partition_dim,
+            current_lr,
+            getattr(p, 'param_name', None),
+            "matrix",
         )
-
-        # Record bias (only if dynamic mode and bias != 0)
-        if self.retract_mode == 'dynamic' and bias != 0.0:
-            param_name = getattr(p, 'param_name', None)
-            if param_name:
-                self.retract_bias_dict[param_name] = bias
-                self.spectral_norm_dict[param_name] = sigma
-
-        # Apply scale factor
-        scale_factor = get_spectral_ball_scale_factor(p.shape[0], p.shape[1], mode=self.scale_mode)
-        update = update * scale_factor
-
-        return update
 
     def get_retract_bias_dict(self):
         """Get retract bias dictionary for logging.

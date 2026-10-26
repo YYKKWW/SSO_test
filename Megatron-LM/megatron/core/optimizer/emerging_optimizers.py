@@ -29,15 +29,16 @@ try:
     except ImportError:
         registry = None
 
+    from emerging_optimizers.orthogonalized_optimizers.mcsd_tp import MCSDTP
+    from emerging_optimizers.orthogonalized_optimizers.muon_ball import MuonBall
     from emerging_optimizers.orthogonalized_optimizers.orthogonalized_optimizer import (
         OrthogonalizedOptimizer,
     )
+    from emerging_optimizers.orthogonalized_optimizers.spectral_ball import SpectralBall
     from emerging_optimizers.orthogonalized_optimizers.spel import SpEL
     from emerging_optimizers.orthogonalized_optimizers.spel_pgd_same_projection import (
         SpELPGDSameProjection,
     )
-    from emerging_optimizers.orthogonalized_optimizers.muon_ball import MuonBall
-    from emerging_optimizers.orthogonalized_optimizers.spectral_ball import SpectralBall
 
     try:
         from emerging_optimizers.orthogonalized_optimizers import AdaptiveMuon
@@ -78,6 +79,7 @@ except ImportError:
     HAVE_EMERGING_OPTIMIZERS = False
     OrthogonalizedOptimizer = object
     AdaptiveMuon = object
+    MCSDTP = object
     SpEL = object
     MuonBall = object
     SpectralBall = object
@@ -115,9 +117,23 @@ def validate_coefficient_type(coefficient_type: str) -> None:
 
 def _eopt_init_state_fn(opt, config=None):
     """Initialize emerging optimizer state for torch_dist checkpoint format."""
+    if isinstance(opt, OrthogonalizedOptimizer):
+        for group in opt.param_groups:
+            for param in group["params"]:
+                state = opt.state[param]
+                if "momentum_buffer" not in state:
+                    state["momentum_buffer"] = torch.zeros_like(param)
+        return
+
+    init_group = getattr(opt, "_init_group", None)
+    if init_group is None:
+        raise TypeError(
+            f"{type(opt).__name__} must provide _init_group() or a dedicated "
+            "EmergingOptimizerEntry.init_state_fn for torch_dist checkpoints"
+        )
     for group in opt.param_groups:
         # Checkpoint init needs state for all parameters, including those without grads yet.
-        opt._init_group(group, skip_non_grad_params=False)
+        init_group(group, skip_non_grad_params=False)
 
 
 def _default_param_overrides_factory() -> Dict[ParamKey, Dict[str, Any]]:
@@ -170,6 +186,38 @@ def _create_emerging_optimizer(config, param_groups, eopt_name, model_chunks, pg
 def _is_nonlinear_or_embedding(param):
     """True for parameters that should NOT use the emerging optimizer."""
     return getattr(param, 'is_embedding_or_output_parameter', False) or len(param.shape) != 2
+
+
+def _is_constrained_matrix(param):
+    """True for hidden 2D weights handled by a spectral-sphere optimizer."""
+    return len(param.shape) == 2 and not getattr(
+        param, 'is_embedding_or_output_parameter', False
+    )
+
+
+def _get_emerging_optimizer_param_overrides(eopt_name, config):
+    """Return optimizer defaults plus configuration-dependent parameter routing."""
+    overrides = dict(_EMERGING_OPTIMIZERS[eopt_name].default_param_overrides)
+    matrix_weight_decay_disabled = eopt_name in {
+        "spectral_ball",
+        "muon_ball",
+        "spel",
+        "spel_tp",
+        "mcsd_tp",
+    } or (
+        eopt_name == "spel_pgd"
+        and not config.spel_pgd_apply_constrained_matrix_weight_decay
+    )
+    if matrix_weight_decay_disabled:
+        overrides[
+            ParamKey(
+                predicate=ParamPredicate(
+                    name="spectral_sphere_matrix_no_weight_decay",
+                    fn=_is_constrained_matrix,
+                )
+            )
+        ] = {'wd_mult': 0.0}
+    return overrides
 
 
 def _get_qkv_split_shapes(model_cfg) -> list[int]:
@@ -526,6 +574,14 @@ def _spel_tp_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, 
     return kwargs
 
 
+def _mcsd_tp_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any]:
+    """Convert OptimizerConfig to the focused, gap-free MCSD-TP adapter."""
+    kwargs = _spel_config_to_kwargs(config, model_chunks, pg_collection)
+    kwargs["main_power_dtype"] = config.mcsd_tp_main_power_dtype
+    kwargs["warm_start_uv"] = config.mcsd_tp_warm_start_uv
+    return kwargs
+
+
 def _spel_pgd_config_to_kwargs(config, model_chunks, pg_collection) -> Dict[str, Any]:
     """Convert OptimizerConfig to SpEL-PGD constructor kwargs."""
     model_cfg = model_chunks[0].config
@@ -622,6 +678,18 @@ _EMERGING_OPTIMIZERS.update(
                 ): {'optimizer': 'adam'}
             },
         ),
+        "mcsd_tp": EmergingOptimizerEntry(
+            optimizer_cls=MCSDTP,
+            init_state_fn=_eopt_init_state_fn,
+            config_to_kwargs=_mcsd_tp_config_to_kwargs,
+            default_param_overrides={
+                ParamKey(
+                    predicate=ParamPredicate(
+                        name="nonlinear_or_embedding", fn=_is_nonlinear_or_embedding
+                    )
+                ): {'optimizer': 'adam'}
+            },
+        ),
         "spel_pgd": EmergingOptimizerEntry(
             optimizer_cls=SpELPGDSameProjection,
             init_state_fn=_eopt_init_state_fn,
@@ -631,7 +699,7 @@ _EMERGING_OPTIMIZERS.update(
                     predicate=ParamPredicate(
                         name="nonlinear_or_embedding", fn=_is_nonlinear_or_embedding
                     )
-                ): {'optimizer': 'adam'}
+                ): {'optimizer': 'adam'},
             },
         ),
         "adaptive_muon": EmergingOptimizerEntry(
