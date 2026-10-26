@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="550" viewBox="0 0 1260 550">
+<rect width="1260" height="550" fill="white"/>
+<g font-family="Arial, Helvetica, sans-serif" letter-spacing="0">
+<text x="72" y="40" font-size="26" fill="#30363B" font-weight="600">Frobenius sphere: the new 0.008 learning-rate test</text>
+<text x="72" y="70" font-size="16" fill="#30363B" >Width 256 | 3B tokens | beta 0.95 EMA | seed 1234 | same initialization and data order</text>
+<text x="82" y="105" font-size="21" fill="#30363B" font-weight="600">MCSD</text>
+<line x1="82" y1="134" x2="117" y2="134" stroke="#8656A3" stroke-width="3" stroke-dasharray="7 4"/>
+<text x="128" y="139" font-size="16" fill="#30363B" >LR 0.008 | final 3.469048</text>
+<line x1="82" y1="161" x2="117" y2="161" stroke="#188B83" stroke-width="3" />
+<text x="128" y="166" font-size="16" fill="#30363B" >LR 0.010 | final 3.467720</text>
+<line x1="82" x2="82" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="82" y="477" font-size="15" fill="#30363B" text-anchor="middle">1.5</text>
+<line x1="241.0909090909091" x2="241.0909090909091" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="241.0909090909091" y="477" font-size="15" fill="#30363B" text-anchor="middle">2.0</text>
+<line x1="400.1818181818182" x2="400.1818181818182" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="400.1818181818182" y="477" font-size="15" fill="#30363B" text-anchor="middle">2.5</text>
+<line x1="559.2727272727273" x2="559.2727272727273" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="559.2727272727273" y="477" font-size="15" fill="#30363B" text-anchor="middle">3.0</text>
+<line x1="82" x2="572" y1="444.5744680851065" y2="444.5744680851065" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="449.5744680851065" font-size="15" fill="#30363B" text-anchor="end">3.46</text>
+<line x1="82" x2="572" y1="401.1702127659575" y2="401.1702127659575" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="406.1702127659575" font-size="15" fill="#30363B" text-anchor="end">3.50</text>
+<line x1="82" x2="572" y1="357.7659574468085" y2="357.7659574468085" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="362.7659574468085" font-size="15" fill="#30363B" text-anchor="end">3.54</text>
+<line x1="82" x2="572" y1="314.3617021276595" y2="314.3617021276595" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="319.3617021276595" font-size="15" fill="#30363B" text-anchor="end">3.58</text>
+<line x1="82" x2="572" y1="270.9574468085105" y2="270.9574468085105" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="275.9574468085105" font-size="15" fill="#30363B" text-anchor="end">3.62</text>
+<line x1="82" x2="572" y1="227.5531914893615" y2="227.5531914893615" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="232.5531914893615" font-size="15" fill="#30363B" text-anchor="end">3.66</text>
+<path d="M 82 195 V 450 H 572" fill="none" stroke="#50575D" stroke-width="1.5"/>
+<clipPath id="panel0"><rect x="82" y="195" width="490" height="255"/></clipPath><g clip-path="url(#panel0)">
+<path d="M -378.59 -2369.29 L -361.91 -1259.17 L -345.23 -661.73 L -328.55 -396.54 L -311.86 -252.73 L -295.18 -169.30 L -278.50 -115.31 L -261.82 -56.38 L -245.14 -20.31 L -228.45 3.38 L -211.77 30.79 L -195.09 48.98 L -178.41 67.37 L -161.73 74.61 L -145.04 91.14 L -128.36 101.71 L -111.68 115.05 L -95.00 127.97 L -78.32 137.48 L -61.63 159.68 L -44.95 172.39 L -28.27 171.14 L -11.59 181.71 L 5.09 198.10 L 21.77 209.54 L 38.46 224.16 L 55.14 226.89 L 71.82 233.32 L 88.50 238.03 L 105.18 257.53 L 121.87 250.00 L 138.55 265.08 L 155.23 279.95 L 171.91 300.78 L 188.59 291.78 L 205.28 312.81 L 221.96 328.86 L 238.64 342.33 L 255.32 349.50 L 272.00 339.93 L 288.68 364.26 L 305.37 351.48 L 322.05 369.56 L 338.73 379.21 L 355.41 383.68 L 372.09 399.42 L 388.78 399.11 L 405.46 392.63 L 422.14 403.44 L 438.82 414.64 L 455.50 430.81 L 472.19 406.86 L 488.87 422.95 L 505.55 432.12 L 522.23 430.49 L 538.91 442.75 L 555.60 437.69 L 559.35 434.76" fill="none" stroke="#8656A3" stroke-width="2.6" stroke-dasharray="7 4"/>
+<circle cx="559.34848" cy="434.75642553191506" r="4" fill="#8656A3"/>
+<path d="M -378.59 -2326.63 L -361.91 -1213.31 L -345.23 -619.98 L -328.55 -376.49 L -311.86 -244.92 L -295.18 -170.15 L -278.50 -118.91 L -261.82 -69.72 L -245.14 -33.31 L -228.45 -12.80 L -211.77 13.46 L -195.09 30.67 L -178.41 46.34 L -161.73 55.02 L -145.04 69.54 L -128.36 78.33 L -111.68 94.68 L -95.00 106.38 L -78.32 115.51 L -61.63 136.74 L -44.95 149.52 L -28.27 148.99 L -11.59 161.01 L 5.09 176.20 L 21.77 187.60 L 38.46 204.50 L 55.14 205.45 L 71.82 213.25 L 88.50 219.77 L 105.18 238.57 L 121.87 232.64 L 138.55 248.06 L 155.23 263.71 L 171.91 285.23 L 188.59 277.78 L 205.28 300.36 L 221.96 317.20 L 238.64 330.82 L 255.32 339.22 L 272.00 330.39 L 288.68 355.59 L 305.37 343.91 L 322.05 363.13 L 338.73 373.06 L 355.41 378.90 L 372.09 394.95 L 388.78 395.96 L 405.46 389.35 L 422.14 401.48 L 438.82 412.52 L 455.50 429.59 L 472.19 405.90 L 488.87 422.85 L 505.55 432.23 L 522.23 431.25 L 538.91 443.75 L 555.60 439.32 L 559.35 436.20" fill="none" stroke="#188B83" stroke-width="2.6" />
+<circle cx="559.34848" cy="436.1974468085108" r="4" fill="#188B83"/>
+</g>
+<text x="327" y="503" font-size="16" fill="#30363B" text-anchor="middle">Processed training tokens (billions)</text>
+<text x="692" y="105" font-size="21" fill="#30363B" font-weight="600">NorMuon-Sphere</text>
+<line x1="692" y1="134" x2="727" y2="134" stroke="#8656A3" stroke-width="3" stroke-dasharray="7 4"/>
+<text x="738" y="139" font-size="16" fill="#30363B" >LR 0.008 | final 3.466207</text>
+<line x1="692" y1="161" x2="727" y2="161" stroke="#188B83" stroke-width="3" />
+<text x="738" y="166" font-size="16" fill="#30363B" >LR 0.010 | final 3.463500</text>
+<line x1="692" x2="692" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="692" y="477" font-size="15" fill="#30363B" text-anchor="middle">1.5</text>
+<line x1="851.0909090909091" x2="851.0909090909091" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="851.0909090909091" y="477" font-size="15" fill="#30363B" text-anchor="middle">2.0</text>
+<line x1="1010.1818181818182" x2="1010.1818181818182" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="1010.1818181818182" y="477" font-size="15" fill="#30363B" text-anchor="middle">2.5</text>
+<line x1="1169.2727272727273" x2="1169.2727272727273" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="1169.2727272727273" y="477" font-size="15" fill="#30363B" text-anchor="middle">3.0</text>
+<line x1="692" x2="1182" y1="444.5744680851065" y2="444.5744680851065" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="449.5744680851065" font-size="15" fill="#30363B" text-anchor="end">3.46</text>
+<line x1="692" x2="1182" y1="401.1702127659575" y2="401.1702127659575" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="406.1702127659575" font-size="15" fill="#30363B" text-anchor="end">3.50</text>
+<line x1="692" x2="1182" y1="357.7659574468085" y2="357.7659574468085" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="362.7659574468085" font-size="15" fill="#30363B" text-anchor="end">3.54</text>
+<line x1="692" x2="1182" y1="314.3617021276595" y2="314.3617021276595" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="319.3617021276595" font-size="15" fill="#30363B" text-anchor="end">3.58</text>
+<line x1="692" x2="1182" y1="270.9574468085105" y2="270.9574468085105" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="275.9574468085105" font-size="15" fill="#30363B" text-anchor="end">3.62</text>
+<line x1="692" x2="1182" y1="227.5531914893615" y2="227.5531914893615" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="232.5531914893615" font-size="15" fill="#30363B" text-anchor="end">3.66</text>
+<path d="M 692 195 V 450 H 1182" fill="none" stroke="#50575D" stroke-width="1.5"/>
+<clipPath id="panel1"><rect x="692" y="195" width="490" height="255"/></clipPath><g clip-path="url(#panel1)">
+<path d="M 231.41 -2319.52 L 248.09 -1181.60 L 264.77 -604.82 L 281.45 -367.96 L 298.14 -239.64 L 314.82 -162.90 L 331.50 -113.27 L 348.18 -56.04 L 364.86 -21.78 L 381.55 0.11 L 398.23 25.33 L 414.91 44.93 L 431.59 62.99 L 448.27 71.21 L 464.96 86.68 L 481.64 95.66 L 498.32 111.51 L 515.00 122.81 L 531.68 133.15 L 548.37 156.60 L 565.05 168.60 L 581.73 167.23 L 598.41 179.93 L 615.09 195.99 L 631.77 206.32 L 648.46 222.65 L 665.14 223.32 L 681.82 231.26 L 698.50 236.13 L 715.18 255.12 L 731.87 249.57 L 748.55 264.69 L 765.23 278.60 L 781.91 299.95 L 798.59 292.55 L 815.28 314.43 L 831.96 329.29 L 848.64 343.29 L 865.32 350.60 L 882.00 341.58 L 898.68 366.70 L 915.37 352.99 L 932.05 371.30 L 948.73 381.31 L 965.41 386.51 L 982.09 401.71 L 998.78 401.61 L 1015.46 395.27 L 1032.14 406.58 L 1048.82 418.28 L 1065.50 433.62 L 1082.19 409.90 L 1098.87 426.46 L 1115.55 435.36 L 1132.23 434.04 L 1148.91 446.29 L 1165.60 442.10 L 1169.35 437.84" fill="none" stroke="#8656A3" stroke-width="2.6" stroke-dasharray="7 4"/>
+<circle cx="1169.34848" cy="437.8392127659577" r="4" fill="#8656A3"/>
+<path d="M 231.41 -2264.23 L 248.09 -1101.99 L 264.77 -564.90 L 281.45 -352.19 L 298.14 -235.47 L 314.82 -166.21 L 331.50 -120.05 L 348.18 -69.55 L 364.86 -36.39 L 381.55 -17.49 L 398.23 8.21 L 414.91 23.53 L 431.59 42.71 L 448.27 47.89 L 464.96 62.82 L 481.64 74.51 L 498.32 88.98 L 515.00 99.24 L 531.68 108.81 L 548.37 132.77 L 565.05 144.42 L 581.73 145.41 L 598.41 156.32 L 615.09 171.73 L 631.77 183.77 L 648.46 201.18 L 665.14 203.01 L 681.82 211.43 L 698.50 214.93 L 715.18 236.78 L 731.87 230.60 L 748.55 247.93 L 765.23 262.73 L 781.91 284.71 L 798.59 277.77 L 815.28 300.85 L 831.96 317.18 L 848.64 330.71 L 865.32 340.22 L 882.00 332.23 L 898.68 357.02 L 915.37 346.59 L 932.05 364.73 L 948.73 375.64 L 965.41 382.36 L 982.09 398.76 L 998.78 399.67 L 1015.46 393.74 L 1032.14 405.27 L 1048.82 417.58 L 1065.50 434.44 L 1082.19 410.48 L 1098.87 427.91 L 1115.55 437.50 L 1132.23 435.71 L 1148.91 448.85 L 1165.60 444.54 L 1169.35 440.78" fill="none" stroke="#188B83" stroke-width="2.6" />
+<circle cx="1169.34848" cy="440.7765957446811" r="4" fill="#188B83"/>
+</g>
+<text x="937" y="503" font-size="16" fill="#30363B" text-anchor="middle">Processed training tokens (billions)</text>
+<text x="21" y="320" font-size="16" fill="#30363B" text-anchor="middle" transform="rotate(-90 21 320)">Validation loss</text>
+<text x="72" y="535" font-size="14" fill="#30363B" >Late-stage raw validation points; no smoothing. Final losses are measured at step 11,445. Single-seed evidence.</text>
+</g></svg>

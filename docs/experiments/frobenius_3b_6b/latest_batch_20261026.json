@@ -1,0 +1,6250 @@
+{
+  "checked_at_hkt": "2026-10-26T15:16:05.758974+08:00",
+  "runs": [
+    {
+      "job_id": "4320101",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_muonh_w256_b0ff75f161",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:24:56",
+      "start": "2026-10-24T01:21:16",
+      "end": "2026-10-24T19:46:12",
+      "node": "SPG-7-2",
+      "method": "manifold_muonh",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": false,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "e226792d2fb56d869d67d94a70d11242f8cef1670b0ae5abaa06451ece0fa489",
+      "completion": {
+        "exit_code": 0,
+        "training_exit_code": 0,
+        "resume_verification_exit_code": null,
+        "process_seconds": 66273.991828309,
+        "note": "Includes startup, indexing, evaluation, checkpoint and optional verification time; not optimizer-only time."
+      },
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": null,
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_muonh",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_muonh_w256_b0ff75f161",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.01,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": false,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_muonh_w256_b0ff75f161_4320101.out",
+      "log_bytes": 576882,
+      "log_sha256": "0441cd67ab8b02bfd12958f6ea5849d1391624fdff666af265c4783c12cff8c5",
+      "last_train": {
+        "step": 11440,
+        "target": 11445,
+        "samples": 1464320,
+        "seconds": 5.347,
+        "loss": 3.459011
+      },
+      "last_val": {
+        "step": 11445,
+        "loss": 3.464988,
+        "final": true,
+        "tokens": 3000238080
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 5.953755,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 4.896491,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.398668,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.199346,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.088129,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.024138,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 3.980894,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.933425,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.903523,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.884351,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.862769,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.849165,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.83242,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.824985,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.812302,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.80268,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.787631,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.778133,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.769012,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.747913,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 4200,
+          "loss": 3.737136,
+          "final": false,
+          "tokens": 1101004800
+        },
+        {
+          "step": 4400,
+          "loss": 3.737398,
+          "final": false,
+          "tokens": 1153433600
+        },
+        {
+          "step": 4600,
+          "loss": 3.726365,
+          "final": false,
+          "tokens": 1205862400
+        },
+        {
+          "step": 4800,
+          "loss": 3.711833,
+          "final": false,
+          "tokens": 1258291200
+        },
+        {
+          "step": 5000,
+          "loss": 3.699559,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 5200,
+          "loss": 3.684589,
+          "final": false,
+          "tokens": 1363148800
+        },
+        {
+          "step": 5400,
+          "loss": 3.683102,
+          "final": false,
+          "tokens": 1415577600
+        },
+        {
+          "step": 5600,
+          "loss": 3.675835,
+          "final": false,
+          "tokens": 1468006400
+        },
+        {
+          "step": 5800,
+          "loss": 3.671536,
+          "final": false,
+          "tokens": 1520435200
+        },
+        {
+          "step": 6000,
+          "loss": 3.653186,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 6200,
+          "loss": 3.657323,
+          "final": false,
+          "tokens": 1625292800
+        },
+        {
+          "step": 6400,
+          "loss": 3.643155,
+          "final": false,
+          "tokens": 1677721600
+        },
+        {
+          "step": 6600,
+          "loss": 3.628891,
+          "final": false,
+          "tokens": 1730150400
+        },
+        {
+          "step": 6800,
+          "loss": 3.608729,
+          "final": false,
+          "tokens": 1782579200
+        },
+        {
+          "step": 7000,
+          "loss": 3.614751,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 7200,
+          "loss": 3.593068,
+          "final": false,
+          "tokens": 1887436800
+        },
+        {
+          "step": 7400,
+          "loss": 3.579301,
+          "final": false,
+          "tokens": 1939865600
+        },
+        {
+          "step": 7600,
+          "loss": 3.565841,
+          "final": false,
+          "tokens": 1992294400
+        },
+        {
+          "step": 7800,
+          "loss": 3.557979,
+          "final": false,
+          "tokens": 2044723200
+        },
+        {
+          "step": 8000,
+          "loss": 3.5656,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 8200,
+          "loss": 3.541011,
+          "final": false,
+          "tokens": 2149580800
+        },
+        {
+          "step": 8400,
+          "loss": 3.552434,
+          "final": false,
+          "tokens": 2202009600
+        },
+        {
+          "step": 8600,
+          "loss": 3.534611,
+          "final": false,
+          "tokens": 2254438400
+        },
+        {
+          "step": 8800,
+          "loss": 3.525774,
+          "final": false,
+          "tokens": 2306867200
+        },
+        {
+          "step": 9000,
+          "loss": 3.519057,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 9200,
+          "loss": 3.504187,
+          "final": false,
+          "tokens": 2411724800
+        },
+        {
+          "step": 9400,
+          "loss": 3.502701,
+          "final": false,
+          "tokens": 2464153600
+        },
+        {
+          "step": 9600,
+          "loss": 3.508221,
+          "final": false,
+          "tokens": 2516582400
+        },
+        {
+          "step": 9800,
+          "loss": 3.497673,
+          "final": false,
+          "tokens": 2569011200
+        },
+        {
+          "step": 10000,
+          "loss": 3.486938,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 10200,
+          "loss": 3.470878,
+          "final": false,
+          "tokens": 2673868800
+        },
+        {
+          "step": 10400,
+          "loss": 3.492835,
+          "final": false,
+          "tokens": 2726297600
+        },
+        {
+          "step": 10600,
+          "loss": 3.476639,
+          "final": false,
+          "tokens": 2778726400
+        },
+        {
+          "step": 10800,
+          "loss": 3.468218,
+          "final": false,
+          "tokens": 2831155200
+        },
+        {
+          "step": 11000,
+          "loss": 3.469284,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 11200,
+          "loss": 3.457255,
+          "final": false,
+          "tokens": 2936012800
+        },
+        {
+          "step": 11400,
+          "loss": 3.461264,
+          "final": false,
+          "tokens": 2988441600
+        },
+        {
+          "step": 11445,
+          "loss": 3.464988,
+          "final": true,
+          "tokens": 3000238080
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_muonh",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.01",
+        "train_iters": "11445",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "False",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.4416222,
+      "recent_seconds_per_step": 5.339423333333333,
+      "final_val": 3.464988
+    },
+    {
+      "job_id": "4320102",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_normuon_sphere_w256_ac05235262",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:25:14",
+      "start": "2026-10-24T05:52:57",
+      "end": "2026-10-25T00:18:11",
+      "node": "SPG-7-1",
+      "method": "manifold_normuon_sphere",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": false,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "de7cbce4be27449860bf9dfcaec0b82588747428e2ad2737dab6b5fa36d85245",
+      "completion": {
+        "exit_code": 0,
+        "training_exit_code": 0,
+        "resume_verification_exit_code": null,
+        "process_seconds": 66299.42730003595,
+        "note": "Includes startup, indexing, evaluation, checkpoint and optional verification time; not optimizer-only time."
+      },
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": null,
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_normuon_sphere",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_normuon_sphere_w256_ac05235262",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.01,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": false,
+          "normuon_beta2": 0.95,
+          "normuon_eps": 1e-10,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_normuon_sphere_w256_ac05235262_4320102.out",
+      "log_bytes": 577075,
+      "log_sha256": "ddc3889f8df785e50802c755a4cc35196a91a9d95ef2b203b2f564c8de75a4f4",
+      "last_train": {
+        "step": 11440,
+        "target": 11445,
+        "samples": 1464320,
+        "seconds": 5.3378000000000005,
+        "loss": 3.457959
+      },
+      "last_val": {
+        "step": 11445,
+        "loss": 3.4635,
+        "final": true,
+        "tokens": 3000238080
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 5.956347,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 4.885264,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.390304,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.194271,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.086709,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.02288,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 3.980337,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.933802,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.903245,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.885824,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.862144,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.848021,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.83035,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.825572,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.811815,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.801043,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.787702,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.77825,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.769429,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.747346,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 4200,
+          "loss": 3.736614,
+          "final": false,
+          "tokens": 1101004800
+        },
+        {
+          "step": 4400,
+          "loss": 3.735702,
+          "final": false,
+          "tokens": 1153433600
+        },
+        {
+          "step": 4600,
+          "loss": 3.72565,
+          "final": false,
+          "tokens": 1205862400
+        },
+        {
+          "step": 4800,
+          "loss": 3.711444,
+          "final": false,
+          "tokens": 1258291200
+        },
+        {
+          "step": 5000,
+          "loss": 3.700347,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 5200,
+          "loss": 3.684301,
+          "final": false,
+          "tokens": 1363148800
+        },
+        {
+          "step": 5400,
+          "loss": 3.682621,
+          "final": false,
+          "tokens": 1415577600
+        },
+        {
+          "step": 5600,
+          "loss": 3.674857,
+          "final": false,
+          "tokens": 1468006400
+        },
+        {
+          "step": 5800,
+          "loss": 3.671634,
+          "final": false,
+          "tokens": 1520435200
+        },
+        {
+          "step": 6000,
+          "loss": 3.651494,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 6200,
+          "loss": 3.657188,
+          "final": false,
+          "tokens": 1625292800
+        },
+        {
+          "step": 6400,
+          "loss": 3.641224,
+          "final": false,
+          "tokens": 1677721600
+        },
+        {
+          "step": 6600,
+          "loss": 3.627581,
+          "final": false,
+          "tokens": 1730150400
+        },
+        {
+          "step": 6800,
+          "loss": 3.607322,
+          "final": false,
+          "tokens": 1782579200
+        },
+        {
+          "step": 7000,
+          "loss": 3.613724,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 7200,
+          "loss": 3.592453,
+          "final": false,
+          "tokens": 1887436800
+        },
+        {
+          "step": 7400,
+          "loss": 3.5774,
+          "final": false,
+          "tokens": 1939865600
+        },
+        {
+          "step": 7600,
+          "loss": 3.564938,
+          "final": false,
+          "tokens": 1992294400
+        },
+        {
+          "step": 7800,
+          "loss": 3.556166,
+          "final": false,
+          "tokens": 2044723200
+        },
+        {
+          "step": 8000,
+          "loss": 3.563529,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 8200,
+          "loss": 3.540691,
+          "final": false,
+          "tokens": 2149580800
+        },
+        {
+          "step": 8400,
+          "loss": 3.550297,
+          "final": false,
+          "tokens": 2202009600
+        },
+        {
+          "step": 8600,
+          "loss": 3.533585,
+          "final": false,
+          "tokens": 2254438400
+        },
+        {
+          "step": 8800,
+          "loss": 3.523525,
+          "final": false,
+          "tokens": 2306867200
+        },
+        {
+          "step": 9000,
+          "loss": 3.517339,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 9200,
+          "loss": 3.502221,
+          "final": false,
+          "tokens": 2411724800
+        },
+        {
+          "step": 9400,
+          "loss": 3.501385,
+          "final": false,
+          "tokens": 2464153600
+        },
+        {
+          "step": 9600,
+          "loss": 3.506845,
+          "final": false,
+          "tokens": 2516582400
+        },
+        {
+          "step": 9800,
+          "loss": 3.49622,
+          "final": false,
+          "tokens": 2569011200
+        },
+        {
+          "step": 10000,
+          "loss": 3.484874,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 10200,
+          "loss": 3.46934,
+          "final": false,
+          "tokens": 2673868800
+        },
+        {
+          "step": 10400,
+          "loss": 3.491423,
+          "final": false,
+          "tokens": 2726297600
+        },
+        {
+          "step": 10600,
+          "loss": 3.475353,
+          "final": false,
+          "tokens": 2778726400
+        },
+        {
+          "step": 10800,
+          "loss": 3.466521,
+          "final": false,
+          "tokens": 2831155200
+        },
+        {
+          "step": 11000,
+          "loss": 3.468168,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 11200,
+          "loss": 3.45606,
+          "final": false,
+          "tokens": 2936012800
+        },
+        {
+          "step": 11400,
+          "loss": 3.460032,
+          "final": false,
+          "tokens": 2988441600
+        },
+        {
+          "step": 11445,
+          "loss": 3.4635,
+          "final": true,
+          "tokens": 3000238080
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_normuon_sphere",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.01",
+        "train_iters": "11445",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "False",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.4404163,
+      "recent_seconds_per_step": 5.3415566666666665,
+      "final_val": 3.4635
+    },
+    {
+      "job_id": "4320103",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_a8b81b4f18",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:31:53",
+      "start": "2026-10-24T19:46:33",
+      "end": "2026-10-25T14:18:26",
+      "node": "SPG-7-1",
+      "method": "manifold_mcsd",
+      "lr": 0.007,
+      "beta": 0.9,
+      "nesterov": true,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "0ffc955a030baed18e634286838718096b46b5eb41b50ed26277838fee9f70a6",
+      "completion": {
+        "exit_code": 0,
+        "training_exit_code": 0,
+        "resume_verification_exit_code": null,
+        "process_seconds": 66700.01140924904,
+        "note": "Includes startup, indexing, evaluation, checkpoint and optional verification time; not optimizer-only time."
+      },
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": "afterany:4320101",
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_mcsd",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_a8b81b4f18",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.007,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.9,
+          "nesterov": true,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_mcsd_w256_a8b81b4f18_4320103.out",
+      "log_bytes": 672820,
+      "log_sha256": "50196ffe03b1b57dd86879152a227d2f7d98b8921c6c1c95157e42bc5245751b",
+      "last_train": {
+        "step": 11440,
+        "target": 11445,
+        "samples": 1464320,
+        "seconds": 5.3728,
+        "loss": 3.495711
+      },
+      "last_val": {
+        "step": 11445,
+        "loss": 3.501387,
+        "final": true,
+        "tokens": 3000238080
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 5.967253,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 5.059107,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.561662,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.308627,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.164023,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.071505,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 4.012092,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.94921,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.907784,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.879422,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.84833,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.827645,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.809598,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.797248,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.779871,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.768055,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.753582,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.741591,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.731035,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.708871,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 4200,
+          "loss": 3.699011,
+          "final": false,
+          "tokens": 1101004800
+        },
+        {
+          "step": 4400,
+          "loss": 3.699419,
+          "final": false,
+          "tokens": 1153433600
+        },
+        {
+          "step": 4600,
+          "loss": 3.68801,
+          "final": false,
+          "tokens": 1205862400
+        },
+        {
+          "step": 4800,
+          "loss": 3.674614,
+          "final": false,
+          "tokens": 1258291200
+        },
+        {
+          "step": 5000,
+          "loss": 3.663809,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 5200,
+          "loss": 3.651597,
+          "final": false,
+          "tokens": 1363148800
+        },
+        {
+          "step": 5400,
+          "loss": 3.648511,
+          "final": false,
+          "tokens": 1415577600
+        },
+        {
+          "step": 5600,
+          "loss": 3.64481,
+          "final": false,
+          "tokens": 1468006400
+        },
+        {
+          "step": 5800,
+          "loss": 3.642047,
+          "final": false,
+          "tokens": 1520435200
+        },
+        {
+          "step": 6000,
+          "loss": 3.625527,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 6200,
+          "loss": 3.633402,
+          "final": false,
+          "tokens": 1625292800
+        },
+        {
+          "step": 6400,
+          "loss": 3.621388,
+          "final": false,
+          "tokens": 1677721600
+        },
+        {
+          "step": 6600,
+          "loss": 3.609481,
+          "final": false,
+          "tokens": 1730150400
+        },
+        {
+          "step": 6800,
+          "loss": 3.591412,
+          "final": false,
+          "tokens": 1782579200
+        },
+        {
+          "step": 7000,
+          "loss": 3.60076,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 7200,
+          "loss": 3.583858,
+          "final": false,
+          "tokens": 1887436800
+        },
+        {
+          "step": 7400,
+          "loss": 3.571105,
+          "final": false,
+          "tokens": 1939865600
+        },
+        {
+          "step": 7600,
+          "loss": 3.559807,
+          "final": false,
+          "tokens": 1992294400
+        },
+        {
+          "step": 7800,
+          "loss": 3.555652,
+          "final": false,
+          "tokens": 2044723200
+        },
+        {
+          "step": 8000,
+          "loss": 3.566339,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 8200,
+          "loss": 3.545923,
+          "final": false,
+          "tokens": 2149580800
+        },
+        {
+          "step": 8400,
+          "loss": 3.559973,
+          "final": false,
+          "tokens": 2202009600
+        },
+        {
+          "step": 8600,
+          "loss": 3.544339,
+          "final": false,
+          "tokens": 2254438400
+        },
+        {
+          "step": 8800,
+          "loss": 3.538014,
+          "final": false,
+          "tokens": 2306867200
+        },
+        {
+          "step": 9000,
+          "loss": 3.53518,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 9200,
+          "loss": 3.521985,
+          "final": false,
+          "tokens": 2411724800
+        },
+        {
+          "step": 9400,
+          "loss": 3.52464,
+          "final": false,
+          "tokens": 2464153600
+        },
+        {
+          "step": 9600,
+          "loss": 3.532063,
+          "final": false,
+          "tokens": 2516582400
+        },
+        {
+          "step": 9800,
+          "loss": 3.523509,
+          "final": false,
+          "tokens": 2569011200
+        },
+        {
+          "step": 10000,
+          "loss": 3.515043,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 10200,
+          "loss": 3.501208,
+          "final": false,
+          "tokens": 2673868800
+        },
+        {
+          "step": 10400,
+          "loss": 3.524218,
+          "final": false,
+          "tokens": 2726297600
+        },
+        {
+          "step": 10600,
+          "loss": 3.50988,
+          "final": false,
+          "tokens": 2778726400
+        },
+        {
+          "step": 10800,
+          "loss": 3.502514,
+          "final": false,
+          "tokens": 2831155200
+        },
+        {
+          "step": 11000,
+          "loss": 3.504704,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 11200,
+          "loss": 3.49361,
+          "final": false,
+          "tokens": 2936012800
+        },
+        {
+          "step": 11400,
+          "loss": 3.498366,
+          "final": false,
+          "tokens": 2988441600
+        },
+        {
+          "step": 11445,
+          "loss": 3.501387,
+          "final": true,
+          "tokens": 3000238080
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_mcsd",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.007",
+        "train_iters": "11445",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.9",
+        "manifold_mcsd_nesterov": "True",
+        "manifold_baseline_nesterov": "False",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.4784495,
+      "recent_seconds_per_step": 5.375563333333333,
+      "final_val": 3.501387
+    },
+    {
+      "job_id": "4320104",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_2ddd17fe4c",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:27:46",
+      "start": "2026-10-25T00:18:34",
+      "end": "2026-10-25T18:46:20",
+      "node": "SPG-7-1",
+      "method": "manifold_mcsd",
+      "lr": 0.012,
+      "beta": 0.9,
+      "nesterov": true,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "898ffaf029a3b7b4976816d97650c7979073948d4781bccf9218a6ada3f0f62e",
+      "completion": {
+        "exit_code": 0,
+        "training_exit_code": 0,
+        "resume_verification_exit_code": null,
+        "process_seconds": 66451.60558401397,
+        "note": "Includes startup, indexing, evaluation, checkpoint and optional verification time; not optimizer-only time."
+      },
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": "afterany:4320102",
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_mcsd",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_2ddd17fe4c",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.012,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.9,
+          "nesterov": true,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_mcsd_w256_2ddd17fe4c_4320104.out",
+      "log_bytes": 673005,
+      "log_sha256": "6d02858adf1f37e99ed46ab124340a9659a1a16df34f249ebc19d3690b7d489f",
+      "last_train": {
+        "step": 11440,
+        "target": 11445,
+        "samples": 1464320,
+        "seconds": 5.3544,
+        "loss": 3.4677
+      },
+      "last_val": {
+        "step": 11445,
+        "loss": 3.473377,
+        "final": true,
+        "tokens": 3000238080
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 5.880469,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 4.928828,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.444403,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.22615,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.104322,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.024119,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 3.974854,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.923159,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.88875,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.865122,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.83973,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.821515,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.807063,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.794627,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.779052,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.769962,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.7562,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.742559,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.735549,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.713481,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 4200,
+          "loss": 3.702883,
+          "final": false,
+          "tokens": 1101004800
+        },
+        {
+          "step": 4400,
+          "loss": 3.705766,
+          "final": false,
+          "tokens": 1153433600
+        },
+        {
+          "step": 4600,
+          "loss": 3.691734,
+          "final": false,
+          "tokens": 1205862400
+        },
+        {
+          "step": 4800,
+          "loss": 3.67835,
+          "final": false,
+          "tokens": 1258291200
+        },
+        {
+          "step": 5000,
+          "loss": 3.667694,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 5200,
+          "loss": 3.655468,
+          "final": false,
+          "tokens": 1363148800
+        },
+        {
+          "step": 5400,
+          "loss": 3.650425,
+          "final": false,
+          "tokens": 1415577600
+        },
+        {
+          "step": 5600,
+          "loss": 3.645925,
+          "final": false,
+          "tokens": 1468006400
+        },
+        {
+          "step": 5800,
+          "loss": 3.642293,
+          "final": false,
+          "tokens": 1520435200
+        },
+        {
+          "step": 6000,
+          "loss": 3.624194,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 6200,
+          "loss": 3.631371,
+          "final": false,
+          "tokens": 1625292800
+        },
+        {
+          "step": 6400,
+          "loss": 3.618693,
+          "final": false,
+          "tokens": 1677721600
+        },
+        {
+          "step": 6600,
+          "loss": 3.606001,
+          "final": false,
+          "tokens": 1730150400
+        },
+        {
+          "step": 6800,
+          "loss": 3.587016,
+          "final": false,
+          "tokens": 1782579200
+        },
+        {
+          "step": 7000,
+          "loss": 3.594635,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 7200,
+          "loss": 3.576943,
+          "final": false,
+          "tokens": 1887436800
+        },
+        {
+          "step": 7400,
+          "loss": 3.562768,
+          "final": false,
+          "tokens": 1939865600
+        },
+        {
+          "step": 7600,
+          "loss": 3.549659,
+          "final": false,
+          "tokens": 1992294400
+        },
+        {
+          "step": 7800,
+          "loss": 3.544285,
+          "final": false,
+          "tokens": 2044723200
+        },
+        {
+          "step": 8000,
+          "loss": 3.553164,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 8200,
+          "loss": 3.53142,
+          "final": false,
+          "tokens": 2149580800
+        },
+        {
+          "step": 8400,
+          "loss": 3.543961,
+          "final": false,
+          "tokens": 2202009600
+        },
+        {
+          "step": 8600,
+          "loss": 3.52754,
+          "final": false,
+          "tokens": 2254438400
+        },
+        {
+          "step": 8800,
+          "loss": 3.519884,
+          "final": false,
+          "tokens": 2306867200
+        },
+        {
+          "step": 9000,
+          "loss": 3.515493,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 9200,
+          "loss": 3.5018,
+          "final": false,
+          "tokens": 2411724800
+        },
+        {
+          "step": 9400,
+          "loss": 3.502709,
+          "final": false,
+          "tokens": 2464153600
+        },
+        {
+          "step": 9600,
+          "loss": 3.509176,
+          "final": false,
+          "tokens": 2516582400
+        },
+        {
+          "step": 9800,
+          "loss": 3.499275,
+          "final": false,
+          "tokens": 2569011200
+        },
+        {
+          "step": 10000,
+          "loss": 3.489997,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 10200,
+          "loss": 3.475581,
+          "final": false,
+          "tokens": 2673868800
+        },
+        {
+          "step": 10400,
+          "loss": 3.497837,
+          "final": false,
+          "tokens": 2726297600
+        },
+        {
+          "step": 10600,
+          "loss": 3.482915,
+          "final": false,
+          "tokens": 2778726400
+        },
+        {
+          "step": 10800,
+          "loss": 3.474837,
+          "final": false,
+          "tokens": 2831155200
+        },
+        {
+          "step": 11000,
+          "loss": 3.476447,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 11200,
+          "loss": 3.465305,
+          "final": false,
+          "tokens": 2936012800
+        },
+        {
+          "step": 11400,
+          "loss": 3.469447,
+          "final": false,
+          "tokens": 2988441600
+        },
+        {
+          "step": 11445,
+          "loss": 3.473377,
+          "final": true,
+          "tokens": 3000238080
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_mcsd",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.012",
+        "train_iters": "11445",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.9",
+        "manifold_mcsd_nesterov": "True",
+        "manifold_baseline_nesterov": "False",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.4498215,
+      "recent_seconds_per_step": 5.35565,
+      "final_val": 3.473377
+    },
+    {
+      "job_id": "4320105",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_cde14ba677",
+      "state": "RUNNING",
+      "exit_code": "0:0",
+      "elapsed": "1-00:57:22",
+      "start": "2026-10-25T14:18:43",
+      "end": "Unknown",
+      "node": "SPG-7-1",
+      "method": "manifold_mcsd",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": false,
+      "seed": 2026,
+      "tokens": 6000000000,
+      "width": 256,
+      "final_step": 22889,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "7d654e45ba675cefbf077c5e1083a8adc6eb66ea3593c87d4e509870cb2be663",
+      "completion": null,
+      "config": {
+        "actual_tokens": 6000214016,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": "afterany:4320103",
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_mcsd",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_cde14ba677",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 6000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 22889,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_6b/indexed/train/olmo_mix_1124_6b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.01,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": false,
+          "save_interval": 0,
+          "seed": 2026,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 458
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_mcsd_w256_cde14ba677_4320105.out",
+      "log_bytes": 877383,
+      "log_sha256": "b3639e41186058e5baaa38fa6d610c0a4cb55675190477df127da6af7c013895",
+      "last_train": {
+        "step": 15520,
+        "target": 22889,
+        "samples": 1986560,
+        "seconds": 5.3536,
+        "loss": 3.522153
+      },
+      "last_val": {
+        "step": 15400,
+        "loss": 3.55253,
+        "final": false,
+        "tokens": 4037017600
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 6.43756,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 5.268132,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.633502,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.319367,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.167803,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.088058,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 4.008411,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.980389,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.928382,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.909972,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.902481,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.887172,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.857419,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.841827,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.850229,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.821961,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.821089,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.816854,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.796316,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.798061,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 4200,
+          "loss": 3.798309,
+          "final": false,
+          "tokens": 1101004800
+        },
+        {
+          "step": 4400,
+          "loss": 3.793924,
+          "final": false,
+          "tokens": 1153433600
+        },
+        {
+          "step": 4600,
+          "loss": 3.778606,
+          "final": false,
+          "tokens": 1205862400
+        },
+        {
+          "step": 4800,
+          "loss": 3.764442,
+          "final": false,
+          "tokens": 1258291200
+        },
+        {
+          "step": 5000,
+          "loss": 3.77038,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 5200,
+          "loss": 3.77206,
+          "final": false,
+          "tokens": 1363148800
+        },
+        {
+          "step": 5400,
+          "loss": 3.764521,
+          "final": false,
+          "tokens": 1415577600
+        },
+        {
+          "step": 5600,
+          "loss": 3.765083,
+          "final": false,
+          "tokens": 1468006400
+        },
+        {
+          "step": 5800,
+          "loss": 3.759104,
+          "final": false,
+          "tokens": 1520435200
+        },
+        {
+          "step": 6000,
+          "loss": 3.739353,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 6200,
+          "loss": 3.748491,
+          "final": false,
+          "tokens": 1625292800
+        },
+        {
+          "step": 6400,
+          "loss": 3.741991,
+          "final": false,
+          "tokens": 1677721600
+        },
+        {
+          "step": 6600,
+          "loss": 3.737484,
+          "final": false,
+          "tokens": 1730150400
+        },
+        {
+          "step": 6800,
+          "loss": 3.729235,
+          "final": false,
+          "tokens": 1782579200
+        },
+        {
+          "step": 7000,
+          "loss": 3.717995,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 7200,
+          "loss": 3.720569,
+          "final": false,
+          "tokens": 1887436800
+        },
+        {
+          "step": 7400,
+          "loss": 3.712141,
+          "final": false,
+          "tokens": 1939865600
+        },
+        {
+          "step": 7600,
+          "loss": 3.708677,
+          "final": false,
+          "tokens": 1992294400
+        },
+        {
+          "step": 7800,
+          "loss": 3.706505,
+          "final": false,
+          "tokens": 2044723200
+        },
+        {
+          "step": 8000,
+          "loss": 3.699516,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 8200,
+          "loss": 3.701252,
+          "final": false,
+          "tokens": 2149580800
+        },
+        {
+          "step": 8400,
+          "loss": 3.693699,
+          "final": false,
+          "tokens": 2202009600
+        },
+        {
+          "step": 8600,
+          "loss": 3.702822,
+          "final": false,
+          "tokens": 2254438400
+        },
+        {
+          "step": 8800,
+          "loss": 3.67954,
+          "final": false,
+          "tokens": 2306867200
+        },
+        {
+          "step": 9000,
+          "loss": 3.677963,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 9200,
+          "loss": 3.67169,
+          "final": false,
+          "tokens": 2411724800
+        },
+        {
+          "step": 9400,
+          "loss": 3.681479,
+          "final": false,
+          "tokens": 2464153600
+        },
+        {
+          "step": 9600,
+          "loss": 3.669886,
+          "final": false,
+          "tokens": 2516582400
+        },
+        {
+          "step": 9800,
+          "loss": 3.671418,
+          "final": false,
+          "tokens": 2569011200
+        },
+        {
+          "step": 10000,
+          "loss": 3.661348,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 10200,
+          "loss": 3.644655,
+          "final": false,
+          "tokens": 2673868800
+        },
+        {
+          "step": 10400,
+          "loss": 3.656453,
+          "final": false,
+          "tokens": 2726297600
+        },
+        {
+          "step": 10600,
+          "loss": 3.652728,
+          "final": false,
+          "tokens": 2778726400
+        },
+        {
+          "step": 10800,
+          "loss": 3.641924,
+          "final": false,
+          "tokens": 2831155200
+        },
+        {
+          "step": 11000,
+          "loss": 3.638884,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 11200,
+          "loss": 3.630586,
+          "final": false,
+          "tokens": 2936012800
+        },
+        {
+          "step": 11400,
+          "loss": 3.632564,
+          "final": false,
+          "tokens": 2988441600
+        },
+        {
+          "step": 11600,
+          "loss": 3.61955,
+          "final": false,
+          "tokens": 3040870400
+        },
+        {
+          "step": 11800,
+          "loss": 3.631278,
+          "final": false,
+          "tokens": 3093299200
+        },
+        {
+          "step": 12000,
+          "loss": 3.624532,
+          "final": false,
+          "tokens": 3145728000
+        },
+        {
+          "step": 12200,
+          "loss": 3.622305,
+          "final": false,
+          "tokens": 3198156800
+        },
+        {
+          "step": 12400,
+          "loss": 3.596149,
+          "final": false,
+          "tokens": 3250585600
+        },
+        {
+          "step": 12600,
+          "loss": 3.601084,
+          "final": false,
+          "tokens": 3303014400
+        },
+        {
+          "step": 12800,
+          "loss": 3.600131,
+          "final": false,
+          "tokens": 3355443200
+        },
+        {
+          "step": 13000,
+          "loss": 3.585591,
+          "final": false,
+          "tokens": 3407872000
+        },
+        {
+          "step": 13200,
+          "loss": 3.587247,
+          "final": false,
+          "tokens": 3460300800
+        },
+        {
+          "step": 13400,
+          "loss": 3.593159,
+          "final": false,
+          "tokens": 3512729600
+        },
+        {
+          "step": 13600,
+          "loss": 3.571755,
+          "final": false,
+          "tokens": 3565158400
+        },
+        {
+          "step": 13800,
+          "loss": 3.564595,
+          "final": false,
+          "tokens": 3617587200
+        },
+        {
+          "step": 14000,
+          "loss": 3.558437,
+          "final": false,
+          "tokens": 3670016000
+        },
+        {
+          "step": 14200,
+          "loss": 3.557047,
+          "final": false,
+          "tokens": 3722444800
+        },
+        {
+          "step": 14400,
+          "loss": 3.557645,
+          "final": false,
+          "tokens": 3774873600
+        },
+        {
+          "step": 14600,
+          "loss": 3.562304,
+          "final": false,
+          "tokens": 3827302400
+        },
+        {
+          "step": 14800,
+          "loss": 3.538921,
+          "final": false,
+          "tokens": 3879731200
+        },
+        {
+          "step": 15000,
+          "loss": 3.537941,
+          "final": false,
+          "tokens": 3932160000
+        },
+        {
+          "step": 15200,
+          "loss": 3.537308,
+          "final": false,
+          "tokens": 3984588800
+        },
+        {
+          "step": 15400,
+          "loss": 3.55253,
+          "final": false,
+          "tokens": 4037017600
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_mcsd",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "2026",
+        "lr": "0.01",
+        "train_iters": "22889",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "False",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.5164069,
+      "recent_seconds_per_step": 5.346336666666667,
+      "final_val": null
+    },
+    {
+      "job_id": "4320106",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_normuon_sphere_w256_fdae664f26",
+      "state": "RUNNING",
+      "exit_code": "0:0",
+      "elapsed": "20:29:26",
+      "start": "2026-10-25T18:46:39",
+      "end": "Unknown",
+      "node": "SPG-7-1",
+      "method": "manifold_normuon_sphere",
+      "lr": 0.015,
+      "beta": 0.9,
+      "nesterov": true,
+      "seed": 2026,
+      "tokens": 6000000000,
+      "width": 256,
+      "final_step": 22889,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "ad89e845755aa5d13d43e77c6a22f701b341544cd836120f082853d99cd0ddef",
+      "completion": null,
+      "config": {
+        "actual_tokens": 6000214016,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": "afterany:4320104",
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_normuon_sphere",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_normuon_sphere_w256_fdae664f26",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 6000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 22889,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_6b/indexed/train/olmo_mix_1124_6b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.015,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.9,
+          "nesterov": true,
+          "normuon_beta2": 0.95,
+          "normuon_eps": 1e-10,
+          "save_interval": 0,
+          "seed": 2026,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 458
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_normuon_sphere_w256_fdae664f26_4320106.out",
+      "log_bytes": 628761,
+      "log_sha256": "c9f7a394b3803c6fc8c118417f2572665601fe9b57f58954498993fdf3c44963",
+      "last_train": {
+        "step": 12700,
+        "target": 22889,
+        "samples": 1625600,
+        "seconds": 5.3626000000000005,
+        "loss": 3.571531
+      },
+      "last_val": {
+        "step": 12600,
+        "loss": 3.578717,
+        "final": false,
+        "tokens": 3303014400
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 6.281584,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 5.200834,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.601319,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.315649,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.174226,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.098491,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 4.020146,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.990864,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.939962,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.920124,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.911015,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.893522,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.862359,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.842416,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.853987,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.826986,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.816984,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.819359,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.799176,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.793677,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 4200,
+          "loss": 3.797007,
+          "final": false,
+          "tokens": 1101004800
+        },
+        {
+          "step": 4400,
+          "loss": 3.7908,
+          "final": false,
+          "tokens": 1153433600
+        },
+        {
+          "step": 4600,
+          "loss": 3.777552,
+          "final": false,
+          "tokens": 1205862400
+        },
+        {
+          "step": 4800,
+          "loss": 3.758588,
+          "final": false,
+          "tokens": 1258291200
+        },
+        {
+          "step": 5000,
+          "loss": 3.767223,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 5200,
+          "loss": 3.766761,
+          "final": false,
+          "tokens": 1363148800
+        },
+        {
+          "step": 5400,
+          "loss": 3.756048,
+          "final": false,
+          "tokens": 1415577600
+        },
+        {
+          "step": 5600,
+          "loss": 3.760287,
+          "final": false,
+          "tokens": 1468006400
+        },
+        {
+          "step": 5800,
+          "loss": 3.75018,
+          "final": false,
+          "tokens": 1520435200
+        },
+        {
+          "step": 6000,
+          "loss": 3.730906,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 6200,
+          "loss": 3.743871,
+          "final": false,
+          "tokens": 1625292800
+        },
+        {
+          "step": 6400,
+          "loss": 3.729862,
+          "final": false,
+          "tokens": 1677721600
+        },
+        {
+          "step": 6600,
+          "loss": 3.732674,
+          "final": false,
+          "tokens": 1730150400
+        },
+        {
+          "step": 6800,
+          "loss": 3.72588,
+          "final": false,
+          "tokens": 1782579200
+        },
+        {
+          "step": 7000,
+          "loss": 3.709755,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 7200,
+          "loss": 3.711466,
+          "final": false,
+          "tokens": 1887436800
+        },
+        {
+          "step": 7400,
+          "loss": 3.700907,
+          "final": false,
+          "tokens": 1939865600
+        },
+        {
+          "step": 7600,
+          "loss": 3.697847,
+          "final": false,
+          "tokens": 1992294400
+        },
+        {
+          "step": 7800,
+          "loss": 3.689281,
+          "final": false,
+          "tokens": 2044723200
+        },
+        {
+          "step": 8000,
+          "loss": 3.68508,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 8200,
+          "loss": 3.689252,
+          "final": false,
+          "tokens": 2149580800
+        },
+        {
+          "step": 8400,
+          "loss": 3.675847,
+          "final": false,
+          "tokens": 2202009600
+        },
+        {
+          "step": 8600,
+          "loss": 3.683484,
+          "final": false,
+          "tokens": 2254438400
+        },
+        {
+          "step": 8800,
+          "loss": 3.659227,
+          "final": false,
+          "tokens": 2306867200
+        },
+        {
+          "step": 9000,
+          "loss": 3.662312,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 9200,
+          "loss": 3.657544,
+          "final": false,
+          "tokens": 2411724800
+        },
+        {
+          "step": 9400,
+          "loss": 3.663083,
+          "final": false,
+          "tokens": 2464153600
+        },
+        {
+          "step": 9600,
+          "loss": 3.650192,
+          "final": false,
+          "tokens": 2516582400
+        },
+        {
+          "step": 9800,
+          "loss": 3.649472,
+          "final": false,
+          "tokens": 2569011200
+        },
+        {
+          "step": 10000,
+          "loss": 3.640479,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 10200,
+          "loss": 3.622152,
+          "final": false,
+          "tokens": 2673868800
+        },
+        {
+          "step": 10400,
+          "loss": 3.629448,
+          "final": false,
+          "tokens": 2726297600
+        },
+        {
+          "step": 10600,
+          "loss": 3.630248,
+          "final": false,
+          "tokens": 2778726400
+        },
+        {
+          "step": 10800,
+          "loss": 3.621769,
+          "final": false,
+          "tokens": 2831155200
+        },
+        {
+          "step": 11000,
+          "loss": 3.618719,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 11200,
+          "loss": 3.609374,
+          "final": false,
+          "tokens": 2936012800
+        },
+        {
+          "step": 11400,
+          "loss": 3.61179,
+          "final": false,
+          "tokens": 2988441600
+        },
+        {
+          "step": 11600,
+          "loss": 3.596546,
+          "final": false,
+          "tokens": 3040870400
+        },
+        {
+          "step": 11800,
+          "loss": 3.609973,
+          "final": false,
+          "tokens": 3093299200
+        },
+        {
+          "step": 12000,
+          "loss": 3.60122,
+          "final": false,
+          "tokens": 3145728000
+        },
+        {
+          "step": 12200,
+          "loss": 3.598768,
+          "final": false,
+          "tokens": 3198156800
+        },
+        {
+          "step": 12400,
+          "loss": 3.5726,
+          "final": false,
+          "tokens": 3250585600
+        },
+        {
+          "step": 12600,
+          "loss": 3.578717,
+          "final": false,
+          "tokens": 3303014400
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_normuon_sphere",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "2026",
+        "lr": "0.015",
+        "train_iters": "22889",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.9",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "True",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.562328,
+      "recent_seconds_per_step": 5.366076666666667,
+      "final_val": null
+    },
+    {
+      "job_id": "4329081",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_f7321bf0db",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:31:10",
+      "start": "2026-10-25T11:01:20",
+      "end": "2026-10-26T05:32:30",
+      "node": "SPG-7-2",
+      "method": "manifold_mcsd",
+      "lr": 0.008,
+      "beta": 0.95,
+      "nesterov": false,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "3dae7c2e63faea570a207da9897f3466c717751479d4b5f2d7c12bb3ea95bab9",
+      "completion": {
+        "exit_code": 0,
+        "training_exit_code": 0,
+        "resume_verification_exit_code": null,
+        "process_seconds": 66657.75868097198,
+        "note": "Includes startup, indexing, evaluation, checkpoint and optional verification time; not optimizer-only time."
+      },
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": null,
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_mcsd",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_f7321bf0db",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.008,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": false,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_mcsd_w256_f7321bf0db_4329081.out",
+      "log_bytes": 672901,
+      "log_sha256": "d5f210eaaa5c4ea7ab8cbfcf2d13fb072d41d4e01940711e8a9f1f0abe8ba97a",
+      "last_train": {
+        "step": 11440,
+        "target": 11445,
+        "samples": 1464320,
+        "seconds": 5.3823,
+        "loss": 3.462912
+      },
+      "last_val": {
+        "step": 11445,
+        "loss": 3.469048,
+        "final": true,
+        "tokens": 3000238080
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 6.053172,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 5.03012,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.479535,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.235146,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.102616,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.02573,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 3.975976,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.921661,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.88842,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.866594,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.84133,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.824571,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.807616,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.800945,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.785715,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.775973,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.763681,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.751777,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.743009,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.722546,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 4200,
+          "loss": 3.710835,
+          "final": false,
+          "tokens": 1101004800
+        },
+        {
+          "step": 4400,
+          "loss": 3.711992,
+          "final": false,
+          "tokens": 1153433600
+        },
+        {
+          "step": 4600,
+          "loss": 3.702245,
+          "final": false,
+          "tokens": 1205862400
+        },
+        {
+          "step": 4800,
+          "loss": 3.687144,
+          "final": false,
+          "tokens": 1258291200
+        },
+        {
+          "step": 5000,
+          "loss": 3.676603,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 5200,
+          "loss": 3.663129,
+          "final": false,
+          "tokens": 1363148800
+        },
+        {
+          "step": 5400,
+          "loss": 3.660607,
+          "final": false,
+          "tokens": 1415577600
+        },
+        {
+          "step": 5600,
+          "loss": 3.654681,
+          "final": false,
+          "tokens": 1468006400
+        },
+        {
+          "step": 5800,
+          "loss": 3.650345,
+          "final": false,
+          "tokens": 1520435200
+        },
+        {
+          "step": 6000,
+          "loss": 3.632372,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 6200,
+          "loss": 3.639312,
+          "final": false,
+          "tokens": 1625292800
+        },
+        {
+          "step": 6400,
+          "loss": 3.625412,
+          "final": false,
+          "tokens": 1677721600
+        },
+        {
+          "step": 6600,
+          "loss": 3.611712,
+          "final": false,
+          "tokens": 1730150400
+        },
+        {
+          "step": 6800,
+          "loss": 3.592516,
+          "final": false,
+          "tokens": 1782579200
+        },
+        {
+          "step": 7000,
+          "loss": 3.600806,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 7200,
+          "loss": 3.581426,
+          "final": false,
+          "tokens": 1887436800
+        },
+        {
+          "step": 7400,
+          "loss": 3.566637,
+          "final": false,
+          "tokens": 1939865600
+        },
+        {
+          "step": 7600,
+          "loss": 3.554229,
+          "final": false,
+          "tokens": 1992294400
+        },
+        {
+          "step": 7800,
+          "loss": 3.547616,
+          "final": false,
+          "tokens": 2044723200
+        },
+        {
+          "step": 8000,
+          "loss": 3.556435,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 8200,
+          "loss": 3.534013,
+          "final": false,
+          "tokens": 2149580800
+        },
+        {
+          "step": 8400,
+          "loss": 3.545793,
+          "final": false,
+          "tokens": 2202009600
+        },
+        {
+          "step": 8600,
+          "loss": 3.529132,
+          "final": false,
+          "tokens": 2254438400
+        },
+        {
+          "step": 8800,
+          "loss": 3.52024,
+          "final": false,
+          "tokens": 2306867200
+        },
+        {
+          "step": 9000,
+          "loss": 3.516116,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 9200,
+          "loss": 3.501613,
+          "final": false,
+          "tokens": 2411724800
+        },
+        {
+          "step": 9400,
+          "loss": 3.5019,
+          "final": false,
+          "tokens": 2464153600
+        },
+        {
+          "step": 9600,
+          "loss": 3.507874,
+          "final": false,
+          "tokens": 2516582400
+        },
+        {
+          "step": 9800,
+          "loss": 3.497908,
+          "final": false,
+          "tokens": 2569011200
+        },
+        {
+          "step": 10000,
+          "loss": 3.487589,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 10200,
+          "loss": 3.472687,
+          "final": false,
+          "tokens": 2673868800
+        },
+        {
+          "step": 10400,
+          "loss": 3.494755,
+          "final": false,
+          "tokens": 2726297600
+        },
+        {
+          "step": 10600,
+          "loss": 3.479926,
+          "final": false,
+          "tokens": 2778726400
+        },
+        {
+          "step": 10800,
+          "loss": 3.471482,
+          "final": false,
+          "tokens": 2831155200
+        },
+        {
+          "step": 11000,
+          "loss": 3.472977,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 11200,
+          "loss": 3.461678,
+          "final": false,
+          "tokens": 2936012800
+        },
+        {
+          "step": 11400,
+          "loss": 3.466346,
+          "final": false,
+          "tokens": 2988441600
+        },
+        {
+          "step": 11445,
+          "loss": 3.469048,
+          "final": true,
+          "tokens": 3000238080
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_mcsd",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.008",
+        "train_iters": "11445",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "False",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.4458171,
+      "recent_seconds_per_step": 5.3730199999999995,
+      "final_val": 3.469048
+    },
+    {
+      "job_id": "4329082",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_normuon_sphere_w256_5de6902ab0",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:25:22",
+      "start": "2026-10-25T14:13:46",
+      "end": "2026-10-26T08:39:08",
+      "node": "SPG-7-2",
+      "method": "manifold_normuon_sphere",
+      "lr": 0.008,
+      "beta": 0.95,
+      "nesterov": false,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "69a03eb569eb0e59d877160211624749d806535e8e8ff75eb88c397996af6f7a",
+      "completion": {
+        "exit_code": 0,
+        "training_exit_code": 0,
+        "resume_verification_exit_code": null,
+        "process_seconds": 66309.15811847997,
+        "note": "Includes startup, indexing, evaluation, checkpoint and optional verification time; not optimizer-only time."
+      },
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": null,
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_normuon_sphere",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_normuon_sphere_w256_5de6902ab0",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.008,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": false,
+          "normuon_beta2": 0.95,
+          "normuon_eps": 1e-10,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_normuon_sphere_w256_5de6902ab0_4329082.out",
+      "log_bytes": 576978,
+      "log_sha256": "40226e1b6b6e955e74b524526d3dcf634e8b98fee990173b90d1d5bbbcc80f3e",
+      "last_train": {
+        "step": 11440,
+        "target": 11445,
+        "samples": 1464320,
+        "seconds": 5.3425,
+        "loss": 3.460031
+      },
+      "last_val": {
+        "step": 11445,
+        "loss": 3.466207,
+        "final": true,
+        "tokens": 3000238080
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 6.007302,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 4.958633,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.427091,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.20881,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.09055,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.019834,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 3.974092,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.921351,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.889781,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.869603,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.846363,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.8283,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.811658,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.804079,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.789825,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.781546,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.766942,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.75653,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.746997,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.725384,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 4200,
+          "loss": 3.714327,
+          "final": false,
+          "tokens": 1101004800
+        },
+        {
+          "step": 4400,
+          "loss": 3.715596,
+          "final": false,
+          "tokens": 1153433600
+        },
+        {
+          "step": 4600,
+          "loss": 3.703887,
+          "final": false,
+          "tokens": 1205862400
+        },
+        {
+          "step": 4800,
+          "loss": 3.689089,
+          "final": false,
+          "tokens": 1258291200
+        },
+        {
+          "step": 5000,
+          "loss": 3.679564,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 5200,
+          "loss": 3.664523,
+          "final": false,
+          "tokens": 1363148800
+        },
+        {
+          "step": 5400,
+          "loss": 3.6639,
+          "final": false,
+          "tokens": 1415577600
+        },
+        {
+          "step": 5600,
+          "loss": 3.656582,
+          "final": false,
+          "tokens": 1468006400
+        },
+        {
+          "step": 5800,
+          "loss": 3.652095,
+          "final": false,
+          "tokens": 1520435200
+        },
+        {
+          "step": 6000,
+          "loss": 3.634597,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 6200,
+          "loss": 3.639706,
+          "final": false,
+          "tokens": 1625292800
+        },
+        {
+          "step": 6400,
+          "loss": 3.625773,
+          "final": false,
+          "tokens": 1677721600
+        },
+        {
+          "step": 6600,
+          "loss": 3.61296,
+          "final": false,
+          "tokens": 1730150400
+        },
+        {
+          "step": 6800,
+          "loss": 3.593282,
+          "final": false,
+          "tokens": 1782579200
+        },
+        {
+          "step": 7000,
+          "loss": 3.600105,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 7200,
+          "loss": 3.579938,
+          "final": false,
+          "tokens": 1887436800
+        },
+        {
+          "step": 7400,
+          "loss": 3.566242,
+          "final": false,
+          "tokens": 1939865600
+        },
+        {
+          "step": 7600,
+          "loss": 3.553337,
+          "final": false,
+          "tokens": 1992294400
+        },
+        {
+          "step": 7800,
+          "loss": 3.5466,
+          "final": false,
+          "tokens": 2044723200
+        },
+        {
+          "step": 8000,
+          "loss": 3.554921,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 8200,
+          "loss": 3.531768,
+          "final": false,
+          "tokens": 2149580800
+        },
+        {
+          "step": 8400,
+          "loss": 3.544397,
+          "final": false,
+          "tokens": 2202009600
+        },
+        {
+          "step": 8600,
+          "loss": 3.527531,
+          "final": false,
+          "tokens": 2254438400
+        },
+        {
+          "step": 8800,
+          "loss": 3.518301,
+          "final": false,
+          "tokens": 2306867200
+        },
+        {
+          "step": 9000,
+          "loss": 3.513514,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 9200,
+          "loss": 3.499502,
+          "final": false,
+          "tokens": 2411724800
+        },
+        {
+          "step": 9400,
+          "loss": 3.499598,
+          "final": false,
+          "tokens": 2464153600
+        },
+        {
+          "step": 9600,
+          "loss": 3.50544,
+          "final": false,
+          "tokens": 2516582400
+        },
+        {
+          "step": 9800,
+          "loss": 3.495012,
+          "final": false,
+          "tokens": 2569011200
+        },
+        {
+          "step": 10000,
+          "loss": 3.484236,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 10200,
+          "loss": 3.470095,
+          "final": false,
+          "tokens": 2673868800
+        },
+        {
+          "step": 10400,
+          "loss": 3.491951,
+          "final": false,
+          "tokens": 2726297600
+        },
+        {
+          "step": 10600,
+          "loss": 3.476693,
+          "final": false,
+          "tokens": 2778726400
+        },
+        {
+          "step": 10800,
+          "loss": 3.46849,
+          "final": false,
+          "tokens": 2831155200
+        },
+        {
+          "step": 11000,
+          "loss": 3.469711,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 11200,
+          "loss": 3.458417,
+          "final": false,
+          "tokens": 2936012800
+        },
+        {
+          "step": 11400,
+          "loss": 3.462283,
+          "final": false,
+          "tokens": 2988441600
+        },
+        {
+          "step": 11445,
+          "loss": 3.466207,
+          "final": true,
+          "tokens": 3000238080
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_normuon_sphere",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.008",
+        "train_iters": "11445",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "False",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.4427599,
+      "recent_seconds_per_step": 5.345316666666666,
+      "final_val": 3.466207
+    },
+    {
+      "job_id": "4329083",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_tp_w256_27e9381040",
+      "state": "RUNNING",
+      "exit_code": "0:0",
+      "elapsed": "09:43:10",
+      "start": "2026-10-26T05:32:55",
+      "end": "Unknown",
+      "node": "SPG-7-2",
+      "method": "manifold_mcsd_tp",
+      "lr": 0.008,
+      "beta": 0.95,
+      "nesterov": false,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "acb80a910f1632e096a2e4cbb8e5d22656fc725e9ea79b1197dd1fb00eef7a6f",
+      "completion": null,
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": "afterany:4329081",
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_mcsd_tp",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_tp_w256_27e9381040",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.008,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": false,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_mcsd_tp_w256_27e9381040_4329083.out",
+      "log_bytes": 393949,
+      "log_sha256": "9896888114a578e5e7b498d8b85335dc385a66f7e4bddada799138d5eec3dbb0",
+      "last_train": {
+        "step": 5970,
+        "target": 11445,
+        "samples": 764160,
+        "seconds": 5.4208,
+        "loss": 3.613599
+      },
+      "last_val": {
+        "step": 5800,
+        "loss": 3.649349,
+        "final": false,
+        "tokens": 1520435200
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 6.052335,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 5.032675,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.480622,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.236175,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.103621,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.025754,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 3.975914,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.923753,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.890105,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.869434,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.84076,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.82502,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.80797,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.800572,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.786065,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.775884,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.762924,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.751704,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.74202,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.721919,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 4200,
+          "loss": 3.71097,
+          "final": false,
+          "tokens": 1101004800
+        },
+        {
+          "step": 4400,
+          "loss": 3.712232,
+          "final": false,
+          "tokens": 1153433600
+        },
+        {
+          "step": 4600,
+          "loss": 3.700997,
+          "final": false,
+          "tokens": 1205862400
+        },
+        {
+          "step": 4800,
+          "loss": 3.686891,
+          "final": false,
+          "tokens": 1258291200
+        },
+        {
+          "step": 5000,
+          "loss": 3.677591,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 5200,
+          "loss": 3.662431,
+          "final": false,
+          "tokens": 1363148800
+        },
+        {
+          "step": 5400,
+          "loss": 3.659631,
+          "final": false,
+          "tokens": 1415577600
+        },
+        {
+          "step": 5600,
+          "loss": 3.653771,
+          "final": false,
+          "tokens": 1468006400
+        },
+        {
+          "step": 5800,
+          "loss": 3.649349,
+          "final": false,
+          "tokens": 1520435200
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_mcsd_tp",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.008",
+        "train_iters": "11445",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "False",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.6176536999999995,
+      "recent_seconds_per_step": 5.414306666666667,
+      "final_val": null
+    },
+    {
+      "job_id": "4329084",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_muonh_w256_4818f5705c",
+      "state": "RUNNING",
+      "exit_code": "0:0",
+      "elapsed": "06:36:49",
+      "start": "2026-10-26T08:39:16",
+      "end": "Unknown",
+      "node": "SPG-7-2",
+      "method": "manifold_muonh",
+      "lr": 0.008,
+      "beta": 0.95,
+      "nesterov": false,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "6b66b20fc33f337ffc51c04e5563678a98c2c9043ebf9f62fcf153dcebfbf0ce",
+      "completion": null,
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": "afterany:4329082",
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_muonh",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_muonh_w256_4818f5705c",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.008,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": false,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_muonh_w256_4818f5705c_4329084.out",
+      "log_bytes": 265554,
+      "log_sha256": "27649b932d468b53b4645bad448d7cb6707b03c26c0651795cb712db418d2ff8",
+      "last_train": {
+        "step": 4110,
+        "target": 11445,
+        "samples": 526080,
+        "seconds": 5.3342,
+        "loss": 3.709919
+      },
+      "last_val": {
+        "step": 4000,
+        "loss": 3.726647,
+        "final": false,
+        "tokens": 1048576000
+      },
+      "val": [
+        {
+          "step": 200,
+          "loss": 6.009661,
+          "final": false,
+          "tokens": 52428800
+        },
+        {
+          "step": 400,
+          "loss": 4.966543,
+          "final": false,
+          "tokens": 104857600
+        },
+        {
+          "step": 600,
+          "loss": 4.434117,
+          "final": false,
+          "tokens": 157286400
+        },
+        {
+          "step": 800,
+          "loss": 4.21319,
+          "final": false,
+          "tokens": 209715200
+        },
+        {
+          "step": 1000,
+          "loss": 4.092973,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 1200,
+          "loss": 4.019773,
+          "final": false,
+          "tokens": 314572800
+        },
+        {
+          "step": 1400,
+          "loss": 3.97286,
+          "final": false,
+          "tokens": 367001600
+        },
+        {
+          "step": 1600,
+          "loss": 3.925469,
+          "final": false,
+          "tokens": 419430400
+        },
+        {
+          "step": 1800,
+          "loss": 3.89213,
+          "final": false,
+          "tokens": 471859200
+        },
+        {
+          "step": 2000,
+          "loss": 3.871173,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 2200,
+          "loss": 3.84517,
+          "final": false,
+          "tokens": 576716800
+        },
+        {
+          "step": 2400,
+          "loss": 3.829065,
+          "final": false,
+          "tokens": 629145600
+        },
+        {
+          "step": 2600,
+          "loss": 3.813439,
+          "final": false,
+          "tokens": 681574400
+        },
+        {
+          "step": 2800,
+          "loss": 3.805796,
+          "final": false,
+          "tokens": 734003200
+        },
+        {
+          "step": 3000,
+          "loss": 3.792069,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 3200,
+          "loss": 3.780399,
+          "final": false,
+          "tokens": 838860800
+        },
+        {
+          "step": 3400,
+          "loss": 3.767371,
+          "final": false,
+          "tokens": 891289600
+        },
+        {
+          "step": 3600,
+          "loss": 3.756294,
+          "final": false,
+          "tokens": 943718400
+        },
+        {
+          "step": 3800,
+          "loss": 3.747855,
+          "final": false,
+          "tokens": 996147200
+        },
+        {
+          "step": 4000,
+          "loss": 3.726647,
+          "final": false,
+          "tokens": 1048576000
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "manifold_muonh",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.008",
+        "train_iters": "11445",
+        "eval_interval": "200",
+        "eval_iters": "40",
+        "manifold_geometry": "frobenius",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "False",
+        "manifold_radius_policy": "shape",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.7057311,
+      "recent_seconds_per_step": 5.339253333333334,
+      "final_val": null
+    },
+    {
+      "job_id": "4329085",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_981665c7ba",
+      "state": "PENDING",
+      "exit_code": "0:0",
+      "elapsed": "00:00:00",
+      "start": "Unknown",
+      "end": "Unknown",
+      "node": "None assigned",
+      "method": "manifold_mcsd",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "dd51324fd089c60c69c8e3ca2b091e2a94af6ea637e5dda0765ef41860823238",
+      "completion": null,
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": "afterany:4329083",
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_mcsd",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_981665c7ba",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.01,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": true,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "last_train": null,
+      "last_val": null,
+      "val": [],
+      "health": null,
+      "final_val": null
+    },
+    {
+      "job_id": "4329086",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_tp_w256_1e745bdb7f",
+      "state": "PENDING",
+      "exit_code": "0:0",
+      "elapsed": "00:00:00",
+      "start": "Unknown",
+      "end": "Unknown",
+      "node": "None assigned",
+      "method": "manifold_mcsd_tp",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "37bfcb9404894886d536767a880ae43b16e0be3e0999d87bb11c380a8f1f29d6",
+      "completion": null,
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": "afterany:4329084",
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1.0,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_mcsd_tp",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_tp_w256_1e745bdb7f",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.01,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": true,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      },
+      "last_train": null,
+      "last_val": null,
+      "val": [],
+      "health": null,
+      "final_val": null
+    }
+  ],
+  "separate_spectral_study": [
+    {
+      "job_id": "4329039_0",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:21:23",
+      "start": "2026-10-25T10:55:01",
+      "end": "2026-10-26T05:16:24",
+      "config": {
+        "CLUSTER_SNAPSHOT_DIR": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_0/snapshots",
+        "CLUSTER_SNAPSHOT_EARLY": "8",
+        "CLUSTER_SNAPSHOT_LATE": "8",
+        "CLUSTER_SNAPSHOT_LATE_AFTER": "3000",
+        "CLUSTER_SNAPSHOT_MAX": "56",
+        "CLUSTER_SNAPSHOT_STEPS": "2,50,250,1000,2000,3000,4000,5000,5700",
+        "DATA_CACHE_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_0/data_cache",
+        "EVAL_INTERVAL": "250",
+        "EVAL_ITERS": "20",
+        "GLOBAL_BATCH": "128",
+        "HEAD_DIM": "128",
+        "LR": "1.5e-2",
+        "LR_DECAY_ITERS": "5723",
+        "LR_WARMUP_ITERS": "250",
+        "MEGATRON_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/Megatron-LM",
+        "MICRO_BATCH": "4",
+        "MIN_LR": "1.5e-3",
+        "MUON_BALL_MSIGN_STEPS": "8",
+        "MUON_BALL_POWER_ITERATION_STEPS": "10",
+        "NUM_LAYERS": "28",
+        "NVIDIA_TF32_OVERRIDE": "0",
+        "OPTIMIZER": "spel_pgd_dist",
+        "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/cluster-selected-3b-20261025/scripts/pretrain_cluster_ritz_observed.py",
+        "SEED": "1234",
+        "SEQ_LENGTH": "4096",
+        "SLURM_ARRAY_TASK_ID": "0",
+        "SLURM_JOB_ID": "4329041",
+        "SPECTRAL_BALL_POWER_ITERATION_STEPS": "10",
+        "SPECTRAL_BALL_SOLVER_MAX_ITERATIONS": "20",
+        "SPECTRAL_BALL_SOLVER_TOLERANCE_F": "2e-4",
+        "SPEL_PGD_BRANCH_MODE": "auto",
+        "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+        "SPEL_PGD_CLUSTER_ITERATIONS": "20",
+        "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+        "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-3",
+        "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+        "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+        "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+        "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+        "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+        "SPEL_PGD_GAP_THRESHOLD_REL": "5e-5",
+        "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+        "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+        "SPEL_PGD_MSIGN_STEPS": "8",
+        "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+        "SPEL_PGD_PGD_LR_SCALE": "1.0",
+        "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+        "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+        "SPEL_PGD_RADIAL_CLUSTER_MODE": "control",
+        "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+        "SPEL_PGD_WARM_START_UV": "0",
+        "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "TRAIN_ITER": "5723",
+        "TRAIN_TOKENS": "3000000000",
+        "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "WEIGHT_DECAY": "0.1",
+        "WIDTH": "256",
+        "actual_return": "approximate_radial_both_branches",
+        "actual_spectral_solver": "fixed_warm_block8_fp32_ritz",
+        "automatic_full_svd_fallback": false,
+        "cluster_options_active": true,
+        "cuda_version": "12.4",
+        "data_protocol": "3b_budget_same_indexed_source_as_4319977_fresh_training",
+        "device": "NVIDIA H20",
+        "initialization": "from_scratch_no_checkpoint_resume",
+        "matched_frobenius_length": false,
+        "momentum_normalization": "fro_before_cone",
+        "offline_audit": "after_training_only",
+        "online_accuracy_gate": false,
+        "post_cone_normalization": false,
+        "processed_tokens": 3000500224,
+        "selection_reference_array": "4319977",
+        "torch_version": "2.6.0+cu124"
+      },
+      "training_completed": true,
+      "all_checks_completed": true,
+      "log": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_0/train.log",
+      "log_bytes": 695408,
+      "log_sha256": "6cfd92af6bc77f74c4f6c61083a73504f55e18ea3bbe80812e3d88f47dc2eab7",
+      "last_train": {
+        "step": 5720,
+        "target": 5723,
+        "samples": 732160,
+        "seconds": 11.1959,
+        "loss": 3.430956
+      },
+      "last_val": {
+        "step": 5723,
+        "loss": 3.444459,
+        "final": true,
+        "tokens": 3000500224
+      },
+      "val": [
+        {
+          "step": 250,
+          "loss": 4.727609,
+          "final": false,
+          "tokens": 131072000
+        },
+        {
+          "step": 500,
+          "loss": 4.179001,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 750,
+          "loss": 4.042384,
+          "final": false,
+          "tokens": 393216000
+        },
+        {
+          "step": 1000,
+          "loss": 3.990878,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 1250,
+          "loss": 3.953149,
+          "final": false,
+          "tokens": 655360000
+        },
+        {
+          "step": 1500,
+          "loss": 3.909512,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 1750,
+          "loss": 3.869738,
+          "final": false,
+          "tokens": 917504000
+        },
+        {
+          "step": 2000,
+          "loss": 3.838337,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 2250,
+          "loss": 3.827938,
+          "final": false,
+          "tokens": 1179648000
+        },
+        {
+          "step": 2500,
+          "loss": 3.77487,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 2750,
+          "loss": 3.733461,
+          "final": false,
+          "tokens": 1441792000
+        },
+        {
+          "step": 3000,
+          "loss": 3.718296,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 3250,
+          "loss": 3.681424,
+          "final": false,
+          "tokens": 1703936000
+        },
+        {
+          "step": 3500,
+          "loss": 3.654359,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 3750,
+          "loss": 3.615278,
+          "final": false,
+          "tokens": 1966080000
+        },
+        {
+          "step": 4000,
+          "loss": 3.570975,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 4250,
+          "loss": 3.530924,
+          "final": false,
+          "tokens": 2228224000
+        },
+        {
+          "step": 4500,
+          "loss": 3.525957,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 4750,
+          "loss": 3.491784,
+          "final": false,
+          "tokens": 2490368000
+        },
+        {
+          "step": 5000,
+          "loss": 3.48464,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 5250,
+          "loss": 3.462063,
+          "final": false,
+          "tokens": 2752512000
+        },
+        {
+          "step": 5500,
+          "loss": 3.455081,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 5723,
+          "loss": 3.444459,
+          "final": true,
+          "tokens": 3000500224
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "spel_pgd",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "4096",
+        "seed": "1234",
+        "lr": "0.015",
+        "train_iters": "5723",
+        "eval_interval": "250",
+        "eval_iters": "20",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.4274595,
+      "recent_seconds_per_step": 11.201976666666667,
+      "final_val": 3.444459
+    },
+    {
+      "job_id": "4329039_1",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:21:58",
+      "start": "2026-10-25T10:55:01",
+      "end": "2026-10-26T05:16:59",
+      "config": {
+        "CLUSTER_SNAPSHOT_DIR": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_1/snapshots",
+        "CLUSTER_SNAPSHOT_EARLY": "8",
+        "CLUSTER_SNAPSHOT_LATE": "8",
+        "CLUSTER_SNAPSHOT_LATE_AFTER": "3000",
+        "CLUSTER_SNAPSHOT_MAX": "56",
+        "CLUSTER_SNAPSHOT_STEPS": "2,50,250,1000,2000,3000,4000,5000,5700",
+        "DATA_CACHE_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_1/data_cache",
+        "EVAL_INTERVAL": "250",
+        "EVAL_ITERS": "20",
+        "GLOBAL_BATCH": "128",
+        "HEAD_DIM": "128",
+        "LR": "1.5e-2",
+        "LR_DECAY_ITERS": "5723",
+        "LR_WARMUP_ITERS": "250",
+        "MEGATRON_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/Megatron-LM",
+        "MICRO_BATCH": "4",
+        "MIN_LR": "1.5e-3",
+        "MUON_BALL_MSIGN_STEPS": "8",
+        "MUON_BALL_POWER_ITERATION_STEPS": "10",
+        "NUM_LAYERS": "28",
+        "NVIDIA_TF32_OVERRIDE": "0",
+        "OPTIMIZER": "spel_pgd_dist",
+        "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/cluster-selected-3b-20261025/scripts/pretrain_cluster_ritz_observed.py",
+        "SEED": "1234",
+        "SEQ_LENGTH": "4096",
+        "SLURM_ARRAY_TASK_ID": "1",
+        "SLURM_JOB_ID": "4329042",
+        "SPECTRAL_BALL_POWER_ITERATION_STEPS": "10",
+        "SPECTRAL_BALL_SOLVER_MAX_ITERATIONS": "20",
+        "SPECTRAL_BALL_SOLVER_TOLERANCE_F": "2e-4",
+        "SPEL_PGD_BRANCH_MODE": "auto",
+        "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+        "SPEL_PGD_CLUSTER_ITERATIONS": "20",
+        "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+        "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-3",
+        "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+        "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+        "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+        "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+        "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+        "SPEL_PGD_GAP_THRESHOLD_REL": "5e-5",
+        "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+        "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+        "SPEL_PGD_MSIGN_STEPS": "8",
+        "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+        "SPEL_PGD_PGD_LR_SCALE": "8.0",
+        "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+        "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+        "SPEL_PGD_RADIAL_CLUSTER_MODE": "adaptive4",
+        "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+        "SPEL_PGD_WARM_START_UV": "0",
+        "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "TRAIN_ITER": "5723",
+        "TRAIN_TOKENS": "3000000000",
+        "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "WEIGHT_DECAY": "0.1",
+        "WIDTH": "256",
+        "actual_return": "approximate_radial_both_branches",
+        "actual_spectral_solver": "fixed_warm_block8_fp32_ritz",
+        "automatic_full_svd_fallback": false,
+        "cluster_options_active": true,
+        "cuda_version": "12.4",
+        "data_protocol": "3b_budget_same_indexed_source_as_4319977_fresh_training",
+        "device": "NVIDIA H20",
+        "initialization": "from_scratch_no_checkpoint_resume",
+        "matched_frobenius_length": false,
+        "momentum_normalization": "fro_before_cone",
+        "offline_audit": "after_training_only",
+        "online_accuracy_gate": false,
+        "post_cone_normalization": false,
+        "processed_tokens": 3000500224,
+        "selection_reference_array": "4319977",
+        "torch_version": "2.6.0+cu124"
+      },
+      "training_completed": true,
+      "all_checks_completed": true,
+      "log": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_1/train.log",
+      "log_bytes": 920194,
+      "log_sha256": "c7cd665374ed7208449194470cf9ceb6c9fdb30ed4ece2a68c5eef08f77972f2",
+      "last_train": {
+        "step": 5720,
+        "target": 5723,
+        "samples": 732160,
+        "seconds": 11.203299999999999,
+        "loss": 3.430508
+      },
+      "last_val": {
+        "step": 5723,
+        "loss": 3.443598,
+        "final": true,
+        "tokens": 3000500224
+      },
+      "val": [
+        {
+          "step": 250,
+          "loss": 4.710189,
+          "final": false,
+          "tokens": 131072000
+        },
+        {
+          "step": 500,
+          "loss": 4.184754,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 750,
+          "loss": 4.049963,
+          "final": false,
+          "tokens": 393216000
+        },
+        {
+          "step": 1000,
+          "loss": 3.991699,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 1250,
+          "loss": 3.947639,
+          "final": false,
+          "tokens": 655360000
+        },
+        {
+          "step": 1500,
+          "loss": 3.9141,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 1750,
+          "loss": 3.870418,
+          "final": false,
+          "tokens": 917504000
+        },
+        {
+          "step": 2000,
+          "loss": 3.832949,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 2250,
+          "loss": 3.822634,
+          "final": false,
+          "tokens": 1179648000
+        },
+        {
+          "step": 2500,
+          "loss": 3.773471,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 2750,
+          "loss": 3.732978,
+          "final": false,
+          "tokens": 1441792000
+        },
+        {
+          "step": 3000,
+          "loss": 3.717438,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 3250,
+          "loss": 3.68169,
+          "final": false,
+          "tokens": 1703936000
+        },
+        {
+          "step": 3500,
+          "loss": 3.657741,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 3750,
+          "loss": 3.616471,
+          "final": false,
+          "tokens": 1966080000
+        },
+        {
+          "step": 4000,
+          "loss": 3.568519,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 4250,
+          "loss": 3.529575,
+          "final": false,
+          "tokens": 2228224000
+        },
+        {
+          "step": 4500,
+          "loss": 3.525894,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 4750,
+          "loss": 3.490814,
+          "final": false,
+          "tokens": 2490368000
+        },
+        {
+          "step": 5000,
+          "loss": 3.483815,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 5250,
+          "loss": 3.461064,
+          "final": false,
+          "tokens": 2752512000
+        },
+        {
+          "step": 5500,
+          "loss": 3.454445,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 5723,
+          "loss": 3.443598,
+          "final": true,
+          "tokens": 3000500224
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "spel_pgd",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "4096",
+        "seed": "1234",
+        "lr": "0.015",
+        "train_iters": "5723",
+        "eval_interval": "250",
+        "eval_iters": "20",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.4266663,
+      "recent_seconds_per_step": 11.202016666666667,
+      "final_val": 3.443598
+    },
+    {
+      "job_id": "4329039_2",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "16:38:08",
+      "start": "2026-10-25T10:55:01",
+      "end": "2026-10-26T03:33:09",
+      "config": {
+        "DATA_CACHE_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_2/data_cache",
+        "EVAL_INTERVAL": "250",
+        "EVAL_ITERS": "20",
+        "GLOBAL_BATCH": "128",
+        "HEAD_DIM": "128",
+        "LR": "1.5e-2",
+        "LR_DECAY_ITERS": "5723",
+        "LR_WARMUP_ITERS": "250",
+        "MEGATRON_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/Megatron-LM",
+        "MICRO_BATCH": "4",
+        "MIN_LR": "1.5e-3",
+        "MUON_BALL_MSIGN_STEPS": "8",
+        "MUON_BALL_POWER_ITERATION_STEPS": "10",
+        "NUM_LAYERS": "28",
+        "NVIDIA_TF32_OVERRIDE": "0",
+        "OPTIMIZER": "muon_ball_dist",
+        "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/cluster-selected-3b-20261025/Megatron-LM/pretrain_gpt.py",
+        "SEED": "1234",
+        "SEQ_LENGTH": "4096",
+        "SLURM_ARRAY_TASK_ID": "2",
+        "SLURM_JOB_ID": "4329043",
+        "SPECTRAL_BALL_POWER_ITERATION_STEPS": "10",
+        "SPECTRAL_BALL_SOLVER_MAX_ITERATIONS": "20",
+        "SPECTRAL_BALL_SOLVER_TOLERANCE_F": "2e-4",
+        "SPEL_PGD_BRANCH_MODE": "auto",
+        "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+        "SPEL_PGD_CLUSTER_ITERATIONS": "20",
+        "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+        "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-3",
+        "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+        "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+        "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+        "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+        "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+        "SPEL_PGD_GAP_THRESHOLD_REL": "5e-5",
+        "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+        "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+        "SPEL_PGD_MSIGN_STEPS": "8",
+        "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+        "SPEL_PGD_PGD_LR_SCALE": "8.0",
+        "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+        "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+        "SPEL_PGD_RADIAL_CLUSTER_MODE": "none",
+        "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+        "SPEL_PGD_WARM_START_UV": "0",
+        "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "TRAIN_ITER": "5723",
+        "TRAIN_TOKENS": "3000000000",
+        "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "WEIGHT_DECAY": "0.1",
+        "WIDTH": "256",
+        "actual_return": "reference_hard_pre_retraction",
+        "actual_spectral_solver": "reference_bf16_pi10",
+        "automatic_full_svd_fallback": false,
+        "cluster_options_active": false,
+        "cuda_version": "12.4",
+        "data_protocol": "3b_budget_same_indexed_source_as_4319977_fresh_training",
+        "device": "NVIDIA H20",
+        "initialization": "from_scratch_no_checkpoint_resume",
+        "matched_frobenius_length": false,
+        "momentum_normalization": "reference_optimizer",
+        "offline_audit": "not_instrumented",
+        "online_accuracy_gate": false,
+        "post_cone_normalization": false,
+        "processed_tokens": 3000500224,
+        "selection_reference_array": "4319977",
+        "torch_version": "2.6.0+cu124"
+      },
+      "training_completed": true,
+      "all_checks_completed": true,
+      "log": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_2/train.log",
+      "log_bytes": 350915,
+      "log_sha256": "c5dabfe1113e1fb8f12defa1d1e9c8b4e8988aee024bf9226a3f8b1e573b6fa8",
+      "last_train": {
+        "step": 5720,
+        "target": 5723,
+        "samples": 732160,
+        "seconds": 10.1265,
+        "loss": 3.428725
+      },
+      "last_val": {
+        "step": 5723,
+        "loss": 3.442197,
+        "final": true,
+        "tokens": 3000500224
+      },
+      "val": [
+        {
+          "step": 250,
+          "loss": 4.738941,
+          "final": false,
+          "tokens": 131072000
+        },
+        {
+          "step": 500,
+          "loss": 4.208529,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 750,
+          "loss": 4.082664,
+          "final": false,
+          "tokens": 393216000
+        },
+        {
+          "step": 1000,
+          "loss": 4.031555,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 1250,
+          "loss": 3.986619,
+          "final": false,
+          "tokens": 655360000
+        },
+        {
+          "step": 1500,
+          "loss": 3.941676,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 1750,
+          "loss": 3.903078,
+          "final": false,
+          "tokens": 917504000
+        },
+        {
+          "step": 2000,
+          "loss": 3.867837,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 2250,
+          "loss": 3.850281,
+          "final": false,
+          "tokens": 1179648000
+        },
+        {
+          "step": 2500,
+          "loss": 3.796777,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 2750,
+          "loss": 3.76206,
+          "final": false,
+          "tokens": 1441792000
+        },
+        {
+          "step": 3000,
+          "loss": 3.732688,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 3250,
+          "loss": 3.696371,
+          "final": false,
+          "tokens": 1703936000
+        },
+        {
+          "step": 3500,
+          "loss": 3.671113,
+          "final": false,
+          "tokens": 1835008000
+        },
+        {
+          "step": 3750,
+          "loss": 3.628825,
+          "final": false,
+          "tokens": 1966080000
+        },
+        {
+          "step": 4000,
+          "loss": 3.579252,
+          "final": false,
+          "tokens": 2097152000
+        },
+        {
+          "step": 4250,
+          "loss": 3.537857,
+          "final": false,
+          "tokens": 2228224000
+        },
+        {
+          "step": 4500,
+          "loss": 3.531014,
+          "final": false,
+          "tokens": 2359296000
+        },
+        {
+          "step": 4750,
+          "loss": 3.494897,
+          "final": false,
+          "tokens": 2490368000
+        },
+        {
+          "step": 5000,
+          "loss": 3.485271,
+          "final": false,
+          "tokens": 2621440000
+        },
+        {
+          "step": 5250,
+          "loss": 3.461477,
+          "final": false,
+          "tokens": 2752512000
+        },
+        {
+          "step": 5500,
+          "loss": 3.453572,
+          "final": false,
+          "tokens": 2883584000
+        },
+        {
+          "step": 5723,
+          "loss": 3.442197,
+          "final": true,
+          "tokens": 3000500224
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "muon_ball",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "4096",
+        "seed": "1234",
+        "lr": "0.015",
+        "train_iters": "5723",
+        "eval_interval": "250",
+        "eval_iters": "20",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.4253455,
+      "recent_seconds_per_step": 10.129266666666666,
+      "final_val": 3.442197
+    },
+    {
+      "job_id": "4329039_3",
+      "state": "RUNNING",
+      "exit_code": "0:0",
+      "elapsed": "11:42:51",
+      "start": "2026-10-26T03:33:14",
+      "end": "Unknown",
+      "config": {
+        "DATA_CACHE_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_3/data_cache",
+        "EVAL_INTERVAL": "250",
+        "EVAL_ITERS": "20",
+        "GLOBAL_BATCH": "128",
+        "HEAD_DIM": "128",
+        "LR": "1.5e-2",
+        "LR_DECAY_ITERS": "5723",
+        "LR_WARMUP_ITERS": "250",
+        "MEGATRON_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/Megatron-LM",
+        "MICRO_BATCH": "4",
+        "MIN_LR": "1.5e-3",
+        "MUON_BALL_MSIGN_STEPS": "8",
+        "MUON_BALL_POWER_ITERATION_STEPS": "10",
+        "NUM_LAYERS": "28",
+        "NVIDIA_TF32_OVERRIDE": "0",
+        "OPTIMIZER": "spectral_ball_dist",
+        "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/cluster-selected-3b-20261025/Megatron-LM/pretrain_gpt.py",
+        "SEED": "1234",
+        "SEQ_LENGTH": "4096",
+        "SLURM_ARRAY_TASK_ID": "3",
+        "SLURM_JOB_ID": "4334139",
+        "SPECTRAL_BALL_POWER_ITERATION_STEPS": "10",
+        "SPECTRAL_BALL_SOLVER_MAX_ITERATIONS": "20",
+        "SPECTRAL_BALL_SOLVER_TOLERANCE_F": "2e-4",
+        "SPEL_PGD_BRANCH_MODE": "auto",
+        "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+        "SPEL_PGD_CLUSTER_ITERATIONS": "20",
+        "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+        "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-3",
+        "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+        "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+        "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+        "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+        "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+        "SPEL_PGD_GAP_THRESHOLD_REL": "5e-5",
+        "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+        "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+        "SPEL_PGD_MSIGN_STEPS": "8",
+        "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+        "SPEL_PGD_PGD_LR_SCALE": "8.0",
+        "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+        "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+        "SPEL_PGD_RADIAL_CLUSTER_MODE": "none",
+        "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+        "SPEL_PGD_WARM_START_UV": "0",
+        "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "TRAIN_ITER": "5723",
+        "TRAIN_TOKENS": "3000000000",
+        "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "WEIGHT_DECAY": "0.1",
+        "WIDTH": "256",
+        "actual_return": "reference_hard_pre_retraction",
+        "actual_spectral_solver": "reference_bf16_pi10",
+        "automatic_full_svd_fallback": false,
+        "cluster_options_active": false,
+        "cuda_version": "12.4",
+        "data_protocol": "3b_budget_same_indexed_source_as_4319977_fresh_training",
+        "device": "NVIDIA H20",
+        "initialization": "from_scratch_no_checkpoint_resume",
+        "matched_frobenius_length": false,
+        "momentum_normalization": "reference_optimizer",
+        "offline_audit": "not_instrumented",
+        "online_accuracy_gate": false,
+        "post_cone_normalization": false,
+        "processed_tokens": 3000500224,
+        "selection_reference_array": "4319977",
+        "torch_version": "2.6.0+cu124"
+      },
+      "training_completed": false,
+      "all_checks_completed": false,
+      "log": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_3/train.log",
+      "log_bytes": 257073,
+      "log_sha256": "92a1d80e54df368fa827de348f5d90b84767a6ad84a550cce224e1abcf08c55b",
+      "last_train": {
+        "step": 3590,
+        "target": 5723,
+        "samples": 459520,
+        "seconds": 11.2567,
+        "loss": 3.605308
+      },
+      "last_val": {
+        "step": 3500,
+        "loss": 3.652187,
+        "final": false,
+        "tokens": 1835008000
+      },
+      "val": [
+        {
+          "step": 250,
+          "loss": 4.73682,
+          "final": false,
+          "tokens": 131072000
+        },
+        {
+          "step": 500,
+          "loss": 4.210593,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 750,
+          "loss": 4.056159,
+          "final": false,
+          "tokens": 393216000
+        },
+        {
+          "step": 1000,
+          "loss": 4.009973,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 1250,
+          "loss": 3.955718,
+          "final": false,
+          "tokens": 655360000
+        },
+        {
+          "step": 1500,
+          "loss": 3.913041,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 1750,
+          "loss": 3.8738,
+          "final": false,
+          "tokens": 917504000
+        },
+        {
+          "step": 2000,
+          "loss": 3.834506,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 2250,
+          "loss": 3.814623,
+          "final": false,
+          "tokens": 1179648000
+        },
+        {
+          "step": 2500,
+          "loss": 3.765289,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 2750,
+          "loss": 3.729427,
+          "final": false,
+          "tokens": 1441792000
+        },
+        {
+          "step": 3000,
+          "loss": 3.713976,
+          "final": false,
+          "tokens": 1572864000
+        },
+        {
+          "step": 3250,
+          "loss": 3.677353,
+          "final": false,
+          "tokens": 1703936000
+        },
+        {
+          "step": 3500,
+          "loss": 3.652187,
+          "final": false,
+          "tokens": 1835008000
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "spectral_ball",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "4096",
+        "seed": "1234",
+        "lr": "0.015",
+        "train_iters": "5723",
+        "eval_interval": "250",
+        "eval_iters": "20",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.6089276,
+      "recent_seconds_per_step": 11.267603333333334,
+      "final_val": null
+    },
+    {
+      "job_id": "4329039_4",
+      "state": "RUNNING",
+      "exit_code": "0:0",
+      "elapsed": "09:59:34",
+      "start": "2026-10-26T05:16:31",
+      "end": "Unknown",
+      "config": {
+        "CLUSTER_SNAPSHOT_DIR": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_4/snapshots",
+        "CLUSTER_SNAPSHOT_EARLY": "8",
+        "CLUSTER_SNAPSHOT_LATE": "8",
+        "CLUSTER_SNAPSHOT_LATE_AFTER": "3000",
+        "CLUSTER_SNAPSHOT_MAX": "56",
+        "CLUSTER_SNAPSHOT_STEPS": "2,50,250,1000,2000,3000,4000,5000,5700",
+        "DATA_CACHE_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_4/data_cache",
+        "EVAL_INTERVAL": "250",
+        "EVAL_ITERS": "20",
+        "GLOBAL_BATCH": "128",
+        "HEAD_DIM": "128",
+        "LR": "1.5e-2",
+        "LR_DECAY_ITERS": "5723",
+        "LR_WARMUP_ITERS": "250",
+        "MEGATRON_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/Megatron-LM",
+        "MICRO_BATCH": "4",
+        "MIN_LR": "1.5e-3",
+        "MUON_BALL_MSIGN_STEPS": "8",
+        "MUON_BALL_POWER_ITERATION_STEPS": "10",
+        "NUM_LAYERS": "28",
+        "NVIDIA_TF32_OVERRIDE": "0",
+        "OPTIMIZER": "spel_pgd_dist",
+        "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/cluster-selected-3b-20261025/scripts/pretrain_cluster_ritz_observed.py",
+        "SEED": "1234",
+        "SEQ_LENGTH": "4096",
+        "SLURM_ARRAY_TASK_ID": "4",
+        "SLURM_JOB_ID": "4334395",
+        "SPECTRAL_BALL_POWER_ITERATION_STEPS": "10",
+        "SPECTRAL_BALL_SOLVER_MAX_ITERATIONS": "20",
+        "SPECTRAL_BALL_SOLVER_TOLERANCE_F": "2e-4",
+        "SPEL_PGD_BRANCH_MODE": "auto",
+        "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+        "SPEL_PGD_CLUSTER_ITERATIONS": "10",
+        "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+        "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-3",
+        "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+        "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+        "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+        "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+        "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+        "SPEL_PGD_GAP_THRESHOLD_REL": "5e-5",
+        "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+        "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+        "SPEL_PGD_MSIGN_STEPS": "8",
+        "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+        "SPEL_PGD_PGD_LR_SCALE": "1.0",
+        "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+        "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+        "SPEL_PGD_RADIAL_CLUSTER_MODE": "control",
+        "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+        "SPEL_PGD_WARM_START_UV": "0",
+        "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "TRAIN_ITER": "5723",
+        "TRAIN_TOKENS": "3000000000",
+        "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "WEIGHT_DECAY": "0.1",
+        "WIDTH": "256",
+        "actual_return": "approximate_radial_both_branches",
+        "actual_spectral_solver": "fixed_warm_block8_fp32_ritz",
+        "automatic_full_svd_fallback": false,
+        "cluster_options_active": true,
+        "cuda_version": "12.4",
+        "data_protocol": "3b_budget_same_indexed_source_as_4319977_fresh_training",
+        "device": "NVIDIA H20",
+        "initialization": "from_scratch_no_checkpoint_resume",
+        "matched_frobenius_length": false,
+        "momentum_normalization": "fro_before_cone",
+        "offline_audit": "after_training_only",
+        "online_accuracy_gate": false,
+        "post_cone_normalization": false,
+        "processed_tokens": 3000500224,
+        "selection_reference_array": "4319977",
+        "torch_version": "2.6.0+cu124"
+      },
+      "training_completed": false,
+      "all_checks_completed": false,
+      "log": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_4/train.log",
+      "log_bytes": 435224,
+      "log_sha256": "db85ba29c3ea46c8f6afe419c6c545c442cf6fdd438bfeae0420590b410b7e9c",
+      "last_train": {
+        "step": 3230,
+        "target": 5723,
+        "samples": 413440,
+        "seconds": 10.8146,
+        "loss": 3.648841
+      },
+      "last_val": {
+        "step": 3000,
+        "loss": 3.713605,
+        "final": false,
+        "tokens": 1572864000
+      },
+      "val": [
+        {
+          "step": 250,
+          "loss": 4.710192,
+          "final": false,
+          "tokens": 131072000
+        },
+        {
+          "step": 500,
+          "loss": 4.17997,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 750,
+          "loss": 4.050251,
+          "final": false,
+          "tokens": 393216000
+        },
+        {
+          "step": 1000,
+          "loss": 3.993543,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 1250,
+          "loss": 3.953267,
+          "final": false,
+          "tokens": 655360000
+        },
+        {
+          "step": 1500,
+          "loss": 3.919821,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 1750,
+          "loss": 3.870436,
+          "final": false,
+          "tokens": 917504000
+        },
+        {
+          "step": 2000,
+          "loss": 3.837147,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 2250,
+          "loss": 3.82141,
+          "final": false,
+          "tokens": 1179648000
+        },
+        {
+          "step": 2500,
+          "loss": 3.772522,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 2750,
+          "loss": 3.732688,
+          "final": false,
+          "tokens": 1441792000
+        },
+        {
+          "step": 3000,
+          "loss": 3.713605,
+          "final": false,
+          "tokens": 1572864000
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "spel_pgd",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "4096",
+        "seed": "1234",
+        "lr": "0.015",
+        "train_iters": "5723",
+        "eval_interval": "250",
+        "eval_iters": "20",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.6609608000000002,
+      "recent_seconds_per_step": 10.805423333333332,
+      "final_val": null
+    },
+    {
+      "job_id": "4329039_5",
+      "state": "RUNNING",
+      "exit_code": "0:0",
+      "elapsed": "09:58:50",
+      "start": "2026-10-26T05:17:15",
+      "end": "Unknown",
+      "config": {
+        "CLUSTER_SNAPSHOT_DIR": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_5/snapshots",
+        "CLUSTER_SNAPSHOT_EARLY": "8",
+        "CLUSTER_SNAPSHOT_LATE": "8",
+        "CLUSTER_SNAPSHOT_LATE_AFTER": "3000",
+        "CLUSTER_SNAPSHOT_MAX": "56",
+        "CLUSTER_SNAPSHOT_STEPS": "2,50,250,1000,2000,3000,4000,5000,5700",
+        "DATA_CACHE_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_5/data_cache",
+        "EVAL_INTERVAL": "250",
+        "EVAL_ITERS": "20",
+        "GLOBAL_BATCH": "128",
+        "HEAD_DIM": "128",
+        "LR": "1.5e-2",
+        "LR_DECAY_ITERS": "5723",
+        "LR_WARMUP_ITERS": "250",
+        "MEGATRON_PATH": "/home/u3013198/projects/cluster-selected-3b-20261025/Megatron-LM",
+        "MICRO_BATCH": "4",
+        "MIN_LR": "1.5e-3",
+        "MUON_BALL_MSIGN_STEPS": "8",
+        "MUON_BALL_POWER_ITERATION_STEPS": "10",
+        "NUM_LAYERS": "28",
+        "NVIDIA_TF32_OVERRIDE": "0",
+        "OPTIMIZER": "spel_pgd_dist",
+        "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/cluster-selected-3b-20261025/scripts/pretrain_cluster_ritz_observed.py",
+        "SEED": "1234",
+        "SEQ_LENGTH": "4096",
+        "SLURM_ARRAY_TASK_ID": "5",
+        "SLURM_JOB_ID": "4329039",
+        "SPECTRAL_BALL_POWER_ITERATION_STEPS": "10",
+        "SPECTRAL_BALL_SOLVER_MAX_ITERATIONS": "20",
+        "SPECTRAL_BALL_SOLVER_TOLERANCE_F": "2e-4",
+        "SPEL_PGD_BRANCH_MODE": "auto",
+        "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+        "SPEL_PGD_CLUSTER_ITERATIONS": "10",
+        "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+        "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-3",
+        "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+        "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+        "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+        "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+        "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+        "SPEL_PGD_GAP_THRESHOLD_REL": "5e-5",
+        "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+        "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+        "SPEL_PGD_MSIGN_STEPS": "8",
+        "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+        "SPEL_PGD_PGD_LR_SCALE": "8.0",
+        "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+        "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+        "SPEL_PGD_RADIAL_CLUSTER_MODE": "adaptive4",
+        "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+        "SPEL_PGD_WARM_START_UV": "0",
+        "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "TRAIN_ITER": "5723",
+        "TRAIN_TOKENS": "3000000000",
+        "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "WEIGHT_DECAY": "0.1",
+        "WIDTH": "256",
+        "actual_return": "approximate_radial_both_branches",
+        "actual_spectral_solver": "fixed_warm_block8_fp32_ritz",
+        "automatic_full_svd_fallback": false,
+        "cluster_options_active": true,
+        "cuda_version": "12.4",
+        "data_protocol": "3b_budget_same_indexed_source_as_4319977_fresh_training",
+        "device": "NVIDIA H20",
+        "initialization": "from_scratch_no_checkpoint_resume",
+        "matched_frobenius_length": false,
+        "momentum_normalization": "fro_before_cone",
+        "offline_audit": "after_training_only",
+        "online_accuracy_gate": false,
+        "post_cone_normalization": false,
+        "processed_tokens": 3000500224,
+        "selection_reference_array": "4319977",
+        "torch_version": "2.6.0+cu124"
+      },
+      "training_completed": false,
+      "all_checks_completed": false,
+      "log": "/home/u3013198/projects/cluster-selected-3b-20261025/results/4329039_5/train.log",
+      "log_bytes": 543243,
+      "log_sha256": "63afdb056fe922e4d326cb5264dfeb6cf7a231120e5d546f5f092b5f4797ca72",
+      "last_train": {
+        "step": 3230,
+        "target": 5723,
+        "samples": 413440,
+        "seconds": 10.793299999999999,
+        "loss": 3.648859
+      },
+      "last_val": {
+        "step": 3000,
+        "loss": 3.713485,
+        "final": false,
+        "tokens": 1572864000
+      },
+      "val": [
+        {
+          "step": 250,
+          "loss": 4.734154,
+          "final": false,
+          "tokens": 131072000
+        },
+        {
+          "step": 500,
+          "loss": 4.189176,
+          "final": false,
+          "tokens": 262144000
+        },
+        {
+          "step": 750,
+          "loss": 4.054722,
+          "final": false,
+          "tokens": 393216000
+        },
+        {
+          "step": 1000,
+          "loss": 3.986866,
+          "final": false,
+          "tokens": 524288000
+        },
+        {
+          "step": 1250,
+          "loss": 3.946802,
+          "final": false,
+          "tokens": 655360000
+        },
+        {
+          "step": 1500,
+          "loss": 3.913046,
+          "final": false,
+          "tokens": 786432000
+        },
+        {
+          "step": 1750,
+          "loss": 3.876435,
+          "final": false,
+          "tokens": 917504000
+        },
+        {
+          "step": 2000,
+          "loss": 3.837875,
+          "final": false,
+          "tokens": 1048576000
+        },
+        {
+          "step": 2250,
+          "loss": 3.817088,
+          "final": false,
+          "tokens": 1179648000
+        },
+        {
+          "step": 2500,
+          "loss": 3.77128,
+          "final": false,
+          "tokens": 1310720000
+        },
+        {
+          "step": 2750,
+          "loss": 3.728702,
+          "final": false,
+          "tokens": 1441792000
+        },
+        {
+          "step": 3000,
+          "loss": 3.713485,
+          "final": false,
+          "tokens": 1572864000
+        }
+      ],
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "arguments": {
+        "optimizer": "spel_pgd",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "4096",
+        "seed": "1234",
+        "lr": "0.015",
+        "train_iters": "5723",
+        "eval_interval": "250",
+        "eval_iters": "20",
+        "global_batch_size": "128",
+        "micro_batch_size": "4"
+      },
+      "tail_train_mean": 3.6600966999999995,
+      "recent_seconds_per_step": 10.781633333333334,
+      "final_val": null
+    }
+  ],
+  "accounting": "4320101|main_frobenius_manifold_muonh_w256_b0ff75f161|COMPLETED|0:0|18:24:56|2026-10-24T01:21:16|2026-10-24T19:46:12|SPG-7-2\n4320102|main_frobenius_manifold_normuon_sphere_w256_ac05235262|COMPLETED|0:0|18:25:14|2026-10-24T05:52:57|2026-10-25T00:18:11|SPG-7-1\n4320103|main_frobenius_manifold_mcsd_w256_a8b81b4f18|COMPLETED|0:0|18:31:53|2026-10-24T19:46:33|2026-10-25T14:18:26|SPG-7-1\n4320104|main_frobenius_manifold_mcsd_w256_2ddd17fe4c|COMPLETED|0:0|18:27:46|2026-10-25T00:18:34|2026-10-25T18:46:20|SPG-7-1\n4320105|main_frobenius_manifold_mcsd_w256_cde14ba677|RUNNING|0:0|1-00:57:22|2026-10-25T14:18:43|Unknown|SPG-7-1\n4320106|main_frobenius_manifold_normuon_sphere_w256_fdae664f26|RUNNING|0:0|20:29:26|2026-10-25T18:46:39|Unknown|SPG-7-1\n4329039_0|w256_cluster_selected_3b|COMPLETED|0:0|18:21:23|2026-10-25T10:55:01|2026-10-26T05:16:24|SPG-7-1\n4329039_1|w256_cluster_selected_3b|COMPLETED|0:0|18:21:58|2026-10-25T10:55:01|2026-10-26T05:16:59|SPG-7-1\n4329039_2|w256_cluster_selected_3b|COMPLETED|0:0|16:38:08|2026-10-25T10:55:01|2026-10-26T03:33:09|SPG-7-2\n4329039_3|w256_cluster_selected_3b|RUNNING|0:0|11:42:51|2026-10-26T03:33:14|Unknown|SPG-7-2\n4329039_4|w256_cluster_selected_3b|RUNNING|0:0|09:59:34|2026-10-26T05:16:31|Unknown|SPG-7-1\n4329039_5|w256_cluster_selected_3b|RUNNING|0:0|09:58:50|2026-10-26T05:17:15|Unknown|SPG-7-1\n4329081|main_frobenius_manifold_mcsd_w256_f7321bf0db|COMPLETED|0:0|18:31:10|2026-10-25T11:01:20|2026-10-26T05:32:30|SPG-7-2\n4329082|main_frobenius_manifold_normuon_sphere_w256_5de6902ab0|COMPLETED|0:0|18:25:22|2026-10-25T14:13:46|2026-10-26T08:39:08|SPG-7-2\n4329083|main_frobenius_manifold_mcsd_tp_w256_27e9381040|RUNNING|0:0|09:43:10|2026-10-26T05:32:55|Unknown|SPG-7-2\n4329084|main_frobenius_manifold_muonh_w256_4818f5705c|RUNNING|0:0|06:36:49|2026-10-26T08:39:16|Unknown|SPG-7-2\n4329085|main_frobenius_manifold_mcsd_w256_981665c7ba|PENDING|0:0|00:00:00|Unknown|Unknown|None assigned\n4329086|main_frobenius_manifold_mcsd_tp_w256_1e745bdb7f|PENDING|0:0|00:00:00|Unknown|Unknown|None assigned\n",
+  "account_queue": "4329086|main_frobenius_manifold_mcsd_tp_w256_1e745bdb7f|PENDING|0:00|(Dependency)\n4329085|main_frobenius_manifold_mcsd_w256_981665c7ba|PENDING|0:00|(Dependency)\n4329039_5|w256_cluster_selected_3b|RUNNING|9:58:51|SPG-7-1\n4329039_4|w256_cluster_selected_3b|RUNNING|9:59:35|SPG-7-1\n4329039_3|w256_cluster_selected_3b|RUNNING|11:42:52|SPG-7-2\n4320106|main_frobenius_manifold_normuon_sphere_w256_fdae664f26|RUNNING|20:29:27|SPG-7-1\n4320105|main_frobenius_manifold_mcsd_w256_cde14ba677|RUNNING|1-00:57:23|SPG-7-1\n4329084|main_frobenius_manifold_muonh_w256_4818f5705c|RUNNING|6:36:50|SPG-7-2\n4329083|main_frobenius_manifold_mcsd_tp_w256_27e9381040|RUNNING|9:43:11|SPG-7-2\n",
+  "disk": "Filesystem                   Size  Used Avail Use% Mounted on\nhpc2021-fs2:/home2/u3013198  100G   72G   29G  72% /home/u3013198\n"
+}
