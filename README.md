@@ -27,9 +27,21 @@ This repository manages one experiment track for a paper project on SSO-style op
 完整 12 组结果见汇总及 [JSON](docs/results/cluster_candidates_1b_20261024/final_summary.json)。
 这些是单 seed、相同 3B indexed 数据源上的 1B-budget 实验，不是下方历史论文的 1B 样本协议。
 
-**待核实：** 六组 3B 任务 `4329039_0` 至 `_5` 已于 10 月 25 日提交。
-10 月 26 日两次 H20 SSH 连接超时，无法确认实时进度；最后核实时间为
-**2026-10-25 11:00 HKT**，当时前三组在 step20，后三组排队。不能据此推断当前完成状态。
+**3B 最新核实：2026-10-26 15:16 HKT。** H20 已恢复连接，六组任务中的前三组已正常完成：
+
+| 方法 | Final val loss @5723 | 训练及验证耗时 |
+|---|---:|---|
+| MuonSphere | **3.442197** | **16:37:29** |
+| MCSD-TP K20 | 3.444459 | 18:20:33 |
+| 混合 K20/c8 | 3.443598 | 18:21:08 |
+
+混合比匹配 control 低 0.000861，但仍比 MuonSphere 高 0.001401。
+SSO 正在 step3590，两组 K10 在 step3230，尚不能给出最终排名。
+同 step3000 时 K10 混合 / control / SSO 分别为 3.713485 / 3.713605 / 3.713976，差异很小。
+K20 混合累计簇比例 1.7684%，存在 2,931 次 top-4 容量溢出；详细诊断、完整曲线及运行状态见
+[最新结果](docs/experiments/cluster_results_20261026.md) 与
+[3B JSON 快照](docs/results/cluster_selected_3b_20261025/status_20261026_1516.json)。
+3B 验证使用 20 batches，1B 使用 5 batches，不将两轮 loss 直接拼成同一评估曲线。
 
 本次发布目录通过 38 个针对性 CPU 测试；未在本次重新运行 CUDA/完整训练。
 数据集、checkpoint、环境目录及矩阵快照不随本分支上传。
