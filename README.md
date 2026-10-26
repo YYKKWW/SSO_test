@@ -4,6 +4,9 @@ Latest results: [Frobenius sphere 3B/6B summary](docs/experiments/FROBENIUS_3B_6
 updated 2026-10-25: 50 completed runs, matched-momentum validation curves,
 two running Nesterov LR tests and two queued 6B replications.
 
+Algorithm guide: [Chinese pseudocode and implementation comparison](docs/experiments/OPTIMIZER_PSEUDOCODE_GUIDE.md),
+covering the four Frobenius methods plus the spectral and Stiefel baselines.
+
 ## Active Branch: Three-Geometry Experiment 3
 
 On `exp/mcsd-three-geometries`, the current study reuses Megatron's Dense LM
