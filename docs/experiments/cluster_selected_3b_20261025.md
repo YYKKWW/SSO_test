@@ -1,10 +1,9 @@
 # Width-256 selected MCSD-P2GD candidates at 3B tokens
 
-> Verified on **2026-10-26 15:16 HKT**: SSH access recovered. K20 control,
-> K20/c8 hybrid and MuonSphere completed all 5723 steps with exit code 0:0.
-> SSO is at step 3590; both K10 arms are at step 3230. The startup section
-> below is historical. Full results and same-step comparisons are in the
-> [dated result summary](cluster_results_20261026.md).
+> Verified on **2026-10-27 23:50 HKT**: all six jobs completed all 5723 steps
+> with exit code 0:0 and both completion markers. See the
+> [final results and numerical audit](cluster_results_20261028.md).
+> Startup and selection sections below preserve their original chronology.
 
 Array **4329039** was submitted on 2026-10-25 at 10:54 HKT. Six matched
 runs test whether the small 1B benefit of the normalized-momentum hybrid
@@ -19,15 +18,17 @@ tasks. Existing jobs and the frozen reproduction repository are unchanged.
 | 0 | MCSD-TP K20 | Completed / 5723 | 3.444459 (5723) | 18:20:33 |
 | 1 | Hybrid K20/c8 | Completed / 5723 | 3.443598 (5723) | 18:21:08 |
 | 2 | MuonSphere | Completed / 5723 | **3.442197 (5723)** | **16:37:29** |
-| 3 | SSO | Running / 3590 | 3.652187 (3500) | Pending completion |
-| 4 | MCSD-TP K10 | Running / 3230 | 3.713605 (3000) | Pending completion |
-| 5 | Hybrid K10/c8 | Running / 3230 | 3.713485 (3000) | Pending completion |
+| 3 | SSO | Completed / 5723 | 3.442296 (5723) | 18:28:24 |
+| 4 | MCSD-TP K10 | Completed / 5723 | 3.443943 (5723) | 17:41:47 |
+| 5 | Hybrid K10/c8 | Completed / 5723 | 3.442441 (5723) | 17:40:21 |
 
 The K20 hybrid improves its control by 0.000861 at 35 seconds extra runtime,
-but remains 0.001401 worse and 10.39% slower than MuonSphere. No logged NaN
-or skipped iteration was found in any arm. Do not rank partial validation
-values against final ones. At the common step 3000, K10 hybrid/control are
-3.713485/3.713605 and SSO is 3.713976; these single-seed differences are small.
+but remains 0.001401 worse and 10.39% slower than MuonSphere. K10/c8 is the
+best proposed variant in this run: 0.001502 below its control, but still
+0.000244 above MuonSphere and 0.000145 above SSO. It takes 3.70% less time
+than K20/c8 and 6.30% more than MuonSphere. These are small single-seed
+differences, not established superiority or equivalence. No logged NaN or
+skipped iteration was found in any arm.
 
 At step 5720, K20 hybrid used 25,490/1,441,440 cluster calls (1.7684%), with
 58.69% repeats, mean burst 2.42, and 2,931 top-four-cap overflows. Each completed
@@ -35,9 +36,14 @@ experimental arm recorded 1,442,196 small Ritz SVD calls and zero original-matri
 full SVD/svdvals calls. The hybrid's 52 selected offline samples had mean gap
 error 4.34e-6, maximum returned relative radius error 2.85e-5, and no observed
 false-safe/false-cluster decisions. This is not a population error guarantee.
-K10 audits are not available until completion.
+K10/c8 used 25,681 cluster calls (1.7816%) and had 2,952 top-four-cap
+overflows. Its 52-sample mean gap error is 1.014e-4, dominated by step2
+initialization samples; the median is 1.044e-6. Maximum returned relative
+radius error is 1.038e-4. No sampled routing errors were observed, which does
+not certify all training steps. Both K10 arms also recorded zero original-matrix
+full SVD/svdvals calls. The final report separates startup and later samples.
 
-The [machine-readable snapshot](../results/cluster_selected_3b_20261025/status_20261026_1516.json)
+The [final machine-readable snapshot](../results/cluster_selected_3b_20261025/final_summary_20261027.json)
 contains all validation points, source metadata, sampled audits and Slurm
 status. This read-only update did not modify, cancel or submit jobs.
 

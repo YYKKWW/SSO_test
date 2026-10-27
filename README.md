@@ -7,7 +7,8 @@ This repository manages one experiment track for a paper project on SSO-style op
 `exp/mcsd-experiment-results` 分支用于当前 MCSD-TP / MCSD–P²GD 型混合实验，保留历史论文结果，不覆盖独立的论文复现库或 `exp/mcsd-three-geometries` 分支。
 
 - [算法流程、伪代码与具体 Python 实现](docs/algorithms/current_comparison_pseudocode.md)
-- [2026-10-26 实验结果与任务状态汇总](docs/experiments/cluster_results_20261026.md)
+- [3B 六组最终结果与精度审计](docs/experiments/cluster_results_20261028.md)
+- [1B 结果与 3B 中期记录](docs/experiments/cluster_results_20261026.md)
 - [环境、测试与 H20 启动步骤](docs/runbooks/cluster_experiments_reproduction.md)
 
 **已核实：** width-256 的 12 组 1B 对照全部完成，无 NaN/skips。K20/c8 混合方法
@@ -27,20 +28,23 @@ This repository manages one experiment track for a paper project on SSO-style op
 完整 12 组结果见汇总及 [JSON](docs/results/cluster_candidates_1b_20261024/final_summary.json)。
 这些是单 seed、相同 3B indexed 数据源上的 1B-budget 实验，不是下方历史论文的 1B 样本协议。
 
-**3B 最新核实：2026-10-26 15:16 HKT。** H20 已恢复连接，六组任务中的前三组已正常完成：
+**3B 最新核实：2026-10-27 23:50 HKT。** 六组均已正常完成，无 NaN/skips：
 
 | 方法 | Final val loss @5723 | 训练及验证耗时 |
 |---|---:|---|
 | MuonSphere | **3.442197** | **16:37:29** |
-| MCSD-TP K20 | 3.444459 | 18:20:33 |
+| SSO | 3.442296 | 18:28:24 |
+| 混合 K10/c8 | **3.442441** | 17:40:21 |
 | 混合 K20/c8 | 3.443598 | 18:21:08 |
+| MCSD-TP K10 | 3.443943 | 17:41:47 |
+| MCSD-TP K20 | 3.444459 | 18:20:33 |
 
-混合比匹配 control 低 0.000861，但仍比 MuonSphere 高 0.001401。
-SSO 正在 step3590，两组 K10 在 step3230，尚不能给出最终排名。
-同 step3000 时 K10 混合 / control / SSO 分别为 3.713485 / 3.713605 / 3.713976，差异很小。
-K20 混合累计簇比例 1.7684%，存在 2,931 次 top-4 容量溢出；详细诊断、完整曲线及运行状态见
-[最新结果](docs/experiments/cluster_results_20261026.md) 与
-[3B JSON 快照](docs/results/cluster_selected_3b_20261025/status_20261026_1516.json)。
+K10/c8 是本轮自家方法中最佳：比匹配 control 低 0.001502，仍比 MuonSphere / SSO
+高 0.000244 / 0.000145，暂不能宣称超过基线。它比 K20 混合节约 3.70% 时间，
+比 MuonSphere 慢 6.30%。K10/K20 混合累计簇比例为 1.7816% / 1.7684%，
+分别有 2,952 / 2,931 次 top-4 溢出。K10 启动阶段谱误差较大，详见
+[最终分析](docs/experiments/cluster_results_20261028.md) 与
+[3B 最终 JSON](docs/results/cluster_selected_3b_20261025/final_summary_20261027.json)。
 3B 验证使用 20 batches，1B 使用 5 batches，不将两轮 loss 直接拼成同一评估曲线。
 
 本次发布目录通过 38 个针对性 CPU 测试；未在本次重新运行 CUDA/完整训练。
