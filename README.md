@@ -7,6 +7,7 @@ This repository manages one experiment track for a paper project on SSO-style op
 `exp/mcsd-experiment-results` 分支用于当前 MCSD-TP / MCSD–P²GD 型混合实验，保留历史论文结果，不覆盖独立的论文复现库或 `exp/mcsd-three-geometries` 分支。
 
 - **[实验结果总汇：18 组 1B/3B、耗时、精度与结论](docs/experiments/mcsd_p2gd_results_summary.md)**
+- [新增：第二 seed 与无修正/top-1 机制对照（六组3B）](docs/experiments/cluster_seed_mechanism_3b_20261028.md)
 - [算法流程、伪代码与具体 Python 实现](docs/algorithms/current_comparison_pseudocode.md)
 - [3B 六组最终结果与精度审计](docs/experiments/cluster_results_20261028.md)
 - [1B 结果与 3B 中期记录](docs/experiments/cluster_results_20261026.md)
@@ -48,7 +49,8 @@ K10/c8 是本轮自家方法中最佳：比匹配 control 低 0.001502，仍比 
 [3B 最终 JSON](docs/results/cluster_selected_3b_20261025/final_summary_20261027.json)。
 3B 验证使用 20 batches，1B 使用 5 batches，不将两轮 loss 直接拼成同一评估曲线。
 
-本次发布目录通过 38 个针对性 CPU 测试；未在本次重新运行 CUDA/完整训练。
+2026-10-28 新增第二seed与机制对照：45项CPU/CUDA测试和两组4步H20短训练通过，
+六组3B正式数组 `4346705` 已提交，并发上限1；新实验尚无最终结果。
 数据集、checkpoint、环境目录及矩阵快照不随本分支上传。
 
 ## Historical Paper Track

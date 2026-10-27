@@ -11,7 +11,7 @@ from emerging_optimizers.orthogonalized_optimizers import spel_pgd_same_projecti
 
 
 def direction(m, u, s, v, *, mode, threshold, cluster_threshold, coefficient,
-              direction_mode="matched_fro"):
+              direction_mode="matched_fro", near_projection="cone"):
     normal = host.project_to_tangent_plane(m, u[:, :1], v[:, :1])
     normal /= torch.linalg.vector_norm(normal).clamp_min(1e-7)
     ref = -host.project_to_tangent_plane(host.msign(normal, steps=8).float(), u[:, :1], v[:, :1])
@@ -23,6 +23,10 @@ def direction(m, u, s, v, *, mode, threshold, cluster_threshold, coefficient,
     q = max(1, min(cap, len(s), active if mode == "adaptive4" else cap))
     if direction_mode == "momentum_fro":
         normalized = m / torch.linalg.vector_norm(m).clamp_min(1e-12)
+        if near_projection == "ambient":
+            return -coefficient * normalized
+        if near_projection == "tangent1":
+            return coefficient * host.project_to_tangent_plane(-normalized, u[:, :1], v[:, :1])
         return coefficient * host.project_spectral_sphere_cone(-normalized, u[:, :q], v[:, :q])
     d = host.project_spectral_sphere_cone(-m, u[:, :q], v[:, :q])
     return coefficient * torch.linalg.vector_norm(ref) / torch.linalg.vector_norm(d).clamp_min(1e-30) * d
@@ -45,7 +49,8 @@ def main():
         gap, post_gap = float(1-s[1]/s[0]), float(1-post_s[1]/post_s[0])
         opts = dict(mode=sample["cluster_mode"], threshold=sample["gap_threshold"],
                     cluster_threshold=sample["cluster_threshold"], coefficient=sample["coefficient"],
-                    direction_mode=sample.get("direction_mode", "matched_fro"))
+                    direction_mode=sample.get("direction_mode", "matched_fro"),
+                    near_projection=sample.get("near_projection", "cone"))
         estimated_d = direction(m, sample["current_u"], sample["current_s"], sample["current_v"], **opts)
         reference_d = direction(m, u, s, vh.T, **opts)
         estimated_near = sample["current_gap"] <= sample["gap_threshold"]
@@ -62,6 +67,7 @@ def main():
             direction_relative_error=float(torch.linalg.vector_norm(estimated_d-reference_d) /
                                            torch.linalg.vector_norm(reference_d).clamp_min(1e-30)),
             direction_mode=opts["direction_mode"],
+            near_projection=opts["near_projection"],
             estimated_direction_fro=float(torch.linalg.vector_norm(estimated_d)),
             reference_direction_fro=float(torch.linalg.vector_norm(reference_d)),
             momentum_inner_product=float((m * estimated_d).sum()),

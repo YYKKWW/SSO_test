@@ -2330,6 +2330,7 @@ class SpELPGDSameProjection(SpEL):
         cluster_spectrum_mode: str = "exact",
         cluster_iterations: int = 10,
         cluster_direction_mode: str = "matched_fro",
+        cluster_near_projection: str = "cone",
         **kwargs: Any,
     ) -> None:
         if radial_cluster_mode not in ("none", "control", "fixed2", "fixed4", "adaptive4"):
@@ -2338,6 +2339,12 @@ class SpELPGDSameProjection(SpEL):
             raise ValueError("invalid cluster spectrum mode or iteration count")
         if cluster_direction_mode not in ("matched_fro", "momentum_fro"):
             raise ValueError("invalid cluster direction mode")
+        if cluster_near_projection not in ("cone", "ambient", "tangent1"):
+            raise ValueError("invalid near-branch projection")
+        if cluster_near_projection != "cone" and (
+            cluster_direction_mode != "momentum_fro" or radial_cluster_mode == "none"
+        ):
+            raise ValueError("mechanism controls require normalized cluster momentum")
         if cluster_direction_mode != "matched_fro" and radial_cluster_mode == "none":
             raise ValueError("normalized cluster momentum requires the cluster-radial override")
         if cluster_spectrum_mode != "exact" and radial_cluster_mode == "none":
@@ -2358,6 +2365,7 @@ class SpELPGDSameProjection(SpEL):
         self.cluster_spectrum_mode = cluster_spectrum_mode
         self.cluster_iterations = int(cluster_iterations)
         self.cluster_direction_mode = cluster_direction_mode
+        self.cluster_near_projection = cluster_near_projection
         if fallback_direction not in ("pgd", "p2gd"):
             raise ValueError("fallback_direction must be pgd or p2gd")
         if fallback_direction == "p2gd" and (
@@ -3062,6 +3070,7 @@ class SpELPGDSameProjection(SpEL):
                 cluster_spectrum_mode=self.cluster_spectrum_mode,
                 cluster_iterations=self.cluster_iterations,
                 cluster_direction_mode=self.cluster_direction_mode,
+                cluster_near_projection=self.cluster_near_projection,
                 optimizer_step=self._optimizer_step,
                 param_name=param_name,
                 component_label=component_label,

@@ -3642,6 +3642,10 @@ def _add_regularization_args(parser):
         help='MCSD length matching, or normalize momentum in Frobenius norm BEFORE cone projection.',
     )
     group.add_argument(
+        '--spel-pgd-cluster-near-projection', choices=['cone', 'ambient', 'tangent1'],
+        default='cone', help='Mechanism control on the near branch; all returns remain radial.',
+    )
+    group.add_argument(
         '--spel-pgd-pgd-lr-scale',
         type=float,
         default=0.5,

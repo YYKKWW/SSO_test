@@ -1,0 +1,54 @@
+{
+  "snapshot": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028",
+  "smoke_array": "4346696",
+  "source_files": 1488,
+  "overlay_sha256": "93afa63a752bd8e50b01f8a26dc2f7a58803cf70f40c157b58d023b01d863cdf",
+  "source_manifest_sha256": "cdd8cdf0d3f21bbf3eb08e36218d415b50be1355a3d0a6ed1de705ec5e36aacd",
+  "command": [
+    "sbatch",
+    "--parsable",
+    "--chdir=/home/u3013198/projects/cluster-seed-mechanism-3b-20261028",
+    "--array=4-5%1",
+    "--time=00:30:00",
+    "--job-name=cluster_seed2_smoke",
+    "--export=ALL,PROJECT_DIR=/home/u3013198/projects/cluster-seed-mechanism-3b-20261028,CLUSTER_SMOKE=1,TRAIN_DATA_PREFIX=/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document,VALID_DATA_PREFIX=/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document,TOKENIZER_MODEL=/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+    "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/slurm/cluster_seed_mechanism_3b_20261028.sbatch"
+  ],
+  "main_array": "4346705",
+  "main_command": [
+    "sbatch",
+    "--parsable",
+    "--chdir=/home/u3013198/projects/cluster-seed-mechanism-3b-20261028",
+    "--array=0-5%1",
+    "--export=ALL,PROJECT_DIR=/home/u3013198/projects/cluster-seed-mechanism-3b-20261028,CLUSTER_SMOKE=0,TRAIN_DATA_PREFIX=/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document,VALID_DATA_PREFIX=/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document,TOKENIZER_MODEL=/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+    "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/slurm/cluster_seed_mechanism_3b_20261028.sbatch"
+  ],
+  "smoke_verification": [
+    {
+      "task": "4346696_4",
+      "cuda_tests": 45,
+      "counts": {
+        "component_updates": 1008,
+        "small_svd": 1008,
+        "full_svd": 0,
+        "svdvals": 0,
+        "saved": 4,
+        "successful_training": true
+      }
+    },
+    {
+      "task": "4346696_5",
+      "cuda_tests": 45,
+      "counts": {
+        "component_updates": 1008,
+        "small_svd": 1008,
+        "full_svd": 0,
+        "svdvals": 0,
+        "saved": 4,
+        "successful_training": true
+      }
+    }
+  ],
+  "submitted_at": "2026-10-28T01:07:08.410295",
+  "main_concurrency": 1
+}

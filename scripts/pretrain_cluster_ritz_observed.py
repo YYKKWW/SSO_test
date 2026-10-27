@@ -89,6 +89,7 @@ def main():
                 cluster_threshold=kw["cluster_threshold_rel"], coefficient=kw["pgd_lr_scale"],
                 cluster_mode=kw["cluster_mode"], branch=info.branch,
                 direction_mode=kw.get("cluster_direction_mode", "matched_fro"),
+                near_projection=kw.get("cluster_near_projection", "cone"),
                 step_multiplier=info.cluster_step_multiplier,
                 current_u=cache.u_basis.cpu(), current_v=cache.v_basis.cpu(),
                 current_s=cache.s_basis.cpu(), current_gap=cache.rel_gap,

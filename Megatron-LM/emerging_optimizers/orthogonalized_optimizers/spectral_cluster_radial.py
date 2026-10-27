@@ -16,7 +16,8 @@ def compute_cluster_radial_update(
     effective_lr, cluster_mode, cluster_threshold_rel, gap_threshold_rel,
     pgd_lr_scale, current_spectral_cache=None, tp_group=None,
     partition_dim=None, cluster_spectrum_mode="exact",
-    cluster_iterations=10, cluster_direction_mode="matched_fro", **unused,
+    cluster_iterations=10, cluster_direction_mode="matched_fro",
+    cluster_near_projection="cone", **unused,
 ):
     # Imported here because the host optimizer dispatches to this module.
     from . import spel_pgd_same_projection as host
@@ -34,6 +35,10 @@ def compute_cluster_radial_update(
         raise ValueError("invalid cluster spectral solver")
     if cluster_direction_mode not in ("matched_fro", "momentum_fro"):
         raise ValueError("invalid cluster direction mode")
+    if cluster_near_projection not in ("cone", "ambient", "tangent1"):
+        raise ValueError("invalid near-branch projection")
+    if cluster_near_projection != "cone" and cluster_direction_mode != "momentum_fro":
+        raise ValueError("mechanism controls require Frobenius-normalized momentum")
 
     approximate = cluster_spectrum_mode == "warm_block8"
 
@@ -111,9 +116,16 @@ def compute_cluster_radial_update(
         momentum = M.float()
         if cluster_direction_mode == "momentum_fro":
             momentum = momentum / torch.linalg.vector_norm(momentum).clamp_min(1e-12)
-        direction = host.project_spectral_sphere_cone(
-            -momentum, cache.u_basis[:, :rank], cache.v_basis[:, :rank]
-        )
+        if cluster_near_projection == "ambient":
+            direction = -momentum
+            rank = 0
+        elif cluster_near_projection == "tangent1":
+            direction = host.project_to_tangent_plane(-momentum, cache.u1, cache.v1, eps=eps)
+            rank = 1
+        else:
+            direction = host.project_spectral_sphere_cone(
+                -momentum, cache.u_basis[:, :rank], cache.v_basis[:, :rank]
+            )
         if cluster_direction_mode == "momentum_fro":
             multiplier = float(pgd_lr_scale)
         else:
@@ -144,7 +156,8 @@ def compute_cluster_radial_update(
         next_v=next_cache.v1, spectral_cache_hit=hit, next_spectral_cache=next_cache,
         pgd_trial_rel_gap=next_cache.rel_gap if fallback else float("nan"),
         pgd_post_rel_gap=next_cache.rel_gap if fallback else float("nan"),
-        cluster_dimension=rank, cluster_cap_overflow=bool(active > rank),
+        cluster_dimension=rank,
+        cluster_cap_overflow=bool(cluster_near_projection == "cone" and active > rank),
         cluster_step_multiplier=multiplier, radial_change_ratio=radial_ratio,
         cluster_flatten_distance=flatten_distance,
         **approximation_info,

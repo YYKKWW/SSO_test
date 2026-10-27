@@ -295,6 +295,7 @@ TRAINING_ARGS=(
   --spel-pgd-cluster-spectrum-mode "${SPEL_PGD_CLUSTER_SPECTRUM_MODE:-exact}"
   --spel-pgd-cluster-iterations "${SPEL_PGD_CLUSTER_ITERATIONS:-10}"
   --spel-pgd-cluster-direction-mode "${SPEL_PGD_CLUSTER_DIRECTION_MODE:-matched_fro}"
+  --spel-pgd-cluster-near-projection "${SPEL_PGD_CLUSTER_NEAR_PROJECTION:-cone}"
   --spel-pgd-pgd-lr-scale "${SPEL_PGD_PGD_LR_SCALE:-0.5}"
   --spel-pgd-projection-mode "${SPEL_PGD_PROJECTION_MODE:-fallback_exact}"
   --spel-pgd-projection-rank "${SPEL_PGD_PROJECTION_RANK:-1}"
