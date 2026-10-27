@@ -6,6 +6,7 @@ This repository manages one experiment track for a paper project on SSO-style op
 
 `exp/mcsd-experiment-results` 分支用于当前 MCSD-TP / MCSD–P²GD 型混合实验，保留历史论文结果，不覆盖独立的论文复现库或 `exp/mcsd-three-geometries` 分支。
 
+- **[实验结果总汇：18 组 1B/3B、耗时、精度与结论](docs/experiments/mcsd_p2gd_results_summary.md)**
 - [算法流程、伪代码与具体 Python 实现](docs/algorithms/current_comparison_pseudocode.md)
 - [3B 六组最终结果与精度审计](docs/experiments/cluster_results_20261028.md)
 - [1B 结果与 3B 中期记录](docs/experiments/cluster_results_20261026.md)
