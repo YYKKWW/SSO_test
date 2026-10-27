@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="550" viewBox="0 0 1260 550">
+<rect width="1260" height="550" fill="white"/>
+<g font-family="Arial, Helvetica, sans-serif" letter-spacing="0">
+<text x="72" y="40" font-size="26" fill="#30363B" font-weight="600">Frobenius sphere: matched EMA and Nesterov</text>
+<text x="72" y="70" font-size="16" fill="#30363B" >Width 256 | 3B tokens | LR 0.010 | beta 0.95 | seed 1234 | Muon-style Nesterov</text>
+<text x="82" y="105" font-size="21" fill="#30363B" font-weight="600">MCSD</text>
+<line x1="82" y1="134" x2="117" y2="134" stroke="#8656A3" stroke-width="3" stroke-dasharray="7 4"/>
+<text x="128" y="139" font-size="16" fill="#30363B" >Nesterov | final 3.461687</text>
+<line x1="82" y1="161" x2="117" y2="161" stroke="#188B83" stroke-width="3" />
+<text x="128" y="166" font-size="16" fill="#30363B" >EMA | final 3.467720</text>
+<line x1="82" x2="82" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="82" y="477" font-size="15" fill="#30363B" text-anchor="middle">1.5</text>
+<line x1="241.0909090909091" x2="241.0909090909091" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="241.0909090909091" y="477" font-size="15" fill="#30363B" text-anchor="middle">2.0</text>
+<line x1="400.1818181818182" x2="400.1818181818182" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="400.1818181818182" y="477" font-size="15" fill="#30363B" text-anchor="middle">2.5</text>
+<line x1="559.2727272727273" x2="559.2727272727273" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="559.2727272727273" y="477" font-size="15" fill="#30363B" text-anchor="middle">3.0</text>
+<line x1="82" x2="572" y1="429.59999999999997" y2="429.59999999999997" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="434.59999999999997" font-size="15" fill="#30363B" text-anchor="end">3.46</text>
+<line x1="82" x2="572" y1="388.79999999999995" y2="388.79999999999995" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="393.79999999999995" font-size="15" fill="#30363B" text-anchor="end">3.50</text>
+<line x1="82" x2="572" y1="347.9999999999999" y2="347.9999999999999" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="352.9999999999999" font-size="15" fill="#30363B" text-anchor="end">3.54</text>
+<line x1="82" x2="572" y1="307.1999999999999" y2="307.1999999999999" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="312.1999999999999" font-size="15" fill="#30363B" text-anchor="end">3.58</text>
+<line x1="82" x2="572" y1="266.39999999999986" y2="266.39999999999986" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="271.39999999999986" font-size="15" fill="#30363B" text-anchor="end">3.62</text>
+<line x1="82" x2="572" y1="225.5999999999998" y2="225.5999999999998" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="70" y="230.5999999999998" font-size="15" fill="#30363B" text-anchor="end">3.66</text>
+<path d="M 82 195 V 450 H 572" fill="none" stroke="#50575D" stroke-width="1.5"/>
+<clipPath id="panel0"><rect x="82" y="195" width="490" height="255"/></clipPath><g clip-path="url(#panel0)">
+<path d="M -378.59 -2162.30 L -361.91 -1135.35 L -345.23 -575.35 L -328.55 -335.89 L -311.86 -211.52 L -295.18 -134.05 L -278.50 -82.56 L -261.82 -31.32 L -245.14 1.05 L -228.45 24.95 L -211.77 49.60 L -195.09 67.27 L -178.41 83.21 L -161.73 87.61 L -145.04 105.21 L -128.36 112.53 L -111.68 126.32 L -95.00 137.82 L -78.32 148.19 L -61.63 168.64 L -44.95 179.21 L -28.27 177.18 L -11.59 189.48 L 5.09 203.03 L 21.77 213.66 L 38.46 227.55 L 55.14 230.45 L 71.82 236.83 L 88.50 240.14 L 105.18 259.28 L 121.87 253.66 L 138.55 265.69 L 155.23 280.00 L 171.91 299.85 L 188.59 291.93 L 205.28 311.95 L 221.96 325.81 L 238.64 339.45 L 255.32 345.80 L 272.00 337.11 L 288.68 359.87 L 305.37 347.91 L 322.05 365.65 L 338.73 374.13 L 355.41 379.16 L 372.09 393.47 L 388.78 393.69 L 405.46 387.19 L 422.14 397.84 L 438.82 408.39 L 455.50 423.67 L 472.19 401.06 L 488.87 416.62 L 505.55 425.41 L 522.23 423.66 L 538.91 435.49 L 555.60 431.50 L 559.35 427.88" fill="none" stroke="#8656A3" stroke-width="2.6" stroke-dasharray="7 4"/>
+<circle cx="559.34848" cy="427.87926" r="4" fill="#8656A3"/>
+<path d="M -378.59 -2175.34 L -361.91 -1128.81 L -345.23 -571.08 L -328.55 -342.20 L -311.86 -218.52 L -295.18 -148.24 L -278.50 -100.08 L -261.82 -53.84 L -245.14 -19.61 L -228.45 -0.34 L -211.77 24.35 L -195.09 40.53 L -178.41 55.26 L -161.73 63.42 L -145.04 77.07 L -128.36 85.33 L -111.68 100.70 L -95.00 111.70 L -78.32 120.28 L -61.63 140.24 L -44.95 152.25 L -28.27 151.75 L -11.59 163.05 L 5.09 177.33 L 21.77 188.04 L 38.46 203.93 L 55.14 204.83 L 71.82 212.15 L 88.50 218.28 L 105.18 235.95 L 121.87 230.38 L 138.55 244.88 L 155.23 259.59 L 171.91 279.81 L 188.59 272.81 L 205.28 294.04 L 221.96 309.87 L 238.64 322.67 L 255.32 330.56 L 272.00 322.27 L 288.68 345.96 L 305.37 334.97 L 322.05 353.04 L 338.73 362.38 L 355.41 367.87 L 372.09 382.95 L 388.78 383.91 L 405.46 377.69 L 422.14 389.09 L 438.82 399.47 L 455.50 415.52 L 472.19 393.24 L 488.87 409.18 L 505.55 418.00 L 522.23 417.07 L 538.91 428.83 L 555.60 424.66 L 559.35 421.73" fill="none" stroke="#188B83" stroke-width="2.6" />
+<circle cx="559.34848" cy="421.72560000000004" r="4" fill="#188B83"/>
+</g>
+<text x="327" y="503" font-size="16" fill="#30363B" text-anchor="middle">Processed training tokens (billions)</text>
+<text x="692" y="105" font-size="21" fill="#30363B" font-weight="600">MCSD-TP</text>
+<line x1="692" y1="134" x2="727" y2="134" stroke="#8656A3" stroke-width="3" stroke-dasharray="7 4"/>
+<text x="738" y="139" font-size="16" fill="#30363B" >Nesterov | final 3.461153</text>
+<line x1="692" y1="161" x2="727" y2="161" stroke="#188B83" stroke-width="3" />
+<text x="738" y="166" font-size="16" fill="#30363B" >EMA | final 3.467858</text>
+<line x1="692" x2="692" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="692" y="477" font-size="15" fill="#30363B" text-anchor="middle">1.5</text>
+<line x1="851.0909090909091" x2="851.0909090909091" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="851.0909090909091" y="477" font-size="15" fill="#30363B" text-anchor="middle">2.0</text>
+<line x1="1010.1818181818182" x2="1010.1818181818182" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="1010.1818181818182" y="477" font-size="15" fill="#30363B" text-anchor="middle">2.5</text>
+<line x1="1169.2727272727273" x2="1169.2727272727273" y1="195" y2="450" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="1169.2727272727273" y="477" font-size="15" fill="#30363B" text-anchor="middle">3.0</text>
+<line x1="692" x2="1182" y1="429.59999999999997" y2="429.59999999999997" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="434.59999999999997" font-size="15" fill="#30363B" text-anchor="end">3.46</text>
+<line x1="692" x2="1182" y1="388.79999999999995" y2="388.79999999999995" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="393.79999999999995" font-size="15" fill="#30363B" text-anchor="end">3.50</text>
+<line x1="692" x2="1182" y1="347.9999999999999" y2="347.9999999999999" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="352.9999999999999" font-size="15" fill="#30363B" text-anchor="end">3.54</text>
+<line x1="692" x2="1182" y1="307.1999999999999" y2="307.1999999999999" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="312.1999999999999" font-size="15" fill="#30363B" text-anchor="end">3.58</text>
+<line x1="692" x2="1182" y1="266.39999999999986" y2="266.39999999999986" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="271.39999999999986" font-size="15" fill="#30363B" text-anchor="end">3.62</text>
+<line x1="692" x2="1182" y1="225.5999999999998" y2="225.5999999999998" stroke="#DFE3E6" stroke-dasharray="3 5"/>
+<text x="680" y="230.5999999999998" font-size="15" fill="#30363B" text-anchor="end">3.66</text>
+<path d="M 692 195 V 450 H 1182" fill="none" stroke="#50575D" stroke-width="1.5"/>
+<clipPath id="panel1"><rect x="692" y="195" width="490" height="255"/></clipPath><g clip-path="url(#panel1)">
+<path d="M 231.41 -2161.97 L 248.09 -1132.82 L 264.77 -577.43 L 281.45 -337.93 L 298.14 -210.57 L 314.82 -135.50 L 331.50 -85.11 L 348.18 -32.21 L 364.86 1.20 L 381.55 22.92 L 398.23 47.66 L 414.91 65.44 L 431.59 81.20 L 448.27 88.53 L 464.96 105.57 L 481.64 113.00 L 498.32 126.71 L 515.00 138.68 L 531.68 147.31 L 548.37 167.92 L 565.05 178.93 L 581.73 176.77 L 598.41 188.76 L 615.09 202.95 L 631.77 214.51 L 648.46 228.50 L 665.14 231.76 L 681.82 237.24 L 698.50 240.75 L 715.18 258.68 L 731.87 253.13 L 748.55 265.85 L 765.23 280.03 L 781.91 300.04 L 798.59 291.75 L 815.28 311.32 L 831.96 326.07 L 848.64 339.44 L 865.32 346.00 L 882.00 337.58 L 898.68 359.91 L 915.37 348.33 L 932.05 365.80 L 948.73 374.04 L 965.41 379.24 L 982.09 394.10 L 998.78 394.32 L 1015.46 387.79 L 1032.14 398.61 L 1048.82 408.88 L 1065.50 424.10 L 1082.19 401.26 L 1098.87 417.11 L 1115.55 425.86 L 1132.23 424.64 L 1148.91 436.55 L 1165.60 431.98 L 1169.35 428.42" fill="none" stroke="#8656A3" stroke-width="2.6" stroke-dasharray="7 4"/>
+<circle cx="1169.34848" cy="428.42394" r="4" fill="#8656A3"/>
+<path d="M 231.41 -2169.90 L 248.09 -1126.45 L 264.77 -568.93 L 281.45 -341.86 L 298.14 -221.00 L 314.82 -148.21 L 331.50 -103.23 L 348.18 -52.85 L 364.86 -20.34 L 381.55 -0.23 L 398.23 23.69 L 414.91 39.50 L 431.59 55.95 L 448.27 62.65 L 464.96 78.28 L 481.64 85.34 L 498.32 101.39 L 515.00 110.58 L 531.68 120.61 L 548.37 140.77 L 565.05 152.46 L 581.73 150.56 L 598.41 161.90 L 615.09 177.42 L 631.77 188.02 L 648.46 203.37 L 665.14 204.20 L 681.82 212.63 L 698.50 217.97 L 715.18 236.38 L 731.87 230.36 L 748.55 243.92 L 765.23 259.49 L 781.91 278.94 L 798.59 271.60 L 815.28 293.57 L 831.96 308.46 L 848.64 322.54 L 865.32 329.47 L 882.00 322.02 L 898.68 345.00 L 915.37 333.69 L 932.05 352.69 L 948.73 362.07 L 965.41 366.88 L 982.09 382.65 L 998.78 383.04 L 1015.46 377.27 L 1032.14 388.25 L 1048.82 399.20 L 1065.50 414.72 L 1082.19 393.28 L 1098.87 408.92 L 1115.55 417.94 L 1132.23 417.25 L 1148.91 428.88 L 1165.60 424.39 L 1169.35 421.58" fill="none" stroke="#188B83" stroke-width="2.6" />
+<circle cx="1169.34848" cy="421.5848399999998" r="4" fill="#188B83"/>
+</g>
+<text x="937" y="503" font-size="16" fill="#30363B" text-anchor="middle">Processed training tokens (billions)</text>
+<text x="21" y="320" font-size="16" fill="#30363B" text-anchor="middle" transform="rotate(-90 21 320)">Validation loss</text>
+<text x="72" y="535" font-size="14" fill="#30363B" >Late-stage raw validation points; no smoothing. Final losses are measured at step 11,445. Single-seed evidence.</text>
+</g></svg>
