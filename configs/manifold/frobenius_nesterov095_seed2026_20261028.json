@@ -1,0 +1,24 @@
+[
+  {
+    "key": "mcsd_nest095_lr001_seed2026_3b",
+    "group": "nesterov095_second_seed",
+    "lane": 0,
+    "method": "manifold_mcsd",
+    "lr": 0.01,
+    "beta": 0.95,
+    "nesterov": true,
+    "seed": 2026,
+    "tokens": 3000000000
+  },
+  {
+    "key": "mcsd_tp_nest095_lr001_seed2026_3b",
+    "group": "nesterov095_second_seed",
+    "lane": 1,
+    "method": "manifold_mcsd_tp",
+    "lr": 0.01,
+    "beta": 0.95,
+    "nesterov": true,
+    "seed": 2026,
+    "tokens": 3000000000
+  }
+]

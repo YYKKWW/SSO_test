@@ -1,0 +1,686 @@
+{
+  "checked_at_hkt": "2026-10-28T00:48:38.955791+08:00",
+  "max_concurrency": 4,
+  "registers": [
+    {
+      "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "concurrency": 2,
+      "specifications": [
+        {
+          "key": "muonh_nest095_lr001_seed1234_3b",
+          "group": "matched_nesterov095_baselines",
+          "lane": 0,
+          "method": "manifold_muonh",
+          "lr": 0.01,
+          "beta": 0.95,
+          "nesterov": true,
+          "seed": 1234,
+          "tokens": 3000000000
+        },
+        {
+          "key": "normuon_sphere_nest095_lr001_seed1234_3b",
+          "group": "matched_nesterov095_baselines",
+          "lane": 1,
+          "method": "manifold_normuon_sphere",
+          "lr": 0.01,
+          "beta": 0.95,
+          "nesterov": true,
+          "seed": 1234,
+          "tokens": 3000000000
+        }
+      ],
+      "runs": [
+        {
+          "key": "muonh_nest095_lr001_seed1234_3b",
+          "group": "matched_nesterov095_baselines",
+          "lane": 0,
+          "method": "manifold_muonh",
+          "lr": 0.01,
+          "beta": 0.95,
+          "nesterov": true,
+          "seed": 1234,
+          "tokens": 3000000000,
+          "job_id": "4346665",
+          "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_muonh_w256_ee75fbe552",
+          "dependency": null,
+          "config_sha256": "b44dd4e8d8c79d71211cfdf166c25815eb8e0a38cabe60fb97b09b7cabb69e96"
+        },
+        {
+          "key": "normuon_sphere_nest095_lr001_seed1234_3b",
+          "group": "matched_nesterov095_baselines",
+          "lane": 1,
+          "method": "manifold_normuon_sphere",
+          "lr": 0.01,
+          "beta": 0.95,
+          "nesterov": true,
+          "seed": 1234,
+          "tokens": 3000000000,
+          "job_id": "4346666",
+          "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_normuon_sphere_w256_8fe0dd46f8",
+          "dependency": null,
+          "config_sha256": "7551841dfc8708f28374acb1b94c20e3bf5393a4dc70eb0aba70bb6cd31fe7e8"
+        }
+      ],
+      "inflight": null,
+      "created_at": "2026-10-28T00:47:15.236143+08:00",
+      "submission_script_sha256": "c7069a38ce0c651b8b423d4483e3d7182853a475cac4d67b4a7d48fb10a9dcf7"
+    },
+    {
+      "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "concurrency": 2,
+      "specifications": [
+        {
+          "key": "mcsd_nest095_lr001_seed2026_3b",
+          "group": "nesterov095_second_seed",
+          "lane": 0,
+          "method": "manifold_mcsd",
+          "lr": 0.01,
+          "beta": 0.95,
+          "nesterov": true,
+          "seed": 2026,
+          "tokens": 3000000000
+        },
+        {
+          "key": "mcsd_tp_nest095_lr001_seed2026_3b",
+          "group": "nesterov095_second_seed",
+          "lane": 1,
+          "method": "manifold_mcsd_tp",
+          "lr": 0.01,
+          "beta": 0.95,
+          "nesterov": true,
+          "seed": 2026,
+          "tokens": 3000000000
+        }
+      ],
+      "runs": [
+        {
+          "key": "mcsd_nest095_lr001_seed2026_3b",
+          "group": "nesterov095_second_seed",
+          "lane": 0,
+          "method": "manifold_mcsd",
+          "lr": 0.01,
+          "beta": 0.95,
+          "nesterov": true,
+          "seed": 2026,
+          "tokens": 3000000000,
+          "job_id": "4346667",
+          "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_12832f83df",
+          "dependency": null,
+          "config_sha256": "4f3957db219525a7a9fb1255bba846e6cbc75c2d31c53c68f7b1a8fe3fa3e53a"
+        },
+        {
+          "key": "mcsd_tp_nest095_lr001_seed2026_3b",
+          "group": "nesterov095_second_seed",
+          "lane": 1,
+          "method": "manifold_mcsd_tp",
+          "lr": 0.01,
+          "beta": 0.95,
+          "nesterov": true,
+          "seed": 2026,
+          "tokens": 3000000000,
+          "job_id": "4346668",
+          "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_tp_w256_091cf7755c",
+          "dependency": null,
+          "config_sha256": "d942bb3382402baf503750e2d08b6241d14f2f6d75bd298298d80b3f1876f62e"
+        }
+      ],
+      "inflight": null,
+      "created_at": "2026-10-28T00:47:18.728296+08:00",
+      "submission_script_sha256": "c7069a38ce0c651b8b423d4483e3d7182853a475cac4d67b4a7d48fb10a9dcf7"
+    }
+  ],
+  "runs": [
+    {
+      "key": "muonh_nest095_lr001_seed1234_3b",
+      "group": "matched_nesterov095_baselines",
+      "lane": 0,
+      "method": "manifold_muonh",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "job_id": "4346665",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_muonh_w256_ee75fbe552",
+      "dependency": null,
+      "config_sha256": "b44dd4e8d8c79d71211cfdf166c25815eb8e0a38cabe60fb97b09b7cabb69e96",
+      "status": {
+        "JobID": "4346665",
+        "State": "RUNNING",
+        "ExitCode": "0:0",
+        "Elapsed": "00:01:16",
+        "Start": "2026-10-28T00:47:22",
+        "End": "Unknown",
+        "NodeList": "SPG-7-1"
+      },
+      "matched_reference": "4320101",
+      "source_hashes_match": true,
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": null,
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_muonh",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_muonh_w256_ee75fbe552",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.01,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": true,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "runtime_args": {
+        "optimizer": "manifold_muonh",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.01",
+        "train_iters": "11445",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "True",
+        "manifold_geometry": "frobenius",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4",
+        "save_interval": "None"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_muonh_w256_ee75fbe552_4346665.out",
+      "last_train_lines": [
+        "[2026-10-28 00:48:03.131117] iteration        1/   11445 | consumed samples:          128 | elapsed time per iteration (ms): 7717.4 | throughput per GPU (TFLOP/s/GPU): 12.7 | learning rate: 4.366812E-05 | global batch size:   128 | lm loss: 1.156364E+01 | loss scale: 1.0 | grad norm: 1.084 | number of skipped iterations:   0 | number of nan iterations:   0 |"
+      ],
+      "log_tail": [
+        "Total number of parameters in billions: 0.07",
+        "Total number of active parameters in billions: 0.07",
+        "Number of parameters in most loaded shard in billions: 0.0734",
+        "compute_activation_memory_without_sp",
+        "Activation memory footprint per transformer layer (precise, without SP): 68.0 MB",
+        "Theoretical memory footprints: weight and optimizer=1260.25 MB, activation=3651.97 MB, total=4912.22 MB",
+        "",
+        "[Rank 0] (after 1 iterations) memory (MB) | allocated: 1370.92 | max allocated: 12208.77 | reserved: 12408.00 | max reserved: 12408.00"
+      ],
+      "source_hash_manifest": {
+        "file_count": 2196,
+        "sha256": "5b6a9337a36be721d8ec5a33d609a6806c24d4eedf5840a09581880ff7cb6ec0",
+        "encoding": "UTF-8 compact JSON, keys sorted by en locale"
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      }
+    },
+    {
+      "key": "normuon_sphere_nest095_lr001_seed1234_3b",
+      "group": "matched_nesterov095_baselines",
+      "lane": 1,
+      "method": "manifold_normuon_sphere",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "job_id": "4346666",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_normuon_sphere_w256_8fe0dd46f8",
+      "dependency": null,
+      "config_sha256": "7551841dfc8708f28374acb1b94c20e3bf5393a4dc70eb0aba70bb6cd31fe7e8",
+      "status": {
+        "JobID": "4346666",
+        "State": "RUNNING",
+        "ExitCode": "0:0",
+        "Elapsed": "00:01:16",
+        "Start": "2026-10-28T00:47:22",
+        "End": "Unknown",
+        "NodeList": "SPG-7-1"
+      },
+      "matched_reference": "4320102",
+      "source_hashes_match": true,
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": null,
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_normuon_sphere",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_normuon_sphere_w256_8fe0dd46f8",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.01,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": true,
+          "normuon_beta2": 0.95,
+          "normuon_eps": 1e-10,
+          "save_interval": 0,
+          "seed": 1234,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "runtime_args": {
+        "optimizer": "manifold_normuon_sphere",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "1234",
+        "lr": "0.01",
+        "train_iters": "11445",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "False",
+        "manifold_baseline_nesterov": "True",
+        "manifold_geometry": "frobenius",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4",
+        "save_interval": "None"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_normuon_sphere_w256_8fe0dd46f8_4346666.out",
+      "last_train_lines": [
+        "[2026-10-28 00:48:03.144604] iteration        1/   11445 | consumed samples:          128 | elapsed time per iteration (ms): 7724.8 | throughput per GPU (TFLOP/s/GPU): 12.7 | learning rate: 4.366812E-05 | global batch size:   128 | lm loss: 1.156364E+01 | loss scale: 1.0 | grad norm: 1.084 | number of skipped iterations:   0 | number of nan iterations:   0 |"
+      ],
+      "log_tail": [
+        "Total number of parameters in billions: 0.07",
+        "Total number of active parameters in billions: 0.07",
+        "Number of parameters in most loaded shard in billions: 0.0734",
+        "compute_activation_memory_without_sp",
+        "Activation memory footprint per transformer layer (precise, without SP): 68.0 MB",
+        "Theoretical memory footprints: weight and optimizer=1260.25 MB, activation=3651.97 MB, total=4912.22 MB",
+        "",
+        "[Rank 0] (after 1 iterations) memory (MB) | allocated: 1371.20 | max allocated: 12208.77 | reserved: 12408.00 | max reserved: 12408.00"
+      ],
+      "source_hash_manifest": {
+        "file_count": 2196,
+        "sha256": "5b6a9337a36be721d8ec5a33d609a6806c24d4eedf5840a09581880ff7cb6ec0",
+        "encoding": "UTF-8 compact JSON, keys sorted by en locale"
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      }
+    },
+    {
+      "key": "mcsd_nest095_lr001_seed2026_3b",
+      "group": "nesterov095_second_seed",
+      "lane": 0,
+      "method": "manifold_mcsd",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 2026,
+      "tokens": 3000000000,
+      "job_id": "4346667",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_12832f83df",
+      "dependency": null,
+      "config_sha256": "4f3957db219525a7a9fb1255bba846e6cbc75c2d31c53c68f7b1a8fe3fa3e53a",
+      "status": {
+        "JobID": "4346667",
+        "State": "RUNNING",
+        "ExitCode": "0:0",
+        "Elapsed": "00:01:16",
+        "Start": "2026-10-28T00:47:22",
+        "End": "Unknown",
+        "NodeList": "SPG-7-1"
+      },
+      "matched_reference": "4329085",
+      "source_hashes_match": true,
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": null,
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_mcsd",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_w256_12832f83df",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.01,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": true,
+          "save_interval": 0,
+          "seed": 2026,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "runtime_args": {
+        "optimizer": "manifold_mcsd",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "2026",
+        "lr": "0.01",
+        "train_iters": "11445",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "True",
+        "manifold_baseline_nesterov": "False",
+        "manifold_geometry": "frobenius",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4",
+        "save_interval": "None"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_mcsd_w256_12832f83df_4346667.out",
+      "last_train_lines": [
+        "[2026-10-28 00:48:03.145330] iteration        1/   11445 | consumed samples:          128 | elapsed time per iteration (ms): 7731.4 | throughput per GPU (TFLOP/s/GPU): 12.7 | learning rate: 4.366812E-05 | global batch size:   128 | lm loss: 1.156673E+01 | loss scale: 1.0 | grad norm: 0.952 | number of skipped iterations:   0 | number of nan iterations:   0 |"
+      ],
+      "log_tail": [
+        "Total number of parameters in billions: 0.07",
+        "Total number of active parameters in billions: 0.07",
+        "Number of parameters in most loaded shard in billions: 0.0734",
+        "compute_activation_memory_without_sp",
+        "Activation memory footprint per transformer layer (precise, without SP): 68.0 MB",
+        "Theoretical memory footprints: weight and optimizer=1260.25 MB, activation=3651.97 MB, total=4912.22 MB",
+        "",
+        "[Rank 0] (after 1 iterations) memory (MB) | allocated: 1370.92 | max allocated: 12208.77 | reserved: 12410.00 | max reserved: 12410.00"
+      ],
+      "source_hash_manifest": {
+        "file_count": 2196,
+        "sha256": "5b6a9337a36be721d8ec5a33d609a6806c24d4eedf5840a09581880ff7cb6ec0",
+        "encoding": "UTF-8 compact JSON, keys sorted by en locale"
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      }
+    },
+    {
+      "key": "mcsd_tp_nest095_lr001_seed2026_3b",
+      "group": "nesterov095_second_seed",
+      "lane": 1,
+      "method": "manifold_mcsd_tp",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 2026,
+      "tokens": 3000000000,
+      "job_id": "4346668",
+      "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_tp_w256_091cf7755c",
+      "dependency": null,
+      "config_sha256": "d942bb3382402baf503750e2d08b6241d14f2f6d75bd298298d80b3f1876f62e",
+      "status": {
+        "JobID": "4346668",
+        "State": "RUNNING",
+        "ExitCode": "0:0",
+        "Elapsed": "00:01:16",
+        "Start": "2026-10-28T00:47:22",
+        "End": "Unknown",
+        "NodeList": "SPG-7-1"
+      },
+      "matched_reference": "4329086",
+      "source_hashes_match": true,
+      "config": {
+        "actual_tokens": 3000238080,
+        "budgets": {
+          "main": 3000000000,
+          "pilot": 100000000,
+          "tune": 1000000000
+        },
+        "checkpoint_format": "torch",
+        "dependency": null,
+        "env_dir": "/home/u3013198/envs/sso_h20",
+        "exit_interval": null,
+        "geometry": "frobenius",
+        "gpus": 1,
+        "initialization": {
+          "radius_factor": 1,
+          "radius_policy": "shape"
+        },
+        "method": "manifold_mcsd_tp",
+        "model": {
+          "ffn_hidden_size": 768,
+          "hidden_size": 256,
+          "kv_channels": 64,
+          "num_attention_heads": 4,
+          "num_layers": 28,
+          "num_query_groups": 2,
+          "seq_length": 2048
+        },
+        "numerics": {
+          "audit_interval": 200,
+          "baseline_msign_steps": 8,
+          "baseline_solver_iterations": 20,
+          "baseline_solver_tolerance": 0.0002,
+          "lmo_mode": "ns",
+          "power_steps": 10,
+          "spectral_solver": "pi_topk",
+          "stiefel_return_mode": "ns",
+          "topk_rank": 8
+        },
+        "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005",
+        "protocol_id": "dense-three-geometries-v4-shape-radius",
+        "resume": null,
+        "run_dir": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/results/manifold/main_frobenius_manifold_mcsd_tp_w256_091cf7755c",
+        "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+        "stage": "main",
+        "target_tokens": 3000000000,
+        "tokenizer": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "train_iters": 11445,
+        "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "training": {
+          "aux_lr": 0.001,
+          "eval_interval": 200,
+          "eval_iters": 40,
+          "global_batch": 128,
+          "lr": 0.01,
+          "micro_batch": 4,
+          "min_lr_ratio": 0.1,
+          "momentum_beta": 0.95,
+          "nesterov": true,
+          "save_interval": 0,
+          "seed": 2026,
+          "warmup_fraction": 0.02
+        },
+        "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "verify_against_run": null,
+        "warmup_iters": 229
+      },
+      "runtime_args": {
+        "optimizer": "manifold_mcsd_tp",
+        "hidden_size": "256",
+        "num_layers": "28",
+        "seq_length": "2048",
+        "seed": "2026",
+        "lr": "0.01",
+        "train_iters": "11445",
+        "manifold_momentum_beta": "0.95",
+        "manifold_mcsd_nesterov": "True",
+        "manifold_baseline_nesterov": "False",
+        "manifold_geometry": "frobenius",
+        "manifold_radius_factor": "1.0",
+        "global_batch_size": "128",
+        "micro_batch_size": "4",
+        "save_interval": "None"
+      },
+      "log": "/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005/logs/main_frobenius_manifold_mcsd_tp_w256_091cf7755c_4346668.out",
+      "last_train_lines": [
+        "[2026-10-28 00:48:03.161712] iteration        1/   11445 | consumed samples:          128 | elapsed time per iteration (ms): 7748.1 | throughput per GPU (TFLOP/s/GPU): 12.7 | learning rate: 4.366812E-05 | global batch size:   128 | lm loss: 1.156673E+01 | loss scale: 1.0 | grad norm: 0.952 | number of skipped iterations:   0 | number of nan iterations:   0 |"
+      ],
+      "log_tail": [
+        "Total number of parameters in billions: 0.07",
+        "Total number of active parameters in billions: 0.07",
+        "Number of parameters in most loaded shard in billions: 0.0734",
+        "compute_activation_memory_without_sp",
+        "Activation memory footprint per transformer layer (precise, without SP): 68.0 MB",
+        "Theoretical memory footprints: weight and optimizer=1260.25 MB, activation=3651.97 MB, total=4912.22 MB",
+        "",
+        "[Rank 0] (after 1 iterations) memory (MB) | allocated: 1370.92 | max allocated: 12208.77 | reserved: 12410.00 | max reserved: 12410.00"
+      ],
+      "source_hash_manifest": {
+        "file_count": 2196,
+        "sha256": "5b6a9337a36be721d8ec5a33d609a6806c24d4eedf5840a09581880ff7cb6ec0",
+        "encoding": "UTF-8 compact JSON, keys sorted by en locale"
+      },
+      "optimizer_source_hashes": {
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py": "270c63079c5d0b9e1d26dcd0f913c0deaee3777edf13a3f2ca9338e4f1e8a0bf",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_geometry.py": "e9b703d1a1d699eac19af76f2146658f49e922bf57e891f7ce7700ff3638b2a5",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_layout.py": "bbcb5a02222a7a88a61c14e143c4e37e9e84380c816c568183c565ba92fb1e7f",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py": "40f012b887ba8637a0a3fcb4525b643dd0e81b9425314be2a941328b698faa27",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_polar.py": "4e188c52806aaf07a568594f7c08e3fde87080b69fc8459d326941ed15f89ecd",
+        "Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_spectral.py": "342f0f70aa5c5f3e75a3911d40772ee6d11fb1fbd506f44451eea3e035448033"
+      }
+    }
+  ],
+  "queue": "4346665|main_frobenius_manifold_muonh_w256_ee75fbe552|RUNNING|gres/gpu:nvidia_h20:1|SPG-7-1\n4346666|main_frobenius_manifold_normuon_sphere_w256_8fe0dd46f8|RUNNING|gres/gpu:nvidia_h20:1|SPG-7-1\n4346667|main_frobenius_manifold_mcsd_w256_12832f83df|RUNNING|gres/gpu:nvidia_h20:1|SPG-7-1\n4346668|main_frobenius_manifold_mcsd_tp_w256_091cf7755c|RUNNING|gres/gpu:nvidia_h20:1|SPG-7-1\n",
+  "disk": "Filesystem                   Size  Used Avail Use% Mounted on\nhpc2021-fs2:/home2/u3013198  100G   72G   29G  72% /home/u3013198\n",
+  "git_status": "",
+  "provenance_note": "Complete source manifests were compared remotely with the matched reference; this snapshot retains their digest and optimizer-file hashes. config_sha256 refers to the original full remote resolved_config.json."
+}
