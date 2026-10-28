@@ -1,76 +1,76 @@
-# Spectral Sphere：MCSD-TP / MCSD–P²GD 的 1B / 3B 实验总览
+# Spectral Sphere: MCSD-TP / MCSD-P²GD Experiments at 1B and 3B Tokens
 
-**文档更新：2026-10-28；3B 完成结果核验截至 10-27 23:50 HKT；新任务最后核验于 10-28 01:10 HKT。**
+**Updated: 2026-10-28. Completed 3B results last verified on 2026-10-27 at 23:50 HKT; newly submitted jobs last verified on 2026-10-28 at 01:10 HKT.**
 
-| 已完成 1B | 已完成 3B | 新提交 3B | 新任务最后已知状态 |
+| Completed 1B runs | Completed 3B runs | Newly submitted 3B runs | Last known status of new runs |
 |:---:|:---:|:---:|:---:|
-| **12 组** | **6 组** | **6 组** | 1 运行 / 5 排队 |
+| **12** | **6** | **6** | 1 running / 5 queued |
 
-[最新结果](#latest) · [保留方案](#candidates) · [学习率与步长](#comparisons) · [精度与成本](#precision) · [下一步](#next) · [全部记录](#ledger)
+[Latest results](#latest) · [Retained candidates](#candidates) · [Learning rates and step scales](#comparisons) · [Accuracy and cost](#precision) · [Next experiments](#next) · [Results ledger](#ledger)
 
-本页汇总当前 **width-256、谱球面、warm block-8** 主线，完成结果、短预算探索和新提交任务分开记录。**本次 11:55 左右两次连接 H20 超时，不能确认新任务的当前进度**；上方状态是最后已知快照，不是实时状态。
+This page consolidates the current **width-256, spectral-sphere, warm block-8** experiments. Completed runs, short-budget pilots, and newly submitted jobs are reported separately. **Two H20 connection attempts timed out around 11:55 HKT on 2026-10-28, so subsequent progress could not be verified.** The status above is a dated snapshot, not a live report.
 
-沿用 [Frobenius 实验总览](https://github.com/YYKKWW/SSO_test/blob/exp/mcsd-three-geometries/docs/experiments/FROBENIUS_3B_6B_SUMMARY.md#next) 的组织方式，但不合并结果。两条实验线的约束、模型头配置、序列长度、调度和验证协议不同，不能横向比较绝对 loss。历史论文 1B / 旧 12B 实验也不混入本页择优。
+The organization follows the [Frobenius experiment overview](https://github.com/YYKKWW/SSO_test/blob/exp/mcsd-three-geometries/docs/experiments/FROBENIUS_3B_6B_SUMMARY.md#next), but the results are not pooled. The two tracks differ in constraints, attention-head configuration, sequence length, schedules, and evaluation protocols; their absolute losses are not directly comparable. The historical paper's 1B experiments and earlier 12B runs are also excluded from candidate selection here.
 
-算法阅读：[中文流程、伪代码与具体实现](../algorithms/current_comparison_pseudocode.md)。
+Algorithm reference: [workflow, pseudocode, and implementation guide (Chinese)](../algorithms/current_comparison_pseudocode.md).
 
 <a id="latest"></a>
 
-## 最新结果
+## Latest Results
 
-**当前最值得保留的是 K10/c8 混合方案。** 它在 3B 下优于匹配 MCSD-TP control，接近但尚未超过 MuonSphere / SSO。以下为同轮完整 3B、seed=1234、LR=`1.5e-2` 的最终验证，不取训练中最低点。
+**The K10/c8 hybrid is currently the leading candidate for further evaluation.** At 3B tokens, it improves over the matched MCSD-TP control and approaches, but does not surpass, MuonSphere or SSO. All entries below are final validation losses from the same completed 3B batch, with seed=1234 and LR=`1.5e-2`; they are not the minimum losses observed during training.
 
-| 方法 | Final val | 相对 MuonSphere | 训练及验证时间 | Job |
+| Method | Final val loss | Difference vs. MuonSphere | Training + validation time | Job |
 |---|---:|---:|---|---|
-| **MuonSphere** | **3.442197** | — | **16:37:29** | `4329039_2` |
+| **MuonSphere** | **3.442197** | N/A | **16:37:29** | `4329039_2` |
 | SSO | 3.442296 | +0.000099 | 18:28:24 | `4329039_3` |
-| **混合 K10/c8** | **3.442441** | **+0.000244** | **17:40:21** | `4329039_5` |
-| 混合 K20/c8 | 3.443598 | +0.001401 | 18:21:08 | `4329039_1` |
+| **Hybrid K10/c8** | **3.442441** | **+0.000244** | **17:40:21** | `4329039_5` |
+| Hybrid K20/c8 | 3.443598 | +0.001401 | 18:21:08 | `4329039_1` |
 | MCSD-TP K10 | 3.443943 | +0.001746 | 17:41:47 | `4329039_4` |
 | MCSD-TP K20 | 3.444459 | +0.002262 | 18:20:33 | `4329039_0` |
 
-六组均 `COMPLETED / exit 0:0`，无已记录的 NaN/skipped iteration。时间不含 CUDA 预检和训练后离线审计，也不是只计优化器的时间。
+All six runs finished with `COMPLETED / exit 0:0`, with no logged NaN or skipped iterations. Times exclude CUDA preflight tests and post-training offline audits; they are not optimizer-only timings.
 
-### 匹配 control 的收益
+### Gains Over Matched Controls
 
-| 谱迭代 | MCSD-TP | 混合 c8 | 混合减 control |
+| Spectral iterations | MCSD-TP | Hybrid c8 | Hybrid minus control |
 |---|---:|---:|---:|
 | K10 | 3.443943 | **3.442441** | **-0.001502** |
 | K20 | 3.444459 | **3.443598** | **-0.000861** |
 
-K10 混合比 K20 混合低 **0.001157**，节省 **40:47（3.70%）**；比 MuonSphere 慢 **6.30%**、比 SSO 快 **4.34%**。它比自身 control 快 86 秒，仅是一次计时观察，不能证明簇分支带来稳定加速。
+The K10 hybrid reduces loss by **0.001157** relative to the K20 hybrid and saves **40:47 (3.70%)**. It is **6.30%** slower than MuonSphere and **4.34%** faster than SSO. Its 86-second advantage over its own control is a single timing observation, not evidence that the cluster branch reliably accelerates training.
 
-![3B 主对照：全程验证曲线与后期相对 MuonSphere 的差值](cluster_summary/validation_3b_k10.png)
+![3B comparison: full validation curves and late-stage differences relative to MuonSphere](cluster_summary/validation_3b_k10.png)
 
-[矢量图](cluster_summary/validation_3b_k10.svg) · [原始曲线及审计](../results/cluster_selected_3b_20261025/final_summary_20261027.json) · [作图脚本](../../scripts/plot_cluster_results_summary.py)
+[Vector figure](cluster_summary/validation_3b_k10.svg) · [Source curves and audits](../results/cluster_selected_3b_20261025/final_summary_20261027.json) · [Plotting script](../../scripts/plot_cluster_results_summary.py)
 
-每组 23 个真实验证点，无平滑、无虚构误差带。右图逐 step 相减，负值表示该点优于 MuonSphere；**中途领先不代替最终结果**。只有一个已完成 seed，不能将 `0.000244` 的差距写成统计等效，也不能宣称已超过基线。
+Each curve contains 23 recorded validation points, without smoothing or synthetic uncertainty bands. The right panel subtracts MuonSphere's loss at each matched step; negative values indicate lower loss at that point. **An intermediate lead does not replace the final result.** With only one completed seed, the `0.000244` difference establishes neither statistical equivalence nor superiority over the baseline.
 
-## 核心结论
+## Main Findings
 
-1. **工程路径已跑通。** 1B/3B 长训练正常完成，当前混合更新不需要原矩阵 full SVD，K10 的总时间开销已降至相对 MuonSphere 约 6.3%。
-2. **混合分支有值得复验的增益。** 在已测 1B 的 K20/K40 配对和 3B 的 K10/K20 配对中，c8 混合均优于各自 control；还不能归因于多方向簇修正，第二 seed 和机制对照正在补齐。
-3. **提高谱精度不自动改善训练。** K20 的精度优于 K10，但本轮 3B loss 更差；K40 在 1B 也没有带来更好终点。
-4. **减少分支率不是优化目标本身。** c12 比 c8 的重复率低，却使 1B loss 变差。应同时看 loss、实际位移、半径误差和成本。
-5. **理论适用性仍有限。** 当前是“近顶部簇 P²GD 型方向 + 近似径向返回”，不是标准 P²GD，也不是 full-SVD PGD。运行成功不证明精确可行性或随机 Clarke 收敛。
+1. **The engineering path is operational.** Full 1B/3B training runs completed successfully without original-matrix full SVDs in the hybrid update. The K10 hybrid's total runtime overhead relative to MuonSphere is about 6.3%.
+2. **The hybrid gain warrants replication.** The c8 hybrid beats its own control in the tested K20/K40 pairs at 1B and K10/K20 pairs at 3B. The gain cannot yet be attributed specifically to multi-direction cluster correction; second-seed and mechanism controls have been submitted.
+3. **More accurate spectra do not automatically improve training.** K20 is more accurate than K10 in the audits, but has worse final 3B loss in this batch. K40 also failed to improve the 1B endpoint.
+4. **Lower branch frequency is not an objective by itself.** c12 reduces repeated branch calls relative to c8, yet worsens 1B loss. Loss, actual displacement, radius error, and cost must be considered together.
+5. **The theoretical scope remains limited.** This implementation uses a near-top-cluster P²GD-type direction with an approximate radial return. It is neither standard P²GD nor full-SVD PGD. Successful execution does not establish exact feasibility or stochastic convergence to Clarke-stationary points.
 
 <a id="candidates"></a>
 
-## 哪些方案保留
+## Retained Candidates
 
-这里的“可行”指有工程与实验依据继续研究，不代表已经满足所有理论假设或确定优于基线。
+Here, a viable candidate has sufficient engineering and empirical support for further investigation. This does not mean that all theoretical assumptions hold or that the method is demonstrably superior to the baselines.
 
-| 方案 | 目前证据 | 决策 |
+| Candidate | Current evidence | Decision |
 |---|---|---|
-| **混合 K10/c8** | 3B 相对 control 改善最大；速度更好；接近两基线 | **优先候选**，先看第二 seed 与方向机制对照 |
-| 混合 K20/c8 | 1B、3B 均优于匹配 control，抽样误差更小 | 保留为精度参考，不同时扩大调参 |
-| MCSD-TP K10 / K20 | 混合分支的严格匹配 control | 必须保留；不能用不同 K 的 control 替代 |
-| MuonSphere / SSO | 当前主基线 | 同 seed、同数据、同预算继续配对 |
-| c4 | 1B 有改善，但不如同配置 c8 | 次级候选，暂不扩大 |
-| c12、K40 | 分别降低重复率或谱误差，但没有改善最终 loss | 暂缓长训练，不删除已有结果 |
-| full-SVD 簇方案 | 100M 可运行，但旧单步约 16.1 秒；近似版约 10.8–11.2 秒 | 保留离线精度/机制参照，不作为大网格默认 |
+| **Hybrid K10/c8** | Largest 3B gain over its matched control; faster than K20; close to both baselines | **Priority candidate** for second-seed and direction-mechanism tests |
+| Hybrid K20/c8 | Improves over matched controls at 1B and 3B; smaller sampled numerical errors | Retain as an accuracy reference; avoid expanding its grid simultaneously |
+| MCSD-TP K10 / K20 | Matched controls for the hybrid branch | Retain both; a control with a different K is not interchangeable |
+| MuonSphere / SSO | Primary baselines | Continue matching seeds, data, and budgets |
+| c4 | Improves 1B loss, but less than c8 under the same settings | Secondary candidate; no immediate expansion |
+| c12, K40 | Reduce repetition or spectral error, respectively, without improving final loss | Defer further long runs; retain existing results |
+| Full-SVD cluster variant | Runs at 100M, but earlier steps took about 16.1 s versus 10.8–11.2 s for approximate variants | Keep as an offline accuracy/mechanism reference, not the default for a large grid |
 
-推荐配置的含义：
+The recommended candidate is defined by:
 
 ```text
 main path     MCSD-TP: tangent -> matrix sign -> tangent
@@ -84,190 +84,190 @@ cache         scaled spectrum and vectors of the returned point
 online gate   none; no automatic full-SVD fallback
 ```
 
-`K` 是迭代次数，8 是子空间维数，q≤4 是方向修正上限；`c=8` 是分支步长系数，**不是调用比例，也不是实际位移恒为 MCSD 的8倍**。这组参数仅在当前模型和协议下有证据，不能直接宣称跨 width 通用。
+`K` is the iteration count, 8 is the subspace dimension, and q≤4 is the correction-rank cap. `c=8` is a branch step multiplier, **not a branch-use percentage or a guarantee of eight times the MCSD displacement**. Evidence for this configuration is limited to the current model and protocol; transfer across widths has not been established.
 
 <details>
-<summary><strong>比较协议与方法定义</strong></summary>
+<summary><strong>Comparison protocol and method definitions</strong></summary>
 
-| 项目 | 固定设置 |
+| Item | Fixed setting |
 |---|---|
-| 模型 | width256、28层、FFN768、2个注意力头、head dimension128、序列长度4096 |
-| 几何 | 隐藏矩阵组件使用 spectral-μP 目标谱半径；不是 Frobenius sphere 的 `r=1` |
-| 数据 | 同一3B indexed OLMo-Mix训练源与验证源；1B/3B指处理预算，不是不同模型大小 |
-| 训练 | global batch128、microbatch4、每组一张H20、seed1234；新六组使用2345 |
-| 精度 | BF16训练/NS8矩阵符号；FP32 master weights及实验算法的QR/Ritz；TF32关闭 |
-| 动量 | 矩阵优化器沿用0.9 Muon-style Nesterov组合，不是流形点外推 |
-| 辅助参数 | AdamW、betas=(0.9,0.95)、eps=1e-8；weight decay0.1，按分组排除bias/norm；约束矩阵wd=0 |
-| 调度 | 250 warmup steps，cosine至峰值LR的10%，从初始化训练，无checkpoint恢复 |
-| 1B | 1908 steps，每250步及结束时验证5 batches |
-| 3B | 5723 steps，每250步及结束时验证20 batches |
-| 最终指标 | 完整预算末次validation loss；不取过程中最佳值 |
-| 时间 | 训练进程及验证耗时，不含预检/离线审计，不等同Slurm总elapsed |
+| Model | Width 256, 28 layers, FFN width 768, 2 attention heads, head dimension 128, sequence length 4096 |
+| Geometry | Spectral-μP target spectral radii for hidden matrix components; not the Frobenius-sphere `r=1` setting |
+| Data | The same 3B indexed OLMo-Mix training source and validation source; 1B/3B denotes processed-token budget, not model size |
+| Training | Global batch 128, microbatch 4, one H20 per run, seed 1234; the new six-run batch uses 2345 |
+| Precision | BF16 training and NS8 matrix sign; FP32 master weights and experimental QR/Ritz computations; TF32 disabled |
+| Momentum | Matrix optimizers use the existing 0.9 Muon-style Nesterov combination, not extrapolation on the manifold |
+| Auxiliary parameters | AdamW, betas=(0.9,0.95), eps=1e-8, weight decay 0.1 with bias/norm exclusions by parameter group; constrained matrices use wd=0 |
+| Schedule | 250 warmup steps, cosine decay to 10% of peak LR, training from initialization without checkpoint resume |
+| 1B | 1908 steps; 5 validation batches every 250 steps and at the end |
+| 3B | 5723 steps; 20 validation batches every 250 steps and at the end |
+| Final metric | Validation loss at the full-budget endpoint, not the best intermediate value |
+| Time | Training-process wall time including validation, excluding preflight tests and offline audits; not total Slurm elapsed time |
 
-MuonSphere代码名为 `muon_ball_dist`，使用BF16 cold PI10、NS8与hard pre-radial；SSO为 `spectral_ball_dist`，另有标量乘子求解。实验算法为更新后近似radial，两者不能表述成完全相同返回方式的单因素对照。
+MuonSphere is named `muon_ball_dist` in code and uses BF16 cold PI10, NS8, and hard pre-step radial normalization. SSO is `spectral_ball_dist` and additionally solves a scalar multiplier subproblem. The experimental methods instead use a post-step approximate radial return; this is not a comparison in which every method has the same return map.
 
-1B/3B的验证批数和cosine总时长不同，不把两轮绝对loss直接拼成同一训练曲线。改变seed也可能改变数据顺序，应先计算每个seed内部的方法差值。新扩展验证协议若启用，应另列结果，不能替换历史终点。
+The 1B and 3B runs use different validation-batch counts and cosine schedule lengths, so their losses must not be joined into one training curve. Changing the seed can also change data order; compare method differences within each seed first. Any extended evaluation protocol must be reported separately rather than replacing historical endpoints.
 
 </details>
 
 <a id="comparisons"></a>
 
-## 学习率与分支步长
+## Learning Rates and Branch Step Scales
 
-### 1B：相同 LR 的四方法对照
+### 1B: Four Methods at Matched Learning Rates
 
-固定seed1234；实验算法K20，混合c8。这里仅比较同一行协议，不能将各方法不同LR的结果称为“只改变优化器”的消融。
+Seed=1234 throughout; the experimental methods use K20 and the hybrid uses c8. Comparisons are matched within each row. Comparing methods at different learning rates is not an optimizer-only ablation.
 
-| LR | MuonSphere | SSO | MCSD-TP | 混合c8 | 混合减control |
+| LR | MuonSphere | SSO | MCSD-TP | Hybrid c8 | Hybrid minus control |
 |---|---:|---:|---:|---:|---:|
 | `1.5e-2` | **3.582948** | 3.591530 | 3.588559 | 3.587659 | -0.000900 |
 | `2e-2` | 3.593271 | 3.591197 | 3.589549 | **3.587868** | -0.001681 |
 
-混合在LR=`2e-2`这一行优于两基线，但**跨已测LR的最佳MuonSphere仍更好**。四方法只测了两个共同LR，不能称为充分调参后的总体优势。
+The hybrid beats both baselines at LR=`2e-2`, but **the best MuonSphere result across the tested learning rates remains better**. Only two common learning rates were tested, so these results do not establish superiority after comprehensive tuning.
 
-### 1B：固定 LR=`2e-2` 比较 c
+### 1B: Varying c at Fixed LR=`2e-2`
 
-| K20配置 | Final val | 累计簇比例 | 连续重复比例 | 平均连续长度 |
+| K20 configuration | Final val loss | Cumulative cluster rate | Consecutive-repeat rate | Mean burst length |
 |---|---:|---:|---:|---:|
-| MCSD-TP control | 3.589549 | 0% | — | — |
+| MCSD-TP control | 3.589549 | 0% | N/A | N/A |
 | c4 | 3.588366 | 1.587% | 75.88% | 4.15 |
 | **c8** | **3.587868** | **0.954%** | 59.82% | 2.49 |
 | c12 | 3.590739 | 0.787% | **46.63%** | **1.87** |
 
-c12的分支与重复率更低，但比control高0.001190。不能只追求“少用近分支”或“一步退出小gap区域”。统计截至step1900，不是final1908；分母为矩阵组件调用数。
+c12 has lower branch and repeat rates, yet its loss is 0.001190 higher than the control. Minimizing near-region calls or forcing a one-step exit is therefore insufficient. Statistics end at step 1900, not the final step 1908; denominators count matrix-component calls.
 
-### 1B：提高谱迭代次数
+### 1B: Increasing Spectral Iterations
 
-| 配置，LR=`2e-2` | K20 | K40 | K40减K20 |
+| Configuration, LR=`2e-2` | K20 | K40 | K40 minus K20 |
 |---|---:|---:|---:|
 | MCSD-TP | **3.589549** | 3.591258 | +0.001709 |
-| 混合c8 | **3.587868** | 3.590239 | +0.002371 |
+| Hybrid c8 | **3.587868** | 3.590239 | +0.002371 |
 
-K40精度改善但效果未改善。**当前没有K10的1B配对实验**，不能用K10的3B结果补填这一空缺。
+K40 improves numerical accuracy without improving the training outcome. **There is currently no matched K10 pair at 1B**; the K10 results at 3B cannot fill that gap.
 
 <details>
-<summary><strong>100M前置探索：为什么选择当前路线</strong></summary>
+<summary><strong>100M pilots: why this direction was retained</strong></summary>
 
-- full-SVD MCSD-TP / 宽簇混合的final val为4.947731 / 4.947553，旧单步约16.1秒；改为warm block-8后约10.8–11.2秒。旧Slurm总时间与新训练进程时间定义不同，不据此给出精确端到端加速比。
-- Frobenius动量归一化后，c1的K20混合为4.969451，弱于control4.947171，重复率约90.81%。该步长规则不同于早期MCSD长度匹配，不能复用旧系数的含义。
-- 同一LR=`1.5e-2`，c2/c4/c8分别为4.962942/4.957274/4.956690；c8较c1改善，但100M仍未超过control。后来1B/3B的配对结果才提供了保留混合方案的依据。
+- Full-SVD MCSD-TP and the broad-cluster hybrid reached final losses of 4.947731 and 4.947553, with earlier step times around 16.1 s. Warm block-8 variants took about 10.8–11.2 s per step. Historical Slurm elapsed time and newer training-process time have different definitions, so no precise end-to-end speedup is inferred from them.
+- With Frobenius-normalized momentum, the K20/c1 hybrid reached 4.969451, worse than its control at 4.947171, with about 90.81% consecutive repetition. This step rule differs from earlier MCSD length matching; its coefficient has a different meaning.
+- At the same LR=`1.5e-2`, c2/c4/c8 reached 4.962942/4.957274/4.956690. c8 improved over c1 but still failed to beat the control at 100M. The later matched 1B/3B results provided the evidence for retaining the hybrid.
 
-这些是短预算筛选，不混入18组长实验计数，也不能把100M与3B的差异全部解释为训练预算的因果效应。
+These short-budget screening runs are excluded from the count of 18 long runs. Differences between 100M and 3B outcomes cannot be attributed solely to the causal effect of training budget.
 
-来源：[近似谱试验](cluster_warm_ritz_100m_20261021.md)、[动量归一化](cluster_momentum_fro_100m_20261021.md)、[步长调参](cluster_momentum_lr_tune_100m_20261021.md)。未保留为主候选的结果仍可查阅。
+Sources: [approximate-spectrum tests](cluster_warm_ritz_100m_20261021.md), [momentum normalization](cluster_momentum_fro_100m_20261021.md), and [step-scale tuning](cluster_momentum_lr_tune_100m_20261021.md). Results for variants not retained as primary candidates remain available.
 
 </details>
 
 <a id="precision"></a>
 
-## 精度、调用与成本
+## Accuracy, Calls, and Cost
 
-3B统计截至step5720，分母均为1,441,440次矩阵组件调用，含252次零LR初始化；不是5723个训练步。
+The 3B branch statistics end at step 5720. Both denominators are 1,441,440 matrix-component calls, including 252 zero-LR initialization calls; they do not count the 5723 training steps.
 
-| 指标 | 混合K10/c8 | 混合K20/c8 |
+| Metric | Hybrid K10/c8 | Hybrid K20/c8 |
 |---|---:|---:|
-| 累计近分支调用 | 25,681（1.7816%） | 25,490（1.7684%） |
-| 末个日志步的近分支比例 | 10.32% | 13.10% |
-| 连续重复比例 / 平均连续长度 | 57.30% / 2.34 | 58.69% / 2.42 |
-| 超过top-4容量的次数 | 2,952 | 2,931 |
-| 抽样平均绝对gap误差 | `1.014e-4` | `4.345e-6` |
-| 抽样gap误差中位数 | `1.044e-6` | `7.694e-7` |
-| 最大抽样返回半径相对误差 | `1.038e-4` | `2.849e-5` |
-| 抽样平均方向相对误差 | 0.898% | 0.637% |
-| 抽样false-safe / false-cluster | 0 / 0 | 0 / 0 |
+| Cumulative near-branch calls | 25,681 (1.7816%) | 25,490 (1.7684%) |
+| Near-branch rate at the last logged step | 10.32% | 13.10% |
+| Consecutive-repeat rate / mean burst length | 57.30% / 2.34 | 58.69% / 2.42 |
+| Calls exceeding the top-4 capacity | 2,952 | 2,931 |
+| Sample mean absolute gap error | `1.014e-4` | `4.345e-6` |
+| Sample median absolute gap error | `1.044e-6` | `7.694e-7` |
+| Maximum sampled relative radius error after return | `1.038e-4` | `2.849e-5` |
+| Sample mean relative direction error | 0.898% | 0.637% |
+| Sample false-safe / false-cluster counts | 0 / 0 | 0 / 0 |
 
-**四组3B实验算法每组1,442,196次小Ritz SVD，更新中的原矩阵full SVD/svdvals均为0。** 精确分解只用于测试和训练后审计；基线未接入该计数器。
+**Each of the four experimental 3B runs recorded 1,442,196 small Ritz SVDs and zero original-matrix full SVD or svdvals calls inside updates.** Exact decompositions were restricted to tests and post-training audits. The baselines were not instrumented with this call counter.
 
-K10误差总和约96.1%来自step2的四个启动样本。去掉这四点后的48个样本，平均gap误差为K10 `4.294e-6`、K20 `2.219e-6`；这是分阶段诊断，不能替代全样本统计。K10全样本均值仍大于路由阈值`5e-5`。
+About 96.1% of K10's summed gap error came from four startup samples at step 2. In the remaining 48 samples, mean gap errors were `4.294e-6` for K10 and `2.219e-6` for K20. This stage-specific diagnosis does not replace the full-sample statistics: K10's full-sample mean still exceeds the routing threshold of `5e-5`.
 
-每组混合只有52个有选择的审计样本，零抽样误判不保证全程零误判；近似返回也不保证真实谱范数严格等于R。top-4溢出约占近分支调用的11.5%，说明当前不能称为完整真实切锥处理。
+Each hybrid audit contains only 52 deliberately selected samples. Zero sampled misclassifications do not guarantee zero errors throughout training, and the approximate return does not guarantee that the true spectral norm is exactly R. Top-4 overflows account for about 11.5% of near-branch calls, so the implementation cannot be described as using the complete true tangent cone.
 
 <a id="next"></a>
 
-## 下一步实验
+## Next Experiments
 
-### 已提交：第二 seed + 机制对照
+### Submitted: Second Seed and Mechanism Controls
 
-正式数组 **`4346705`**，六组统一width256、3B、seed2345、LR=`1.5e-2`。最后核验于**10-28 01:10 HKT**：首组已到step10，无NaN/skips，其余因并发上限排队。**本次连接失败，后续状态待核验。**
+Array **`4346705`** contains six runs at width 256, 3B tokens, seed 2345, and LR=`1.5e-2`. At the last check on **2026-10-28 at 01:10 HKT**, the first run had reached step 10 without NaN or skipped iterations; the remaining runs were queued under the array concurrency limit. **The later connection attempts failed, so subsequent status remains unverified.**
 
-| 编号 | 方法 | Job | 最后已知状态 | 回答的问题 |
+| Arm | Method | Job | Last known status | Question |
 |---|---|---|---|---|
-| A1 | MuonSphere | `4346705_0` | RUNNING，step10 | 第二seed基线 |
-| A2 | SSO | `4346705_1` | PENDING | 第二seed基线 |
-| A3 | MCSD-TP K10 | `4346705_2` | PENDING | 混合的匹配control |
-| A4 | 混合K10/c8，top≤4 | `4346705_3` | PENDING | 首个seed的收益能否重复 |
-| A5 | 小gap时不做切向修正 | `4346705_4` | PENDING | 收益是否只来自换方向/步长 |
-| A6 | 小gap时仅做top-1修正 | `4346705_5` | PENDING | 多方向修正是否有额外价值 |
+| A1 | MuonSphere | `4346705_0` | RUNNING, step 10 | Baseline at the second seed |
+| A2 | SSO | `4346705_1` | PENDING | Baseline at the second seed |
+| A3 | MCSD-TP K10 | `4346705_2` | PENDING | Matched control for the hybrid |
+| A4 | Hybrid K10/c8, top≤4 | `4346705_3` | PENDING | Does the first-seed gain replicate? |
+| A5 | No tangent correction at small gaps | `4346705_4` | PENDING | Is the gain merely due to changing direction or step scale? |
+| A6 | Top-1 correction only at small gaps | `4346705_5` | PENDING | Does multi-direction correction add value? |
 
-A4–A6共用归一化动量、路由、c8和径向返回，**不再归一化修正后的方向**。它们的实际触发位置会随轨迹分化，不等同于同一矩阵上的反事实对照。A5不是PGD，A6不是多方向P²GD。
+A4–A6 share momentum normalization, routing, c8, and radial return, with **no renormalization after direction correction**. Their trigger locations can diverge as their training trajectories separate; this is not a counterfactual comparison at identical matrices. A5 is not PGD, and A6 is not multi-direction P²GD.
 
-45项CPU/CUDA测试及两组4步H20短训练已通过；短训练没有自然触发小gap，具体方向由专门CUDA测试覆盖，不能当成效果证据。提交时已有用户其他4卡任务，平台仅余2卡，本批并发上限1；每组预计17–19小时，若始终串行则约4–5天，不含额外排队。本次未修改并发、未提交或取消任务。
+All 45 CPU/CUDA tests and two four-step H20 smoke runs passed. The smoke runs did not naturally enter the small-gap branch; dedicated CUDA tests cover the direction formulas, so the smoke runs are not evidence of optimization quality. At submission, four other user jobs were running and only two platform GPUs were free. This batch was capped at one concurrent run. Each run is expected to take 17–19 hours; a fully serial batch would take roughly 4–5 days, excluding additional queue delays. No concurrency settings or jobs were changed during this documentation update.
 
-[配置与机制定义](cluster_seed_mechanism_3b_20261028.md) · [提交及校验记录](../results/cluster_seed_mechanism_3b_20261028/submission.json)
+[Configuration and mechanism definitions](cluster_seed_mechanism_3b_20261028.md) · [Submission and verification record](../results/cluster_seed_mechanism_3b_20261028/submission.json)
 
-### 随后按证据推进
+### Evidence-Driven Follow-Ups
 
-| 顺序 | 补充项 | 启动条件 / 判断标准 |
+| Priority | Additional experiment | Prerequisite / decision criterion |
 |---|---|---|
-| B1：配对重复 | 冻结K10/c8，四方法增加第三seed | 先完整报告A1–A4；看每个seed内的方法差值，不只保留胜出的seed |
-| B2：启动精度 | 同一启动矩阵离线重放K10/K20，必要时补“启动K20、随后K10”的control/混合配对 | 先确认减少启动误差；不能只给混合更高精度而不给control |
-| B3：簇容量 | 同一X/M离线比较top≤4/6；再决定top≤8 | 先看容量溢出、返回后方向改变和耗时。用满block8不能排除第9个方向，top≤8审计需更大子空间或离线oracle |
-| B4：评估稳定性 | 固定额外验证样本清单，评估100–200 batches | 与原20-batch指标分开。旧任务未留checkpoint，不能声称已完成追补；新训练需预先设计末次评估 |
-| C：规模迁移 | 冻结方案后再做width512，保留两个基线和匹配control | A组收益可重复后再扩规模；固定参数迁移与重新调参结果分开报告 |
+| B1: Paired replication | Freeze K10/c8 and add a third seed for all four methods | Report A1–A4 in full first; compare within-seed method differences, not only winning seeds |
+| B2: Startup accuracy | Replay the same startup matrices offline with K10/K20; if warranted, test a matched control/hybrid pair using K20 initially, then K10 | First verify reduced startup error; do not give only the hybrid a more accurate solver |
+| B3: Cluster capacity | Compare top≤4/6 offline at identical X/M, then decide whether to test top≤8 | Measure capacity overflows, direction changes after return, and runtime. Filling block-8 cannot rule out a ninth direction; auditing top≤8 requires a larger subspace or an offline oracle |
+| B4: Evaluation stability | Fix an additional validation sample list and evaluate 100–200 batches | Report separately from the original 20-batch metric. Old runs have no retained checkpoints, so retrospective evaluation has not been completed; new runs need a planned final evaluation |
+| C: Scale transfer | Freeze the candidate, then test width 512 with both baselines and a matched control | Expand only after A shows reproducible gains; report fixed-parameter transfer separately from retuning |
 
-**暂缓：** 大范围gap扫描、同时改变K/q/c、直接增加更长token预算。先确认A4是否稳定优于A3，以及是否优于A5/A6。若A5/A6相当或更好，应优先保留更简单实现，而不是据此继续宣称多方向簇机制有效。
+**Defer** broad gap sweeps, simultaneous changes to K/q/c, and longer token budgets. First determine whether A4 reliably improves over A3 and whether it beats A5/A6. If A5/A6 perform similarly or better, prefer the simpler implementation rather than continuing to attribute gains to multi-direction cluster correction.
 
-小规模机制审计可固定同一个X、动量M、缓存和步长，比较三种方向的实际位移、动量内积、径向修正比例、下一点gap及独立小批次loss；这类结果不能代替完整预算和跨seed评价。
+A low-cost mechanism audit can hold X, momentum M, the cache, and step size fixed while comparing actual displacement, momentum inner product, radial correction ratio, next-point gap, and loss on independent small batches. Such diagnostics do not replace full-budget or cross-seed evaluation.
 
 <a id="ledger"></a>
 
-## 可追溯登记
+## Traceable Results Ledger
 
-18组完成记录由两个数组组成，按Job ID去重；上述3B主表已列全六组。下面展开1B十二组，不删除不利结果。
+The 18 completed runs belong to two arrays and are deduplicated by Job ID. The main 3B table above lists all six runs. The twelve 1B results are retained below, including unfavorable outcomes.
 
 <details>
-<summary><strong>全部1B结果：数组4319977，seed1234，最终step1908</strong></summary>
+<summary><strong>All 1B results: array 4319977, seed 1234, final step 1908</strong></summary>
 
-| Job | LR | 方法 | K | c | Final val | 训练及验证时间 |
+| Job | LR | Method | K | c | Final val loss | Training + validation time |
 |---|---|---|---:|---:|---:|---|
-| `4319977_8` | `1.5e-2` | MuonSphere | — | — | **3.582948** | 05:24:52 |
-| `4319977_9` | `1.5e-2` | SSO | — | — | 3.591530 | 06:03:41 |
-| `4319977_10` | `1.5e-2` | MCSD-TP | 20 | — | 3.588559 | 05:59:40 |
-| `4319977_11` | `1.5e-2` | 混合 | 20 | 8 | 3.587659 | 06:02:46 |
-| `4319977_2` | `2e-2` | MuonSphere | — | — | 3.593271 | 05:25:51 |
-| `4319977_3` | `2e-2` | SSO | — | — | 3.591197 | 06:04:47 |
-| `4319977_0` | `2e-2` | MCSD-TP | 20 | — | 3.589549 | 06:00:02 |
-| `4319977_1` | `2e-2` | 混合 | 20 | 8 | **3.587868** | 05:59:09 |
-| `4319977_4` | `2e-2` | 混合 | 20 | 4 | 3.588366 | 06:00:03 |
-| `4319977_5` | `2e-2` | 混合 | 20 | 12 | 3.590739 | 06:00:25 |
-| `4319977_6` | `2e-2` | MCSD-TP | 40 | — | 3.591258 | 06:25:55 |
-| `4319977_7` | `2e-2` | 混合 | 40 | 8 | 3.590239 | 06:23:41 |
+| `4319977_8` | `1.5e-2` | MuonSphere | N/A | N/A | **3.582948** | 05:24:52 |
+| `4319977_9` | `1.5e-2` | SSO | N/A | N/A | 3.591530 | 06:03:41 |
+| `4319977_10` | `1.5e-2` | MCSD-TP | 20 | N/A | 3.588559 | 05:59:40 |
+| `4319977_11` | `1.5e-2` | Hybrid | 20 | 8 | 3.587659 | 06:02:46 |
+| `4319977_2` | `2e-2` | MuonSphere | N/A | N/A | 3.593271 | 05:25:51 |
+| `4319977_3` | `2e-2` | SSO | N/A | N/A | 3.591197 | 06:04:47 |
+| `4319977_0` | `2e-2` | MCSD-TP | 20 | N/A | 3.589549 | 06:00:02 |
+| `4319977_1` | `2e-2` | Hybrid | 20 | 8 | **3.587868** | 05:59:09 |
+| `4319977_4` | `2e-2` | Hybrid | 20 | 4 | 3.588366 | 06:00:03 |
+| `4319977_5` | `2e-2` | Hybrid | 20 | 12 | 3.590739 | 06:00:25 |
+| `4319977_6` | `2e-2` | MCSD-TP | 40 | N/A | 3.591258 | 06:25:55 |
+| `4319977_7` | `2e-2` | Hybrid | 40 | 8 | 3.590239 | 06:23:41 |
 
 </details>
 
 <details>
-<summary><strong>3B训练loss：最后常规日志step5720，非最终验证loss</strong></summary>
+<summary><strong>3B training loss at the last regular log, step 5720; not final validation loss</strong></summary>
 
-| 方法 | Train loss | Job |
+| Method | Train loss | Job |
 |---|---:|---|
 | MuonSphere | 3.428725 | `4329039_2` |
 | SSO | 3.426996 | `4329039_3` |
-| 混合K10/c8 | 3.428968 | `4329039_5` |
-| 混合K20/c8 | 3.430508 | `4329039_1` |
+| Hybrid K10/c8 | 3.428968 | `4329039_5` |
+| Hybrid K20/c8 | 3.430508 | `4329039_1` |
 | MCSD-TP K10 | 3.430026 | `4329039_4` |
 | MCSD-TP K20 | 3.430956 | `4329039_0` |
 
-这是原日志窗口的训练loss，不是固定训练集上的完整评估，也不等同于末10步均值。
+These values use the original training-log window. They are neither full evaluations on a fixed training set nor averages over the last ten steps.
 
 </details>
 
-| 来源 | 用途 |
+| Source | Contents |
 |---|---|
-| [1B JSON](../results/cluster_candidates_1b_20261024/final_summary.json) / [配置记录](cluster_candidates_1b_20261024.md) | 12组终点、曲线、分支、耗时、精度审计 |
-| [3B JSON](../results/cluster_selected_3b_20261025/final_summary_20261027.json) / [最终分析](cluster_results_20261028.md) | 6组配置、Slurm完成状态、完整曲线、逐样本审计 |
-| [新六组提交记录](../results/cluster_seed_mechanism_3b_20261028/submission.json) | 任务编号、源码校验、45项CUDA测试与短训练证据，不含最终loss |
-| [算法与实现](../algorithms/current_comparison_pseudocode.md) / [环境与复现](../runbooks/cluster_experiments_reproduction.md) | 代码入口、真实步骤、运行环境 |
+| [1B JSON](../results/cluster_candidates_1b_20261024/final_summary.json) / [configuration record](cluster_candidates_1b_20261024.md) | Endpoints, curves, branch statistics, runtime, and accuracy audits for 12 runs |
+| [3B JSON](../results/cluster_selected_3b_20261025/final_summary_20261027.json) / [final analysis](cluster_results_20261028.md) | Configurations, Slurm completion status, full curves, and per-sample audits for 6 runs |
+| [New six-run submission record](../results/cluster_seed_mechanism_3b_20261028/submission.json) | Job IDs, source checksums, 45 CUDA tests, and smoke-run evidence; no final losses |
+| [Algorithms and implementation](../algorithms/current_comparison_pseudocode.md) / [environment and reproduction](../runbooks/cluster_experiments_reproduction.md) | Code entry points, actual update procedures, and runtime setup |
 
-后续按 `(geometry, width, data/evaluation protocol, budget, method, K, q, tau, cluster_tol, c, LR, momentum, seed)` 登记，确认完成状态和最终验证步后才填写final。取消、失败、部分训练和排队任务不计为完成结果；训练代码快照与文档发布commit分开。
+Future records should be keyed by `(geometry, width, data/evaluation protocol, budget, method, K, q, tau, cluster_tol, c, LR, momentum, seed)`. Fill in final metrics only after confirming completion and the final validation step. Canceled, failed, partial, and queued jobs do not count as completed results. Keep training-source snapshots distinct from documentation-release commits.
 
-本页为 `exp/mcsd-experiment-results` 分支的统一结果入口。历史逐轮文档保留，不上传数据集、checkpoint或矩阵快照；独立论文复现库和Frobenius实验分支不受本次整理影响。
+This is the consolidated results entry point on `exp/mcsd-experiment-results`. Historical batch notes remain available. Datasets, checkpoints, and matrix snapshots are not uploaded; the independent paper reproduction repository and the Frobenius experiment branch are unchanged.

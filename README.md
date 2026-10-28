@@ -6,8 +6,8 @@ This repository manages one experiment track for a paper project on SSO-style op
 
 `exp/mcsd-experiment-results` 分支用于当前 MCSD-TP / MCSD–P²GD 型混合实验，保留历史论文结果，不覆盖独立的论文复现库或 `exp/mcsd-three-geometries` 分支。
 
-- **[统一实验总览：18 组 1B/3B、可行方案、曲线与后续计划](docs/experiments/mcsd_p2gd_results_summary.md)**
-- [最新完整结果](docs/experiments/mcsd_p2gd_results_summary.md#latest) · [保留方案](docs/experiments/mcsd_p2gd_results_summary.md#candidates) · [已提交与下一步](docs/experiments/mcsd_p2gd_results_summary.md#next)
+- **[Experiment overview (English): 18 runs at 1B/3B, retained candidates, curves, and next steps](docs/experiments/mcsd_p2gd_results_summary.md)**
+- [Latest completed results](docs/experiments/mcsd_p2gd_results_summary.md#latest) · [Retained candidates](docs/experiments/mcsd_p2gd_results_summary.md#candidates) · [Submitted and next experiments](docs/experiments/mcsd_p2gd_results_summary.md#next)
 - [新增：第二 seed 与无修正/top-1 机制对照（六组3B）](docs/experiments/cluster_seed_mechanism_3b_20261028.md)
 - [算法流程、伪代码与具体 Python 实现](docs/algorithms/current_comparison_pseudocode.md)
 - [3B 六组最终结果与精度审计](docs/experiments/cluster_results_20261028.md)
