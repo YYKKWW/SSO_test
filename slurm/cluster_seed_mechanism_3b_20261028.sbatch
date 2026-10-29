@@ -20,6 +20,10 @@ near_projection=cone
 coefficient=8.0
 peak_lr=1.5e-2
 min_lr=1.5e-3
+experiment_seed=${CLUSTER_EXPERIMENT_SEED:-2345}
+if ! [[ "$experiment_seed" =~ ^[0-9]+$ ]]; then
+  echo "CLUSTER_EXPERIMENT_SEED must be a nonnegative integer" >&2; exit 2
+fi
 case "${SLURM_ARRAY_TASK_ID:?An array index is required}" in
   0) optimizer=muon_ball_dist; mode=none ;;
   1) optimizer=spectral_ball_dist; mode=none ;;
@@ -31,7 +35,7 @@ case "${SLURM_ARRAY_TASK_ID:?An array index is required}" in
 esac
 if [[ "${1:-}" == "--describe" ]]; then
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-    "$SLURM_ARRAY_TASK_ID" "$optimizer" "$mode" "$iterations" "$coefficient" "$peak_lr" "$min_lr" "$near_projection" "2345"
+    "$SLURM_ARRAY_TASK_ID" "$optimizer" "$mode" "$iterations" "$coefficient" "$peak_lr" "$min_lr" "$near_projection" "$experiment_seed"
   exit 0
 fi
 
@@ -54,7 +58,7 @@ python -B -m unittest discover -s scripts -p test_cluster_step_scales.py -v
 python -B -m unittest discover -s scripts -p test_cluster_warm_ritz.py -v
 python -B -m unittest discover -s scripts -p test_cluster_radial_production.py -v
 
-export OPTIMIZER="$optimizer" SEED=2345
+export OPTIMIZER="$optimizer" SEED="$experiment_seed"
 export WIDTH=256 NUM_LAYERS=28 HEAD_DIM=128 SEQ_LENGTH=4096
 export GLOBAL_BATCH=128 MICRO_BATCH=4 GPUS_PER_NODE=1 TP_SIZE=1 PP_SIZE=1
 export TRAIN_ITER=5723 TRAIN_TOKENS=3000000000
@@ -85,7 +89,7 @@ export SPEL_PGD_FALLBACK_DIRECTION=pgd SPEL_PGD_WARM_START_UV=0
 export SPECTRAL_BALL_POWER_ITERATION_STEPS=10
 export SPECTRAL_BALL_SOLVER_TOLERANCE_F=2e-4 SPECTRAL_BALL_SOLVER_MAX_ITERATIONS=20
 export MUON_BALL_POWER_ITERATION_STEPS=10 MUON_BALL_MSIGN_STEPS=8
-export JOB_NAME="w256_${optimizer}_${mode}_${near_projection}_k10_c${coefficient}_seed2345_3b"
+export JOB_NAME="w256_${optimizer}_${mode}_${near_projection}_k10_c${coefficient}_seed${experiment_seed}_3b"
 export RUN_ROOT="$PROJECT_DIR/results/${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 export DATA_CACHE_PATH="$RUN_ROOT/data_cache"
 if [[ "$optimizer" == "spel_pgd_dist" ]]; then
@@ -119,7 +123,7 @@ config.update(
     data_protocol="3b_budget_same_indexed_source_as_4319977_fresh_training",
     initialization="from_scratch_no_checkpoint_resume",
     processed_tokens=int(os.environ["TRAIN_ITER"])*int(os.environ["GLOBAL_BATCH"])*int(os.environ["SEQ_LENGTH"]),
-    selection_reference_array="4329039", paired_seed="2345",
+    selection_reference_array="4329039", paired_seed=os.environ["SEED"],
     near_branch_mapping=os.environ["SPEL_PGD_CLUSTER_NEAR_PROJECTION"] if experimental else "not_applicable",
     smoke=os.environ.get("CLUSTER_SMOKE", "0") == "1",
     torch_version=torch.__version__,

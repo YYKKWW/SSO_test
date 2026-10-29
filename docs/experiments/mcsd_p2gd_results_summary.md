@@ -1,14 +1,14 @@
 # Spectral Sphere: MCSD-TP / MCSD-P²GD Experiments at 1B and 3B Tokens
 
-**Updated and checked on H20: 2026-10-29 at 15:06 HKT.** There are now **20 completed runs**: twelve at 1B and eight at 3B. The second-seed hybrid and mechanism controls do not yet have results.
+**Updated and checked on H20: 2026-10-29 at 17:04 HKT.** There are **20 completed runs**: twelve at 1B and eight at 3B. Four second-seed arms are running; four third-seed replications are queued behind them. The new offline startup/capacity audit completed successfully.
 
 | Completed 1B runs | Completed 3B runs | Second-seed batch | Latest status of that batch |
 |:---:|:---:|:---:|:---:|
-| **12** | **8** | **6 runs** | 2 completed / 1 running / 3 queued |
+| **12** | **8** | **6 runs** | 2 completed / 4 running |
 
 [Latest results](#latest) · [Retained candidates](#candidates) · [Learning rates and step scales](#comparisons) · [Accuracy and cost](#precision) · [Next experiments](#next) · [Results ledger](#ledger)
 
-This page consolidates the current **width-256, spectral-sphere, warm block-8** experiments. Completed runs, short-budget pilots, and queued jobs are reported separately. H20 connectivity was restored for this check; the previous connection-timeout caveat is superseded by the [new read-only snapshot](../results/cluster_seed_mechanism_3b_20261028/status_20261029.json). Status is dated, not live.
+This page consolidates the current **width-256, spectral-sphere, warm block-8** experiments. Completed runs, short-budget pilots, and queued jobs are reported separately. See the [latest status snapshot](../results/cluster_seed3_3b_20261029/status_20261029.json) and [third-seed submission and audit](cluster_seed3_3b_20261029.md). Status is dated, not live.
 
 The organization follows the [Frobenius experiment overview](https://github.com/YYKKWW/SSO_test/blob/exp/mcsd-three-geometries/docs/experiments/FROBENIUS_3B_6B_SUMMARY.md#next), but the results are not pooled. The two tracks differ in constraints, attention-head configuration, sequence length, schedules, and evaluation protocols; their absolute losses are not directly comparable. The historical paper's 1B experiments and earlier 12B runs are also excluded from candidate selection here.
 
@@ -26,12 +26,12 @@ All six runs use seed **2345**, LR=`1.5e-2`, and the same 5723-step / 20-validat
 |---|---|---:|---|---|---|
 | MuonSphere | COMPLETED / 5723 | 3.436023 | N/A | 16:35:03 | `4346705_0` |
 | **SSO** | COMPLETED / 5723 | **3.435041** | N/A | 18:28:11 | `4346705_1` |
-| MCSD-TP K10 | RUNNING / 940 | Pending | 4.069032 at step 750 | Not final | `4346705_2` |
-| Hybrid K10/c8, top≤4 | PENDING | Pending | N/A | Not started | `4346705_3` |
-| Ambient K10/c8, no tangent correction | PENDING | Pending | N/A | Not started | `4346705_4` |
-| Top-1 K10/c8 | PENDING | Pending | N/A | Not started | `4346705_5` |
+| MCSD-TP K10 | RUNNING / 1570 | Pending | 3.916097 at step 1500 | Not final | `4346705_2` |
+| Hybrid K10/c8, top≤4 | RUNNING / 20 | Pending | Not evaluated yet | Not final | `4346705_3` |
+| Ambient K10/c8, no tangent correction | RUNNING / 20 | Pending | Not evaluated yet | Not final | `4346705_4` |
+| Top-1 K10/c8 | RUNNING / 20 | Pending | Not evaluated yet | Not final | `4346705_5` |
 
-The two completed runs have `COMPLETED / exit 0:0` and both completion markers. The control has reached **16.4%** of its training steps, with a last-ten-log mean of **10.785 s/step**. All three started runs have zero logged NaN and skipped iterations. The control's near-branch rate is zero by design, not evidence about the pending hybrid.
+The two completed runs have `COMPLETED / exit 0:0` and both completion markers. The control has reached **27.4%** of its training steps, with a last-ten-log mean of **10.778 s/step**. All six started runs have zero logged NaN and skipped iterations. The control's near-branch rate is zero by design, not evidence about the hybrid.
 
 **Baseline ranking changes with seed.** SSO is lower by `0.000982` at seed 2345, whereas MuonSphere was lower by `0.000099` at seed 1234:
 
@@ -49,8 +49,11 @@ Absolute losses also shift between seeds. Initialization, data order, and seed-d
 | 250 | 4.709467 | 4.731229 | **4.706380** | -0.003087 | -0.024849 |
 | 500 | 4.217583 | 4.217828 | **4.179104** | -0.038479 | -0.038724 |
 | 750 | 4.110416 | 4.085800 | **4.069032** | -0.041384 | -0.016768 |
+| 1000 | 4.030036 | 3.999783 | **3.998133** | -0.031903 | -0.001650 |
+| 1250 | 3.974174 | 3.958632 | **3.943121** | -0.031053 | -0.015511 |
+| 1500 | 3.948638 | 3.919994 | **3.916097** | -0.032541 | -0.003897 |
 
-The control has a promising early trajectory, but this is not a final-budget win and says nothing yet about the added cluster branch. Its latest logged train loss is `3.991338` at step 940; that value is not validation loss. Retain the existing control and all three pending mechanism arms. No current result justifies canceling them for poor optimization performance.
+The control has a promising early trajectory, but this is not a final-budget win and says nothing yet about the added cluster branch. Retain the existing control and all three running mechanism arms. No current result justifies canceling them for poor optimization performance.
 
 ### Completed First-Seed 3B Comparison
 
@@ -89,7 +92,7 @@ Each curve contains 23 recorded validation points, without smoothing or syntheti
 3. **More accurate spectra do not automatically improve training.** K20 is more accurate than K10 in the audits, but has worse final 3B loss in this batch. K40 also failed to improve the 1B endpoint.
 4. **Lower branch frequency is not an objective by itself.** c12 reduces repeated branch calls relative to c8, yet worsens 1B loss. Loss, actual displacement, radius error, and cost must be considered together.
 5. **The theoretical scope remains limited.** This implementation uses a near-top-cluster P²GD-type direction with an approximate radial return. It is neither standard P²GD nor full-SVD PGD. Successful execution does not establish exact feasibility or stochastic convergence to Clarke-stationary points.
-6. **Cross-seed ranking is not settled.** The second-seed baseline ranking reverses, while the experimental control is still early and the three near-direction arms have not started. No hybrid replication claim is supported yet.
+6. **Cross-seed ranking is not settled.** The second-seed baseline ranking reverses, while the experimental control is still early and the three near-direction arms have just started. No hybrid replication claim is supported yet.
 
 <a id="candidates"></a>
 
@@ -223,10 +226,25 @@ Each hybrid audit contains only 52 deliberately selected samples. Zero sampled m
 
 ## Next Experiments
 
-### Current Scope: Algorithmic Changes, Not Parameter Tuning
+### Newly Submitted: Third Seed, Fixed Candidate
 
-Following the latest request, no third seed or c/gap/K sweep was submitted.
-Instead, a one-GPU structural audit **4360368** completed in **22 seconds**,
+Following the request to execute the replication plan, **4360583_0--3** now
+contains MuonSphere, SSO, MCSD-TP K10, and hybrid K10/c8 at seed **3456**.
+Each uses width 256, 3B tokens, one H20, and the unchanged protocol. It waits
+for successful completion of existing array **4346705** and short audit
+**4360582**, then runs at most four arms concurrently. No duplicate seed-2345
+jobs, tuning grid, width expansion, or new long-budget variant was submitted.
+
+The startup/capacity audit finished in **22 seconds**: 52 local tests and three
+new CUDA checks passed. Warm-trial mean gap error on 21 early samples improved
+from `8.775e-5` (K10) to `1.157e-5` (K20). Top-4 and top-6 matched on 19 near
+samples, but none contained a true cluster larger than four. Actual overflow
+matrices are still needed before inferring capacity sufficiency or launching
+top-6 long training. [Configuration, limitations, and results](cluster_seed3_3b_20261029.md).
+
+### Earlier Structural Audit
+
+Before this replication request, a one-GPU structural audit **4360368** completed in **22 seconds**,
 holding all hyperparameters fixed. On 88 stored matrices, 19 near cases were
 compared using the current cluster correction, a new gap-aware small-matrix
 correction, top-1 correction, and ambient momentum. The new rule showed no
@@ -234,46 +252,46 @@ clear local advantage. Top-1/ambient exited the near region more often but did
 not improve the average frozen-momentum descent model; no training-loss
 conclusion follows. See [algorithmic directions, derivation, and audited results](cluster_structural_directions_20261029.md).
 
-Existing long training jobs and concurrency settings are unchanged. The seed
-and tuning suggestions below remain a deferred roadmap, not active submissions.
+That audit did not change the runtime algorithm. The third seed is now queued;
+other tuning and structural long-run variants remain unsubmitted.
 
 ### Already Submitted: Finish the Matched Comparison
 
-Array **`4346705`** contains six runs at width 256, 3B tokens, seed 2345, and LR=`1.5e-2`. The state below was checked on **2026-10-29 at 15:06 HKT**. A1/A2 are complete; A3 is running; A4–A6 await the existing one-at-a-time array limit. Do not resubmit these comparisons.
+Array **`4346705`** contains six runs at width 256, 3B tokens, seed 2345, and LR=`1.5e-2`. The state below was checked on **2026-10-29 at 17:04 HKT**. A1/A2 are complete; A3--A6 are running after increasing the concurrency limit from one to four. Do not resubmit these comparisons.
 
 | Arm | Method | Job | Last known status | Question |
 |---|---|---|---|---|
 | A1 | MuonSphere | `4346705_0` | COMPLETED | Baseline at the second seed |
 | A2 | SSO | `4346705_1` | COMPLETED | Baseline at the second seed |
-| A3 | MCSD-TP K10 | `4346705_2` | RUNNING, step 940 | Matched control for the hybrid |
-| A4 | Hybrid K10/c8, top≤4 | `4346705_3` | PENDING | Does the first-seed gain replicate? |
-| A5 | No tangent correction at small gaps | `4346705_4` | PENDING | Is the gain merely due to changing direction or step scale? |
-| A6 | Top-1 correction only at small gaps | `4346705_5` | PENDING | Does multi-direction correction add value? |
+| A3 | MCSD-TP K10 | `4346705_2` | RUNNING, step 1570 | Matched control for the hybrid |
+| A4 | Hybrid K10/c8, top≤4 | `4346705_3` | RUNNING, step 20 | Does the first-seed gain replicate? |
+| A5 | No tangent correction at small gaps | `4346705_4` | RUNNING, step 20 | Is the gain merely due to changing direction or step scale? |
+| A6 | Top-1 correction only at small gaps | `4346705_5` | RUNNING, step 20 | Does multi-direction correction add value? |
 
 A4–A6 share momentum normalization, routing, c8, and radial return, with **no renormalization after direction correction**. Correction changes direction length as well as orientation; equal c does not mean equal displacement. Their trigger locations can diverge as their training trajectories separate, so this is not a counterfactual comparison at identical matrices. A5 is not PGD, and A6 is not multi-direction P²GD.
 
 All 45 CPU/CUDA tests and two four-step H20 smoke runs passed. The smoke runs did not naturally enter the small-gap branch; dedicated CUDA tests cover the direction formulas, so the smoke runs are not evidence of optimization quality.
 
-**Resources at this check:** 6 of 16 H20 GPUs were allocated: one to this user's control and five to other users. Ten GPUs were unallocated, although CPU, memory, and scheduler constraints can still affect availability. The home filesystem had about **29 GB free**. The three pending arms are limited by `JobArrayTaskLimit`, not a reported lack of GPUs. No concurrency settings or jobs were changed.
+**Resources at this check:** 6 of 16 H20 GPUs were allocated: four to this user's existing batch and two to other users. Ten GPUs were unallocated; the home filesystem had about **28 GB free**. The new third-seed array waits on dependencies, not a reported lack of GPUs. The offline audit briefly used a fifth user GPU and has released it.
 
-At the current serial limit, the control needs roughly another **15 hours**, followed by approximately 17–19 hours per pending arm: about **three more days** for the batch, excluding new queue delays and assuming previous throughput. If faster turnaround is requested, increasing only this existing array to at most four concurrent runs would use four user GPUs and leave approximately seven unallocated at this snapshot. Recheck resources before any change; no new experiments are needed merely to fill available cards.
+The current four-run batch should finish in roughly **17--19 hours**, followed by another **17--19 hours** for the third seed, excluding scheduler delays and assuming previous throughput. Dependency scheduling prevents the two four-run batches from overlapping.
 
-[Configuration and mechanism definitions](cluster_seed_mechanism_3b_20261028.md) · [Submission and verification record](../results/cluster_seed_mechanism_3b_20261028/submission.json) · [Latest status and all recorded validation points](../results/cluster_seed_mechanism_3b_20261028/status_20261029.json)
+[Configuration and mechanism definitions](cluster_seed_mechanism_3b_20261028.md) · [Original submission](../results/cluster_seed_mechanism_3b_20261028/submission.json) · [Latest status and all recorded validation points](../results/cluster_seed3_3b_20261029/status_20261029.json)
 
 ### Supplementary Experiments: Prioritized Plan
 
-The following are **proposals, not submitted jobs**. Keep the existing K10/c8 candidate fixed at width 256, 3B tokens, LR=`1.5e-2`, gap=`5e-5`, cluster tolerance=`2e-3`, block size 8, top≤4, and Frobenius momentum normalization. Existing A3–A6 must finish before retuning the candidate.
+**B1 is submitted; the offline part of B3/B4 is complete. Other long runs remain proposals.** Keep the existing K10/c8 candidate fixed at width 256, 3B tokens, LR=`1.5e-2`, gap=`5e-5`, cluster tolerance=`2e-3`, block size 8, top≤4, and Frobenius momentum normalization. Existing A3–A6 must finish before retuning the candidate.
 
 | Priority | Proposed tests | New training cost | Decision criterion |
 |---|---|---|---|
-| B1: Paired replication | Four methods at a predeclared third seed, proposed `3456`: MuonSphere, SSO, MCSD-TP K10, hybrid K10/c8 | 4 × 3B, roughly 70 H20-hours | Report all seeds and within-seed hybrid-minus-control/baseline differences. Do not select seeds after seeing their outcomes; three seeds still do not guarantee statistical significance |
+| B1: Paired replication | **Queued: `4360583_0--3`, seed 3456**, MuonSphere, SSO, MCSD-TP K10, hybrid K10/c8 | 4 × 3B, roughly 70 H20-hours | Report all seeds and within-seed hybrid-minus-control/baseline differences. Do not select seeds after seeing their outcomes; three seeds still do not guarantee statistical significance |
 | B2: Direction mechanism | First finish A4–A6. If the multi-direction gain is small or inconsistent, replicate ambient and top-1 at seed `1234` against the existing matched control/hybrid | 2 × 3B, roughly 35 H20-hours, conditional | If ambient or top-1 matches/beats the cluster method, the evidence does not isolate a multi-direction benefit. Do not change c or renormalize only one arm |
 | B3: Startup accuracy | Offline replay of the same startup matrices with K10/K20; only if warranted, add control/hybrid using K20 for steps 1–50, then K10 | Offline first; optional 2 × 3B | Reduce startup radius, gap, and direction errors before paying for training. Apply the same solver schedule to control and hybrid |
 | B4: Cluster capacity | Offline top≤4 vs. top≤6 on identical X/M/cache at K10 and block-8 | No new long run initially | Focus on the roughly 11.5% capacity-overflow near calls; measure actual direction/return changes. Audit missing directions with an offline oracle; top≤8 needs a larger auditing subspace |
 | B5: Stable evaluation | Add a fixed, common 100–200-batch validation list to future runs, while retaining the original 20-batch metric | Evaluation only | Report as a separate metric, identical across methods and seeds. No checkpoints remain for old runs, so retrospective re-evaluation has not been performed |
 | C: Width transfer | Freeze the candidate and test width 512 with both baselines and a matched control | 4 × 3B, runtime not yet calibrated | Defer until replication and mechanism results justify expansion; distinguish fixed-parameter transfer from a new tuning sweep |
 
-If returning to the replication roadmap, the **minimum proposed new training batch is B1 only**. B2 is the next two-run addition if the mechanism remains unresolved. B3/B4 should start offline, and B5 can be attached to future jobs without changing their training objective. These remain deferred while the current focus is algorithmic structure. Do not submit all rows as a grid. These costs exclude queue delays, preflight checks, and audits.
+The **only new long training batch is B1**. B2 remains conditional on the mechanism results. The B3 audit supports further startup investigation, not a training-loss claim; B4 still lacks actual overflow matrices. Neither K20-to-K10 nor top-6 long runs were added. B5 is not attached to this replication, which preserves the original evaluation protocol. Costs exclude queue delays, preflight checks, and audits.
 
 **Defer** broad gap sweeps, simultaneous changes to K/q/c, and longer token budgets. First determine whether A4 reliably improves over A3 and whether it beats A5/A6. If A5/A6 perform similarly or better, prefer the simpler implementation rather than continuing to attribute gains to multi-direction cluster correction.
 
@@ -329,6 +347,7 @@ These values use the original training-log window. They are neither full evaluat
 | [3B JSON](../results/cluster_selected_3b_20261025/final_summary_20261027.json) / [final analysis](cluster_results_20261028.md) | Configurations, Slurm completion status, full curves, and per-sample audits for 6 runs |
 | [Second-seed status, 2026-10-29](../results/cluster_seed_mechanism_3b_20261028/status_20261029.json) | Two completed baselines, one partial control, three pending arms, all recorded validation points, log hashes, timing, and resource snapshot |
 | [New six-run submission record](../results/cluster_seed_mechanism_3b_20261028/submission.json) | Job IDs, source checksums, 45 CUDA tests, and smoke-run evidence; no final losses |
+| [Third-seed submission and offline audit](cluster_seed3_3b_20261029.md) | Four queued replications, unchanged runtime hashes, updated second-seed progress, and completed paired startup/capacity diagnostics; no third-seed training results yet |
 | [Algorithms and implementation](../algorithms/current_comparison_pseudocode.md) / [environment and reproduction](../runbooks/cluster_experiments_reproduction.md) | Code entry points, actual update procedures, and runtime setup |
 
 Future records should be keyed by `(geometry, width, data/evaluation protocol, budget, method, K, q, tau, cluster_tol, c, LR, momentum, seed)`. Fill in final metrics only after confirming completion and the final validation step. Canceled, failed, partial, and queued jobs do not count as completed results. Keep training-source snapshots distinct from documentation-release commits.

@@ -123,7 +123,8 @@ class NearProjectionTests(unittest.TestCase):
     def test_six_arm_grid(self):
         launcher = ROOT / "slurm/cluster_seed_mechanism_3b_20261028.sbatch"
         rows = [subprocess.check_output(["bash", str(launcher), "--describe"], text=True,
-                                       env={**os.environ, "SLURM_ARRAY_TASK_ID": str(i)}).strip().split("\t")
+                                       env={**os.environ, "SLURM_ARRAY_TASK_ID": str(i),
+                                            "CLUSTER_EXPERIMENT_SEED": "2345"}).strip().split("\t")
                 for i in range(6)]
         self.assertEqual([r[1] for r in rows[:2]], ["muon_ball_dist", "spectral_ball_dist"])
         self.assertEqual(rows[2][2], "control")

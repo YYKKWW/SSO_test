@@ -1,0 +1,20 @@
+{
+  "snapshot": "/home/u3013198/projects/cluster-seed3-3b-20261029",
+  "parent": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028",
+  "copied_files": 1492,
+  "changed_parent_files": [
+    "scripts/test_cluster_near_projection.py",
+    "slurm/cluster_seed_mechanism_3b_20261028.sbatch"
+  ],
+  "source_manifest_sha256": "48dd5354558307797bea2265a618314e4bda9541bae21a1d634f8cbea3a31684",
+  "overlay_sha256": "a83b9c7fae3314ec778cfddb5039827cd940f6a03fd61288675d67fb35fb9d38",
+  "seed": 3456,
+  "runtime_code_unchanged": true,
+  "training_arms": [
+    "MuonSphere",
+    "SSO",
+    "MCSD-TP K10",
+    "MCSD-P2GD-type K10/c8"
+  ],
+  "concurrency": 4
+}

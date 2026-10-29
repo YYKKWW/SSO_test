@@ -1,0 +1,30 @@
+{
+  "submitted_at": "2026-10-29T17:03:05.659448",
+  "audit_job": "4360582",
+  "audit_command": [
+    "sbatch",
+    "--parsable",
+    "--chdir=/home/u3013198/projects/cluster-seed3-3b-20261029",
+    "--export=ALL,PROJECT_DIR=/home/u3013198/projects/cluster-seed3-3b-20261029,AUDIT_SOURCE=/home/u3013198/projects/cluster-selected-3b-20261025",
+    "/home/u3013198/projects/cluster-seed3-3b-20261029/slurm/cluster_startup_capacity_20261029.sbatch"
+  ],
+  "parent_array": "4346705",
+  "parent_concurrency_before": 1,
+  "parent_concurrency_after": 4,
+  "seed": 3456,
+  "tokens_per_run": 3000000000,
+  "width": 256,
+  "no_checkpoint": true,
+  "local_tests_passed": 52,
+  "main_array": "4360583",
+  "main_command": [
+    "sbatch",
+    "--parsable",
+    "--chdir=/home/u3013198/projects/cluster-seed3-3b-20261029",
+    "--array=0-3%4",
+    "--dependency=afterok:4346705:4360582",
+    "--export=ALL,PROJECT_DIR=/home/u3013198/projects/cluster-seed3-3b-20261029,CLUSTER_SMOKE=0,TRAIN_DATA_PREFIX=/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document,VALID_DATA_PREFIX=/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document,TOKENIZER_MODEL=/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+    "/home/u3013198/projects/cluster-seed3-3b-20261029/slurm/cluster_seed3_3b_20261029.sbatch"
+  ],
+  "main_concurrency": 4
+}
