@@ -13,7 +13,9 @@ from zoneinfo import ZoneInfo
 
 PROJECT = Path('/home/u3013198/projects/SSO_test-three-geometries-w256-momentum-20261005')
 CLUSTER = Path('/home/u3013198/projects/cluster-selected-3b-20261025')
-JOBS = [str(i) for i in range(4320101, 4320107)] + [str(i) for i in range(4329081, 4329087)]
+JOBS = ([str(i) for i in range(4320101, 4320107)]
+        + [str(i) for i in range(4329081, 4329087)]
+        + [str(i) for i in range(4346665, 4346669)])
 TRAIN = re.compile(
     r'iteration\s+(\d+)/\s*(\d+).*?consumed samples:\s*(\d+)'
     r'.*?elapsed time per iteration \(ms\):\s*([\d.]+).*?\| lm loss:\s*([\d.Ee+-]+)'

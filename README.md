@@ -1,9 +1,10 @@
 # MCSD Dense LM Experiments
 
 Latest results: [Frobenius sphere 3B/6B summary](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md),
-updated 2026-10-28: 60 completed Frobenius runs, plus four single-H20 3B follow-ups running
-(October 28, 00:48 HKT). The new jobs test matched beta-0.95 Nesterov baselines and
-second-seed MCSD/MCSD-TP; job IDs, frozen configurations and validation curves are in the summary.
+updated 2026-10-29: 64 completed Frobenius runs; the four Nesterov follow-ups are complete.
+Matched beta-0.95 Nesterov improves all four methods, with NorMuon-Sphere lowest at seed 1234.
+MCSD/MCSD-TP gains repeat at seed 2026; matched baselines still need that seed.
+Final losses, elapsed times, paired-seed tables and validation curves are in the summary.
 
 Algorithm guide: [Chinese pseudocode and implementation comparison](docs/experiments/OPTIMIZER_PSEUDOCODE_GUIDE.md),
 covering the four Frobenius methods plus the spectral and Stiefel baselines.

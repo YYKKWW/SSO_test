@@ -1,9 +1,9 @@
 {
-  "compiled_on": "2026-10-28",
+  "compiled_on": "2026-10-29",
   "scope": "width256 / Frobenius shape radius r=1 / 3B and 6B",
   "metric": "validation loss at final scheduled iteration, not best intermediate checkpoint",
   "counts": {
-    "completed_3b": 56,
+    "completed_3b": 60,
     "completed_6b": 4
   },
   "provenance": {
@@ -11,9 +11,10 @@
     "docs/experiments/mcsd_three_geometries/reports/followup_20261020/results.json": "27facb8d0ff91a6ca4469eeec743590094a6fbf7d26f57f8f518e3666cce0f28",
     "validation_6b_csv_sha256": "530b631a983db34655b74d44b0bc006826a73126b74596492b2f86c09243058b",
     "lr_extension_remote_checked_at": "2026-10-24T01:27:40.231840+08:00",
-    "latest_batch_checked_at": "2026-10-27T23:50:04.693168+08:00",
+    "latest_batch_checked_at": "2026-10-29T15:01:23.442148+08:00",
     "latest_batch_20261026_sha256": "9cfa9ac1407694ee8e9cc217ffee3516c4900c8b75b750e95e697051da848afb",
-    "latest_batch_20261027_sha256": "a8b6c621906e1ecdaa5e15443cce491e71173aa5310e7fef8ef266e3773429fe"
+    "latest_batch_20261027_sha256": "a8b6c621906e1ecdaa5e15443cce491e71173aa5310e7fef8ef266e3773429fe",
+    "latest_batch_20261029_sha256": "1f74f0a961604b0c97fd3f255f1d03459dab2afd7232506271add4badf2898d3"
   },
   "runs": [
     {
@@ -1311,6 +1312,126 @@
       "label": "MCSD-TP",
       "direction": "none",
       "source_snapshot": "latest_batch_20261027.json"
+    },
+    {
+      "job_id": "4346665",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:28:51",
+      "start": "2026-10-28T00:47:22",
+      "end": "2026-10-28T19:16:13",
+      "node": "SPG-7-1",
+      "method": "manifold_muonh",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "b44dd4e8d8c79d71211cfdf166c25815eb8e0a38cabe60fb97b09b7cabb69e96",
+      "log_sha256": "104a5a0861f3466266a93345272b1f8282f6f3047c62a7ebdcb57a151d37ef58",
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "tail_train_mean": 3.4349833000000003,
+      "recent_seconds_per_step": 5.363316666666666,
+      "final_val": 3.45849,
+      "label": "MuonH",
+      "direction": "none",
+      "source_snapshot": "latest_batch_20261029.json"
+    },
+    {
+      "job_id": "4346666",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:31:38",
+      "start": "2026-10-28T00:47:22",
+      "end": "2026-10-28T19:19:00",
+      "node": "SPG-7-1",
+      "method": "manifold_normuon_sphere",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 1234,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "7551841dfc8708f28374acb1b94c20e3bf5393a4dc70eb0aba70bb6cd31fe7e8",
+      "log_sha256": "6c111c5c4fbe65f6124e01ecdcc8488057df7c6583ecad10d25a942bd04549c4",
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "tail_train_mean": 3.4324879000000004,
+      "recent_seconds_per_step": 5.376073333333333,
+      "final_val": 3.455796,
+      "label": "NorMuon-Sphere",
+      "direction": "none",
+      "source_snapshot": "latest_batch_20261029.json"
+    },
+    {
+      "job_id": "4346667",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:29:31",
+      "start": "2026-10-28T00:47:22",
+      "end": "2026-10-28T19:16:53",
+      "node": "SPG-7-1",
+      "method": "manifold_mcsd",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 2026,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "4f3957db219525a7a9fb1255bba846e6cbc75c2d31c53c68f7b1a8fe3fa3e53a",
+      "log_sha256": "5b33e409fbc4f064c3eb01371e6bb99d1feda061fb8e16c87196cf4351048708",
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "tail_train_mean": 3.4308646000000005,
+      "recent_seconds_per_step": 5.361203333333333,
+      "final_val": 3.46419,
+      "label": "MCSD",
+      "direction": "none",
+      "source_snapshot": "latest_batch_20261029.json"
+    },
+    {
+      "job_id": "4346668",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "18:38:17",
+      "start": "2026-10-28T00:47:22",
+      "end": "2026-10-28T19:25:39",
+      "node": "SPG-7-1",
+      "method": "manifold_mcsd_tp",
+      "lr": 0.01,
+      "beta": 0.95,
+      "nesterov": true,
+      "seed": 2026,
+      "tokens": 3000000000,
+      "width": 256,
+      "final_step": 11445,
+      "source_commit": "fc15600a2898d1748c8b34fe8d3945b1036f03ab",
+      "config_sha256": "d942bb3382402baf503750e2d08b6241d14f2f6d75bd298298d80b3f1876f62e",
+      "log_sha256": "201e2585723ba7131876d87a93fdce7cc365a16367f489a1d6e341dc9478afc6",
+      "health": {
+        "skipped": 0,
+        "nan": 0
+      },
+      "tail_train_mean": 3.4301554000000003,
+      "recent_seconds_per_step": 5.414546666666666,
+      "final_val": 3.463603,
+      "label": "MCSD-TP",
+      "direction": "none",
+      "source_snapshot": "latest_batch_20261029.json"
     }
   ]
 }

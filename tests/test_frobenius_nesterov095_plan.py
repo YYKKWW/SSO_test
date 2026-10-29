@@ -1,6 +1,7 @@
 """Validate the four authorized follow-ups without submitting GPU jobs."""
 
 import json
+import hashlib
 import unittest
 from pathlib import Path
 
@@ -32,11 +33,13 @@ class NesterovPlanTests(unittest.TestCase):
         for plan in self.plans:
             self.assertEqual([row["lane"] for row in plan], [0, 1])
 
-    def test_no_completed_duplicates(self):
+    def test_no_completed_duplicates_outside_this_batch(self):
         ledger = json.loads((ROOT / "docs/experiments/frobenius_3b_6b/results.json").read_text())
+        snapshot = json.loads((ROOT / "docs/experiments/frobenius_3b_6b/nesterov095_submission_20261028.json").read_text())
+        submitted = {row["job_id"] for row in snapshot["runs"]}
         keys = ("method", "lr", "beta", "nesterov", "seed", "tokens")
         completed = {tuple(row[key] for key in keys) for row in ledger["runs"]
-                     if row["direction"] == "none"}
+                     if row["direction"] == "none" and row["job_id"] not in submitted}
         planned = {tuple(row[key] for key in keys) for row in self.rows}
         self.assertFalse(planned & completed)
 
@@ -67,6 +70,29 @@ class NesterovPlanTests(unittest.TestCase):
             is_mcsd = spec["method"] in ("manifold_mcsd", "manifold_mcsd_tp")
             flag = "manifold_mcsd_nesterov" if is_mcsd else "manifold_baseline_nesterov"
             self.assertEqual(args[flag], "True")
+
+    def test_completed_results_preserve_submitted_configuration(self):
+        folder = ROOT / "docs/experiments/frobenius_3b_6b"
+        startup = json.loads((folder / "nesterov095_submission_20261028.json").read_text())
+        raw = (folder / "latest_batch_20261029.json").read_bytes()
+        final = {r["job_id"]: r for r in json.loads(raw)["runs"]}
+        ledger = json.loads((folder / "results.json").read_text())
+        recorded = {r["job_id"]: r for r in ledger["runs"]}
+        self.assertEqual(len(recorded), len(ledger["runs"]))
+        self.assertEqual(ledger["provenance"]["latest_batch_20261029_sha256"],
+                         hashlib.sha256(raw).hexdigest())
+        for submitted in startup["runs"]:
+            run = final[submitted["job_id"]]
+            self.assertEqual(run["config_sha256"], submitted["config_sha256"])
+            self.assertEqual(run["optimizer_source_hashes"], submitted["optimizer_source_hashes"])
+            self.assertEqual((run["state"], run["exit_code"]), ("COMPLETED", "0:0"))
+            self.assertEqual(run["completion"]["exit_code"], 0)
+            self.assertEqual(run["health"], {"nan": 0, "skipped": 0})
+            self.assertEqual([p["step"] for p in run["val"]], list(range(200, 11401, 200)) + [11445])
+            self.assertTrue(run["last_val"]["final"])
+            self.assertEqual(run["last_val"]["step"], 11445)
+            self.assertEqual(run["last_val"]["loss"], run["final_val"])
+            self.assertEqual(recorded[run["job_id"]]["final_val"], run["final_val"])
 
 
 if __name__ == "__main__":

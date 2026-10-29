@@ -1,16 +1,17 @@
 # Frobenius Sphere: 3B / 6B Experiment Summary
 
-**Updated October 28, 2026.** Completed results verified October 27 at 23:50 HKT; job status checked October 28 at 00:48 HKT.
+**Updated October 29, 2026.** Results and queue status verified at 15:01 HKT.
 Width 256, 28 layers, Frobenius sphere, fixed `r=1`.
 
 | Completed 3B | Completed 6B | Running | Waiting for dependencies |
 |:---:|:---:|:---:|:---:|
-| **56 runs** | **4 runs** | **4 runs** | **0 runs** |
+| **60 runs** | **4 runs** | **0 runs** | **0 runs** |
 
 [Latest results](#latest) · [Momentum and LR](#comparisons) · [6B curves](#six-b) · [Next experiments](#next) · [Run ledger](#ledger)
 
 This is a verified snapshot, not a live dashboard. **Completed results, partial measurements, and submitted jobs are reported separately.** Lower loss is better.
 The older width-384 experiments with initialization-energy-matched radii are excluded from the current comparison.
+The counts above cover this Frobenius study only. A separate spectral-cluster array still has one running task and three pending tasks; it is not included here.
 
 Implementation reference: [optimizer pseudocode and code comparison (Chinese)](OPTIMIZER_PSEUDOCODE_GUIDE.md).
 
@@ -18,18 +19,23 @@ Implementation reference: [optimizer pseudocode and code comparison (Chinese)](O
 
 ## Latest Results
 
-**New finding: Nesterov with beta=0.95 improves MCSD and MCSD-TP.** The table lists each method's best tested configuration at seed 1234 after a full 3B-token run. Momentum settings differ, so this is not a matched ablation or evidence of statistical significance.
+**The matched baselines are now complete: NorMuon-Sphere has the lowest loss.** All four methods below use the same `LR=0.010 / beta=0.95 Nesterov / seed=1234 / 3B` protocol. These are also their best tested seed-1234 configurations, but only one LR has been tested with 0.95 Nesterov. This is not evidence of globally optimal tuning or statistical significance.
 
 | Method | LR | Momentum | Final val. loss | Single-GPU elapsed time | Job |
 |---|---:|---|---:|---|---|
-| **MCSD-TP** | 0.010 | **0.95 Nesterov** | **3.461153** | 18:33:09 | 4329086 |
-| MCSD | 0.010 | **0.95 Nesterov** | **3.461687** | 18:28:58 | 4329085 |
-| NorMuon-Sphere | 0.010 | 0.95 EMA | 3.463500 | 18:25:14 | 4320102 |
-| MuonH | 0.015 | 0.9 EMA | 3.464883 | 18:21:47 | 4255794 |
+| **NorMuon-Sphere** | 0.010 | 0.95 Nesterov | **3.455796** | 18:31:38 | 4346666 |
+| MuonH | 0.010 | 0.95 Nesterov | 3.458490 | 18:28:51 | 4346665 |
+| MCSD-TP | 0.010 | 0.95 Nesterov | 3.461153 | 18:33:09 | 4329086 |
+| MCSD | 0.010 | 0.95 Nesterov | 3.461687 | 18:28:58 | 4329085 |
 
-MCSD-TP and MCSD are **0.002347 and 0.001813** below the best tested NorMuon-Sphere result, respectively.
-However, neither baseline has a completed `0.95 Nesterov` run, and each new MCSD configuration has only one completed seed. A consistent advantage over the baselines is therefore not established.
-Four follow-ups addressing these gaps started on October 28; see [running experiments](#next).
+MCSD-TP and MCSD are **0.005357 and 0.005891 above NorMuon-Sphere**, respectively; their gaps to MuonH are +0.002663 and +0.003197.
+The earlier apparent MCSD advantage compared its new Nesterov setting against baselines with different momentum settings. That advantage does not survive this matched comparison.
+
+![Four methods with matched Nesterov: full validation trajectory and last 0.5B tokens](frobenius_3b_6b/nesterov095_matched_20261029.png)
+
+[Vector figure](frobenius_3b_6b/nesterov095_matched_20261029.svg) · [Verified curves, configurations, and completion records](frobenius_3b_6b/latest_batch_20261029.json)
+
+Each curve contains 58 raw validation points. The late-stage panel retains the evaluation fluctuations; reported final losses are at step 11445, not the minimum along the curve.
 
 ### Matched Nesterov Ablation
 
@@ -39,28 +45,39 @@ Fix `LR=0.010 / beta=0.95 / seed=1234 / 3B` and change only the EMA/Nesterov gra
 |---|---:|---:|---:|
 | MCSD | 3.467720 | **3.461687** | **-0.006033** |
 | MCSD-TP | 3.467858 | **3.461153** | **-0.006705** |
-| MuonH | 3.464988 | Running: 4346665 | Pending |
-| NorMuon-Sphere | 3.463500 | Running: 4346666 | Pending |
+| MuonH | 3.464988 | **3.458490** | **-0.006498** |
+| NorMuon-Sphere | 3.463500 | **3.455796** | **-0.007704** |
 
-![MCSD and MCSD-TP validation curves: EMA versus Nesterov at matched beta and LR](frobenius_3b_6b/nesterov095_20261027.png)
-
-[Vector figure](frobenius_3b_6b/nesterov095_20261027.svg) · [New curves and configurations](frobenius_3b_6b/latest_batch_20261027.json) · [EMA reference curves](frobenius_3b_6b/matched_ema095_curves.json)
+Nesterov improves **all four methods**, not only MCSD. The largest observed gain in this matched seed is NorMuon-Sphere's 0.007704.
+[Earlier MCSD/MCSD-TP EMA-versus-Nesterov figure](frobenius_3b_6b/nesterov095_20261027.png) · [EMA reference curves](frobenius_3b_6b/matched_ema095_curves.json)
 
 Here, Nesterov means the **Muon-style gradient combination**, not manifold extrapolation with a new gradient evaluation at an extrapolated point.
 The earlier lack of improvement with beta=0.9 applies only to the tested configurations, not to all Nesterov variants.
 
-### Other Newly Completed Runs
+### Latest Four Completed Runs
 
 | Job | Method | Budget / seed | LR / momentum | Final val. loss | Single-GPU elapsed time |
 |---|---|---|---|---:|---|
-| 4329083 | MCSD-TP | 3B / 1234 | 0.008 / 0.95 EMA | 3.468235 | 18:38:52 |
-| 4329084 | MuonH | 3B / 1234 | 0.008 / 0.95 EMA | 3.465584 | 18:24:07 |
-| 4320105 | MCSD | 6B / 2026 | 0.010 / 0.95 EMA | 3.428305 | 36:48:51 |
-| 4320106 | NorMuon-Sphere | 6B / 2026 | 0.015 / 0.9 Nesterov | 3.414900 | 36:57:26 |
+| 4346665 | MuonH | 3B / 1234 | 0.010 / 0.95 Nesterov | 3.458490 | 18:28:51 |
+| 4346666 | NorMuon-Sphere | 3B / 1234 | 0.010 / 0.95 Nesterov | 3.455796 | 18:31:38 |
+| 4346667 | MCSD | 3B / 2026 | 0.010 / 0.95 Nesterov | 3.464190 | 18:29:31 |
+| 4346668 | MCSD-TP | 3B / 2026 | 0.010 / 0.95 Nesterov | 3.463603 | 18:38:17 |
 
-For all four methods, `0.95 EMA / LR=0.008` is worse than the corresponding 0.010 result.
-All six newly completed jobs finished with `COMPLETED / exit 0:0`, no NaNs, and no skipped iterations; final validation was at step 11445 or 22889.
-The account queue was empty at the October 27 check. Four single-GPU 3B follow-ups started on October 28, with approximately 29 GB of disk space remaining. Checkpoint saving is disabled; no new 6B jobs were submitted.
+All four finished on October 28 with `COMPLETED / exit 0:0`, no NaNs, and no skipped iterations. Each reached final validation at step 11445.
+The submitted configuration hashes and optimizer-source hashes match the recorded startup configurations. Checkpoint saving was disabled. Disk space remains approximately 29 GB; this update submits no new jobs.
+
+### Nesterov Replication Across Seeds
+
+Common settings: `LR=0.010 / beta=0.95 / 3B`. The final column compares Nesterov with the **same method and seed-2026 EMA control**.
+
+| Method | Nesterov, seed 1234 | Nesterov, seed 2026 | Two-seed mean | Seed-2026 Nesterov minus EMA |
+|---|---:|---:|---:|---:|
+| MCSD | 3.461687 | 3.464190 | 3.462939 | -0.009900 |
+| MCSD-TP | 3.461153 | 3.463603 | 3.462378 | -0.009391 |
+
+The corresponding seed-2026 EMA losses are 3.474090 (job 4255801) and 3.472994 (job 4255803).
+The Nesterov improvement is reproduced for both methods at both seeds. MCSD-TP is slightly lower than MCSD at both seeds, by 0.000534 and 0.000587, but two seeds do not establish a statistically reliable advantage.
+**The matched Nesterov baselines still lack seed 2026.** Their single-seed losses must not be compared with these two-seed means as though the comparison were paired.
 
 <details>
 <summary><strong>Matched EMA references and LR=0.008 curves</strong></summary>
@@ -78,9 +95,9 @@ Each figure compares only the configurations stated in that figure. Historical s
 
 ## Key Findings
 
-1. **Prioritize replication of MCSD/MCSD-TP at `0.95 Nesterov, LR=0.010`.** Both outperform the tested baselines at one seed, but matched baselines and replication are still needed.
-2. **Beta interacts with the EMA/Nesterov choice.** At LR=0.010, beta=0.9 Nesterov is worse than matched EMA for MCSD/MCSD-TP, whereas beta=0.95 Nesterov is better.
-3. **The baselines retain their advantage in the earlier EMA and frozen-configuration comparisons.** Preserve these results; do not average seeds from different configurations.
+1. **The completed matched Nesterov comparison favors NorMuon-Sphere, followed by MuonH, MCSD-TP, and MCSD.** The earlier lead over differently configured baselines no longer holds.
+2. **Nesterov with beta=0.95 improves every method at seed 1234, and improves MCSD/MCSD-TP at seed 2026 as well.** This is evidence for a useful momentum setting, not an MCSD-specific gain or a proof of manifold acceleration.
+3. **TP has a small, repeatable direction of improvement within the new Nesterov pair.** Its loss is lower than MCSD at both seeds, but the differences are small and the matched baselines still lack their second seed. Complete those two baseline runs before drawing multi-seed method rankings.
 4. **The older MCSD configuration does not overtake NorMuon-Sphere at 6B.** Two-seed means are 3.429691 and 3.420852, respectively. The new Nesterov configuration has not been tested at 6B, so its budget transfer remains unknown.
 5. **Further LR=0.008 and unit-F tests are lower priority.** With 0.95 EMA, LR=0.010 beats 0.008 for every method; none of the four unit-F settings beats the best standard MCSD result.
 
@@ -120,7 +137,7 @@ MCSD-unitF is a separate ablation. Baseline-specific direction normalization rem
 </details>
 
 <details>
-<summary><strong>Coverage: what the 60 completed runs test</strong></summary>
+<summary><strong>Coverage: what the 64 completed runs test</strong></summary>
 
 | Experiment group | Configurations | Completed | Question |
 |---|---|---:|---|
@@ -133,7 +150,7 @@ MCSD-unitF is a separate ablation. Baseline-specific direction normalization rem
 | Matched momentum baselines | MuonH/NorMuon-Sphere; 0.95 EMA; LR=0.010; seed=1234 | 2 | Fully matched momentum and LR against MCSD/MCSD-TP |
 | Nesterov LR extension | MCSD; 0.9 Nesterov; additional LR=0.007/0.012 | 2 | Whether the original LR obscured Nesterov performance |
 | 0.95 EMA LR refinement | Four methods; additional LR=0.008 | 4 | Search below 0.010 |
-| 0.95 Nesterov | MCSD/MCSD-TP; LR=0.010; seed=1234 | 2 | Gradient combination at fixed beta |
+| 0.95 Nesterov | Four methods at seed=1234; MCSD/MCSD-TP also at seed=2026; LR=0.010 | 6 | Matched gradient-combination comparison and MCSD replication |
 | 6B budget transfer | MCSD/NorMuon-Sphere; seeds 1234/2026 | 4 | Curves and rankings at a longer budget |
 
 The 12 LR-extension and unit-F jobs were rechecked on October 24: all completed with exit code 0:0 and final validation at step 11445. RUNNING/PENDING labels in the October 8 report refer to that historical snapshot.
@@ -167,8 +184,8 @@ This compares method-specific configurations; changing both momentum and LR is n
 |---|---:|---:|---:|---|
 | MCSD | 3.467720 | 3.473145 | 3.478060 | **3.461687** |
 | MCSD-TP | 3.467858 | 3.474456 | 3.478570 | **3.461153** |
-| MuonH | 3.464988 | 3.471362 | 3.476769 | Running: 4346665 |
-| NorMuon-Sphere | 3.463500 | 3.470496 | 3.476793 | Running: 4346666 |
+| MuonH | 3.464988 | 3.471362 | 3.476769 | **3.458490** |
+| NorMuon-Sphere | 3.463500 | 3.470496 | 3.476793 | **3.455796** |
 
 The original 0.95 EMA baseline jobs 4288197/4288198 were cancelled without full 3B results.
 Replacement jobs 4320101/4320102 completed, giving fully matched results for all four methods in that column.
@@ -231,8 +248,8 @@ These configurations were selected from the original-momentum LR grid and held f
 
 MCSD-TP does not consistently outperform MCSD across these two seeds. With only two seeds, the comparison is descriptive.
 
-The new MCSD/MCSD-TP `0.95 Nesterov / LR=0.010` and NorMuon-Sphere `0.95 EMA / LR=0.010` configurations are not included here.
-They lack completed second-seed results. Replacing only the seed-1234 value would incorrectly average different configurations.
+The new MCSD/MCSD-TP `0.95 Nesterov / LR=0.010` configurations are reported separately in [the latest results](#latest), now with both seeds completed.
+NorMuon-Sphere `0.95 EMA / LR=0.010` still lacks its second seed. Do not replace values in this historical table with results from different configurations.
 
 <a id="six-b"></a>
 
@@ -258,45 +275,45 @@ This compares the earlier method-specific configurations, not an optimizer-only 
 
 The figure shows only seed 1234: [6B validation CSV](frobenius_3b_6b/validation_6b.csv), with 115 unsmoothed points per run.
 NorMuon-Sphere is lower at 94/115 matched validation points. The gap is 0.011603 at step 12000 and 0.004273 at the endpoint.
-The complete 115-point curves for seed 2026 are in the [latest result snapshot](frobenius_3b_6b/latest_batch_20261027.json).
+The complete 115-point curves for seed 2026 are in the [latest result snapshot](frobenius_3b_6b/latest_batch_20261029.json).
 **The new 0.95 Nesterov MCSD/MCSD-TP configurations have not been tested at 6B. Neither MuonH nor MCSD-TP has a completed 6B run.**
 
 <a id="next"></a>
 
 ## Next Experiments
 
-**A1-A4 are running in the recorded snapshot; B/C are proposals, not submitted jobs.**
-The six-run proposal from October 26 was superseded by the new results. The priority is now to validate `0.95 Nesterov` before expanding the grid.
+**A1-A4 are complete; B/C are proposals, not submitted jobs.**
+The immediate gap is now the two matched baseline runs at seed 2026, followed by a balanced local LR search. Do not advance only MCSD to 6B on the basis of the earlier unmatched ranking.
 
-### Running: Four 3B Follow-Ups
+### Completed: Four 3B Follow-Ups
 
 Common settings: `width=256 / r=1 / LR=0.010 / beta=0.95 Nesterov / 3B`. Only the method or seed varies.
 
 | ID | Method | Seed | Job | Status | Matched reference and purpose |
 |---|---|---:|---|---|---|
-| A1 | MuonH | 1234 | **4346665** | RUNNING | Enable only Nesterov relative to EMA job 4320101; complete the matched baseline |
-| A2 | NorMuon-Sphere | 1234 | **4346666** | RUNNING | Enable only Nesterov relative to EMA job 4320102; complete the matched baseline |
-| A3 | MCSD | 2026 | **4346667** | RUNNING | Change only the seed relative to Nesterov job 4329085; also compare with same-seed EMA job 4255801 |
-| A4 | MCSD-TP | 2026 | **4346668** | RUNNING | Change only the seed relative to Nesterov job 4329086; also compare with same-seed EMA job 4255803 |
+| A1 | MuonH | 1234 | **4346665** | COMPLETED | Enable only Nesterov relative to EMA job 4320101; complete the matched baseline |
+| A2 | NorMuon-Sphere | 1234 | **4346666** | COMPLETED | Enable only Nesterov relative to EMA job 4320102; complete the matched baseline |
+| A3 | MCSD | 2026 | **4346667** | COMPLETED | Change only the seed relative to Nesterov job 4329085; also compare with same-seed EMA job 4255801 |
+| A4 | MCSD-TP | 2026 | **4346668** | COMPLETED | Change only the seed relative to Nesterov job 4329086; also compare with same-seed EMA job 4255803 |
 
-All four started on SPG-7-1 at **00:47 HKT on October 28**. At the recorded check, each had logged its first training step with no NaNs or skipped iterations; no validation results were available yet.
-Each run uses one H20, starts from initialization, trains for 11445 steps, and saves no checkpoints. Total concurrency is four GPUs; six were unallocated before submission.
-Training uses frozen commit `fc15600a2898d1748c8b34fe8d3945b1036f03ab`. Source-file hashes match the respective references exactly; local exploratory optimizer changes were not uploaded.
+All four started on SPG-7-1 at **00:47 HKT on October 28** and finished between **19:16 and 19:25 HKT that day**.
+Each used one H20, started from initialization, trained for 11445 steps, and saved no checkpoints. Summed runtime was **74 h 08 min 17 s (74.14 GPU-hours)** across four concurrent jobs.
+Training used frozen commit `fc15600a2898d1748c8b34fe8d3945b1036f03ab`. Source-file hashes match the respective references exactly; local exploratory optimizer changes were not uploaded.
 
 [Submission register, resolved configurations, and startup snapshot](frobenius_3b_6b/nesterov095_submission_20261028.json) ·
+[Verified final results](frobenius_3b_6b/latest_batch_20261029.json) ·
 [Baseline plan](../../configs/manifold/frobenius_nesterov095_baselines_20261028.json) ·
 [Second-seed plan](../../configs/manifold/frobenius_nesterov095_seed2026_20261028.json)
 
-Based on previous 3B runs, the estimate at submission was about 18.5 H20 GPU-hours per run, or **74 GPU-hours** in total, with completion around 19:00-20:00 HKT on October 28 if throughput remains comparable. Actual completion must be verified from the logs.
-After A1-A4, seed-2026 runs for A1/A2 are still needed for a complete four-method, two-seed matched comparison.
+Seed-2026 runs for A1/A2 are still needed for a complete four-method, two-seed matched comparison.
 Existing baseline EMA runs or older Nesterov runs at LR=0.015 cannot substitute for them.
 
 ### Follow-Ups After A1-A4
 
 | Priority | Configuration / scale | Runs | Purpose and prerequisite |
 |---|---|---:|---|
-| B1: complete replication | MuonH/NorMuon-Sphere; 0.95 Nesterov; LR=0.010; seed=2026; 3B | 2 | Complete two paired seeds after A1-A4; retain and report both regardless of the initial ranking |
-| B2: local LR grid | Four methods; 0.95 Nesterov; seed=1234; additional LR=0.008/0.012 | 8 | After A1/A2, provide comparable tuning opportunities; existing EMA runs cannot be reused. Test 0.012 for all four first, then 0.008 |
+| B1: complete replication | MuonH/NorMuon-Sphere; 0.95 Nesterov; LR=0.010; seed=2026; 3B | 2 | Highest priority: complete the paired-seed comparison; retain and report both regardless of ranking |
+| B2: local LR grid | Four methods; 0.95 Nesterov; seed=1234; additional LR=0.008/0.012 | 8 | Only 0.010 has been tested in this mode. Test 0.012 for all four first, then 0.008; existing EMA results cannot replace these runs |
 | B3: robustness | Four frozen configurations; a third prespecified paired seed | 4 | Report paired differences, means, and standard deviations rather than only the best run |
 | C1: new 6B comparison | Four configurations frozen after 3B; fresh initialization; shared seed and data order | 4 | Follow 3B replication. A two-method pilot with MCSD-TP and the strongest 3B baseline does not replace the four-method comparison |
 | C2: scale transfer | Width384/512; fixed shape-radius, data, and auxiliary AdamW protocol; transfer hyperparameters first | Staged | Separate fixed-configuration transfer from retuning. Multiple scales and budgets are needed before discussing scaling laws |
@@ -331,7 +348,7 @@ separate training time from audit overhead, and reserve evaluation data independ
 report any revised evaluation protocol separately. Current evidence does not establish universal superiority across geometries or a scaling law.
 
 <details>
-<summary><strong>Separate study: six completed spectral-cluster 3B runs, excluded from the 60-run total</strong></summary>
+<summary><strong>Separate study: six completed spectral-cluster 3B runs, excluded from the 64-run total</strong></summary>
 
 This batch uses width 256, sequence length 4096, 5723 steps, LR=0.015, and seed=1234.
 The Frobenius runs use sequence length 2048 and 11445 steps, so absolute losses should not be pooled across the two protocols.
@@ -351,6 +368,7 @@ More subspace iterations did not improve loss in this single-seed comparison; gr
 The cluster implementation uses an **approximate radial return in both branches**, without online accuracy certification or automatic full-SVD fallback.
 The legacy environment variable `exact_svd_gap_only` does not make this an exact-SVD PGD theory-validation experiment.
 Runtime configurations and status are stored under `separate_spectral_study` in the latest result snapshot. This section only reports results; it does not modify jobs.
+The account queue also contains the separate seed-2 array `4346705`: task `_2` is running and tasks `_3` to `_5` are pending at the check time. Its partial results are not included in the Frobenius ledger; no changes were made to that array.
 
 </details>
 
@@ -359,12 +377,12 @@ Runtime configurations and status are stored under `separate_spectral_study` in 
 ## Provenance and Run Ledger
 
 [The compact results ledger](frobenius_3b_6b/results.json) records configurations, final losses,
-elapsed times, and available log hashes for 60 completed jobs. Large raw logs and model data are not uploaded with this page; source snapshots and checksums are retained in the ledger.
+elapsed times, and available log hashes for 64 completed jobs. Large raw logs and model data are not uploaded with this page; source snapshots and checksums are retained in the ledger.
 Training used frozen H20 snapshots. Documentation commits are not training-code commits.
 The table below is deduplicated by Job ID. `unitF=Yes` denotes only the additional MCSD direction-normalization ablation.
 
 <details>
-<summary>Expand: all 60 completed runs</summary>
+<summary>Expand: all 64 completed runs</summary>
 
 | Job | Method | Budget | LR | beta / mode | Seed | unitF | Final val. loss | Wall time |
 |---|---|---|---:|---|---:|---|---:|---|
@@ -428,6 +446,10 @@ The table below is deduplicated by Job ID. `unitF=Yes` denotes only the addition
 | 4329084 | MuonH | 3B | 0.008 | 0.95 EMA | 1234 | No | 3.465584 | 18:24:07 |
 | 4329085 | MCSD | 3B | 0.010 | 0.95 Nesterov | 1234 | No | 3.461687 | 18:28:58 |
 | 4329086 | MCSD-TP | 3B | 0.010 | 0.95 Nesterov | 1234 | No | 3.461153 | 18:33:09 |
+| 4346665 | MuonH | 3B | 0.010 | 0.95 Nesterov | 1234 | No | 3.458490 | 18:28:51 |
+| 4346666 | NorMuon-Sphere | 3B | 0.010 | 0.95 Nesterov | 1234 | No | 3.455796 | 18:31:38 |
+| 4346667 | MCSD | 3B | 0.010 | 0.95 Nesterov | 2026 | No | 3.464190 | 18:29:31 |
+| 4346668 | MCSD-TP | 3B | 0.010 | 0.95 Nesterov | 2026 | No | 3.463603 | 18:38:17 |
 
 The `1-` prefix in wall time denotes one additional day. Every listed loss is from the final scheduled validation step.
 
