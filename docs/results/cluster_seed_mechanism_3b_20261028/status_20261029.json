@@ -1,0 +1,781 @@
+{
+  "checked_at": "2026-10-29T15:06:40.029977+08:00",
+  "array": "4346705",
+  "source": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028",
+  "target_steps": 5723,
+  "accounting": {
+    "4346705_0": {
+      "JobID": "4346705_0",
+      "State": "COMPLETED",
+      "Elapsed": "16:35:43",
+      "Start": "2026-10-28T01:07:22",
+      "End": "2026-10-28T17:43:05",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    "4346705_0.batch": {
+      "JobID": "4346705_0.batch",
+      "State": "COMPLETED",
+      "Elapsed": "16:35:43",
+      "Start": "2026-10-28T01:07:22",
+      "End": "2026-10-28T17:43:05",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    "4346705_0.extern": {
+      "JobID": "4346705_0.extern",
+      "State": "COMPLETED",
+      "Elapsed": "16:35:43",
+      "Start": "2026-10-28T01:07:22",
+      "End": "2026-10-28T17:43:05",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    "4346705_1": {
+      "JobID": "4346705_1",
+      "State": "COMPLETED",
+      "Elapsed": "18:28:52",
+      "Start": "2026-10-28T17:43:16",
+      "End": "2026-10-29T12:12:08",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    "4346705_1.batch": {
+      "JobID": "4346705_1.batch",
+      "State": "COMPLETED",
+      "Elapsed": "18:28:52",
+      "Start": "2026-10-28T17:43:16",
+      "End": "2026-10-29T12:12:08",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    "4346705_1.extern": {
+      "JobID": "4346705_1.extern",
+      "State": "COMPLETED",
+      "Elapsed": "18:28:52",
+      "Start": "2026-10-28T17:43:16",
+      "End": "2026-10-29T12:12:08",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    "4346705_2": {
+      "JobID": "4346705_2",
+      "State": "RUNNING",
+      "Elapsed": "02:54:26",
+      "Start": "2026-10-29T12:12:13",
+      "End": "Unknown",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    "4346705_2.batch": {
+      "JobID": "4346705_2.batch",
+      "State": "RUNNING",
+      "Elapsed": "02:54:26",
+      "Start": "2026-10-29T12:12:13",
+      "End": "Unknown",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    "4346705_2.extern": {
+      "JobID": "4346705_2.extern",
+      "State": "RUNNING",
+      "Elapsed": "02:54:26",
+      "Start": "2026-10-29T12:12:13",
+      "End": "Unknown",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    "4346705_[3-5%1]": {
+      "JobID": "4346705_[3-5%1]",
+      "State": "PENDING",
+      "Elapsed": "00:00:00",
+      "Start": "Unknown",
+      "End": "Unknown",
+      "ExitCode": "0:0",
+      "NodeList": "None assigned"
+    }
+  },
+  "user_queue": [
+    "4346705_[3-5%1]|w256_cluster_seed2_3b|PENDING|0:00|1|(JobArrayTaskLimit)",
+    "4346705_2|w256_cluster_seed2_3b|RUNNING|2:54:27|1|SPG-7-1"
+  ],
+  "nodes": [
+    {
+      "name": "SPG-7-1",
+      "state": "MIXED",
+      "gpus_configured": 8,
+      "gpus_allocated": 1
+    },
+    {
+      "name": "SPG-7-2",
+      "state": "MIXED",
+      "gpus_configured": 8,
+      "gpus_allocated": 5
+    }
+  ],
+  "home_storage": "Filesystem                   Size  Used Avail Use% Mounted on\nhpc2021-fs2:/home2/u3013198  100G   72G   29G  72% /home/u3013198",
+  "rows": [
+    {
+      "index": 0,
+      "job_id": "4346705_0",
+      "method": "MuonSphere",
+      "accounting": {
+        "JobID": "4346705_0",
+        "State": "COMPLETED",
+        "Elapsed": "16:35:43",
+        "Start": "2026-10-28T01:07:22",
+        "End": "2026-10-28T17:43:05",
+        "ExitCode": "0:0",
+        "NodeList": "SPG-7-1"
+      },
+      "training_completed": true,
+      "completed": true,
+      "config": {
+        "DATA_CACHE_PATH": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/results/4346705_0/data_cache",
+        "EVAL_INTERVAL": "250",
+        "EVAL_ITERS": "20",
+        "GLOBAL_BATCH": "128",
+        "HEAD_DIM": "128",
+        "LR": "1.5e-2",
+        "LR_DECAY_ITERS": "5723",
+        "LR_WARMUP_ITERS": "250",
+        "MEGATRON_PATH": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/Megatron-LM",
+        "MICRO_BATCH": "4",
+        "MIN_LR": "1.5e-3",
+        "MUON_BALL_MSIGN_STEPS": "8",
+        "MUON_BALL_POWER_ITERATION_STEPS": "10",
+        "NUM_LAYERS": "28",
+        "NVIDIA_TF32_OVERRIDE": "0",
+        "OPTIMIZER": "muon_ball_dist",
+        "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/Megatron-LM/pretrain_gpt.py",
+        "SEED": "2345",
+        "SEQ_LENGTH": "4096",
+        "SLURM_ARRAY_TASK_ID": "0",
+        "SLURM_JOB_ID": "4346706",
+        "SPECTRAL_BALL_POWER_ITERATION_STEPS": "10",
+        "SPECTRAL_BALL_SOLVER_MAX_ITERATIONS": "20",
+        "SPECTRAL_BALL_SOLVER_TOLERANCE_F": "2e-4",
+        "SPEL_PGD_BRANCH_MODE": "auto",
+        "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+        "SPEL_PGD_CLUSTER_ITERATIONS": "10",
+        "SPEL_PGD_CLUSTER_NEAR_PROJECTION": "cone",
+        "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+        "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-3",
+        "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+        "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+        "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+        "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+        "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+        "SPEL_PGD_GAP_THRESHOLD_REL": "5e-5",
+        "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+        "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+        "SPEL_PGD_MSIGN_STEPS": "8",
+        "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+        "SPEL_PGD_PGD_LR_SCALE": "8.0",
+        "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+        "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+        "SPEL_PGD_RADIAL_CLUSTER_MODE": "none",
+        "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+        "SPEL_PGD_WARM_START_UV": "0",
+        "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "TRAIN_ITER": "5723",
+        "TRAIN_TOKENS": "3000000000",
+        "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "WEIGHT_DECAY": "0.1",
+        "WIDTH": "256",
+        "actual_return": "reference_hard_pre_retraction",
+        "actual_spectral_solver": "reference_bf16_pi10",
+        "automatic_full_svd_fallback": false,
+        "cluster_options_active": false,
+        "cuda_version": "12.4",
+        "data_protocol": "3b_budget_same_indexed_source_as_4319977_fresh_training",
+        "device": "NVIDIA H20",
+        "initialization": "from_scratch_no_checkpoint_resume",
+        "matched_frobenius_length": false,
+        "momentum_normalization": "reference_optimizer",
+        "near_branch_mapping": "not_applicable",
+        "offline_audit": "not_instrumented",
+        "online_accuracy_gate": false,
+        "paired_seed": "2345",
+        "post_cone_normalization": false,
+        "processed_tokens": 3000500224,
+        "selection_reference_array": "4329039",
+        "smoke": false,
+        "torch_version": "2.6.0+cu124"
+      },
+      "latest_train": {
+        "step": 5720,
+        "target": 5723,
+        "fields": {
+          "consumed samples": "732160",
+          "elapsed time per iteration (ms)": "10122.2",
+          "throughput per GPU (TFLOP/s/GPU)": "24.5",
+          "learning rate": "1.500010E-03",
+          "global batch size": "128",
+          "lm loss": "3.428917E+00",
+          "loss scale": "1.0",
+          "grad norm": "0.465",
+          "num zeros": "17478960.0",
+          "params norm": "887.125",
+          "number of skipped iterations": "0",
+          "number of nan iterations": "0"
+        },
+        "train_loss": 3.428917,
+        "step_ms": 10122.2,
+        "nan": 0,
+        "skipped": 0
+      },
+      "last_ten_mean_step_seconds": 10.1145,
+      "maximum_logged_nan": 0,
+      "maximum_logged_skipped": 0,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.709467
+        },
+        {
+          "step": 500,
+          "loss": 4.217583
+        },
+        {
+          "step": 750,
+          "loss": 4.110416
+        },
+        {
+          "step": 1000,
+          "loss": 4.030036
+        },
+        {
+          "step": 1250,
+          "loss": 3.974174
+        },
+        {
+          "step": 1500,
+          "loss": 3.948638
+        },
+        {
+          "step": 1750,
+          "loss": 3.904814
+        },
+        {
+          "step": 2000,
+          "loss": 3.868907
+        },
+        {
+          "step": 2250,
+          "loss": 3.850377
+        },
+        {
+          "step": 2500,
+          "loss": 3.808085
+        },
+        {
+          "step": 2750,
+          "loss": 3.757808
+        },
+        {
+          "step": 3000,
+          "loss": 3.73648
+        },
+        {
+          "step": 3250,
+          "loss": 3.69468
+        },
+        {
+          "step": 3500,
+          "loss": 3.673319
+        },
+        {
+          "step": 3750,
+          "loss": 3.627216
+        },
+        {
+          "step": 4000,
+          "loss": 3.601032
+        },
+        {
+          "step": 4250,
+          "loss": 3.571622
+        },
+        {
+          "step": 4500,
+          "loss": 3.522317
+        },
+        {
+          "step": 4750,
+          "loss": 3.503453
+        },
+        {
+          "step": 5000,
+          "loss": 3.478107
+        },
+        {
+          "step": 5250,
+          "loss": 3.467723
+        },
+        {
+          "step": 5500,
+          "loss": 3.46312
+        },
+        {
+          "step": 5723,
+          "loss": 3.436023
+        }
+      ],
+      "final": 3.436023,
+      "training_seconds": 59703,
+      "training_time": "16:35:03",
+      "log_sha256": "29192a36d679c812cbd641b035c5c5d9cc8135b3a8e2df9165e4bc4dbc6ed778",
+      "log_bytes": 351146,
+      "source_sha256": "cdd8cdf0d3f21bbf3eb08e36218d415b50be1355a3d0a6ed1de705ec5e36aacd",
+      "spectral_call_counts": null
+    },
+    {
+      "index": 1,
+      "job_id": "4346705_1",
+      "method": "SSO",
+      "accounting": {
+        "JobID": "4346705_1",
+        "State": "COMPLETED",
+        "Elapsed": "18:28:52",
+        "Start": "2026-10-28T17:43:16",
+        "End": "2026-10-29T12:12:08",
+        "ExitCode": "0:0",
+        "NodeList": "SPG-7-1"
+      },
+      "training_completed": true,
+      "completed": true,
+      "config": {
+        "DATA_CACHE_PATH": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/results/4346705_1/data_cache",
+        "EVAL_INTERVAL": "250",
+        "EVAL_ITERS": "20",
+        "GLOBAL_BATCH": "128",
+        "HEAD_DIM": "128",
+        "LR": "1.5e-2",
+        "LR_DECAY_ITERS": "5723",
+        "LR_WARMUP_ITERS": "250",
+        "MEGATRON_PATH": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/Megatron-LM",
+        "MICRO_BATCH": "4",
+        "MIN_LR": "1.5e-3",
+        "MUON_BALL_MSIGN_STEPS": "8",
+        "MUON_BALL_POWER_ITERATION_STEPS": "10",
+        "NUM_LAYERS": "28",
+        "NVIDIA_TF32_OVERRIDE": "0",
+        "OPTIMIZER": "spectral_ball_dist",
+        "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/Megatron-LM/pretrain_gpt.py",
+        "SEED": "2345",
+        "SEQ_LENGTH": "4096",
+        "SLURM_ARRAY_TASK_ID": "1",
+        "SLURM_JOB_ID": "4350514",
+        "SPECTRAL_BALL_POWER_ITERATION_STEPS": "10",
+        "SPECTRAL_BALL_SOLVER_MAX_ITERATIONS": "20",
+        "SPECTRAL_BALL_SOLVER_TOLERANCE_F": "2e-4",
+        "SPEL_PGD_BRANCH_MODE": "auto",
+        "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+        "SPEL_PGD_CLUSTER_ITERATIONS": "10",
+        "SPEL_PGD_CLUSTER_NEAR_PROJECTION": "cone",
+        "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+        "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-3",
+        "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+        "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+        "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+        "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+        "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+        "SPEL_PGD_GAP_THRESHOLD_REL": "5e-5",
+        "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+        "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+        "SPEL_PGD_MSIGN_STEPS": "8",
+        "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+        "SPEL_PGD_PGD_LR_SCALE": "8.0",
+        "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+        "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+        "SPEL_PGD_RADIAL_CLUSTER_MODE": "none",
+        "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+        "SPEL_PGD_WARM_START_UV": "0",
+        "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "TRAIN_ITER": "5723",
+        "TRAIN_TOKENS": "3000000000",
+        "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "WEIGHT_DECAY": "0.1",
+        "WIDTH": "256",
+        "actual_return": "reference_hard_pre_retraction",
+        "actual_spectral_solver": "reference_bf16_pi10",
+        "automatic_full_svd_fallback": false,
+        "cluster_options_active": false,
+        "cuda_version": "12.4",
+        "data_protocol": "3b_budget_same_indexed_source_as_4319977_fresh_training",
+        "device": "NVIDIA H20",
+        "initialization": "from_scratch_no_checkpoint_resume",
+        "matched_frobenius_length": false,
+        "momentum_normalization": "reference_optimizer",
+        "near_branch_mapping": "not_applicable",
+        "offline_audit": "not_instrumented",
+        "online_accuracy_gate": false,
+        "paired_seed": "2345",
+        "post_cone_normalization": false,
+        "processed_tokens": 3000500224,
+        "selection_reference_array": "4329039",
+        "smoke": false,
+        "torch_version": "2.6.0+cu124"
+      },
+      "latest_train": {
+        "step": 5720,
+        "target": 5723,
+        "fields": {
+          "consumed samples": "732160",
+          "elapsed time per iteration (ms)": "11056.5",
+          "throughput per GPU (TFLOP/s/GPU)": "22.4",
+          "learning rate": "1.500010E-03",
+          "global batch size": "128",
+          "lm loss": "3.428625E+00",
+          "loss scale": "1.0",
+          "grad norm": "0.347",
+          "num zeros": "17478862.0",
+          "params norm": "897.990",
+          "number of skipped iterations": "0",
+          "number of nan iterations": "0"
+        },
+        "train_loss": 3.428625,
+        "step_ms": 11056.5,
+        "nan": 0,
+        "skipped": 0
+      },
+      "last_ten_mean_step_seconds": 11.05624,
+      "maximum_logged_nan": 0,
+      "maximum_logged_skipped": 0,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.731229
+        },
+        {
+          "step": 500,
+          "loss": 4.217828
+        },
+        {
+          "step": 750,
+          "loss": 4.0858
+        },
+        {
+          "step": 1000,
+          "loss": 3.999783
+        },
+        {
+          "step": 1250,
+          "loss": 3.958632
+        },
+        {
+          "step": 1500,
+          "loss": 3.919994
+        },
+        {
+          "step": 1750,
+          "loss": 3.873462
+        },
+        {
+          "step": 2000,
+          "loss": 3.839826
+        },
+        {
+          "step": 2250,
+          "loss": 3.812188
+        },
+        {
+          "step": 2500,
+          "loss": 3.780921
+        },
+        {
+          "step": 2750,
+          "loss": 3.73346
+        },
+        {
+          "step": 3000,
+          "loss": 3.715383
+        },
+        {
+          "step": 3250,
+          "loss": 3.674551
+        },
+        {
+          "step": 3500,
+          "loss": 3.654132
+        },
+        {
+          "step": 3750,
+          "loss": 3.608111
+        },
+        {
+          "step": 4000,
+          "loss": 3.588251
+        },
+        {
+          "step": 4250,
+          "loss": 3.560402
+        },
+        {
+          "step": 4500,
+          "loss": 3.515498
+        },
+        {
+          "step": 4750,
+          "loss": 3.496284
+        },
+        {
+          "step": 5000,
+          "loss": 3.473045
+        },
+        {
+          "step": 5250,
+          "loss": 3.465129
+        },
+        {
+          "step": 5500,
+          "loss": 3.461468
+        },
+        {
+          "step": 5723,
+          "loss": 3.435041
+        }
+      ],
+      "final": 3.435041,
+      "training_seconds": 66491,
+      "training_time": "18:28:11",
+      "log_sha256": "8a91cc5eb6db6cfc30c54d5305f6e871e10bb4a29b085871d8f8eecf27733990",
+      "log_bytes": 351194,
+      "source_sha256": "cdd8cdf0d3f21bbf3eb08e36218d415b50be1355a3d0a6ed1de705ec5e36aacd",
+      "spectral_call_counts": null
+    },
+    {
+      "index": 2,
+      "job_id": "4346705_2",
+      "method": "MCSD-TP K10",
+      "accounting": {
+        "JobID": "4346705_2",
+        "State": "RUNNING",
+        "Elapsed": "02:54:26",
+        "Start": "2026-10-29T12:12:13",
+        "End": "Unknown",
+        "ExitCode": "0:0",
+        "NodeList": "SPG-7-1"
+      },
+      "training_completed": false,
+      "completed": false,
+      "config": {
+        "CLUSTER_SNAPSHOT_DIR": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/results/4346705_2/snapshots",
+        "CLUSTER_SNAPSHOT_EARLY": "8",
+        "CLUSTER_SNAPSHOT_LATE": "8",
+        "CLUSTER_SNAPSHOT_LATE_AFTER": "3000",
+        "CLUSTER_SNAPSHOT_MAX": "56",
+        "CLUSTER_SNAPSHOT_STEPS": "2,50,250,1000,2000,3000,4000,5000,5700",
+        "DATA_CACHE_PATH": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/results/4346705_2/data_cache",
+        "EVAL_INTERVAL": "250",
+        "EVAL_ITERS": "20",
+        "GLOBAL_BATCH": "128",
+        "HEAD_DIM": "128",
+        "LR": "1.5e-2",
+        "LR_DECAY_ITERS": "5723",
+        "LR_WARMUP_ITERS": "250",
+        "MEGATRON_PATH": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/Megatron-LM",
+        "MICRO_BATCH": "4",
+        "MIN_LR": "1.5e-3",
+        "MUON_BALL_MSIGN_STEPS": "8",
+        "MUON_BALL_POWER_ITERATION_STEPS": "10",
+        "NUM_LAYERS": "28",
+        "NVIDIA_TF32_OVERRIDE": "0",
+        "OPTIMIZER": "spel_pgd_dist",
+        "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/cluster-seed-mechanism-3b-20261028/scripts/pretrain_cluster_ritz_observed.py",
+        "SEED": "2345",
+        "SEQ_LENGTH": "4096",
+        "SLURM_ARRAY_TASK_ID": "2",
+        "SLURM_JOB_ID": "4359731",
+        "SPECTRAL_BALL_POWER_ITERATION_STEPS": "10",
+        "SPECTRAL_BALL_SOLVER_MAX_ITERATIONS": "20",
+        "SPECTRAL_BALL_SOLVER_TOLERANCE_F": "2e-4",
+        "SPEL_PGD_BRANCH_MODE": "auto",
+        "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+        "SPEL_PGD_CLUSTER_ITERATIONS": "10",
+        "SPEL_PGD_CLUSTER_NEAR_PROJECTION": "cone",
+        "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+        "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-3",
+        "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+        "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+        "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+        "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+        "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+        "SPEL_PGD_GAP_THRESHOLD_REL": "5e-5",
+        "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+        "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+        "SPEL_PGD_MSIGN_STEPS": "8",
+        "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+        "SPEL_PGD_PGD_LR_SCALE": "1.0",
+        "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+        "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+        "SPEL_PGD_RADIAL_CLUSTER_MODE": "control",
+        "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+        "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+        "SPEL_PGD_WARM_START_UV": "0",
+        "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+        "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+        "TRAIN_ITER": "5723",
+        "TRAIN_TOKENS": "3000000000",
+        "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+        "WEIGHT_DECAY": "0.1",
+        "WIDTH": "256",
+        "actual_return": "approximate_radial_both_branches",
+        "actual_spectral_solver": "fixed_warm_block8_fp32_ritz",
+        "automatic_full_svd_fallback": false,
+        "cluster_options_active": true,
+        "cuda_version": "12.4",
+        "data_protocol": "3b_budget_same_indexed_source_as_4319977_fresh_training",
+        "device": "NVIDIA H20",
+        "initialization": "from_scratch_no_checkpoint_resume",
+        "matched_frobenius_length": false,
+        "momentum_normalization": "fro_before_cone",
+        "near_branch_mapping": "cone",
+        "offline_audit": "after_training_only",
+        "online_accuracy_gate": false,
+        "paired_seed": "2345",
+        "post_cone_normalization": false,
+        "processed_tokens": 3000500224,
+        "selection_reference_array": "4329039",
+        "smoke": false,
+        "torch_version": "2.6.0+cu124"
+      },
+      "latest_train": {
+        "step": 940,
+        "target": 5723,
+        "fields": {
+          "consumed samples": "120320",
+          "elapsed time per iteration (ms)": "10782.6",
+          "throughput per GPU (TFLOP/s/GPU)": "23.0",
+          "learning rate": "1.447744E-02",
+          "global batch size": "128",
+          "lm loss": "3.998968E+00",
+          "loss scale": "1.0",
+          "grad norm": "0.546",
+          "num zeros": "17474276.0",
+          "params norm": "1418.097",
+          "spel-pgd pgd branches": "0/252 (0.000)",
+          "cumulative pgd branches": "0/236880 (0.000)",
+          "spel branches": "252",
+          "zero-lr branches": "0",
+          "post projections": "252/252 (1.000)",
+          "gap probes": "252/252",
+          "cumulative gap probes": "236880/236880",
+          "spectral cache hits/bootstraps": "252/0",
+          "cumulative spectral cache hits/bootstraps": "236628/252",
+          "adaptive krylov count/fallback": "252/0",
+          "mean iterations/residual/gap-width": "10.00/0.000E+00/0.000E+00",
+          "cumulative exact-SVD solver fallback rate": "0.000",
+          "hierarchical rank1/block4/block8": "0/0/0",
+          "cumulative hierarchical rank1/block4/block8": "0/0/0",
+          "radial change max": "2.135E+02",
+          "number of skipped iterations": "0",
+          "number of nan iterations": "0"
+        },
+        "train_loss": 3.998968,
+        "step_ms": 10782.6,
+        "nan": 0,
+        "skipped": 0,
+        "branch_count": 0,
+        "component_count": 236880,
+        "branch_percent": 0.0
+      },
+      "last_ten_mean_step_seconds": 10.78502,
+      "maximum_logged_nan": 0,
+      "maximum_logged_skipped": 0,
+      "vals": [
+        {
+          "step": 250,
+          "loss": 4.70638
+        },
+        {
+          "step": 500,
+          "loss": 4.179104
+        },
+        {
+          "step": 750,
+          "loss": 4.069032
+        }
+      ],
+      "final": null,
+      "training_seconds": null,
+      "training_time": null,
+      "log_sha256": "2957bb281d2afb9280d15540c858d577b6bbcb3b91bdc6ffb2540a2bbe2cebb0",
+      "log_bytes": 198373,
+      "source_sha256": "cdd8cdf0d3f21bbf3eb08e36218d415b50be1355a3d0a6ed1de705ec5e36aacd",
+      "spectral_call_counts": null
+    },
+    {
+      "index": 3,
+      "job_id": "4346705_3",
+      "method": "Hybrid K10/c8 top<=4",
+      "accounting": null,
+      "training_completed": false,
+      "completed": false,
+      "config": null,
+      "latest_train": null,
+      "last_ten_mean_step_seconds": null,
+      "maximum_logged_nan": null,
+      "maximum_logged_skipped": null,
+      "vals": [],
+      "final": null,
+      "training_seconds": null,
+      "training_time": null,
+      "log_sha256": null,
+      "log_bytes": 0,
+      "source_sha256": null,
+      "spectral_call_counts": null
+    },
+    {
+      "index": 4,
+      "job_id": "4346705_4",
+      "method": "Ambient K10/c8",
+      "accounting": null,
+      "training_completed": false,
+      "completed": false,
+      "config": null,
+      "latest_train": null,
+      "last_ten_mean_step_seconds": null,
+      "maximum_logged_nan": null,
+      "maximum_logged_skipped": null,
+      "vals": [],
+      "final": null,
+      "training_seconds": null,
+      "training_time": null,
+      "log_sha256": null,
+      "log_bytes": 0,
+      "source_sha256": null,
+      "spectral_call_counts": null
+    },
+    {
+      "index": 5,
+      "job_id": "4346705_5",
+      "method": "Top-1 K10/c8",
+      "accounting": null,
+      "training_completed": false,
+      "completed": false,
+      "config": null,
+      "latest_train": null,
+      "last_ten_mean_step_seconds": null,
+      "maximum_logged_nan": null,
+      "maximum_logged_skipped": null,
+      "vals": [],
+      "final": null,
+      "training_seconds": null,
+      "training_time": null,
+      "log_sha256": null,
+      "log_bytes": 0,
+      "source_sha256": null,
+      "spectral_call_counts": null
+    }
+  ],
+  "note": "Read-only snapshot. Final loss is null until validation step 5723; a completed result additionally requires completion markers and successful Slurm accounting. Running logs are partial. No jobs or concurrency settings changed."
+}
