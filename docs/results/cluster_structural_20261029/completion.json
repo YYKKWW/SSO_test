@@ -1,0 +1,35 @@
+{
+  "checked_at": "2026-10-29T15:45:40.334888+08:00",
+  "job_id": "4360368",
+  "accounting": [
+    {
+      "JobID": "4360368",
+      "State": "COMPLETED",
+      "Elapsed": "00:00:22",
+      "Start": "2026-10-29T15:41:51",
+      "End": "2026-10-29T15:42:13",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    {
+      "JobID": "4360368.batch",
+      "State": "COMPLETED",
+      "Elapsed": "00:00:22",
+      "Start": "2026-10-29T15:41:51",
+      "End": "2026-10-29T15:42:13",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    },
+    {
+      "JobID": "4360368.extern",
+      "State": "COMPLETED",
+      "Elapsed": "00:00:22",
+      "Start": "2026-10-29T15:41:51",
+      "End": "2026-10-29T15:42:13",
+      "ExitCode": "0:0",
+      "NodeList": "SPG-7-1"
+    }
+  ],
+  "cuda_test_log": "test_exact_plateau_reduces_to_cone_projection (test_cluster_structural_directions.StructuralDirectionsTests.test_exact_plateau_reduces_to_cone_projection) ... ok\ntest_preserves_existing_separation_in_small_step (test_cluster_structural_directions.StructuralDirectionsTests.test_preserves_existing_separation_in_small_step) ... ok\ntest_small_affine_model_lands_on_boundary (test_cluster_structural_directions.StructuralDirectionsTests.test_small_affine_model_lands_on_boundary) ... ok\ntest_top1_reduces_to_tangent_projection (test_cluster_structural_directions.StructuralDirectionsTests.test_top1_reduces_to_tangent_projection) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.536s\n\nOK\n",
+  "note": "Only a one-GPU offline structural audit was submitted. No third seed, hyperparameter grid, long training, cancellation or concurrency change was made."
+}

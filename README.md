@@ -8,6 +8,7 @@ This repository manages one experiment track for a paper project on SSO-style op
 
 - **[Experiment overview (English): 20 completed 1B/3B runs, second-seed progress, and supplementary experiments](docs/experiments/mcsd_p2gd_results_summary.md)**
 - [Latest completed results](docs/experiments/mcsd_p2gd_results_summary.md#latest) · [Retained candidates](docs/experiments/mcsd_p2gd_results_summary.md#candidates) · [Submitted and next experiments](docs/experiments/mcsd_p2gd_results_summary.md#next)
+- [Algorithmic changes without tuning: gap-aware correction and H20 fixed-matrix audit](docs/experiments/cluster_structural_directions_20261029.md)
 - **2026-10-29, 15:06 HKT:** second-seed 3B MuonSphere and SSO completed at **3.436023 / 3.435041**; MCSD-TP K10 reached step 940/5723; the hybrid and two mechanism controls remain queued. No hybrid replication result is available yet. [Verified snapshot](docs/results/cluster_seed_mechanism_3b_20261028/status_20261029.json).
 - [新增：第二 seed 与无修正/top-1 机制对照（六组3B）](docs/experiments/cluster_seed_mechanism_3b_20261028.md)
 - [算法流程、伪代码与具体 Python 实现](docs/algorithms/current_comparison_pseudocode.md)

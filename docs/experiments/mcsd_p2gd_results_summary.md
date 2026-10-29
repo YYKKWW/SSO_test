@@ -223,6 +223,20 @@ Each hybrid audit contains only 52 deliberately selected samples. Zero sampled m
 
 ## Next Experiments
 
+### Current Scope: Algorithmic Changes, Not Parameter Tuning
+
+Following the latest request, no third seed or c/gap/K sweep was submitted.
+Instead, a one-GPU structural audit **4360368** completed in **22 seconds**,
+holding all hyperparameters fixed. On 88 stored matrices, 19 near cases were
+compared using the current cluster correction, a new gap-aware small-matrix
+correction, top-1 correction, and ambient momentum. The new rule showed no
+clear local advantage. Top-1/ambient exited the near region more often but did
+not improve the average frozen-momentum descent model; no training-loss
+conclusion follows. See [algorithmic directions, derivation, and audited results](cluster_structural_directions_20261029.md).
+
+Existing long training jobs and concurrency settings are unchanged. The seed
+and tuning suggestions below remain a deferred roadmap, not active submissions.
+
 ### Already Submitted: Finish the Matched Comparison
 
 Array **`4346705`** contains six runs at width 256, 3B tokens, seed 2345, and LR=`1.5e-2`. The state below was checked on **2026-10-29 at 15:06 HKT**. A1/A2 are complete; A3 is running; A4–A6 await the existing one-at-a-time array limit. Do not resubmit these comparisons.
@@ -259,7 +273,7 @@ The following are **proposals, not submitted jobs**. Keep the existing K10/c8 ca
 | B5: Stable evaluation | Add a fixed, common 100–200-batch validation list to future runs, while retaining the original 20-batch metric | Evaluation only | Report as a separate metric, identical across methods and seeds. No checkpoints remain for old runs, so retrospective re-evaluation has not been performed |
 | C: Width transfer | Freeze the candidate and test width 512 with both baselines and a matched control | 4 × 3B, runtime not yet calibrated | Defer until replication and mechanism results justify expansion; distinguish fixed-parameter transfer from a new tuning sweep |
 
-The **minimum new training batch is B1 only**. B2 is the next two-run addition if the mechanism remains unresolved. B3/B4 should start offline, and B5 can be attached to future jobs without changing their training objective. Do not submit all rows as a grid. These costs exclude queue delays, preflight checks, and audits.
+If returning to the replication roadmap, the **minimum proposed new training batch is B1 only**. B2 is the next two-run addition if the mechanism remains unresolved. B3/B4 should start offline, and B5 can be attached to future jobs without changing their training objective. These remain deferred while the current focus is algorithmic structure. Do not submit all rows as a grid. These costs exclude queue delays, preflight checks, and audits.
 
 **Defer** broad gap sweeps, simultaneous changes to K/q/c, and longer token budgets. First determine whether A4 reliably improves over A3 and whether it beats A5/A6. If A5/A6 perform similarly or better, prefer the simpler implementation rather than continuing to attribute gains to multi-direction cluster correction.
 
