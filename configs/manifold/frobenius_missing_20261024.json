@@ -1,0 +1,44 @@
+[
+  {
+    "key": "fair_muonh_ema095_lr001_seed1234_3b",
+    "group": "matched_ema095", "lane": 0,
+    "method": "manifold_muonh", "lr": 0.01, "beta": 0.95,
+    "nesterov": false, "seed": 1234, "tokens": 3000000000,
+    "replaces_job": "4288197"
+  },
+  {
+    "key": "fair_normuon_ema095_lr001_seed1234_3b",
+    "group": "matched_ema095", "lane": 1,
+    "method": "manifold_normuon_sphere", "lr": 0.01, "beta": 0.95,
+    "nesterov": false, "seed": 1234, "tokens": 3000000000,
+    "replaces_job": "4288198"
+  },
+  {
+    "key": "mcsd_nest09_lr0007_seed1234_3b",
+    "group": "nesterov_lr", "lane": 0,
+    "method": "manifold_mcsd", "lr": 0.007, "beta": 0.9,
+    "nesterov": true, "seed": 1234, "tokens": 3000000000
+  },
+  {
+    "key": "mcsd_nest09_lr0012_seed1234_3b",
+    "group": "nesterov_lr", "lane": 1,
+    "method": "manifold_mcsd", "lr": 0.012, "beta": 0.9,
+    "nesterov": true, "seed": 1234, "tokens": 3000000000
+  },
+  {
+    "key": "mcsd_ema095_lr001_seed2026_6b",
+    "group": "frozen_6b_second_seed", "lane": 0,
+    "method": "manifold_mcsd", "lr": 0.01, "beta": 0.95,
+    "nesterov": false, "seed": 2026, "tokens": 6000000000,
+    "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_6b/indexed/train/olmo_mix_1124_6b_train_text_document",
+    "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document"
+  },
+  {
+    "key": "normuon_nest09_lr0015_seed2026_6b",
+    "group": "frozen_6b_second_seed", "lane": 1,
+    "method": "manifold_normuon_sphere", "lr": 0.015, "beta": 0.9,
+    "nesterov": true, "seed": 2026, "tokens": 6000000000,
+    "train_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_6b/indexed/train/olmo_mix_1124_6b_train_text_document",
+    "valid_prefix": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document"
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "runs": [
+    {
+      "job": "4197448",
+      "method": "manifold_mcsd",
+      "source_commit": "922820e9782d04f374b658be09d7332c55271c45",
+      "logical_components": 196,
+      "parameter_manifest_sha256": "bdab6b93a50769a8cda655b4a3d6aa34c5985efdc055bcb015a17cb9c5da6270",
+      "final_smoke_loss": 10.90243,
+      "exit_code": 0,
+      "nonzero_nan_skipped_counters": 0
+    },
+    {
+      "job": "4197449",
+      "method": "manifold_mcsd_tp",
+      "source_commit": "922820e9782d04f374b658be09d7332c55271c45",
+      "logical_components": 196,
+      "parameter_manifest_sha256": "bdab6b93a50769a8cda655b4a3d6aa34c5985efdc055bcb015a17cb9c5da6270",
+      "final_smoke_loss": 10.9025,
+      "exit_code": 0,
+      "nonzero_nan_skipped_counters": 0
+    },
+    {
+      "job": "4197450",
+      "method": "manifold_muonh",
+      "source_commit": "922820e9782d04f374b658be09d7332c55271c45",
+      "logical_components": 196,
+      "parameter_manifest_sha256": "bdab6b93a50769a8cda655b4a3d6aa34c5985efdc055bcb015a17cb9c5da6270",
+      "final_smoke_loss": 10.88772,
+      "exit_code": 0,
+      "nonzero_nan_skipped_counters": 0
+    },
+    {
+      "job": "4197451",
+      "method": "manifold_normuon_sphere",
+      "source_commit": "922820e9782d04f374b658be09d7332c55271c45",
+      "logical_components": 196,
+      "parameter_manifest_sha256": "bdab6b93a50769a8cda655b4a3d6aa34c5985efdc055bcb015a17cb9c5da6270",
+      "final_smoke_loss": 10.89289,
+      "exit_code": 0,
+      "nonzero_nan_skipped_counters": 0
+    }
+  ],
+  "note": "Metadata equality verifies radii/scales/layout, not equality of initial tensor bytes.",
+  "main_grid": {
+    "jobs": 16,
+    "common_protocol_sha256": "a8a31cdc99c8359d25d9508219cd070dd8210929bbff91fbae5bdd9136fc2810",
+    "excluded_from_common_hash": [
+      "matrix_lr",
+      "method_specific_momentum",
+      "NorMuon_row_settings"
+    ]
+  }
+}

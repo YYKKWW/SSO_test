@@ -1,5 +1,63 @@
 # Three-geometry MCSD study
 
+**Consolidated records, October 29:** [complete experiment inventory](../ALL_EXPERIMENTS.md),
+[80 completed training runs](../experiment_inventory/COMPLETED_RUNS.md), and
+[current Frobenius 3B/6B analysis](../FROBENIUS_3B_6B_SUMMARY.md).
+All dated entries below retain their original observation times, including
+old pending states. They are historical records, not current queue status.
+
+## Historical follow-up: 2026-10-24
+
+The [six-run missing-experiment batch](FROBENIUS_MISSING_20261024.md) is submitted
+as 4320101--4320106: two beta=0.95 EMA baseline controls, two MCSD Nesterov LR
+tests, and a paired second-seed MCSD/NorMuon 6B replication. All use width 256,
+shape radius r=1, frozen code, no checkpoints and at most two new concurrent
+H20 GPUs. At 01:22 HKT, 4320101 had started; the other jobs were pending.
+The existing three-GPU candidate array was left unchanged.
+
+Completed evidence is in the [3B momentum/seed report](reports/followup_20261020/README.md)
+and [6B final report](WIDTH256_6B_RESULTS_20261022.md). The dated entries below
+are historical snapshots, not the current queue or dataset-readiness status.
+
+## Data extension: 2026-10-13
+
+[6B data preparation](DATA_6B_20261013.md) was submitted as CPU job 4262916
+and started on GPI-2-1 at 14:46 HKT (8 cores, 32 GB, no GPU). It preserves
+the current 3B and adds approximately 3B new, exact-token-deduplicated samples,
+excluding both existing validation sets. The first status check showed
+exclusion-index construction in progress, not completed data. The 1B training
+files and redundant partitions were removed after checking all queued jobs;
+tokenizer and validation data were retained. Existing training jobs still use
+3B data. See the linked record for readiness, storage, logs and resume details.
+
+## Latest submission: 2026-10-12
+
+The [12-run Frobenius follow-up](FROBENIUS_FOLLOWUP_20261012.md) is submitted
+as jobs 4255793--4255804: eight matched-EMA LR runs and four second-seed
+replications, all width=256, 3B tokens, r=1. The new batch uses two serial
+single-H20 lanes and no checkpoints. At 02:05 HKT all were PENDING because
+the H20 nodes were reserved for maintenance or lane dependencies were unmet;
+none had started training. Old jobs and datasets were unchanged. Available
+home storage was about 51.1 GiB; no 6B dataset download was started.
+
+## Latest results: 2026-10-08
+
+The [width-256 3B update](WIDTH256_3B_RESULTS_20261008.md) combines 26 completed
+runs (the original 16 plus 10 follow-ups), with four running and four waiting
+at the 15:05 HKT snapshot. Its four-page briefing is
+`output/pdf/width256_3b_results_20261008.pdf`; standalone validation PNG/SVG
+figures are under `output/figures/width256_3b_20261008/`.
+
+The best completed native-momentum settings remain MCSD/TP at LR=0.01 and
+MuonH/NorMuon-Sphere at LR=0.015. LR=0.012 did not improve MCSD/TP, and
+LR=0.02 did not improve the baselines. Unit-F normalization at 0.01/0.012
+also did not improve MCSD. At matched beta=0.9 Nesterov and LR=0.01,
+MCSD/TP do not beat the baselines; the beta=0.9 EMA MCSD/TP runs are not
+complete. The report separates native-momentum tuning, matched-momentum
+comparisons and partial results. No statistical superiority is claimed.
+
+## Study scope
+
 This branch implements a fixed-width dense decoder experiment based on the
 handoff in this directory. The original four files are retained verbatim as
 the initial research contract. `PROTOCOL_DELTA.md` records later decisions.
@@ -21,8 +79,41 @@ The first longer, single-H20-per-run comparison is registered in
 three concurrent jobs at most, with shared model/data settings and disclosed
 method-specific differences. All ten pilots have completed. The
 [first 3B batch](MAIN_3B_20260924.md) contains six Frobenius/Stiefel runs;
-the spectral group is deferred for return-accuracy investigation. These are
-not completed 3B results.
+the spectral group is deferred for return-accuracy investigation. As of
+2026-10-01, all six runs have completed 3B: Frobenius MCSD/TP about 3.29915
+versus MuonH 3.30946; Stiefel MCSD/TP about 3.43048 versus iMuon 3.428445.
+The Stiefel endpoint reverses its earlier partial ranking. These are single-seed,
+untuned results, not statistical superiority claims.
+
+The separate [width-256 fixed-radius LR search](WIDTH256_3B_RADIUS_LR_20260926.md)
+uses the confirmed four-point grid `{5e-3, 7e-3, 1e-2, 1.5e-2}` and a new
+opt-in shape-radius configuration. Four H20 smokes passed and all 16 main runs
+were submitted on 2026-10-01 as 4197463--4197478, with a four-GPU bundle cap.
+Historical default initialization and experiment sources are unchanged.
+As verified on 2026-10-05, all 16 runs completed. Best grid endpoints are
+MCSD 3.467720 / MCSD-TP 3.467858 at LR 1e-2, versus MuonH 3.466668 /
+NorMuon-Sphere 3.464757 at LR 1.5e-2. The small-LR advantage for MCSD/TP
+does not persist after each method selects its best grid LR. Baseline minima
+are at the upper boundary; this remains single-seed evidence, not a global
+LR optimum or a significance claim. No further runs were submitted in this check.
+
+The subsequent [unit-Frobenius direction ablation and LR extension](WIDTH256_3B_RADIUS_LR_20260926.md#unit-direction-ablation-and-grid-extension-2026-10-05)
+adds an opt-in MCSD step-length normalization. After 187 local tests and two
+successful H20 smokes, 12 matched-budget follow-ups were submitted as
+4226861--4226872, separately from the completed
+results above. It preserves the old update when disabled and records actual
+relative trial/return lengths. Startup diagnostics show about 0.1--2.3%
+step-magnitude correction, not evidence that normalization explains all LR
+differences or improves final loss.
+At the user's subsequent request on 2026-10-05, the existing queue was changed
+from one to two concurrent single-H20 lanes. Jobs 4226861 and 4226862 are
+running; training configurations and the original running job are unchanged.
+
+The [figure/table bundle](reports/width256_3b_20261005/) now contains all
+training/validation curves, an LR sweep, common-LR and best-LR comparisons,
+vector figures, LaTeX tables and raw parsed data. The
+[Chinese results and scaling-plan PDF](reports/width256_3b_20261005/width256_3b_results_scaling_plan.pdf)
+explains measurement definitions and the experiments needed before a scaling claim.
 
 ## Method IDs
 
@@ -53,7 +144,7 @@ SVD of the current master matrix after the first step.
 ## Local checks
 
 ```bash
-PYTHONPATH=Megatron-LM python -m pytest tests/test_manifold_mcsd.py tests/test_manifold_baselines.py tests/test_manifold_launch.py -q
+PYTHONPATH=Megatron-LM python -m pytest tests/test_manifold_mcsd.py tests/test_manifold_baselines.py tests/test_manifold_normuon.py tests/test_manifold_launch.py tests/test_manifold_radius.py -q
 python scripts/manifold/launch.py --geometry frobenius --method manifold_mcsd_tp
 ```
 
@@ -70,6 +161,7 @@ tokens and split provenance before publishing a claim about distinct tokens.
 | Optimizer ID | Geometry | Direction and return |
 | --- | --- | --- |
 | `manifold_muonh` | Frobenius | Hyperball equation: normalize the Muon direction in Frobenius norm, trial step `lr * R`, radial normalization |
+| `manifold_normuon_sphere` | Frobenius | NorMuon row-wise FP32 second moment after Polar Express, unit-Frobenius direction, trial step `lr * R`, radial normalization |
 | `manifold_imuon` | Stiefel | Separate vertical/horizontal polar directions, common ambient EMA, scaled polar return |
 | `manifold_sso` | spectral | Calls vendored SSO PI/hard pre-return/bisection/NS kernel |
 | `manifold_muonsphere` | spectral | Calls vendored MuonBall PI/hard pre-return/NS kernel, without bisection |
@@ -83,6 +175,11 @@ SSO/MuonSphere use native BF16 NS8/PI10 and SSO tolerance `2e-4`, maximum 20
 bisections. MuonH uses the common Polar Express implementation. Default beta
 is 0.9 with Nesterov for MuonH/SSO/MuonSphere; MCSD/TP and iMuon use beta 0.95
 without Nesterov. These are configurable and must be included in fair tuning.
+
+NorMuon-Sphere is a matched adaptation measured in the new width-256 3B LR
+grid, not in the old width-384 batch. It defaults to MuonH's beta 0.9/Nesterov and shared Polar Express
+10, with row EMA beta2 0.95 and epsilon 1e-10. See
+[NorMuon-Sphere equations, provenance and checks](NORMUON_SPHERE.md).
 
 iMuon uses `K=skew(Q.T M)`, `H=(I-Q Q.T)M`, and direction
 `-Q partial_polar(K)-partial_polar(H)` for `Q=W/R`, with row-Stiefel handled by
@@ -188,3 +285,11 @@ Primary implementation references:
 [hyperspherical descent](https://github.com/thinking-machines-lab/manifolds/blob/main/src/hyperspherical_descent.py).
 The latter normalizes its tangent direction; MCSD-TP intentionally does not,
 because that would change the algorithm specified in `IMPLEMENTATION.md`.
+# Matched momentum follow-up (2026-10-05)
+
+The width-256 Frobenius grid has a momentum confound: MCSD/TP uses beta=0.95
+EMA, whereas MuonH/NorMuon-Sphere uses beta=0.9 Nesterov. The six-run
+[matched-momentum ablation](FROBENIUS_MOMENTUM_20261005.md) reuses four
+LR=0.01 controls and holds radius, data, LR schedule and direction scaling
+fixed. Its MCSD Nesterov variant is opt-in and leaves the original default
+unchanged. See that document for submission and validation status.

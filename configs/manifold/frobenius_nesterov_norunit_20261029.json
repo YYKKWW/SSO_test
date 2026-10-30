@@ -1,0 +1,9 @@
+[
+  {"key":"mcsd_norunit_lr001", "group":"normuon_unit_ablation", "method":"manifold_mcsd", "lr":0.01, "beta":0.95, "nesterov":true, "seed":1234, "lane":0, "direction_normalization":"frobenius", "direction_adaptation":"normuon", "adaptation_beta2":0.95, "adaptation_eps":1e-10},
+  {"key":"nest095_mcsd_lr0012", "group":"matched_nesterov_lr", "method":"manifold_mcsd", "lr":0.012, "beta":0.95, "nesterov":true, "seed":1234, "lane":1},
+  {"key":"nest095_muonh_lr0012", "group":"matched_nesterov_lr", "method":"manifold_muonh", "lr":0.012, "beta":0.95, "nesterov":true, "seed":1234, "lane":0},
+  {"key":"nest095_normuon_lr0012", "group":"matched_nesterov_lr", "method":"manifold_normuon_sphere", "lr":0.012, "beta":0.95, "nesterov":true, "seed":1234, "lane":1},
+  {"key":"nest095_mcsd_lr0015", "group":"matched_nesterov_lr", "method":"manifold_mcsd", "lr":0.015, "beta":0.95, "nesterov":true, "seed":1234, "lane":0},
+  {"key":"nest095_muonh_lr0015", "group":"matched_nesterov_lr", "method":"manifold_muonh", "lr":0.015, "beta":0.95, "nesterov":true, "seed":1234, "lane":1},
+  {"key":"nest095_normuon_lr0015", "group":"matched_nesterov_lr", "method":"manifold_normuon_sphere", "lr":0.015, "beta":0.95, "nesterov":true, "seed":1234, "lane":0}
+]

@@ -1,0 +1,377 @@
+{
+  "project": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005",
+  "checked_at_utc": "2026-10-05T06:00:53.460989+00:00",
+  "runs": [
+    {
+      "job_id": "4226742",
+      "phase": "smoke",
+      "method": "manifold_mcsd",
+      "direction_normalization": "none",
+      "lr": "2e-2",
+      "completion": {
+        "exit_code": 0,
+        "training_exit_code": 0,
+        "resume_verification_exit_code": null,
+        "process_seconds": 60.682543970644474,
+        "note": "Includes startup, indexing, evaluation, checkpoint and optional verification time; not optimizer-only time."
+      },
+      "runtime": {
+        "python": "3.12.1 (main, Dec 29 2023, 12:33:49) [GCC 8.5.0 20210514 (Red Hat 8.5.0-16)]",
+        "torch": "2.6.0+cu124",
+        "cuda": "12.4",
+        "gpu": "NVIDIA H20",
+        "source_commit": "972b623b9656b47f5a1d2094784ff33f068da778",
+        "modules": {
+          "megatron.core.models.gpt.gpt_model": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/megatron/core/models/gpt/gpt_model.py",
+          "megatron.training": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/megatron/training/__init__.py",
+          "emerging_optimizers.orthogonalized_optimizers.manifold_mcsd": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py",
+          "emerging_optimizers.orthogonalized_optimizers.manifold_baselines": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py"
+        },
+        "slurm_job_id": "4226742"
+      },
+      "manifest_matches_old": true,
+      "changed_since_run": [
+        "scripts/manifold/submit_frobenius_unit_grid.py"
+      ],
+      "source_hashes_match": false,
+      "training_sources_match": true,
+      "train_loss_tail": [
+        "1.156549E+01",
+        "1.156720E+01",
+        "1.129930E+01",
+        "1.100830E+01"
+      ],
+      "validation_loss_tail": [
+        "1.087787E+01",
+        "1.087835E+01"
+      ],
+      "skipped_counts": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "nan_counts": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "direction_samples": 27,
+      "raw_direction_ratio_range": [
+        0.9774972796440125,
+        0.9990879893302917
+      ],
+      "trial_ratio_range": [
+        0.9774972684681416,
+        0.9990880698787714
+      ],
+      "max_constraint_defect": 1.0140796813384867e-07
+    },
+    {
+      "job_id": "4226743",
+      "phase": "smoke",
+      "method": "manifold_mcsd",
+      "direction_normalization": "frobenius",
+      "lr": "2e-2",
+      "completion": {
+        "exit_code": 0,
+        "training_exit_code": 0,
+        "resume_verification_exit_code": null,
+        "process_seconds": 53.49938224814832,
+        "note": "Includes startup, indexing, evaluation, checkpoint and optional verification time; not optimizer-only time."
+      },
+      "runtime": {
+        "python": "3.12.1 (main, Dec 29 2023, 12:33:49) [GCC 8.5.0 20210514 (Red Hat 8.5.0-16)]",
+        "torch": "2.6.0+cu124",
+        "cuda": "12.4",
+        "gpu": "NVIDIA H20",
+        "source_commit": "972b623b9656b47f5a1d2094784ff33f068da778",
+        "modules": {
+          "megatron.core.models.gpt.gpt_model": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/megatron/core/models/gpt/gpt_model.py",
+          "megatron.training": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/megatron/training/__init__.py",
+          "emerging_optimizers.orthogonalized_optimizers.manifold_mcsd": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py",
+          "emerging_optimizers.orthogonalized_optimizers.manifold_baselines": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py"
+        },
+        "slurm_job_id": "4226743"
+      },
+      "manifest_matches_old": true,
+      "changed_since_run": [
+        "scripts/manifold/submit_frobenius_unit_grid.py"
+      ],
+      "source_hashes_match": false,
+      "training_sources_match": true,
+      "train_loss_tail": [
+        "1.156549E+01",
+        "1.156720E+01",
+        "1.129929E+01",
+        "1.100801E+01"
+      ],
+      "validation_loss_tail": [
+        "1.087758E+01",
+        "1.087804E+01"
+      ],
+      "skipped_counts": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "nan_counts": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "direction_samples": 27,
+      "raw_direction_ratio_range": [
+        0.9774972796440125,
+        0.9990956783294678
+      ],
+      "trial_ratio_range": [
+        0.999999920345244,
+        1.0000000437421181
+      ],
+      "max_constraint_defect": 1.1970279945039408e-07
+    },
+    {
+      "job_id": "4226861",
+      "phase": "main",
+      "method": "manifold_mcsd",
+      "direction_normalization": "frobenius",
+      "lr": "1e-2",
+      "completion": null,
+      "runtime": {
+        "python": "3.12.1 (main, Dec 29 2023, 12:33:49) [GCC 8.5.0 20210514 (Red Hat 8.5.0-16)]",
+        "torch": "2.6.0+cu124",
+        "cuda": "12.4",
+        "gpu": "NVIDIA H20",
+        "source_commit": "9c78efb89803119d2d12877508ccc36454650562",
+        "modules": {
+          "megatron.core.models.gpt.gpt_model": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/megatron/core/models/gpt/gpt_model.py",
+          "megatron.training": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/megatron/training/__init__.py",
+          "emerging_optimizers.orthogonalized_optimizers.manifold_mcsd": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_mcsd.py",
+          "emerging_optimizers.orthogonalized_optimizers.manifold_baselines": "/home/u3013198/projects/SSO_test-three-geometries-w256-unitfro-20261005/Megatron-LM/emerging_optimizers/orthogonalized_optimizers/manifold_baselines.py"
+        },
+        "slurm_job_id": "4226861"
+      },
+      "manifest_matches_old": true,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [
+        "1.156364E+01",
+        "1.154546E+01"
+      ],
+      "validation_loss_tail": [],
+      "skipped_counts": [
+        "0",
+        "0"
+      ],
+      "nan_counts": [
+        "0",
+        "0"
+      ],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226862",
+      "phase": "main",
+      "method": "manifold_normuon_sphere",
+      "direction_normalization": "none",
+      "lr": "2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226863",
+      "phase": "main",
+      "method": "manifold_mcsd",
+      "direction_normalization": "none",
+      "lr": "1.2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226864",
+      "phase": "main",
+      "method": "manifold_mcsd",
+      "direction_normalization": "frobenius",
+      "lr": "1.2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226865",
+      "phase": "main",
+      "method": "manifold_muonh",
+      "direction_normalization": "none",
+      "lr": "2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226866",
+      "phase": "main",
+      "method": "manifold_mcsd_tp",
+      "direction_normalization": "none",
+      "lr": "1.2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226867",
+      "phase": "main",
+      "method": "manifold_mcsd",
+      "direction_normalization": "frobenius",
+      "lr": "1.5e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226868",
+      "phase": "main",
+      "method": "manifold_normuon_sphere",
+      "direction_normalization": "none",
+      "lr": "1.2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226869",
+      "phase": "main",
+      "method": "manifold_muonh",
+      "direction_normalization": "none",
+      "lr": "1.2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226870",
+      "phase": "main",
+      "method": "manifold_mcsd",
+      "direction_normalization": "frobenius",
+      "lr": "2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226871",
+      "phase": "main",
+      "method": "manifold_mcsd",
+      "direction_normalization": "none",
+      "lr": "2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    },
+    {
+      "job_id": "4226872",
+      "phase": "main",
+      "method": "manifold_mcsd_tp",
+      "direction_normalization": "none",
+      "lr": "2e-2",
+      "completion": null,
+      "runtime": null,
+      "manifest_matches_old": null,
+      "changed_since_run": [],
+      "source_hashes_match": true,
+      "training_sources_match": true,
+      "train_loss_tail": [],
+      "validation_loss_tail": [],
+      "skipped_counts": [],
+      "nan_counts": [],
+      "direction_samples": 0
+    }
+  ],
+  "accounting": "4226742|COMPLETED|00:01:16|SPG-7-1\n4226743|COMPLETED|00:01:05|SPG-7-1\n4226861|RUNNING|00:02:15|SPG-7-1\n4226862|PENDING|00:00:00|None assigned\n4226863|PENDING|00:00:00|None assigned\n4226864|PENDING|00:00:00|None assigned\n4226865|PENDING|00:00:00|None assigned\n4226866|PENDING|00:00:00|None assigned\n4226867|PENDING|00:00:00|None assigned\n4226868|PENDING|00:00:00|None assigned\n4226869|PENDING|00:00:00|None assigned\n4226870|PENDING|00:00:00|None assigned\n4226871|PENDING|00:00:00|None assigned\n4226872|PENDING|00:00:00|None assigned\n"
+}

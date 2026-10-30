@@ -1,5 +1,11 @@
 # MCSD Dense LM Experiments
 
+**Complete experiment archive:** [all experiments and coverage](docs/experiments/ALL_EXPERIMENTS.md)
+and [all 80 completed training records](docs/experiments/experiment_inventory/COMPLETED_RUNS.md).
+Includes every recorded LR, momentum setting, seed and normalization variant;
+older protocols, short tests, cancellations and unrun plans are separated.
+The latest comparison below does not replace the historical results.
+
 Latest results: [Frobenius sphere 3B/6B summary](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md),
 updated 2026-10-29: 64 completed Frobenius runs; the four Nesterov follow-ups are complete.
 Matched beta-0.95 Nesterov improves all four methods, with NorMuon-Sphere lowest at seed 1234.
@@ -27,6 +33,10 @@ optimizer and experiment repositories. No new model-training framework is used.
 - [H20 integration verification](docs/experiments/mcsd_three_geometries/H20_VALIDATION_20260924.md):
   ten successful short method/constraint checks, recovery fixes and remaining gates.
 - [Environment and loading](docs/experiments/mcsd_three_geometries/ENVIRONMENT.md).
+- [2026-10-20 completed Frobenius follow-ups](docs/experiments/mcsd_three_geometries/reports/followup_20261020/README.md):
+  all 12 runs, matched EMA learning-rate comparisons and the second seed.
+- [6B preparation restart](docs/experiments/mcsd_three_geometries/DATA_PREP_RESTART_20261020.md):
+  IO-node download plus CPU-only indexing; preserves the frozen 3B base.
 
 ```bash
 # Preview, without submitting or consuming GPUs.
@@ -38,6 +48,10 @@ not measure the new geometry-matched 3B protocol. The original exploration
 checkout and the separately frozen paper reproduction repository are unchanged.
 
 ## Historical SSO Test Experiments
+
+**Archival section:** the status wording below belongs to its original reporting
+dates. It is not the current queue or the new three-geometry protocol. These
+records are preserved separately from the consolidated inventory above.
 
 This repository manages one experiment track for a paper project on SSO-style optimizers in Megatron-LM. It keeps the runnable Slurm scripts, data-preparation utilities, experiment notes, and completed result summaries needed to reproduce and extend the current width-scaling study.
 

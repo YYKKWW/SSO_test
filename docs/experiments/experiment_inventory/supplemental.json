@@ -1,0 +1,75 @@
+{
+  "compiled_on": "2026-10-29",
+  "scope": "Historical three-geometry runs, separate from the current width-256 shape-radius ledger",
+  "completed_batches": [
+    {
+      "id": "w384_init_radius_100m",
+      "source": "mcsd_three_geometries/PILOT_20260924.md",
+      "source_commit": "cf74b951676fdea7d37aa1b2b6874db4f1ee0e36",
+      "width": 384,
+      "parameters": 126641024,
+      "tokens": 100000000,
+      "processed_tokens": 100139008,
+      "final_step": 382,
+      "seed": 1234,
+      "lr": 0.01,
+      "radius_protocol": "initialization-derived, frozen",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "runs": [
+        {"job_id": "4105835", "geometry": "spectral", "label": "SSO", "beta": 0.9, "nesterov": true, "final_val": 4.858260, "elapsed": "00:56:38", "max_sparse_defect": 0.13761},
+        {"job_id": "4105836", "geometry": "spectral", "label": "MCSD", "beta": 0.95, "nesterov": false, "final_val": 4.874525, "elapsed": "01:01:23", "max_sparse_defect": 0.05234},
+        {"job_id": "4105837", "geometry": "stiefel", "label": "MCSD", "beta": 0.95, "nesterov": false, "final_val": 4.985168, "elapsed": "00:52:34", "max_sparse_defect": 2.91e-7},
+        {"job_id": "4105838", "geometry": "stiefel", "label": "iMuon", "beta": 0.95, "nesterov": false, "final_val": 4.935535, "elapsed": "00:53:21", "max_sparse_defect": 2.75e-7},
+        {"job_id": "4105839", "geometry": "spectral", "label": "MuonSphere", "beta": 0.9, "nesterov": true, "final_val": 4.851736, "elapsed": "00:51:51", "max_sparse_defect": 0.05276},
+        {"job_id": "4105840", "geometry": "frobenius", "label": "MuonH", "beta": 0.9, "nesterov": true, "final_val": 4.842168, "elapsed": "00:51:29", "max_sparse_defect": 1.19e-7},
+        {"job_id": "4105841", "geometry": "stiefel", "label": "MCSD-TP", "beta": 0.95, "nesterov": false, "final_val": 4.981171, "elapsed": "00:52:45", "max_sparse_defect": 2.93e-7},
+        {"job_id": "4105842", "geometry": "spectral", "label": "MCSD-TP", "beta": 0.95, "nesterov": false, "final_val": 4.871354, "elapsed": "00:53:41", "max_sparse_defect": 0.15764},
+        {"job_id": "4105843", "geometry": "frobenius", "label": "MCSD", "beta": 0.95, "nesterov": false, "final_val": 4.968240, "elapsed": "00:51:25", "max_sparse_defect": 0.0},
+        {"job_id": "4105844", "geometry": "frobenius", "label": "MCSD-TP", "beta": 0.95, "nesterov": false, "final_val": 4.958734, "elapsed": "00:51:43", "max_sparse_defect": 1.17e-7}
+      ]
+    },
+    {
+      "id": "w384_init_radius_3b",
+      "source": "mcsd_three_geometries/MAIN_3B_20260924.md",
+      "source_commit": "900c4e347f32419b7a0c07a7d829723c84631e6e",
+      "width": 384,
+      "parameters": 126641024,
+      "tokens": 3000000000,
+      "processed_tokens": 3000238080,
+      "final_step": 11445,
+      "seed": 1234,
+      "lr": 0.01,
+      "radius_protocol": "initialization-derived, frozen",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "runs": [
+        {"job_id": "4106582", "geometry": "frobenius", "label": "MCSD", "beta": 0.95, "nesterov": false, "final_val": 3.299155, "elapsed": "25:28:44", "max_sparse_defect": 1.19e-7},
+        {"job_id": "4106583", "geometry": "stiefel", "label": "MCSD", "beta": 0.95, "nesterov": false, "final_val": 3.430487, "elapsed": "26:01:18", "max_sparse_defect": 2.95e-7},
+        {"job_id": "4106584", "geometry": "frobenius", "label": "MCSD-TP", "beta": 0.95, "nesterov": false, "final_val": 3.299154, "elapsed": "25:26:49", "max_sparse_defect": 1.66e-7},
+        {"job_id": "4106585", "geometry": "stiefel", "label": "MCSD-TP", "beta": 0.95, "nesterov": false, "final_val": 3.430471, "elapsed": "26:00:59", "max_sparse_defect": 2.96e-7},
+        {"job_id": "4106586", "geometry": "frobenius", "label": "MuonH", "beta": 0.9, "nesterov": true, "final_val": 3.309457, "elapsed": "25:19:02", "max_sparse_defect": 1.66e-7},
+        {"job_id": "4106587", "geometry": "stiefel", "label": "iMuon", "beta": 0.95, "nesterov": false, "final_val": 3.428445, "elapsed": "26:13:50", "max_sparse_defect": 2.79e-7}
+      ]
+    }
+  ],
+  "non_final_records": [
+    {"jobs": "4104124", "kind": "Startup failure", "outcome": "Python/module binary mismatch; repaired before the successful smoke suite.", "source": "mcsd_three_geometries/H20_VALIDATION_20260924.md"},
+    {"jobs": "4104125", "kind": "Startup failure", "outcome": "Required ignored Megatron runtime sources were missing; restored before training checks.", "source": "mcsd_three_geometries/H20_VALIDATION_20260924.md"},
+    {"jobs": "4104136", "kind": "Startup failure", "outcome": "Initialization used raw BF16 parameters instead of FP32 masters; initialization/radius routing repaired.", "source": "mcsd_three_geometries/H20_VALIDATION_20260924.md"},
+    {"jobs": "4104139, 4104144-4104152", "kind": "Single-H20 smoke", "outcome": "Ten method/geometry checks completed, 2-4 steps; not training-budget results.", "source": "mcsd_three_geometries/H20_VALIDATION_20260924.md"},
+    {"jobs": "4104138, 4104142, 4104148", "kind": "Preliminary resume", "outcome": "Endpoint matched but the initial RNG/state comparison needed fixes; not the strict-resume acceptance record. Job 4104148 also appears in the smoke suite.", "source": "mcsd_three_geometries/H20_VALIDATION_20260924.md"},
+    {"jobs": "4104181, 4104182, 4104211", "kind": "Strict resume", "outcome": "Passed after fixes: continuous versus resumed model/state/RNG/scheduler agreement.", "source": "mcsd_three_geometries/resume_verification_20260924.json"},
+    {"jobs": "4104214", "kind": "Optional two-GPU check", "outcome": "TIMEOUT after 00:20:24, before a training iteration. Cause unestablished; not a passed DP check.", "source": "mcsd_three_geometries/H20_VALIDATION_20260924.md"},
+    {"jobs": "4106552", "kind": "Checkpoint retention", "outcome": "Completed four steps in 00:01:48; verified step-4 save and removal of the preceding checkpoint.", "source": "mcsd_three_geometries/MAIN_3B_20260924.md"},
+    {"jobs": "4197448-4197451", "kind": "Shape-radius smoke", "outcome": "Four method checks passed; identical component metadata, zero NaN/skips. Metadata equality is not a tensor-byte equality check.", "source": "experiment_inventory/width256_smoke_audit_20261001.json"},
+    {"jobs": "4226742, 4226743", "kind": "Unit-F smoke", "outcome": "Both completed; checked default versus unit-F direction and constraint residual. Training source hashes matched; the submit helper changed later.", "source": "experiment_inventory/frobenius_unit_audit_20261005.json"},
+    {"jobs": "4288197", "kind": "Cancelled by user", "outcome": "3B MuonH, 0.95 EMA, LR=0.01. No qualified final-budget result. Later replacement: 4320101, completed.", "source": "mcsd_three_geometries/reports/width256_6b_transfer_20261020/README.md"},
+    {"jobs": "4288198", "kind": "Cancelled by user", "outcome": "3B NorMuon-Sphere, 0.95 EMA, LR=0.01. No qualified final-budget result. Later replacement: 4320102, completed.", "source": "mcsd_three_geometries/reports/width256_6b_transfer_20261020/README.md"},
+    {"jobs": "4288200", "kind": "Cancelled by user", "outcome": "6B MCSD-TP; no qualified final-budget result, no completed replacement in this ledger.", "source": "mcsd_three_geometries/reports/width256_6b_transfer_20261020/README.md"},
+    {"jobs": "4288207", "kind": "Cancelled by user", "outcome": "6B MuonH; no qualified final-budget result, no completed replacement in this ledger.", "source": "mcsd_three_geometries/reports/width256_6b_transfer_20261020/README.md"},
+    {"jobs": "4262916", "kind": "Data preparation failure", "outcome": "6B preparation failed on October 13 before committing a new shard; compute-node download access unavailable.", "source": "mcsd_three_geometries/DATA_PREP_RESTART_20261020.md"},
+    {"jobs": "4287616", "kind": "Data transport diagnosis", "outcome": "Compute-node connection failed; official IO-node access worked.", "source": "mcsd_three_geometries/DATA_PREP_RESTART_20261020.md"},
+    {"jobs": "4287721", "kind": "Data preparation completed", "outcome": "IO-node download plus CPU indexing produced 6,000,011,141 indexed training tokens. Existing 3B validation retained. This is not a GPU training run.", "source": "mcsd_three_geometries/reports/width256_6b_transfer_20261020/README.md"}
+  ]
+}

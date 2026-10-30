@@ -1,6 +1,14 @@
 # Frobenius Sphere: 3B / 6B Experiment Summary
 
-**Updated October 29, 2026.** Results and queue status verified at 15:01 HKT.
+[Complete project inventory](ALL_EXPERIMENTS.md) includes all LR/momentum/seed
+coverage, the older width-384 protocols, cancelled runs and local small-problem
+tests. [Full job ledger](experiment_inventory/COMPLETED_RUNS.md).
+This page interprets the current width-256 study; it is not a replacement for
+the complete history.
+
+**Documentation updated October 30, 2026.** Completed results below were verified
+on October 29 at 15:01 HKT. The new seven-run batch is prepared but **not submitted**:
+the H20 upload and subsequent SSH checks failed. See the [new batch record](FROBENIUS_NESTEROV_NORUNIT_20261029.md).
 Width 256, 28 layers, Frobenius sphere, fixed `r=1`.
 
 | Completed 3B | Completed 6B | Running | Waiting for dependencies |
@@ -11,7 +19,8 @@ Width 256, 28 layers, Frobenius sphere, fixed `r=1`.
 
 This is a verified snapshot, not a live dashboard. **Completed results, partial measurements, and submitted jobs are reported separately.** Lower loss is better.
 The older width-384 experiments with initialization-energy-matched radii are excluded from the current comparison.
-The counts above cover this Frobenius study only. A separate spectral-cluster array still has one running task and three pending tasks; it is not included here.
+The counts above are the October 29 15:01 snapshot of this Frobenius study only.
+Separate spectral-cluster jobs are excluded. They are not a live statement about today's queue.
 
 Implementation reference: [optimizer pseudocode and code comparison (Chinese)](OPTIMIZER_PSEUDOCODE_GUIDE.md).
 
@@ -30,6 +39,33 @@ Implementation reference: [optimizer pseudocode and code comparison (Chinese)](O
 
 MCSD-TP and MCSD are **0.005357 and 0.005891 above NorMuon-Sphere**, respectively; their gaps to MuonH are +0.002663 and +0.003197.
 The earlier apparent MCSD advantage compared its new Nesterov setting against baselines with different momentum settings. That advantage does not survive this matched comparison.
+
+### Earlier LR=0.015 Results Are Already Complete
+
+The table above is restricted to **0.95 Nesterov**, not the full LR history.
+The earlier runs at **0.015 have not been removed**; the original-momentum sweep also reached **0.020**.
+All entries below use width 256, 3B tokens, seed 1234, fixed Frobenius `r=1`, and no extra unit-F normalization.
+
+| Method | Momentum | LR=0.010 | LR=0.015 | Job at 0.015 |
+|---|---|---:|---:|---|
+| MCSD | 0.95 EMA | **3.467720** | 3.489496 | 4197466 |
+| MCSD-TP | 0.95 EMA | **3.467858** | 3.487949 | 4197470 |
+| MuonH | 0.9 Nesterov | 3.476769 | **3.466668** | 4197474 |
+| NorMuon-Sphere | 0.9 Nesterov | 3.476793 | **3.464757** | 4197478 |
+| MCSD | 0.9 EMA | 3.473145 | **3.472291** | 4255793 |
+| MCSD-TP | 0.9 EMA | 3.474456 | **3.472186** | 4255795 |
+| MuonH | 0.9 EMA | 3.471362 | **3.464883** | 4255794 |
+| NorMuon-Sphere | 0.9 EMA | 3.470496 | **3.464984** | 4255796 |
+
+Bold marks the lower of the two displayed LRs within each row, not the optimum over the complete grid.
+In particular, MCSD/MCSD-TP with 0.9 EMA performed better at 0.012 than at either displayed LR.
+The first four rows mix momentum configurations and must not be interpreted as a matched-momentum comparison.
+See [the full LR grids](#comparisons) for 0.005/0.007/0.008/0.012/0.020 and the separate unit-F ablation.
+
+**The requested next grid is 0.012/0.015 with beta=0.95 Nesterov for MCSD,
+MuonH and NorMuon-Sphere (six runs).** No additional MCSD-TP run is requested.
+Testing those combinations extends the new momentum configuration; it does not
+repeat the completed EMA or 0.9-Nesterov runs.
 
 ![Four methods with matched Nesterov: full validation trajectory and last 0.5B tokens](frobenius_3b_6b/nesterov095_matched_20261029.png)
 
@@ -64,7 +100,7 @@ The earlier lack of improvement with beta=0.9 applies only to the tested configu
 | 4346668 | MCSD-TP | 3B / 2026 | 0.010 / 0.95 Nesterov | 3.463603 | 18:38:17 |
 
 All four finished on October 28 with `COMPLETED / exit 0:0`, no NaNs, and no skipped iterations. Each reached final validation at step 11445.
-The submitted configuration hashes and optimizer-source hashes match the recorded startup configurations. Checkpoint saving was disabled. Disk space remains approximately 29 GB; this update submits no new jobs.
+The submitted configuration hashes and optimizer-source hashes match the recorded startup configurations. Checkpoint saving was disabled. Disk space was approximately 29 GB at that check; it is not a current measurement.
 
 ### Nesterov Replication Across Seeds
 
@@ -313,7 +349,8 @@ Existing baseline EMA runs or older Nesterov runs at LR=0.015 cannot substitute 
 | Priority | Configuration / scale | Runs | Purpose and prerequisite |
 |---|---|---:|---|
 | B1: complete replication | MuonH/NorMuon-Sphere; 0.95 Nesterov; LR=0.010; seed=2026; 3B | 2 | Highest priority: complete the paired-seed comparison; retain and report both regardless of ranking |
-| B2: local LR grid | Four methods; 0.95 Nesterov; seed=1234; additional LR=0.008/0.012 | 8 | Only 0.010 has been tested in this mode. Test 0.012 for all four first, then 0.008; existing EMA results cannot replace these runs |
+| B2: requested LR grid | MCSD/MuonH/NorMuon-Sphere; 0.95 Nesterov; seed=1234; LR=0.012/0.015 | 6 | Prepared, not submitted. MCSD-TP excluded by request; existing EMA results cannot replace these runs |
+| B2a: MCSD-NorUnit | MCSD with row-adaptive scaling and unit-F direction; 0.95 Nesterov; seed=1234; LR=0.010 | 1 | Prepared, not submitted. Compare with existing matched MCSD/MuonH/NorMuon-Sphere at 0.010 |
 | B3: robustness | Four frozen configurations; a third prespecified paired seed | 4 | Report paired differences, means, and standard deviations rather than only the best run |
 | C1: new 6B comparison | Four configurations frozen after 3B; fresh initialization; shared seed and data order | 4 | Follow 3B replication. A two-method pilot with MCSD-TP and the strongest 3B baseline does not replace the four-method comparison |
 | C2: scale transfer | Width384/512; fixed shape-radius, data, and auxiliary AdamW protocol; transfer hyperparameters first | Staged | Separate fixed-configuration transfer from retuning. Multiple scales and budgets are needed before discussing scaling laws |

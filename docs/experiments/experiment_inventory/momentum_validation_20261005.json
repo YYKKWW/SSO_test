@@ -1,0 +1,8 @@
+{
+  "torch": "2.6.0+cu124",
+  "device": "cpu",
+  "regression_cases": 6,
+  "regression_updates": 10,
+  "formula_and_resume_cases": 48,
+  "passed": true
+}

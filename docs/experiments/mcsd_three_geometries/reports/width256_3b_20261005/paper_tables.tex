@@ -1,0 +1,48 @@
+% Requires booktabs. Generated from final validation endpoints, seed 1234.
+\begin{table}[t]
+\centering\small
+\caption{Final validation loss for the width-256 Frobenius-sphere model after 3B tokens. Bold marks each method's best tested learning rate.}
+\label{tab:frobenius-3b-lr}
+\begin{tabular}{lrrrr}
+\toprule
+Method & $5\times10^{-3}$ & $7\times10^{-3}$ & $10^{-2}$ & $1.5\times10^{-2}$ \\
+\midrule
+MCSD & 3.485531 & 3.470591 & \textbf{3.467720} & 3.489496 \\
+MCSD-TP & 3.485612 & 3.470890 & \textbf{3.467858} & 3.487949 \\
+MuonH & 3.529123 & 3.500046 & 3.476769 & \textbf{3.466668} \\
+NorMuon-Sphere & 3.526564 & 3.499072 & 3.476793 & \textbf{3.464757} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering\small
+\caption{Mean online training loss over updates 11341--11440. This is not a full training-set evaluation; the last five updates are not in stdout.}
+\label{tab:frobenius-3b-train}
+\begin{tabular}{lrrrr}
+\toprule
+Method & $5\times10^{-3}$ & $7\times10^{-3}$ & $10^{-2}$ & $1.5\times10^{-2}$ \\
+\midrule
+MCSD & 3.461783 & 3.447546 & \textbf{3.444805} & 3.466866 \\
+MCSD-TP & 3.462480 & 3.447613 & \textbf{3.445287} & 3.465570 \\
+MuonH & 3.505829 & 3.476999 & 3.453176 & \textbf{3.443349} \\
+NorMuon-Sphere & 3.503229 & 3.475798 & 3.454270 & \textbf{3.441753} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering\small
+\caption{Method-wise best grid learning rate, online training tail mean, final validation loss and single-H20 elapsed time (h:m:s). Single seed; no significance claim.}
+\label{tab:frobenius-3b-best}
+\begin{tabular}{lrrrr}
+\toprule
+Method & LR & Train & Val & Time \\
+\midrule
+MCSD & $10^{-2}$ & 3.444805 & 3.467720 & 18:36:00 \\
+MCSD-TP & $10^{-2}$ & 3.445287 & 3.467858 & 18:32:38 \\
+MuonH & $1.5\times10^{-2}$ & 3.443349 & 3.466668 & 18:30:16 \\
+NorMuon-Sphere & $1.5\times10^{-2}$ & 3.441753 & 3.464757 & 18:33:07 \\
+\bottomrule
+\end{tabular}
+\end{table}

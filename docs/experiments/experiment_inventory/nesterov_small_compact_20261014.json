@@ -1,0 +1,282 @@
+{
+  "best_by_method": [
+    {
+      "learning_rate": 0.16,
+      "maximum_constraint_defect": 5.551115123125783e-15,
+      "median_elapsed_ms": 52.1424375474453,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 5.306742007086094e-15,
+      "median_reached_iteration": 401.5,
+      "median_top_alignment": 1.0,
+      "method": "ema",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.16,
+      "maximum_constraint_defect": 4.3298697960381105e-15,
+      "median_elapsed_ms": 52.43408342357725,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 3.157449100050191e-16,
+      "median_reached_iteration": 366.0,
+      "median_top_alignment": 1.0,
+      "method": "muon_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.12,
+      "maximum_constraint_defect": 1.5543122344752192e-15,
+      "median_elapsed_ms": 86.189458030276,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 0.0,
+      "median_reached_iteration": 38.0,
+      "median_top_alignment": 1.0,
+      "method": "manifold_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    }
+  ],
+  "config": {
+    "beta": 0.9,
+    "device": "cpu",
+    "dtype": "float64",
+    "iterations": 1500,
+    "learning_rates": [
+      0.04,
+      0.08,
+      0.12,
+      0.16,
+      0.24,
+      0.32
+    ],
+    "log_map": "atan2",
+    "radius": 1.0,
+    "restart": false,
+    "seeds": 12,
+    "shape": [
+      8,
+      8
+    ],
+    "state_layout": "one extra matrix per method; live extrapolated model parameter",
+    "target_gap": 1e-08
+  },
+  "summary": [
+    {
+      "learning_rate": 0.04,
+      "maximum_constraint_defect": 5.10702591327572e-15,
+      "median_elapsed_ms": 53.2546458998695,
+      "median_final_gap": 9.325873406851315e-15,
+      "median_final_gradient_norm": 7.66490445447679e-13,
+      "median_reached_iteration": 486.0,
+      "median_top_alignment": 0.9999999999999991,
+      "method": "ema",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.08,
+      "maximum_constraint_defect": 3.885780586188048e-15,
+      "median_elapsed_ms": 52.099374937824905,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 3.3006380102366893e-14,
+      "median_reached_iteration": 431.0,
+      "median_top_alignment": 1.0,
+      "method": "ema",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.12,
+      "maximum_constraint_defect": 4.107825191113079e-15,
+      "median_elapsed_ms": 52.38879192620516,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 1.0003238862664287e-14,
+      "median_reached_iteration": 412.0,
+      "median_top_alignment": 1.0,
+      "method": "ema",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.16,
+      "maximum_constraint_defect": 5.551115123125783e-15,
+      "median_elapsed_ms": 52.1424375474453,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 5.306742007086094e-15,
+      "median_reached_iteration": 401.5,
+      "median_top_alignment": 1.0,
+      "method": "ema",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.24,
+      "maximum_constraint_defect": 1.5543122344752192e-15,
+      "median_elapsed_ms": 51.88289599027485,
+      "median_final_gap": 1.056915680380652,
+      "median_final_gradient_norm": 3.8137076271036863,
+      "median_reached_iteration": Infinity,
+      "median_top_alignment": 0.8746324175370914,
+      "method": "ema",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.32,
+      "maximum_constraint_defect": 8.881784197001252e-16,
+      "median_elapsed_ms": 51.99087492655963,
+      "median_final_gap": 2.294090775568253,
+      "median_final_gradient_norm": 4.4955970417333235,
+      "median_reached_iteration": Infinity,
+      "median_top_alignment": 0.6998599432416992,
+      "method": "ema",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.04,
+      "maximum_constraint_defect": 3.885780586188048e-15,
+      "median_elapsed_ms": 87.52270846161991,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 1.9248575843831788e-50,
+      "median_reached_iteration": 108.0,
+      "median_top_alignment": 1.0,
+      "method": "manifold_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.08,
+      "maximum_constraint_defect": 2.55351295663786e-15,
+      "median_elapsed_ms": 86.45310439169407,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 1.36205048061215e-112,
+      "median_reached_iteration": 57.0,
+      "median_top_alignment": 1.0,
+      "method": "manifold_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.12,
+      "maximum_constraint_defect": 1.5543122344752192e-15,
+      "median_elapsed_ms": 86.189458030276,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 0.0,
+      "median_reached_iteration": 38.0,
+      "median_top_alignment": 1.0,
+      "method": "manifold_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.16,
+      "maximum_constraint_defect": 1.1102230246251565e-15,
+      "median_elapsed_ms": 92.4779165070504,
+      "median_final_gap": 0.05650438160272753,
+      "median_final_gradient_norm": 1.0021516293894177,
+      "median_reached_iteration": Infinity,
+      "median_top_alignment": 0.9937019023605366,
+      "method": "manifold_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.24,
+      "maximum_constraint_defect": 4.440892098500626e-16,
+      "median_elapsed_ms": 92.58687507826835,
+      "median_final_gap": 0.6348061245312611,
+      "median_final_gradient_norm": 3.132825398676583,
+      "median_reached_iteration": Infinity,
+      "median_top_alignment": 0.9267858287254863,
+      "method": "manifold_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.32,
+      "maximum_constraint_defect": 3.3306690738754696e-16,
+      "median_elapsed_ms": 92.60370896663517,
+      "median_final_gap": 1.5749730575091125,
+      "median_final_gradient_norm": 2.641757191099816,
+      "median_reached_iteration": Infinity,
+      "median_top_alignment": 0.3956319478519923,
+      "method": "manifold_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.04,
+      "maximum_constraint_defect": 4.107825191113079e-15,
+      "median_elapsed_ms": 52.84677050076425,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 9.37330926418405e-14,
+      "median_reached_iteration": 451.0,
+      "median_top_alignment": 1.0,
+      "method": "muon_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.08,
+      "maximum_constraint_defect": 4.6629367034256575e-15,
+      "median_elapsed_ms": 52.407708135433495,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 2.5850771591293014e-15,
+      "median_reached_iteration": 395.5,
+      "median_top_alignment": 1.0,
+      "method": "muon_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.12,
+      "maximum_constraint_defect": 4.440892098500626e-15,
+      "median_elapsed_ms": 52.27989598643035,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 6.567229700448058e-16,
+      "median_reached_iteration": 376.5,
+      "median_top_alignment": 1.0,
+      "method": "muon_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.16,
+      "maximum_constraint_defect": 4.3298697960381105e-15,
+      "median_elapsed_ms": 52.43408342357725,
+      "median_final_gap": 0.0,
+      "median_final_gradient_norm": 3.157449100050191e-16,
+      "median_reached_iteration": 366.0,
+      "median_top_alignment": 1.0,
+      "method": "muon_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.24,
+      "maximum_constraint_defect": 1.3322676295501878e-15,
+      "median_elapsed_ms": 53.087103995494545,
+      "median_final_gap": 1.0070891394017463,
+      "median_final_gradient_norm": 3.751090731349831,
+      "median_reached_iteration": Infinity,
+      "median_top_alignment": 0.881023441669478,
+      "method": "muon_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    },
+    {
+      "learning_rate": 0.32,
+      "maximum_constraint_defect": 7.771561172376096e-16,
+      "median_elapsed_ms": 53.12785436399281,
+      "median_final_gap": 2.2625954607874115,
+      "median_final_gradient_norm": 4.4999221025906095,
+      "median_reached_iteration": Infinity,
+      "median_top_alignment": 0.7051242276564125,
+      "method": "muon_nesterov",
+      "optimizer_state_bytes": 512,
+      "seeds": 12
+    }
+  ]
+}
