@@ -1,0 +1,6 @@
+{
+  "files": 3131,
+  "archive_sha256": "aedd10b131aec4259536461502275bbe230d2df621e774d1ac3b5b309ff6c0fe",
+  "source_manifest_sha256": "304ed9a64cb682548196a3784688884f8ae8ca4ea15c7b3908969a102742300e",
+  "fix": "standalone preflight import path; consume launch overrides before subprocess tests"
+}

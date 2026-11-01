@@ -1,0 +1,16 @@
+{
+  "root": "/home/u3013198/projects/cluster-followup-1b-20261101",
+  "audit_job": "4373185",
+  "pair_array": "4373186",
+  "concurrent_gpu_limit": 2,
+  "archive_sha256": "4eeeeb8a59d52af59737a1cf9fe1d31ef4192f107000c1c94c7d3b5fee19528c",
+  "pair_seed": 1234,
+  "train_iterations": 1908,
+  "eval_batches": 20,
+  "pair_arms": [
+    "MCSD-TP K10",
+    "Hybrid K10 c8 cluster=2e-3"
+  ],
+  "dependency": "afterok:4373185",
+  "submitted_at": "2026-11-02T00:08:56+08:00"
+}

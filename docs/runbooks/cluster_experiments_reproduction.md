@@ -1,29 +1,47 @@
-# 当前 cluster 实验：复现入口
+# Reproducing the Current Cluster Experiments
 
-本页对应 `exp/mcsd-experiment-results` 分支的 width-256 / 1B 与 3B 实验。算法见 [说明文档](../algorithms/current_comparison_pseudocode.md)，数据与结果口径见 [结果汇总](../experiments/cluster_results_20261026.md)。
+[Overview](../../README.md) · [Results](../experiments/mcsd_p2gd_results_summary.md) · [Algorithms](../algorithms/current_comparison_pseudocode.md)
 
-## 1. 环境与数据
+This runbook covers the `exp/mcsd-experiment-results` branch. It does not
+replace the frozen historical paper configuration.
 
-已使用的 H20 环境为 Python 3.12.1、PyTorch 2.6.0+cu124、CUDA 12.4。完整 Megatron 训练环境参考已有 [H20 runbook](h20_spel_megatron_runbook.md) 和仓库环境脚本；仅安装 PyTorch 不足以保证完整 LLM 训练可运行。
+## Environment and Data
 
-启动脚本默认使用 HKU 的 `c_math_gpu` 分区、`nvidia_h20:1`、`python/3.12.1` / `cuda/12.4` 模块和 `$HOME/envs/sso_h20`。其他集群需要调整这些站点设置，不改变算法参数。
+The tested H20 environment uses **Python 3.12.1, PyTorch 2.6.0+cu124, and CUDA
+12.4**. Follow the existing [H20 setup guide](h20_spel_megatron_runbook.md)
+and environment scripts. Installing PyTorch alone is insufficient for the
+complete Megatron training stack.
 
-需自行准备与实验协议匹配的 OLMo 数据：训练和验证的 Megatron `.bin/.idx` 前缀，以及本地 OLMo-2 tokenizer。仓库不附带数据集。两轮实验复用同一份 3B indexed 数据源；1B 表示处理预算，不表示切换到旧论文的 1B 样本文件。
+Launchers use HKU's `c_math_gpu` partition, `gpu` QoS,
+`nvidia_h20:1`, Python/CUDA modules, and `$HOME/envs/sso_h20`. Adapt these
+site settings for another cluster without silently changing algorithm settings.
 
-## 2. 先做针对性测试
+Prepare the Megatron training/validation `.bin/.idx` prefixes and a local
+OLMo-2 tokenizer. Data are not included. Current 1B/3B runs share the
+**3B indexed source**; 1B denotes the processed-token budget, not the historical
+paper's separate sample. Use the original data order to attempt exact
+reproduction; another sample is a replication, not an identical run.
 
-在已安装项目依赖的环境中，从仓库根目录执行：
+## Tests
+
+From the repository root, inside the configured training environment:
 
 ```bash
 export PYTHONPATH="$PWD/Megatron-LM:$PWD/scripts${PYTHONPATH:+:$PYTHONPATH}"
-P2GD_TEST_DEVICE=cpu python -B -m unittest discover -s scripts -p 'test_cluster_*.py' -v
+P2GD_TEST_DEVICE=cpu python -B -m unittest discover -s scripts -p 'test_cluster*.py' -v
 ```
 
-本次发布目录的 38 个测试通过。它们验证方向、步长、返回点缓存、小 SVD 次数和配置匹配，不等于完整 LLM 训练测试。Slurm 启动脚本会在 H20 上重新执行对应 CUDA 预检。
+The cluster suite has 63 tests, covering directions, returns, cache semantics,
+small-SVD calls, launch grids, and Slurm-spooled wrapper paths. CUDA preflight
+runs on the compute node. Unit tests do not replace an actual training smoke
+or full-budget endpoint verification.
+An additional result-collector regression test checks both intermediate and
+final validation log formats; all 64 local tests pass.
 
-## 3. 设置路径与源码清单
+## Explicit Paths and Source Snapshot
 
-以下操作在 H20 登录节点的仓库根目录执行；路径占位符必须替换为实际文件。
+On the cluster, use a separate checkout per batch. Do not modify its code
+while a job is running.
 
 ```bash
 export PROJECT_DIR="$PWD"
@@ -31,41 +49,72 @@ export ENV_DIR="$HOME/envs/sso_h20"
 export TRAIN_DATA_PREFIX="/path/to/indexed/train/olmo_train_text_document"
 export VALID_DATA_PREFIX="/path/to/indexed/valid/olmo_valid_text_document"
 export TOKENIZER_MODEL="/path/to/OLMo-2-tokenizer"
-
 mkdir -p logs
 git ls-files -z Megatron-LM scripts slurm | xargs -0 sha256sum > source.sha256
 ```
 
-`DATA_PREFIX` 不带 `.bin` 或 `.idx` 后缀。源码清单用于每次启动前检查本次 checkout；它不是原始 H20 运行的远端清单。提交后不要修改同一运行目录的代码，建议每轮使用独立 checkout。
+Data prefixes omit the `.bin/.idx` extension. The manifest verifies this
+checkout, not an earlier training snapshot. Completed results retain their
+original manifests separately.
 
-## 4. 选择一轮提交
+## Select a Comparison
 
-**3B 六组实验：** K10/K20 的 control 与混合配对，加 MuonSphere/SSO，最多同时占用 3 张 H20。
+| Launcher | Scope | Evaluation |
+|---|---|---|
+| [Six-arm 1B](../../slurm/cluster_cone_lmo_1b_20261031.sbatch) | MuonSphere, SSO, control, wide/narrow hybrid, single-LMO; seed 2345 | 1908 steps, 20 batches |
+| [Paired 1B](../../slurm/cluster_replication_1b_20261101.sbatch) | K10 control and wide c8 hybrid; seed 1234 | 1908 steps, 20 batches |
+| [First-seed 3B](../../slurm/cluster_selected_3b_20261025.sbatch) | Baselines plus K10/K20 control/hybrid pairs | 5723 steps, 20 batches |
+| [Earlier 1B grid](../../slurm/cluster_candidates_1b_20261024.sbatch) | Two LRs, c4/c8/c12, K20/K40 | 1908 steps, 5 batches |
+
+Inspect configurations without launching training:
 
 ```bash
-sbatch --export=ALL --array=0-5%3 slurm/cluster_selected_3b_20261025.sbatch
+SLURM_ARRAY_TASK_ID=3 bash slurm/cluster_cone_lmo_1b_20261031.sbatch --describe
+SLURM_ARRAY_TASK_ID=0 bash slurm/cluster_replication_1b_20261101.sbatch --describe
 ```
 
-**1B 十二组网格：** 两种 LR，加 c=4/8/12 和 K40 消融，最多同时占用 3 张 H20。
+Choose one experiment; do not submit all historical grids just to get started.
+For the latest matched pair, after environment and data validation:
 
 ```bash
-sbatch --export=ALL --array=0-11%3 slurm/cluster_candidates_1b_20261024.sbatch
+sbatch --export=ALL --array=0-1%2 slurm/cluster_replication_1b_20261101.sbatch
 ```
 
-选择所需的一轮即可，不必同时提交。3B 是从头训练，非 1B checkpoint 续训；两轮均关闭 checkpoint。
+Each arm uses one H20, at most two concurrently. Training starts from
+initialization, not a 1B checkpoint. Checkpoints are disabled in these batches.
 
-## 5. 检查结果
+## Outputs and Verification
 
-每组输出位于 `results/<array_id>_<index>/`：
+Each arm writes `results/<array_id>_<index>/`:
 
-| 文件 | 用途 |
+| File | Meaning |
 |---|---|
-| `launch_config.json` | 实际参数与有效算法路径 |
-| `train.log` | train/validation loss、分支与迭代统计 |
-| `training_wall_seconds.txt` | 含验证、不含预检及离线审计的运行时间 |
-| `TRAINING_COMPLETED` | 训练命令正常结束 |
-| `COMPLETED` | 包括后处理在内全部正常结束 |
-| `snapshots/spectral_call_counts.json` | 实验分支的小 SVD / full SVD 调用计数 |
-| `snapshots/offline_audit.json` | 实验分支的抽样精度审计 |
+| `launch_config.json` | Effective settings, solver, data, seed, and runtime |
+| `train.log` | Train/validation loss and branch statistics |
+| `training_wall_seconds.txt` | Training plus validation, excluding preflight/audits |
+| `TRAINING_COMPLETED` | Training command exited successfully |
+| `COMPLETED` | Training and required postprocessing succeeded |
+| `source.sha256` | Training-source checksums |
+| `snapshots/spectral_call_counts.json` | Small/full SVD counters for experimental arms |
+| `snapshots/offline_audit.json` | Selected-sample numerical audit |
 
-基线不生成实验分支的快照/谱审计文件。先确认 Slurm 退出码、最终验证以及完成标记，再判断训练结果；不要把队列消失直接当成成功。
+Baselines do not generate the experimental spectral counters. Confirm the
+Slurm exit code, completion markers, and final validation iteration before
+reporting a result. Queue disappearance alone is not completion.
+
+Use [the collector](../../scripts/collect_cluster_results.py) with explicit
+completed run directories and an output path to obtain a traceable JSON.
+The latest figure is generated by
+[the plotting script](../../scripts/plot_cluster_mechanism_results.py), which
+requires Matplotlib in a plotting environment, not in the training job.
+
+## Offline Direction Audit
+
+[The scale audit](../../slurm/cluster_lmo_scales_20261101.sbatch) reads saved
+matrices; it does not retrain or change weights. Set `SNAPSHOT_ROOT` to the
+completed six-arm result directory. It compares cached/oracle directions and
+c0.5/c1/c2 with the same trial matrices and learning rates.
+
+Snapshots are intentionally not published because of size. To reproduce this
+audit, regenerate them with the observed training entry point. Published JSON
+contains selected-sample results and hashes, not population error guarantees.

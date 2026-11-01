@@ -1,0 +1,20 @@
+{
+  "root": "/home/u3013198/projects/cluster-followup-1b-20261101-v2",
+  "pair_array": "4373351",
+  "audit_job": "4373185",
+  "audit_state": "COMPLETED|0:0",
+  "previous_failed_array": "4373186",
+  "failure": "standalone preflight test import; no training",
+  "fix": "explicit import path and consumed launch overrides",
+  "concurrent_gpu_limit": 2,
+  "pair_seed": 1234,
+  "train_iterations": 1908,
+  "eval_batches": 20,
+  "pair_arms": [
+    "MCSD-TP K10",
+    "Hybrid K10 c8 cluster=2e-3"
+  ],
+  "dependency": "none: successful audit verified via sacct; finished job expired from controller",
+  "source_manifest_sha256": "304ed9a64cb682548196a3784688884f8ae8ca4ea15c7b3908969a102742300e",
+  "submitted_at": "2026-11-02T00:55:23+08:00"
+}

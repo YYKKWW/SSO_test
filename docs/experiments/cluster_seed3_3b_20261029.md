@@ -1,5 +1,17 @@
 # Third-Seed Replication and Offline Startup/Capacity Audit
 
+**Final status checked on 2026-10-31:** all six parent runs completed. All
+four third-seed jobs `4360583_0--3` failed on 2026-10-30 after four seconds,
+before model training, with exit 127. Slurm copied the wrapper to its spool
+directory, so the wrapper's sibling-relative launcher path was invalid.
+The local fix resolves the shared launcher through `PROJECT_DIR`; all five
+regression tests pass, including a spooled-wrapper simulation. No corrected
+jobs were submitted in the result/cleanup check. The completed CUDA audit
+below remains valid, but its original tests did not cover Slurm's spooling.
+See the [final results and failure record](cluster_results_20261031.md).
+
+## Historical Submission Snapshot
+
 Checked on **2026-10-29 at 17:04 HKT**. This batch implements the requested
 replication plan, without retuning the candidate or duplicating existing jobs.
 
