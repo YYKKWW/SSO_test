@@ -1,0 +1,33 @@
+{
+  "checked_date": "2026-11-02",
+  "status": "partial; both jobs running at readback",
+  "endpoint_step": 3000,
+  "schedule_steps": 11445,
+  "processed_tokens_at_1600": 419430400,
+  "runs": [
+    {
+      "job_id": "4373194",
+      "name": "point090_lr005",
+      "source_job": "4368413",
+      "loaded_checkpoint_step": 1000,
+      "stdout": "main_frobenius_manifold_mcsd_point0p9_w256_a99cec9fbc_4373194.out",
+      "val": [
+        {"step": 1200, "loss": 4.125251},
+        {"step": 1400, "loss": 4.071943},
+        {"step": 1600, "loss": 4.014438}
+      ]
+    },
+    {
+      "job_id": "4373195",
+      "name": "nesterov095_lr010",
+      "source_job": "4368414",
+      "loaded_checkpoint_step": 1000,
+      "stdout": "main_frobenius_manifold_mcsd_w256_4814d7f3c3_4373195.out",
+      "val": [
+        {"step": 1200, "loss": 4.012596},
+        {"step": 1400, "loss": 3.962121},
+        {"step": 1600, "loss": 3.911879}
+      ]
+    }
+  ]
+}

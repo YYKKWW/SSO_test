@@ -136,6 +136,8 @@ with the final 3B/6B tables.**
 The four new jobs use two serial single-GPU lanes and do not automatically
 promote to 3B or 6B. Original checkpoints, LR horizon and validation protocol
 are preserved. [Submission details](MCSD_POINT_PILOT_20261031.md#follow-up-tests).
+At the first step-1600 readback, point cap=0.90/LR=0.005 remains above the
+Nesterov control: **4.014438 versus 3.911879**. Both are partial runs.
 
 **Current research priority:** distinguish direction quality from actual
 angular step size and stochastic-gradient effects. Relevant evidence and

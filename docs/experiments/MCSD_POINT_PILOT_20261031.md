@@ -82,6 +82,20 @@ The other three completed pilots are not extended; their results stay reported.
 Continuations are expected to take roughly 3.2 hours each for the additional
 2000 steps, excluding queue time; the fresh pilot about 1.6 hours.
 
+**Partial continuation readback, November 2:** both active jobs loaded the
+original step-1000 checkpoint successfully. They have not reached their
+step-3000 endpoints. Point cap=0.90/LR=0.005 still trails the Nesterov control:
+
+| Iteration | Point 4373194 | Nesterov 4373195 | Point minus Nesterov |
+|---:|---:|---:|---:|
+| 1200 | 4.125251 | 4.012596 | +0.112655 |
+| 1400 | 4.071943 | 3.962121 | +0.109822 |
+| 1600 | 4.014438 | 3.911879 | +0.102559 |
+
+[Partial measurements](frobenius_point_20261101/continuation_partial_20261102.json).
+The difference has narrowed slightly over these checkpoints, but remains
+large relative to the pilot endpoint; there is no demonstrated crossover.
+
 Before full-budget promotion, compare several matched validation checkpoints,
 then add a paired seed. Sample angular displacement and evaluate accepted X
 versus live Y on identical diagnostic batches before attributing the gap to
