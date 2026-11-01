@@ -27,6 +27,13 @@ def direction(m, u, s, v, *, mode, threshold, cluster_threshold, coefficient,
             return -coefficient * normalized
         if near_projection == "tangent1":
             return coefficient * host.project_to_tangent_plane(-normalized, u[:, :1], v[:, :1])
+        if near_projection == "cone_lmo":
+            from emerging_optimizers.orthogonalized_optimizers.spectral_cone_lmo import (
+                matrix_sign_cone_direction,
+            )
+            return coefficient * matrix_sign_cone_direction(
+                -normalized, u[:, :q], v[:, :q], msign=host.msign, steps=8,
+            )
         return coefficient * host.project_spectral_sphere_cone(-normalized, u[:, :q], v[:, :q])
     d = host.project_spectral_sphere_cone(-m, u[:, :q], v[:, :q])
     return coefficient * torch.linalg.vector_norm(ref) / torch.linalg.vector_norm(d).clamp_min(1e-30) * d

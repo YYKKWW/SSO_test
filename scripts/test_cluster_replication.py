@@ -1,7 +1,9 @@
 """Third seed changes no algorithm setting; offline replay handles overflow."""
 
 import os
+import shutil
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -13,6 +15,27 @@ DEVICE = os.environ.get("P2GD_TEST_DEVICE", "cpu")
 
 
 class ReplicationTests(unittest.TestCase):
+    def test_third_seed_wrapper_from_slurm_spool(self):
+        with tempfile.TemporaryDirectory() as directory:
+            wrapper = Path(directory) / "slurm_script"
+            shutil.copyfile(ROOT / "slurm/cluster_seed3_3b_20261029.sbatch", wrapper)
+            for i in range(4):
+                env = {**os.environ, "SLURM_ARRAY_TASK_ID": str(i), "PROJECT_DIR": str(ROOT)}
+                actual = subprocess.check_output(
+                    ["bash", str(wrapper), "--describe"], env=env, text=True
+                ).strip().split("\t")
+                self.assertEqual(actual[0], str(i))
+                self.assertEqual(actual[-1], "3456")
+
+    def test_missing_snapshot_fails_explicitly(self):
+        env = {**os.environ, "SLURM_ARRAY_TASK_ID": "0", "PROJECT_DIR": "/nonexistent/cluster-snapshot"}
+        result = subprocess.run(
+            ["bash", str(ROOT / "slurm/cluster_seed3_3b_20261029.sbatch"), "--describe"],
+            env=env, capture_output=True, text=True,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Shared launcher not found", result.stderr)
+
     def test_third_seed_grid_matches_second_seed(self):
         old = ROOT / "slurm/cluster_seed_mechanism_3b_20261028.sbatch"
         new = ROOT / "slurm/cluster_seed3_3b_20261029.sbatch"

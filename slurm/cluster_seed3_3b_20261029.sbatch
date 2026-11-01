@@ -18,4 +18,17 @@ case "${SLURM_ARRAY_TASK_ID:?An array index is required}" in
 esac
 export CLUSTER_EXPERIMENT_SEED=3456
 # Reuse the identical protocol; seed2 remains the shared launcher's default.
-exec bash "$(dirname "${BASH_SOURCE[0]}")/cluster_seed_mechanism_3b_20261028.sbatch" "$@"
+# Slurm spools this wrapper without its sibling scripts.
+if [[ -n "${PROJECT_DIR:-}" ]]; then
+  launcher="$PROJECT_DIR/slurm/cluster_seed_mechanism_3b_20261028.sbatch"
+elif [[ "${1:-}" == "--describe" ]]; then
+  launcher="$(dirname "${BASH_SOURCE[0]}")/cluster_seed_mechanism_3b_20261028.sbatch"
+else
+  echo "PROJECT_DIR must identify the isolated source snapshot" >&2
+  exit 2
+fi
+if [[ ! -f "$launcher" ]]; then
+  echo "Shared launcher not found: $launcher" >&2
+  exit 2
+fi
+exec bash "$launcher" "$@"

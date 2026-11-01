@@ -44,14 +44,13 @@ import torch
 from emerging_optimizers import utils
 
 from .adaptive_spectral_svd import (
-    adaptive_block_krylov_sphere_return,
-    adaptive_warm_fixed_subspace_radial_return,
     accurate_svd_fp32,
     accurate_svdvals_fp32,
+    adaptive_block_krylov_sphere_return,
+    adaptive_warm_fixed_subspace_radial_return,
     block_krylov_topk_sphere_projection,
     hierarchical_warm_radial_return,
 )
-from .spel import SpEL, _as_column_unit_vector, project_to_tangent_plane
 from .spectral_ball_utils import (
     apply_retract,
     compute_target_radius,
@@ -61,7 +60,7 @@ from .spectral_ball_utils import (
     power_iteration,
 )
 from .spectral_p2gd import project_spectral_sphere_cone
-
+from .spel import SpEL, _as_column_unit_vector, project_to_tangent_plane
 
 BranchMode = Literal["auto", "spel", "pgd"]
 GapEstimatorMode = Literal[
@@ -2339,7 +2338,7 @@ class SpELPGDSameProjection(SpEL):
             raise ValueError("invalid cluster spectrum mode or iteration count")
         if cluster_direction_mode not in ("matched_fro", "momentum_fro"):
             raise ValueError("invalid cluster direction mode")
-        if cluster_near_projection not in ("cone", "ambient", "tangent1"):
+        if cluster_near_projection not in ("cone", "ambient", "tangent1", "cone_lmo"):
             raise ValueError("invalid near-branch projection")
         if cluster_near_projection != "cone" and (
             cluster_direction_mode != "momentum_fro" or radial_cluster_mode == "none"
