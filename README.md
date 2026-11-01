@@ -1,19 +1,22 @@
 # MCSD Dense LM Experiments
 
-**Complete experiment archive:** [all experiments and coverage](docs/experiments/ALL_EXPERIMENTS.md)
-and [all 80 completed training records](docs/experiments/experiment_inventory/COMPLETED_RUNS.md).
-Includes every recorded LR, momentum setting, seed and normalization variant;
-older protocols, short tests, cancellations and unrun plans are separated.
-The latest comparison below does not replace the historical results.
+Constrained matrix optimizers for Megatron Dense language-model pretraining.
+The active branch compares Frobenius, spectral-sphere and Stiefel methods;
+protocols and historical results are kept separate.
 
-Latest results: [Frobenius sphere 3B/6B summary](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md),
-updated 2026-10-29: 64 completed Frobenius runs; the four Nesterov follow-ups are complete.
-Matched beta-0.95 Nesterov improves all four methods, with NorMuon-Sphere lowest at seed 1234.
-MCSD/MCSD-TP gains repeat at seed 2026; matched baselines still need that seed.
-Final losses, elapsed times, paired-seed tables and validation curves are in the summary.
+| Start here | What it contains |
+|---|---|
+| **[Results overview](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md)** | Key 3B/6B comparisons, curves and next tests |
+| [Point-extrapolation pilot](docs/experiments/MCSD_POINT_PILOT_20261031.md) | Six completed H20 pilots; four follow-ups submitted; CPU-reproducible plots |
+| [Algorithms](docs/experiments/OPTIMIZER_PSEUDOCODE_GUIDE.md) | Pseudocode and implementation paths |
+| [Complete history](docs/experiments/ALL_EXPERIMENTS.md) | LR/momentum/seed coverage, older protocols and cancellations |
+| [Related work](docs/experiments/FROBENIUS_RELATED_WORK.md) | Recent papers, applicability and testable hypotheses |
 
-Algorithm guide: [Chinese pseudocode and implementation comparison](docs/experiments/OPTIMIZER_PSEUDOCODE_GUIDE.md),
-covering the four Frobenius methods plus the spectral and Stiefel baselines.
+**November 2, 2026:** matched beta=0.95 Nesterov improves all four Frobenius
+methods; NorMuon-Sphere has the lowest completed 3B loss at seed 1234.
+True point extrapolation improves over no momentum in short LLM pilots,
+but does not yet beat the Nesterov control. Short pilots are not counted as
+completed 3B runs. See the overview for limitations and exact configurations.
 
 ## Active Branch: Three-Geometry Experiment 3
 
@@ -48,6 +51,9 @@ not measure the new geometry-matched 3B protocol. The original exploration
 checkout and the separately frozen paper reproduction repository are unchanged.
 
 ## Historical SSO Test Experiments
+
+<details>
+<summary>Expand the original 1B spectral-sphere study and operational notes</summary>
 
 **Archival section:** the status wording below belongs to its original reporting
 dates. It is not the current queue or the new three-geometry protocol. These
@@ -878,3 +884,5 @@ HPC passwords
 ```
 
 When adding paper-facing results, keep the result table and experimental assumptions in the main document synchronized with the corresponding Slurm job IDs and logs.
+
+</details>

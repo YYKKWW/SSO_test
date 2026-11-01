@@ -1,0 +1,60 @@
+{
+  "runs": [
+    {
+      "name": "point090_lr005",
+      "lane": 0,
+      "start_step": 1000,
+      "end_step": 3000,
+      "lr": 0.005,
+      "cap": 0.9,
+      "beta": 0,
+      "nesterov": false,
+      "source_job": "4368413",
+      "dependency": null,
+      "job_id": "4373194",
+      "run_dir": "/home/u3013198/projects/SSO_test-pointpilot-20261031/results/manifold/main_frobenius_manifold_mcsd_point0p9_w256_a99cec9fbc"
+    },
+    {
+      "name": "nesterov095_lr010",
+      "lane": 1,
+      "start_step": 1000,
+      "end_step": 3000,
+      "lr": 0.01,
+      "cap": null,
+      "beta": 0.95,
+      "nesterov": true,
+      "source_job": "4368414",
+      "dependency": null,
+      "job_id": "4373195",
+      "run_dir": "/home/u3013198/projects/SSO_test-pointpilot-20261031/results/manifold/main_frobenius_manifold_mcsd_w256_4814d7f3c3"
+    },
+    {
+      "name": "point090_lr0025",
+      "lane": 0,
+      "start_step": 1000,
+      "end_step": 3000,
+      "lr": 0.0025,
+      "cap": 0.9,
+      "beta": 0,
+      "nesterov": false,
+      "source_job": "4368415",
+      "dependency": "afterany:4373194",
+      "job_id": "4373196",
+      "run_dir": "/home/u3013198/projects/SSO_test-pointpilot-20261031/results/manifold/main_frobenius_manifold_mcsd_point0p9_w256_c1602d8b35"
+    },
+    {
+      "name": "point095_lr0025",
+      "lane": 1,
+      "start_step": 0,
+      "end_step": 1000,
+      "lr": 0.0025,
+      "cap": 0.95,
+      "beta": 0,
+      "nesterov": false,
+      "source_job": null,
+      "dependency": "afterany:4373195",
+      "job_id": "4373197",
+      "run_dir": "/home/u3013198/projects/SSO_test-pointpilot-20261031/results/manifold/main_frobenius_manifold_mcsd_point0p95_w256_a28afbab29"
+    }
+  ]
+}
