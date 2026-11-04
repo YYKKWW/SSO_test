@@ -1,0 +1,85 @@
+{
+  "root": "/home/u3013198/projects/cluster-mechanism-scales-1b-20261102",
+  "array_id": "4375034",
+  "submitted_at": "2026-11-02T13:04:56.606459+08:00",
+  "concurrent_gpu_limit": 2,
+  "gpus_per_run": 1,
+  "source_manifest_sha256": "0f0554f0bf8d1f4548ddbf2df2a4eb842f3ed0ff4584deb026bd3f837e050769",
+  "source_baseline": "/home/u3013198/projects/cluster-followup-1b-20261101-v2",
+  "paired_reference_array": "4373351",
+  "matched_reference_arrays": [
+    "4368382",
+    "4368383"
+  ],
+  "arms": [
+    {
+      "index": 0,
+      "job": "4375034_0",
+      "name": "Ambient near c8",
+      "shared_configuration": [
+        "6",
+        "spel_pgd_dist",
+        "adaptive4",
+        "ambient",
+        "2e-3",
+        "8.0",
+        "2345",
+        "1908",
+        "20"
+      ]
+    },
+    {
+      "index": 1,
+      "job": "4375034_1",
+      "name": "Top-1 near c8",
+      "shared_configuration": [
+        "7",
+        "spel_pgd_dist",
+        "adaptive4",
+        "tangent1",
+        "2e-3",
+        "8.0",
+        "2345",
+        "1908",
+        "20"
+      ]
+    },
+    {
+      "index": 2,
+      "job": "4375034_2",
+      "name": "Single-LMO narrow c0.5",
+      "shared_configuration": [
+        "8",
+        "spel_pgd_dist",
+        "adaptive4",
+        "cone_lmo",
+        "2e-4",
+        "0.5",
+        "2345",
+        "1908",
+        "20"
+      ]
+    },
+    {
+      "index": 3,
+      "job": "4375034_3",
+      "name": "Single-LMO narrow c2",
+      "shared_configuration": [
+        "9",
+        "spel_pgd_dist",
+        "adaptive4",
+        "cone_lmo",
+        "2e-4",
+        "2.0",
+        "2345",
+        "1908",
+        "20"
+      ]
+    }
+  ],
+  "train_iterations": 1908,
+  "processed_tokens": 1000341504,
+  "eval_batches": 20,
+  "seed": 2345,
+  "checkpoint": false
+}

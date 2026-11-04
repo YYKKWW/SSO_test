@@ -140,8 +140,13 @@ two GPUs are used concurrently; no checkpoints are written.
 Launchers: [paired training](../../slurm/cluster_replication_1b_20261101.sbatch)
 and [offline audit](../../slurm/cluster_lmo_scales_20261101.sbatch).
 The [corrected submission record](../results/cluster_followup_1b_20261101/submission_v2.json)
-is the source of job IDs and dependency state. Follow-up losses are not yet
-available in this report.
+is the source of job IDs and dependency state.
+
+**Update, 2026-11-02:** both jobs completed. Final losses are **3.575916**
+(control) and **3.575728** (wide hybrid), a paired difference of **-0.000188**.
+Training plus validation took **5:55:07 / 5:55:53**. Both recorded 480,816
+small Ritz SVDs and zero online original-matrix full SVD/svdvals calls.
+[Verified final record](../results/cluster_followup_1b_20261101/paired_final_20261102.json).
 
 Jobs **4373351_0 / 4373351_1** were RUNNING at 2026-11-02 00:59 HKT. The first
 array `4373186` failed before training because a standalone preflight test

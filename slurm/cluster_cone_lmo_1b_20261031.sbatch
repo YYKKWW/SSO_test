@@ -28,6 +28,11 @@ case "$arm_index" in
   3) : ;;
   4) cluster=2e-4 ;;
   5) cluster=2e-4; near=cone_lmo; coefficient=1.0 ;;
+  # Follow-up arms are selected only by the separate four-arm wrapper.
+  6) near=ambient ;;
+  7) near=tangent1 ;;
+  8) cluster=2e-4; near=cone_lmo; coefficient=0.5 ;;
+  9) cluster=2e-4; near=cone_lmo; coefficient=2.0 ;;
   *) echo "Unknown experiment index" >&2; exit 2 ;;
 esac
 if [[ "${1:-}" == "--describe" ]]; then
@@ -55,6 +60,7 @@ export PYTHONPATH="$MEGATRON_PATH:$PROJECT_DIR/scripts${PYTHONPATH:+:$PYTHONPATH
 export NVIDIA_TF32_OVERRIDE=0 P2GD_TEST_DEVICE=cuda
 python -B -m unittest discover -s scripts -p test_cluster_cone_lmo.py -v
 python -B -m unittest discover -s scripts -p test_cluster_near_projection.py -v
+python -B -m unittest discover -s scripts -p test_cluster_followup_1b.py -v
 export OPTIMIZER="$optimizer" SEED="$experiment_seed"
 export WIDTH=256 NUM_LAYERS=28 HEAD_DIM=128 SEQ_LENGTH=4096
 export GLOBAL_BATCH=128 MICRO_BATCH=4 GPUS_PER_NODE=1 TP_SIZE=1 PP_SIZE=1
