@@ -1,11 +1,12 @@
 # Frobenius Sphere Experiments
 
-**Results and next steps | Updated November 2, 2026**
+**Results and next steps | Updated November 4, 2026, 17:07 HKT**
 
 MCSD and MCSD-TP are evaluated against MuonH and NorMuon-Sphere using
 Megatron Dense LMs. The completed matched 3B comparison favors
 **NorMuon-Sphere**. True point extrapolation now runs on H20, but its
-1000-step pilot has **not beaten Muon-style Nesterov**.
+pilots and completed 3000-step continuations have **not beaten Muon-style Nesterov**
+at their respective endpoints.
 
 [3B comparison](#latest) | [Momentum and LR](#comparisons) |
 [6B results](#six-b) | [Point pilot](#point-pilot) |
@@ -14,10 +15,10 @@ Megatron Dense LMs. The completed matched 3B comparison favors
 
 | Evidence | Coverage | Interpretation |
 |---|---|---|
-| Completed 3B | 60 runs in the verified October 29 ledger | LR, momentum, normalization and seed comparisons |
+| Completed 3B | 60 runs in the October 29 ledger + 4 new LR cells | LR, momentum, normalization and seed comparisons |
 | Completed 6B | 4 runs, two methods and two seeds | Earlier frozen configurations, not the new Nesterov setting |
-| Completed point pilots | 6 runs, 1000 steps each; 3 integration checks | 262M tokens per pilot; separate from full-budget results |
-| New point follow-ups | 4 submitted, maximum 2 GPUs concurrently | Three continuations to step 3000; one fresh cap/LR test |
+| Completed point pilots | 8 unique pilot configurations; 5 reached step 3000; 3 integration checks | Separate from full-budget results |
+| November 2 point/LR batch | 6 of 8 completed; 2 running | [Latest readout and curves](FROBENIUS_RESULTS_20261104.md), [job register](FROBENIUS_POINT_LR_BATCH_20261102.md) |
 
 This is a dated evidence summary, not a live dashboard. All losses are
 validation cross-entropy; lower is better. No historical results were removed:
@@ -47,6 +48,25 @@ Nesterov here combines gradients; it does not extrapolate the model point.
 This is a single-seed, fixed-LR comparison, not a statistically established
 method ranking or a comparison of globally optimal configurations.
 
+### New Matched LR Grid
+
+Same width, budget, beta=0.95 Nesterov and seed. Only complete endpoint
+losses enter this table; running cells are not filled with intermediate losses.
+
+| Method | LR=0.010 | LR=0.012 | LR=0.015 |
+|---|---:|---:|---:|
+| MCSD | **3.461687** | 3.463020 | 3.474075 |
+| MuonH | **3.458490** | 3.458744 | Running |
+| NorMuon-Sphere | **3.455796** | 3.458990 | Running |
+
+Increasing LR has not improved the completed cells. MCSD LR=0.015 is
+0.012388 worse than its LR=0.010 reference. MuonH's 0.012 difference is
+only 0.000254 and requires multiple seeds before attributing a reliable effect.
+
+![Matched LR validation curves](frobenius_point_lr_20261104/lr_grid_validation.png)
+
+[All job states, times, train curves and caveats](FROBENIUS_RESULTS_20261104.md).
+
 <a id="comparisons"></a>
 
 ## Momentum and Learning Rate
@@ -67,9 +87,9 @@ The two matched Nesterov baselines still need that seed.
 **LR=0.015 and 0.020 were tested.** Those results use earlier momentum
 settings and remain in the [full LR grids](FROBENIUS_3B_6B_HISTORY.md#comparisons).
 They cannot substitute for the requested beta=0.95 Nesterov grid.
-The six-run LR=0.012/0.015 grid and MCSD-NorUnit plan are recorded as
-[prepared, not submitted](FROBENIUS_NESTEROV_NORUNIT_20261029.md);
-they are not the four new point-extrapolation jobs.
+The six-run LR=0.012/0.015 grid was submitted on November 2 as
+[4375562--4375567](FROBENIUS_POINT_LR_BATCH_20261102.md).
+The [MCSD-NorUnit plan](FROBENIUS_NESTEROV_NORUNIT_20261029.md) remains unsubmitted.
 
 <a id="six-b"></a>
 
@@ -102,24 +122,26 @@ have no completed 6B results.
 ## New Point-Extrapolation Pilot
 
 The model holds live extrapolated Y and one accepted-point X buffer.
-Gradient evaluation is at Y; no gradient EMA is used. All six pilots
-completed 1000 steps with the unchanged 3B cosine horizon.
+Gradient evaluation is at Y; no gradient EMA is used. The following runs
+reached step 3000 (786M tokens) with the unchanged 3B cosine horizon.
 
-| Selected configuration | Val. loss at 1000 |
+| Selected configuration | Val. loss at 3000 |
 |---|---:|
-| **Nesterov beta=0.95, LR=0.010** | **4.088546** |
-| Point cap=0.90, LR=0.005 | 4.194326 |
-| Point cap=0.90, LR=0.0025 | 4.200407 |
-| No momentum, LR=0.010 | 4.662017 |
+| **Nesterov beta=0.95, LR=0.010** | **3.778030** |
+| Point cap=0.90, LR=0.005 | 3.857235 |
+| Point cap=0.90, LR=0.0025 | 3.814502 |
+| Point cap=0.95, LR=0.0025 | 3.811040 |
+| Point cap=0.95, LR=0.00125 | **3.788594** |
 
-Point extrapolation leads early but trails Nesterov from step 600 in the
-best tested point configuration. **These losses cannot be compared directly
-with the final 3B/6B tables.**
+The best tested point configuration now trails Nesterov by **0.010564**.
+Its gap shrank from 0.066324 at step 1000 but did not improve between steps
+2800 and 3000. This is not a crossover or an established acceleration result.
+**These losses cannot be compared directly with the final 3B/6B tables.**
 
-![Point-pilot validation and difference from Nesterov](frobenius_point_20261101/validation.png)
+![Point-pilot validation and difference from Nesterov](frobenius_point_lr_20261104/point_validation_3000.png)
 
-[All six results, train curves, algorithm and resume checks](MCSD_POINT_PILOT_20261031.md) |
-[Machine-readable data](frobenius_point_20261101/results.json)
+[Original six pilots, algorithm and resume checks](MCSD_POINT_PILOT_20261031.md) |
+[Latest curves and machine-readable data](frobenius_point_lr_20261104/results.json)
 
 <a id="next"></a>
 
@@ -127,17 +149,16 @@ with the final 3B/6B tables.**
 
 | Priority | Test | Status / decision |
 |---|---|---|
-| Now | Continue cap=0.90 with LR=0.005 and 0.0025; continue Nesterov control to step 3000 | Submitted: 4373194, 4373196, 4373195 |
-| Now | Cap=0.95 with LR=0.0025, fresh 1000-step pilot | Submitted: 4373197 |
+| Running | MuonH and NorMuon-Sphere, LR=0.015, full 3B | 4375566 / 4375567; latest validation at steps 5600 / 4600 |
+| Completed | Two cap=0.95 point pilots and four full 3B LR cells | 4375560--4375565; [results](FROBENIUS_RESULTS_20261104.md) |
 | Mechanism | Sample accepted/live angular displacement and compare X/Y on identical diagnostic batches | Proposed; no extra production evaluations enabled |
-| Fairness | Baseline second seed; balanced LR=0.012/0.015 Nesterov grid | Still needed before stronger method-level claims |
+| Fairness | Baseline second seed at the matched LR=0.010 setting | Still needed before stronger method-level claims |
 | Transfer | Frozen best candidates, paired seeds, then 6B and larger widths | Deferred until full 3B evidence |
 
-The four new jobs use two serial single-GPU lanes and do not automatically
-promote to 3B or 6B. Original checkpoints, LR horizon and validation protocol
-are preserved. [Submission details](MCSD_POINT_PILOT_20261031.md#follow-up-tests).
-At the first step-1600 readback, point cap=0.90/LR=0.005 remains above the
-Nesterov control: **4.014438 versus 3.911879**. Both are partial runs.
+The eight-job batch uses two serial single-GPU lanes. Six full 3B runs were
+explicitly requested, not automatically promoted point pilots. No new training,
+6B jobs or cancellations were added during this report update.
+[Submission details](FROBENIUS_POINT_LR_BATCH_20261102.md).
 
 **Current research priority:** distinguish direction quality from actual
 angular step size and stochastic-gradient effects. Relevant evidence and

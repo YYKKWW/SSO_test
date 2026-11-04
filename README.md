@@ -7,16 +7,17 @@ protocols and historical results are kept separate.
 | Start here | What it contains |
 |---|---|
 | **[Results overview](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md)** | Key 3B/6B comparisons, curves and next tests |
-| [Point-extrapolation pilot](docs/experiments/MCSD_POINT_PILOT_20261031.md) | Six completed H20 pilots; four follow-ups submitted; CPU-reproducible plots |
+| [Point-extrapolation pilot](docs/experiments/MCSD_POINT_PILOT_20261031.md) | Completed pilots and continuations; CPU-reproducible plots |
+| **[Latest results, November 4](docs/experiments/FROBENIUS_RESULTS_20261104.md)** | Four completed 3B LR cells, two running cells, and 3000-step point results |
 | [Algorithms](docs/experiments/OPTIMIZER_PSEUDOCODE_GUIDE.md) | Pseudocode and implementation paths |
 | [Complete history](docs/experiments/ALL_EXPERIMENTS.md) | LR/momentum/seed coverage, older protocols and cancellations |
 | [Related work](docs/experiments/FROBENIUS_RELATED_WORK.md) | Recent papers, applicability and testable hypotheses |
 
-**November 2, 2026:** matched beta=0.95 Nesterov improves all four Frobenius
-methods; NorMuon-Sphere has the lowest completed 3B loss at seed 1234.
-True point extrapolation improves over no momentum in short LLM pilots,
-but does not yet beat the Nesterov control. Short pilots are not counted as
-completed 3B runs. See the overview for limitations and exact configurations.
+**November 4, 2026:** MCSD LR=0.010 remains better than its completed
+0.012/0.015 cells under beta=0.95 Nesterov. MuonH and NorMuon-Sphere also
+do not improve at LR=0.012; their 0.015 cells are still running.
+The best tested point variant is 0.010564 above Nesterov at step 3000.
+Short pilots are not counted as completed 3B runs; all comparisons are single-seed.
 
 ## Active Branch: Three-Geometry Experiment 3
 

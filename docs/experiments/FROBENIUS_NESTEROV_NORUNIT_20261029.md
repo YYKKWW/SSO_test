@@ -1,6 +1,15 @@
 # Frobenius Follow-Up: Nesterov LR Grid and MCSD-NorUnit
 
-**Status checked October 30, 2026: prepared locally, not submitted.** The H20
+**November 4 results:** four of the six standard LR-grid cells completed;
+MuonH and NorMuon-Sphere at LR=0.015 are still running.
+[Latest table and curves](FROBENIUS_RESULTS_20261104.md). MCSD-NorUnit remains unsubmitted.
+
+**November 2 update:** the six standard LR=0.012/0.015 configurations were
+submitted as jobs 4375562--4375567 in the
+[two-lane point/LR batch](FROBENIUS_POINT_LR_BATCH_20261102.md).
+The MCSD-NorUnit cell remains unsubmitted; it is not part of that batch.
+
+**Historical status, October 30, 2026: prepared locally, not submitted.** The H20
 upload failed and subsequent SSH connections timed out. No Slurm job IDs have
 been obtained for this batch. Existing tasks were not changed.
 

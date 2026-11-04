@@ -1,10 +1,15 @@
 # MCSD Point Extrapolation: H20 Pilot Results
 
+**November 4 update:** both newer cap=0.95 runs reached step 3000.
+LR=0.00125 gives 3.788594, versus Nesterov's 3.778030.
+[Latest stitched curves, times and 3B grid](FROBENIUS_RESULTS_20261104.md).
+This page retains the original 1000-step pilots and their first follow-ups.
+
 [Overview](FROBENIUS_3B_6B_SUMMARY.md) | [Related work](FROBENIUS_RELATED_WORK.md) | [Measurements](frobenius_point_20261101/results.json)
 
 **Six pilots completed: point extrapolation helps relative to no momentum,
 but does not beat the matched-runtime Nesterov control at step 1000.**
-Results checked November 1, 2026; follow-up submissions checked November 2.
+Initial results checked November 1, 2026; completed follow-ups checked November 2.
 These are **262M-token pilots using a 3B learning-rate horizon**, not completed
 3B experiments. All methods in this report are MCSD, not MCSD-TP.
 
@@ -61,9 +66,9 @@ pilots were released. The export includes the exact comparison record.
 
 ## Follow-Up Tests
 
-Four jobs were submitted with **at most two single-H20 jobs concurrent**.
-4373194 and 4373195 were verified running; 4373196 and 4373197 wait for
-their lanes. This is a November 2 submission snapshot, not live status.
+All four follow-ups **completed with exit 0:0**, using at most two single-H20
+jobs concurrently. The elapsed times below cover each follow-up job, not the
+original 1000 steps for continued runs.
 
 | Job | Configuration | Iterations | Purpose |
 |---:|---|---|---|
@@ -71,6 +76,21 @@ their lanes. This is a November 2 submission snapshot, not live status.
 | 4373195 | Nesterov beta=0.95, LR=0.010 | Resume 1000 to 3000 | Same-code, same-budget reference |
 | 4373196 | Point cap=0.90, LR=0.0025 | Resume 1000 to 3000 | Test the lower LR beyond early warmup |
 | 4373197 | Point cap=0.95, LR=0.0025 | Fresh 0 to 1000 | Compare caps at a lower common LR |
+
+| Job | Endpoint | Val. loss | Follow-up elapsed |
+|---:|---:|---:|---|
+| 4373194 | 3000 | 3.857235 | 03:16:56 |
+| 4373195 | 3000 | **3.778030** | 03:16:08 |
+| 4373196 | 3000 | 3.814502 | 03:16:34 |
+| 4373197 | 1000 | 4.112795 | 01:38:54 |
+
+At step 3000, the lower-LR cap=0.90 run trails Nesterov by 0.036472,
+down from 0.111861 at step 1000; this is not a demonstrated crossover.
+The new cap=0.95/LR=0.0025 pilot trails the same-step Nesterov reference
+by 0.024249 at step 1000. It cannot be compared directly with step-3000 losses.
+
+Two additional point tests and six full 3B LR comparisons were explicitly
+submitted on November 2: [eight-job batch](FROBENIUS_POINT_LR_BATCH_20261102.md).
 
 The original **11445-step cosine horizon and 229-step warmup remain unchanged**.
 Resumes retain FP32 live Y, accepted X, auxiliary AdamW state, scheduler and
@@ -82,9 +102,9 @@ The other three completed pilots are not extended; their results stay reported.
 Continuations are expected to take roughly 3.2 hours each for the additional
 2000 steps, excluding queue time; the fresh pilot about 1.6 hours.
 
-**Partial continuation readback, November 2:** both active jobs loaded the
-original step-1000 checkpoint successfully. They have not reached their
-step-3000 endpoints. Point cap=0.90/LR=0.005 still trails the Nesterov control:
+**Earlier partial readback, retained for trajectory context:** both jobs loaded
+the original step-1000 checkpoint successfully. These intermediate measurements
+precede the completed endpoints above:
 
 | Iteration | Point 4373194 | Nesterov 4373195 | Point minus Nesterov |
 |---:|---:|---:|---:|
