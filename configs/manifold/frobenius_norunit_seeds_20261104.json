@@ -1,0 +1,6 @@
+[
+  {"key":"nest095_mcsd_unitf_seed1234", "group":"matched_unit_ablation", "method":"manifold_mcsd", "tokens":3000000000, "lr":0.01, "beta":0.95, "nesterov":true, "seed":1234, "lane":0, "direction_normalization":"frobenius", "direction_adaptation":"none", "time_limit":"1-12:00:00"},
+  {"key":"nest095_mcsd_norunit_seed1234", "group":"matched_row_ablation", "method":"manifold_mcsd", "tokens":3000000000, "lr":0.01, "beta":0.95, "nesterov":true, "seed":1234, "lane":1, "direction_normalization":"frobenius", "direction_adaptation":"normuon", "adaptation_beta2":0.95, "adaptation_eps":1e-10, "time_limit":"1-12:00:00"},
+  {"key":"nest095_muonh_seed2026", "group":"paired_second_seed", "method":"manifold_muonh", "tokens":3000000000, "lr":0.01, "beta":0.95, "nesterov":true, "seed":2026, "lane":0, "direction_normalization":"none", "direction_adaptation":"none", "time_limit":"1-12:00:00"},
+  {"key":"nest095_normuon_seed2026", "group":"paired_second_seed", "method":"manifold_normuon_sphere", "tokens":3000000000, "lr":0.01, "beta":0.95, "nesterov":true, "seed":2026, "lane":1, "direction_normalization":"none", "direction_adaptation":"none", "time_limit":"1-12:00:00"}
+]

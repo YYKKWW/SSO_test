@@ -8,16 +8,16 @@ protocols and historical results are kept separate.
 |---|---|
 | **[Results overview](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md)** | Key 3B/6B comparisons, curves and next tests |
 | [Point-extrapolation pilot](docs/experiments/MCSD_POINT_PILOT_20261031.md) | Completed pilots and continuations; CPU-reproducible plots |
-| **[Latest results, November 4](docs/experiments/FROBENIUS_RESULTS_20261104.md)** | Four completed 3B LR cells, two running cells, and 3000-step point results |
+| **[Latest results, November 5](docs/experiments/FROBENIUS_RESULTS_20261105.md)** | Complete 3B LR grid, MCSD-unitF endpoint and matched-step NorUnit curves |
 | [Algorithms](docs/experiments/OPTIMIZER_PSEUDOCODE_GUIDE.md) | Pseudocode and implementation paths |
 | [Complete history](docs/experiments/ALL_EXPERIMENTS.md) | LR/momentum/seed coverage, older protocols and cancellations |
 | [Related work](docs/experiments/FROBENIUS_RELATED_WORK.md) | Recent papers, applicability and testable hypotheses |
 
-**November 4, 2026:** MCSD LR=0.010 remains better than its completed
-0.012/0.015 cells under beta=0.95 Nesterov. MuonH and NorMuon-Sphere also
-do not improve at LR=0.012; their 0.015 cells are still running.
-The best tested point variant is 0.010564 above Nesterov at step 3000.
-Short pilots are not counted as completed 3B runs; all comparisons are single-seed.
+**November 5, 2026, 15:10 HKT:** the six new 3B LR cells are complete;
+LR=0.010 is best in the local grid for MCSD, MuonH and NorMuon-Sphere.
+MCSD-unitF finishes at **3.460665**, improving standard MCSD by 0.001022
+at seed 1234 but not beating either baseline. NorUnit remains running;
+the paired baseline seeds are pending. These new comparisons are single-seed.
 
 ## Active Branch: Three-Geometry Experiment 3
 

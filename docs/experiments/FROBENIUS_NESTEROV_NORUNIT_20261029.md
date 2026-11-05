@@ -1,19 +1,58 @@
 # Frobenius Follow-Up: Nesterov LR Grid and MCSD-NorUnit
 
-**November 4 results:** four of the six standard LR-grid cells completed;
-MuonH and NorMuon-Sphere at LR=0.015 are still running.
-[Latest table and curves](FROBENIUS_RESULTS_20261104.md). MCSD-NorUnit remains unsubmitted.
+**November 5, 15:10 HKT:** the six standard LR-grid cells and MCSD-unitF
+are complete. MCSD-unitF reaches 3.460665; NorUnit is running with
+3.471547 at step 10600. Both seed-2026 baselines remain pending.
+[Latest table and curves](FROBENIUS_RESULTS_20261105.md).
+
+## November 4 Submission
+
+**Submitted at 18:45 HKT; all four pending at the submission check.** These
+are full 3B runs from initialization, not shortened pilots or point extrapolation.
+Width=256, peak LR=0.010, beta=0.95 Nesterov, Frobenius radius
+`R=sqrt(D_out)` and the matched protocol below remain fixed.
+
+| Job | Method | Seed | Purpose | Initial queue status |
+|---:|---|---:|---|---|
+| 4390468 | MCSD-unitF | 1234 | Global normalization only | Pending: Priority |
+| 4390469 | MCSD-NorUnit | 1234 | Row adaptation plus unit-F | Pending: Priority |
+| 4390470 | MuonH | 2026 | Paired second seed | After 4390468 ends |
+| 4390471 | NorMuon-Sphere | 2026 | Paired second seed | After 4390469 ends |
+
+Two serial lanes cap this batch at two single-H20 jobs. Existing jobs are
+unchanged. Checkpoints are disabled; each job has a 36-hour limit. Earlier
+matched runs took about 18.5 hours per job, excluding queue time; this is an
+estimate, not a measured runtime for the new adaptive variant.
+
+Compare 4390468 against standard MCSD 4329085 to test global normalization,
+and 4390469 against 4390468 to test the added row adaptation under unit-F
+scaling. Compare both seed-2026 baselines against existing MCSD 4346667;
+report paired seeds, not a single baseline seed against an MCSD mean.
+
+The active frozen runtime remains `8250d00f9a36832bd6fd7198fe2e2b5d3787b7b3`.
+No optimizer/model files were overwritten. A search of 134 prior resolved
+configurations found no matching runs. Local checks passed 278 tests; six
+framework-free equation/resume cases passed using the H20 environment's
+PyTorch 2.6.0+cu124 on **CPU**. GPUs were fully allocated at preflight;
+those checks alone were not CUDA integration or long-training validation.
+The subsequent training evidence is reported in the dated update above.
+
+[Four-run plan](../../configs/manifold/frobenius_norunit_seeds_20261104.json) |
+[Submitted job register](frobenius_norunit_seeds_20261104/norunit_seeds_20261104_register.json) |
+[H20-environment CPU checks](frobenius_norunit_seeds_20261104/cpu_preflight.json)
+
+## Earlier Plan
 
 **November 2 update:** the six standard LR=0.012/0.015 configurations were
 submitted as jobs 4375562--4375567 in the
 [two-lane point/LR batch](FROBENIUS_POINT_LR_BATCH_20261102.md).
-The MCSD-NorUnit cell remains unsubmitted; it is not part of that batch.
+MCSD-NorUnit was not part of that batch; it was submitted separately above.
 
 **Historical status, October 30, 2026: prepared locally, not submitted.** The H20
 upload failed and subsequent SSH connections timed out. No Slurm job IDs have
 been obtained for this batch. Existing tasks were not changed.
 
-## Requested Runs
+## Original Requested Runs (October 29)
 
 | Method | Peak matrix LR | Variant | Serial lane |
 |---|---:|---|---:|
@@ -59,12 +98,13 @@ restore the old reference direction length or apply an additional
 unchanged spectral-norm LMO or a proven accelerated method. It differs from
 NorMuon-Sphere because MCSD projects `S` before the matrix sign.
 
-This one run changes both row adaptation and unit-F normalization relative
+The original plan's adaptive run changes both row adaptation and unit-F normalization relative
 to standard MCSD. It evaluates their combined effect, not a separate causal
 contribution from each. Old unit-F results used 0.95 EMA and cannot serve as
-a matched Nesterov unit-only control.
+a matched Nesterov unit-only control. The November 4 submission adds that
+missing matched control as job 4390468.
 
-## Validation and Provenance
+## Original Validation and Provenance (October 30)
 
 - Explicit [seven-run plan](../../configs/manifold/frobenius_nesterov_norunit_20261029.json).
 - Local frozen deployment commit: `a3f73b135cbd58dffcbe54da83eec9d9d3ae0e5c`,

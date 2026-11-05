@@ -1,6 +1,6 @@
 # Frobenius Sphere Experiments
 
-**Results and next steps | Updated November 4, 2026, 17:07 HKT**
+**Results and queue snapshot: November 5, 2026, 15:10 HKT**
 
 MCSD and MCSD-TP are evaluated against MuonH and NorMuon-Sphere using
 Megatron Dense LMs. The completed matched 3B comparison favors
@@ -15,14 +15,15 @@ at their respective endpoints.
 
 | Evidence | Coverage | Interpretation |
 |---|---|---|
-| Completed 3B | 60 runs in the October 29 ledger + 4 new LR cells | LR, momentum, normalization and seed comparisons |
+| Completed 3B | 60 runs in the October 29 ledger + 6 new LR cells + MCSD-unitF | 67 completed runs across the ledger and dated readouts |
 | Completed 6B | 4 runs, two methods and two seeds | Earlier frozen configurations, not the new Nesterov setting |
 | Completed point pilots | 8 unique pilot configurations; 5 reached step 3000; 3 integration checks | Separate from full-budget results |
-| November 2 point/LR batch | 6 of 8 completed; 2 running | [Latest readout and curves](FROBENIUS_RESULTS_20261104.md), [job register](FROBENIUS_POINT_LR_BATCH_20261102.md) |
+| November 2 point/LR batch | All 8 completed | [Complete LR readout](FROBENIUS_RESULTS_20261105.md), [3000-step point results](FROBENIUS_RESULTS_20261104.md#point-extrapolation-at-step-3000) |
+| November 4 normalization/seed batch | 1 completed, 1 running, 2 pending | [MCSD-unitF endpoint and matched-step NorUnit curves](FROBENIUS_RESULTS_20261105.md#normalization-and-row-adaptation) |
 
 This is a dated evidence summary, not a live dashboard. All losses are
 validation cross-entropy; lower is better. No historical results were removed:
-[complete LR tables and 64-run ledger](FROBENIUS_3B_6B_HISTORY.md#ledger),
+[historical LR tables and ledger](FROBENIUS_3B_6B_HISTORY.md#ledger),
 [all-project inventory](ALL_EXPERIMENTS.md).
 
 <a id="latest"></a>
@@ -56,16 +57,30 @@ losses enter this table; running cells are not filled with intermediate losses.
 | Method | LR=0.010 | LR=0.012 | LR=0.015 |
 |---|---:|---:|---:|
 | MCSD | **3.461687** | 3.463020 | 3.474075 |
-| MuonH | **3.458490** | 3.458744 | Running |
-| NorMuon-Sphere | **3.455796** | 3.458990 | Running |
+| MuonH | **3.458490** | 3.458744 | 3.466872 |
+| NorMuon-Sphere | **3.455796** | 3.458990 | 3.465047 |
 
-Increasing LR has not improved the completed cells. MCSD LR=0.015 is
+All six new cells completed. Increasing LR has not improved any method. MCSD LR=0.015 is
 0.012388 worse than its LR=0.010 reference. MuonH's 0.012 difference is
 only 0.000254 and requires multiple seeds before attributing a reliable effect.
 
-![Matched LR validation curves](frobenius_point_lr_20261104/lr_grid_validation.png)
+![Matched LR validation curves](frobenius_results_20261105/lr_grid_validation.png)
 
-[All job states, times, train curves and caveats](FROBENIUS_RESULTS_20261104.md).
+[All job states, times, train curves and caveats](FROBENIUS_RESULTS_20261105.md).
+
+### New Normalization Ablation
+
+MCSD-unitF finishes at **3.460665**, compared with standard MCSD's 3.461687
+under the same LR=0.010, beta=0.95 Nesterov and seed=1234. The difference is
+-0.001022; MuonH and NorMuon-Sphere still have lower final losses.
+
+At the latest shared step 10600, MCSD-NorUnit=3.471547 and
+MCSD-unitF=3.471378. Row adaptation has not shown an extra gain at this point;
+NorUnit's final result is not yet available.
+
+![Normalization ablation and same-step differences](frobenius_results_20261105/normalization_validation.png)
+
+[Job details and aligned comparison table](FROBENIUS_RESULTS_20261105.md#normalization-and-row-adaptation).
 
 <a id="comparisons"></a>
 
@@ -82,14 +97,16 @@ At beta=0.95, LR=0.010 and seed=1234, enabling Muon-style Nesterov helps
 | NorMuon-Sphere | 3.463500 | 3.455796 | -0.007704 |
 
 The MCSD/MCSD-TP improvement repeats at seed 2026 (3.464190 / 3.463603).
-The two matched Nesterov baselines still need that seed.
+The two matched Nesterov baselines at seed 2026 are now queued as
+4390470/4390471; their results are not yet available.
 
 **LR=0.015 and 0.020 were tested.** Those results use earlier momentum
 settings and remain in the [full LR grids](FROBENIUS_3B_6B_HISTORY.md#comparisons).
 They cannot substitute for the requested beta=0.95 Nesterov grid.
 The six-run LR=0.012/0.015 grid was submitted on November 2 as
 [4375562--4375567](FROBENIUS_POINT_LR_BATCH_20261102.md).
-The [MCSD-NorUnit plan](FROBENIUS_NESTEROV_NORUNIT_20261029.md) remains unsubmitted.
+The [MCSD-NorUnit plan](FROBENIUS_NESTEROV_NORUNIT_20261029.md#november-4-submission)
+was submitted on November 4 with a matched unit-F-only control.
 
 <a id="six-b"></a>
 
@@ -149,15 +166,16 @@ Its gap shrank from 0.066324 at step 1000 but did not improve between steps
 
 | Priority | Test | Status / decision |
 |---|---|---|
-| Running | MuonH and NorMuon-Sphere, LR=0.015, full 3B | 4375566 / 4375567; latest validation at steps 5600 / 4600 |
-| Completed | Two cap=0.95 point pilots and four full 3B LR cells | 4375560--4375565; [results](FROBENIUS_RESULTS_20261104.md) |
+| Completed | Full LR=0.012/0.015 grid and MCSD-unitF | Seven new 3B endpoints; [results](FROBENIUS_RESULTS_20261105.md) |
+| Running | MCSD-NorUnit, LR=0.010, seed=1234 | 4390469; validation through step 10600 |
 | Mechanism | Sample accepted/live angular displacement and compare X/Y on identical diagnostic batches | Proposed; no extra production evaluations enabled |
-| Fairness | Baseline second seed at the matched LR=0.010 setting | Still needed before stronger method-level claims |
+| Queued: fairness | Baseline second seed at the matched LR=0.010 setting | 4390470 / 4390471, pending at this snapshot |
 | Transfer | Frozen best candidates, paired seeds, then 6B and larger widths | Deferred until full 3B evidence |
 
-The eight-job batch uses two serial single-GPU lanes. Six full 3B runs were
-explicitly requested, not automatically promoted point pilots. No new training,
-6B jobs or cancellations were added during this report update.
+The completed eight-job batch used two serial single-GPU lanes. Six full 3B runs were
+explicitly requested, not automatically promoted point pilots. The separate
+November 4 follow-up adds four 3B jobs on two serial lanes. No 6B jobs,
+extra point continuations or cancellations were added.
 [Submission details](FROBENIUS_POINT_LR_BATCH_20261102.md).
 
 **Current research priority:** distinguish direction quality from actual

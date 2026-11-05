@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "device": "cpu",
+  "torch": "2.6.0+cu124",
+  "cases": [
+    {
+      "shape": [
+        7,
+        3
+      ],
+      "adaptation": "none",
+      "formula_updates": 4,
+      "resume_updates": 2
+    },
+    {
+      "shape": [
+        7,
+        3
+      ],
+      "adaptation": "normuon",
+      "formula_updates": 4,
+      "resume_updates": 2
+    },
+    {
+      "shape": [
+        3,
+        7
+      ],
+      "adaptation": "none",
+      "formula_updates": 4,
+      "resume_updates": 2
+    },
+    {
+      "shape": [
+        3,
+        7
+      ],
+      "adaptation": "normuon",
+      "formula_updates": 4,
+      "resume_updates": 2
+    },
+    {
+      "shape": [
+        4,
+        4
+      ],
+      "adaptation": "none",
+      "formula_updates": 4,
+      "resume_updates": 2
+    },
+    {
+      "shape": [
+        4,
+        4
+      ],
+      "adaptation": "normuon",
+      "formula_updates": 4,
+      "resume_updates": 2
+    }
+  ]
+}

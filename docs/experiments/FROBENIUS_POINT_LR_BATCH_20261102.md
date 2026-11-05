@@ -1,7 +1,9 @@
 # Point Extrapolation and Matched 3B LR Grid
 
-**November 4, 17:07 HKT update:** 4375560--4375565 completed; 4375566 and
-4375567 are running. [Results, times and curves](FROBENIUS_RESULTS_20261104.md).
+**November 5, 15:10 HKT update:** all eight jobs completed. The six full 3B
+LR cells are in the [latest results, times and curves](FROBENIUS_RESULTS_20261105.md).
+The [November 4 snapshot](FROBENIUS_RESULTS_20261104.md) preserves the earlier
+partial readout and completed point-pilot comparison.
 The table below preserves the original submission plan, not current live status.
 
 **Submitted November 2, 2026.** Eight single-H20 jobs, at most two concurrent
