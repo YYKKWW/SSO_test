@@ -3642,7 +3642,8 @@ def _add_regularization_args(parser):
         help='MCSD length matching, or normalize momentum in Frobenius norm BEFORE cone projection.',
     )
     group.add_argument(
-        '--spel-pgd-cluster-near-projection', choices=['cone', 'ambient', 'tangent1', 'cone_lmo'],
+        '--spel-pgd-cluster-near-projection',
+        choices=['cone', 'ambient', 'tangent1', 'cone_lmo', 'cone_lmo_top1', 'cone_lmo_mix25'],
         default='cone', help='Near direction: cone projection, mechanism controls, or single-LMO cone extension; radial return.',
     )
     group.add_argument(

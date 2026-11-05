@@ -91,6 +91,7 @@ def main():
                 direction_mode=kw.get("cluster_direction_mode", "matched_fro"),
                 near_projection=kw.get("cluster_near_projection", "cone"),
                 step_multiplier=info.cluster_step_multiplier,
+                radial_change_ratio=info.radial_change_ratio,
                 current_u=cache.u_basis.cpu(), current_v=cache.v_basis.cpu(),
                 current_s=cache.s_basis.cpu(), current_gap=cache.rel_gap,
                 returned_s=info.next_spectral_cache.s_basis.cpu(),

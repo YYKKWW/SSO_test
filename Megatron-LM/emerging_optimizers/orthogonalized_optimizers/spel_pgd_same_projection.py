@@ -2338,7 +2338,9 @@ class SpELPGDSameProjection(SpEL):
             raise ValueError("invalid cluster spectrum mode or iteration count")
         if cluster_direction_mode not in ("matched_fro", "momentum_fro"):
             raise ValueError("invalid cluster direction mode")
-        if cluster_near_projection not in ("cone", "ambient", "tangent1", "cone_lmo"):
+        if cluster_near_projection not in (
+            "cone", "ambient", "tangent1", "cone_lmo", "cone_lmo_top1", "cone_lmo_mix25",
+        ):
             raise ValueError("invalid near-branch projection")
         if cluster_near_projection != "cone" and (
             cluster_direction_mode != "momentum_fro" or radial_cluster_mode == "none"

@@ -1,0 +1,204 @@
+{
+  "source_sha256": "cc9881f93361f5908282e39f900abee9e20ffda240a83420dc6536e297896b9a",
+  "coefficient": 0.5,
+  "cap_rule": "D * min(1, sqrt(min(m,n)) / ||D||_F), before the c multiplier",
+  "samples": 19,
+  "minimum_normalized_fro": 0.9729452464770099,
+  "maximum_normalized_fro": 1.0011475086212158,
+  "affected_samples": 9,
+  "maximum_fraction_removed": 0.001146193354459979,
+  "mean_fraction_removed": 0.0004378370133166951,
+  "note": "Selected snapshots only, not population rates. No loss-based cap selection. A much lower cap would mostly be another global step-scale change.",
+  "rows": [
+    {
+      "file": "sample_004.pt",
+      "step": 38,
+      "shape": [
+        128,
+        256
+      ],
+      "normalized_fro": 0.9961132848097513,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_005.pt",
+      "step": 39,
+      "shape": [
+        128,
+        256
+      ],
+      "normalized_fro": 0.9972896876453874,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_006.pt",
+      "step": 40,
+      "shape": [
+        128,
+        256
+      ],
+      "normalized_fro": 0.9951840310937831,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_007.pt",
+      "step": 41,
+      "shape": [
+        128,
+        256
+      ],
+      "normalized_fro": 0.9901974688590651,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_008.pt",
+      "step": 42,
+      "shape": [
+        128,
+        256
+      ],
+      "normalized_fro": 0.9919401567512937,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_009.pt",
+      "step": 43,
+      "shape": [
+        128,
+        256
+      ],
+      "normalized_fro": 0.9729452464770099,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_010.pt",
+      "step": 44,
+      "shape": [
+        128,
+        256
+      ],
+      "normalized_fro": 0.9950899593279068,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_011.pt",
+      "step": 44,
+      "shape": [
+        128,
+        256
+      ],
+      "normalized_fro": 0.9799297379185382,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_024.pt",
+      "step": 1001,
+      "shape": [
+        1536,
+        256
+      ],
+      "normalized_fro": 1.000996470451355,
+      "cap_factor": 0.9990045215135417
+    },
+    {
+      "file": "sample_025.pt",
+      "step": 1006,
+      "shape": [
+        256,
+        256
+      ],
+      "normalized_fro": 0.9939510822296143,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_026.pt",
+      "step": 1006,
+      "shape": [
+        1536,
+        256
+      ],
+      "normalized_fro": 1.0010205507278442,
+      "cap_factor": 0.9989804897340997
+    },
+    {
+      "file": "sample_027.pt",
+      "step": 1012,
+      "shape": [
+        256,
+        768
+      ],
+      "normalized_fro": 1.0010082721710205,
+      "cap_factor": 0.9989927434177605
+    },
+    {
+      "file": "sample_028.pt",
+      "step": 1013,
+      "shape": [
+        256,
+        768
+      ],
+      "normalized_fro": 1.0011475086212158,
+      "cap_factor": 0.99885380664554
+    },
+    {
+      "file": "sample_029.pt",
+      "step": 1023,
+      "shape": [
+        256,
+        768
+      ],
+      "normalized_fro": 1.000481367111206,
+      "cap_factor": 0.9995188644916038
+    },
+    {
+      "file": "sample_030.pt",
+      "step": 1026,
+      "shape": [
+        128,
+        256
+      ],
+      "normalized_fro": 1.0005898701774874,
+      "cap_factor": 0.9994104775642165
+    },
+    {
+      "file": "sample_031.pt",
+      "step": 1031,
+      "shape": [
+        1536,
+        256
+      ],
+      "normalized_fro": 1.0009154081344604,
+      "cap_factor": 0.9990854290712073
+    },
+    {
+      "file": "sample_036.pt",
+      "step": 1750,
+      "shape": [
+        256,
+        256
+      ],
+      "normalized_fro": 0.9895341992378235,
+      "cap_factor": 1.0
+    },
+    {
+      "file": "sample_038.pt",
+      "step": 1750,
+      "shape": [
+        1536,
+        256
+      ],
+      "normalized_fro": 1.0010749101638794,
+      "cap_factor": 0.9989262440273291
+    },
+    {
+      "file": "sample_042.pt",
+      "step": 1900,
+      "shape": [
+        1536,
+        256
+      ],
+      "normalized_fro": 1.0010926723480225,
+      "cap_factor": 0.9989085202816842
+    }
+  ]
+}

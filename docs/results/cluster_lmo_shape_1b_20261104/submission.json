@@ -1,0 +1,60 @@
+{
+  "array_id": "4389998",
+  "root": "/home/u3013198/projects/cluster-lmo-shape-1b-20261104",
+  "submitted_at": "2026-11-04T18:01:01.312139+08:00",
+  "status_at_submission": "submitted_not_yet_training",
+  "gpus_per_run": 1,
+  "concurrent_gpu_limit": 2,
+  "source_baseline": "c579fe8 + isolated LMO shape/rank changes",
+  "source_manifest_sha256": "39eb506417f262f6e18be7848952e42a163c27b8067357926c73b3f4e58c830e",
+  "source_archive_sha256": "e503e870b3d18781c3dea1be37b2fb3798d12fb499af9d7a6e1ca4353a3804ca",
+  "reference_job": "4375034_2",
+  "matched_control": "4368382_2",
+  "matched_baselines": [
+    "4368383_0",
+    "4368383_1"
+  ],
+  "arms": [
+    {
+      "index": 0,
+      "job": "4389998_0",
+      "name": "Single-LMO top1 c0.5",
+      "configuration": [
+        "10",
+        "spel_pgd_dist",
+        "adaptive4",
+        "cone_lmo_top1",
+        "2e-4",
+        "0.5",
+        "2345",
+        "1908",
+        "20"
+      ]
+    },
+    {
+      "index": 1,
+      "job": "4389998_1",
+      "name": "Single-LMO 25% shape blend c0.5",
+      "configuration": [
+        "11",
+        "spel_pgd_dist",
+        "adaptive4",
+        "cone_lmo_mix25",
+        "2e-4",
+        "0.5",
+        "2345",
+        "1908",
+        "20"
+      ]
+    }
+  ],
+  "train_iterations": 1908,
+  "processed_tokens": 1000341504,
+  "seed": 2345,
+  "eval_batches": 20,
+  "startup_gate": "CUDA unit tests and separate-process four-step smoke before fresh training",
+  "local_cpu_tests_passed": 75,
+  "h20_cpu_tests_passed": 75,
+  "cuda_status": "pending allocation",
+  "checkpoint": false
+}

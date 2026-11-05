@@ -27,12 +27,16 @@ def direction(m, u, s, v, *, mode, threshold, cluster_threshold, coefficient,
             return -coefficient * normalized
         if near_projection == "tangent1":
             return coefficient * host.project_to_tangent_plane(-normalized, u[:, :1], v[:, :1])
-        if near_projection == "cone_lmo":
+        if near_projection in ("cone_lmo", "cone_lmo_top1", "cone_lmo_mix25"):
             from emerging_optimizers.orthogonalized_optimizers.spectral_cone_lmo import (
                 matrix_sign_cone_direction,
             )
+            if near_projection == "cone_lmo_top1":
+                q = 1
+            mixed = near_projection == "cone_lmo_mix25"
             return coefficient * matrix_sign_cone_direction(
                 -normalized, u[:, :q], v[:, :q], msign=host.msign, steps=8,
+                blend=.25 if mixed else 0., match_reference_fro=mixed,
             )
         return coefficient * host.project_spectral_sphere_cone(-normalized, u[:, :q], v[:, :q])
     d = host.project_spectral_sphere_cone(-m, u[:, :q], v[:, :q])
@@ -78,6 +82,11 @@ def main():
             estimated_direction_fro=float(torch.linalg.vector_norm(estimated_d)),
             reference_direction_fro=float(torch.linalg.vector_norm(reference_d)),
             momentum_inner_product=float((m * estimated_d).sum()),
+            returned_relative_update=float(torch.linalg.vector_norm(returned-x) /
+                                           torch.linalg.vector_norm(x).clamp_min(1e-30)),
+            trial_relative_update=float(sample["effective_lr"] * torch.linalg.vector_norm(estimated_d) /
+                                        torch.linalg.vector_norm(x).clamp_min(1e-30)),
+            radial_change_ratio=sample.get("radial_change_ratio"),
         ))
     if not rows:
         raise RuntimeError("no samples were captured")

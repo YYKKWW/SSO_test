@@ -2,8 +2,8 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
-**Results verified 2026-11-04.** This page
-covers **36 completed width-256 runs: 24 at 1B and 12 at 3B tokens**. Budgets
+**Results verified 2026-11-05.** This page
+covers **38 completed width-256 runs: 26 at 1B and 12 at 3B tokens**. Budgets
 are processed tokens, not model sizes. Historical width sweeps, 12B tests,
 Frobenius-geometry experiments, smokes, and failed jobs are not pooled here.
 
@@ -15,10 +15,10 @@ Frobenius-geometry experiments, smokes, and failed jobs are not pooled here.
 
 <a id="latest"></a>
 
-## Latest: Ten Matched 1B Runs
+## Latest: Twelve Matched 1B Runs
 
 Seed **2345**, LR **1.5e-2**, 1908 steps, **20 validation batches** per evaluation.
-Six reference runs and four follow-ups completed with exit 0:0 and no logged
+Six reference runs and six follow-ups completed with exit 0:0 and no logged
 NaN/skipped iterations. Their model, data and schedule settings were checked
 against the launch records; the runs were not all concurrent.
 
@@ -32,25 +32,32 @@ against the launch records; the runs were not all concurrent.
 | Single-LMO narrow cluster/c1 | 3.573165 | +0.000496 | 5:55:50 | `4368382_5` |
 | Ambient near/c8 | 3.573986 | +0.001317 | 5:56:10 | `4375034_0` |
 | Top-1 near/c8 | 3.572480 | -0.000189 | 5:54:13 | `4375034_1` |
-| **Single-LMO narrow cluster/c0.5** | **3.571923** | **-0.000746** | 5:55:10 | `4375034_2` |
+| Single-LMO narrow cluster/c0.5 | 3.571923 | -0.000746 | 5:55:10 | `4375034_2` |
 | Single-LMO narrow cluster/c2 | 3.575782 | +0.003113 | 5:55:29 | `4375034_3` |
+| Single-LMO top-1/c0.5 (new) | 3.572788 | +0.000119 | 5:54:55 | `4389998_0` |
+| **Single-LMO 25% shape blend/c0.5 (new)** | **3.571611** | **-0.001058** | 5:56:14 | `4389998_1` |
 
-![Matched 1B mechanism and scale comparisons](cluster_summary/validation_1b_followups_20261104.png)
+![Matched 1B LMO rank and spectral-shape comparisons](cluster_summary/validation_1b_lmo_shape_20261105.png)
 
-- **Single-LMO c0.5** is the best observed endpoint: 0.001367 below MuonSphere,
-  0.007120 below SSO and 0.001242 below its same-family c1 reference. It adds
-  55 seconds to control and 6.50% to MuonSphere time. Confirmation is needed.
-- **Top-1 c8** is 0.000060 below the wide hybrid, with much less repetition.
-  The multi-direction mechanism has not established an advantage.
-- **Reduced repetition is not sufficient:** LMO c0.5 has 92.18% repeats and
-  the best endpoint; c2 has 53.10% repeats and a worse endpoint. The selected
-  offline exit-rate improvement at c2 did not translate into better training.
+- **25% shape blend/c0.5** is the best observed endpoint: 0.000312 below
+  unblended c0.5, 0.001679 below MuonSphere, and 0.007432 below SSO. It adds
+  64 seconds to unblended c0.5, 0.56% to control and 6.82% to MuonSphere time.
+  This is a small selected single-seed gain, not a stable-improvement claim.
+- **Same-LMO top-1/c0.5** is worse than both unblended adaptive-q and control.
+  This supports testing multi-direction correction within this family; it is
+  not an isolated same-trajectory proof. The earlier momentum top-1/c8 is a
+  different family and slightly outperforms its own wide-hybrid reference.
+- **Reduced repetition is not sufficient:** the blend reduces repeats from
+  92.18% to 88.02%, but top-1 repeats only 39.29% and has worse loss. Larger c2
+  also reduced repetition without improving training. Unblended c0.5 is lower
+  than the blend at steps 1500 and 1750; the new gain is not uniform over time.
 - Ambient c8 loses at 1B despite winning the earlier seed-2345 3B comparison.
   Do not assume a candidate ranking transfers across budgets. Timing includes
   validation, not just optimizer kernels; node placement was not identical.
 
-[Latest analysis and numerical audit](cluster_mechanism_scales_1b_20261102.md) ·
-[New raw records](../results/cluster_mechanism_scales_1b_20261102/final_20261104.json) ·
+[Latest analysis and numerical audit](cluster_lmo_shape_1b_20261104.md) ·
+[New raw records](../results/cluster_lmo_shape_1b_20261104/final_20261105.json) ·
+[Previous mechanism/scale analysis](cluster_mechanism_scales_1b_20261102.md) ·
 [Six-arm references](cluster_results_20261101.md)
 
 ### Completed Paired 1B Replication
@@ -120,7 +127,9 @@ cause of poorer loss.
 | Top-1 c8 | Slightly better than wide hybrid at 1B and better at seed-2345 3B; only one mechanism seed | Retain as an important simpler control |
 | Ambient c8 | Best seed-2345 3B endpoint, but worse than control/MuonSphere at 1B | Budget-dependent reference; do not promote at 1B |
 | Narrow cluster c8 | Eliminates sampled capacity overflows; worsens latest 1B endpoint | Do not expand the long-run grid |
-| **Single-LMO c0.5** | Best current matched 1B endpoint; 5.800% near calls and 92.18% repeats | Confirm another seed; test rank within the same LMO family |
+| **Single-LMO c0.5** | Strong unblended 1B reference; 5.800% near calls and 92.18% repeats | Retain for paired confirmation of the blend |
+| Single-LMO top-1/c0.5 | Slightly worse than control; less repetition does not recover adaptive-q performance | Keep as the same-LMO rank ablation, not the leading candidate |
+| **Single-LMO 25% blend/c0.5** | Best observed 1B endpoint, only 0.000312 below unblended; 4.252% near calls, 88.02% repeats | Prioritize paired-seed confirmation, not a larger grid |
 | Single-LMO c1/c2 | Both worse than control at 1B; c2 reduces repetition but worsens loss | Keep as step-scale references; no wider grid yet |
 | K20 | More accurate sampled spectra, not consistently better loss | Accuracy reference, not automatic upgrade |
 | c12 / K40 | Lower repetition / numerical error without better earlier 1B endpoints | Defer |
@@ -193,6 +202,16 @@ LMO c0.5's instantaneous rate at step 1900 is **34.52%**, substantially higher
 than its cumulative rate. Its selected-sample gap MAE is 7.753e-5, still
 comparable to the 5e-5 route threshold. No strict gap certificate is claimed.
 
+The latest same-LMO top-1 / 25% blend cumulative near rates are
+**1.218% / 4.252%**, versus instantaneous step-1900 rates of **10.32% / 30.95%**.
+Mean bursts are **1.65 / 8.35**, and the blend has **48** capacity overflows
+(unblended: 215). The 44 selected audit matrices per new run have gap MAE
+**7.958e-5 / 8.297e-5**, mean relative direction error **3.167% / 3.740%**,
+and maximum relative returned-radius error **1.602e-4 / 1.503e-4**.
+False-safe / false-near counts are **0/1** and **0/2**, not population error
+rates. The blend's small loss gain is not accompanied by better sampled
+spectral accuracy. See the [complete audit comparison](cluster_lmo_shape_1b_20261104.md#numerical-audit).
+
 <a id="next"></a>
 
 ## Completed Follow-Ups and Next Decisions
@@ -202,6 +221,7 @@ comparable to the 5e-5 route threshold. No strict gap certificate is claimed.
 | Frozen-matrix scale audit | 160 saved samples; single-LMO c0.5/1/2 plus wide/narrow references; cached and oracle spectra | `4373185`, completed in 47 seconds |
 | Paired 1B replication | Seed 1234, K10 control vs. wide hybrid c8, LR 1.5e-2, 1908 steps, eval20 | `4373351_0–1`, both COMPLETED on 2026-11-02 |
 | Mechanisms and LMO scales | Seed 2345, ambient/top-1 c8, single-LMO c0.5/c2, 1B/eval20 | `4375034_0–3`, all COMPLETED by 2026-11-03 00:58 HKT |
+| Single-LMO rank/shape | Seed 2345, top-1 or 25% shape blend, c0.5, 1B/eval20 | `4389998_0–1`, both COMPLETED by 2026-11-05 02:20 HKT |
 
 The corrected pair was submitted **2026-11-02 00:55 HKT**; at most two GPUs
 concurrently, no checkpoints. [Submission metadata](../results/cluster_followup_1b_20261101/submission_v2.json)
@@ -215,7 +235,10 @@ The first pair `4373186_0–1` failed in preflight before training because of an
 isolated test import-path error. The v2 snapshot fixes that path, isolates
 launcher overrides from grid tests, and adds a regression test. That snapshot
 passed 63 local tests; the successful audit had passed the earlier 62 CUDA
-tests. The current launch suite has 66 cluster tests plus one collector test.
+tests. The current launch suite has 74 cluster tests plus one collector test,
+passing locally and on the H20 host's CPU. Both latest allocations also passed
+27 CUDA-targeted tests before smoke and again before main training.
+[CUDA and smoke completion records](../results/cluster_lmo_shape_1b_20261104/completion_20261105.json).
 
 The [completed scale audit](cluster_results_20261101.md#completed-scale-audit)
 finds 22/28/37 near-region exits among the same 51 cases for single-LMO
@@ -228,14 +251,22 @@ The failed third-seed 3B array `4360583` never trained; its wrapper path was
 fixed, but it has not been resubmitted. The new pair does not count as a
 third-seed 3B result.
 
-**Next, not yet submitted:** confirm LMO c0.5 at seed 1234 with the same
-1B/eval20 protocol, then compare q=1 versus adaptive q<=4 **within that same
-LMO/c0.5 family**. The existing momentum top-1/c8 arm does not isolate that
-mechanism. Retain matched MCSD-TP and wide-hybrid references and report
-unfavorable outcomes too. Keep larger widths, broad gap sweeps and 3B
-expansion deferred. A common larger fixed validation set would help resolve
+**Now completed:** q=1 versus the completed adaptive-q reference **within the
+same LMO/c0.5 family**, plus 25% pre-correction spectral-shape interpolation
+with the final near-direction Frobenius length matched. The old momentum
+top-1/c8 arm does not isolate this mechanism. A shape-scaled amplitude cap
+was screened offline and is almost inactive on the selected snapshots, so
+it was not promoted to another full 1B run.
+[Protocol, screening, results and job IDs](cluster_lmo_shape_1b_20261104.md).
+
+**Next recommended, not submitted:** compare unblended c0.5 and the 25% blend
+at seed 1234 under the same 1B/eval20 protocol, verifying compatibility with
+the completed MCSD-TP reference. Keep all other settings fixed and report
+unfavorable outcomes too. This batch has no remaining queued or running jobs;
+this update launches no new training. Keep larger widths, broad gap sweeps
+and 3B expansion deferred. A common larger fixed validation set would help resolve
 small differences, but old checkpoints are unavailable for retrospective
-re-evaluation. No new training was submitted in this results-only update.
+re-evaluation. Do not count queued tests as completed results.
 
 <a id="ledger"></a>
 
@@ -249,7 +280,8 @@ re-evaluation. No new training was submitted in this results-only update.
 | Reference 1B, seed 2345, eval20 | 6 | [JSON](../results/cluster_cone_lmo_1b_20261031/final_20261101.json), [analysis](cluster_results_20261101.md) |
 | Paired 1B replication, seed 1234, eval20 | 2 | [JSON](../results/cluster_followup_1b_20261101/paired_final_20261102.json) |
 | Mechanism/scale 1B follow-ups, seed 2345, eval20 | 4 | [JSON](../results/cluster_mechanism_scales_1b_20261102/final_20261104.json), [analysis](cluster_mechanism_scales_1b_20261102.md) |
-| **Total completed** | **36** | Deduplicated by Slurm Job ID; failed jobs and smokes excluded |
+| LMO rank/shape 1B follow-ups, seed 2345, eval20 | 2 | [JSON](../results/cluster_lmo_shape_1b_20261104/final_20261105.json), [analysis](cluster_lmo_shape_1b_20261104.md) |
+| **Total completed** | **38** | Deduplicated by Slurm Job ID; failed jobs and smokes excluded |
 
 <details>
 <summary>All earlier 1B endpoints, including unfavorable outcomes</summary>

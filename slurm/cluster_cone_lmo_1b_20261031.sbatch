@@ -33,6 +33,8 @@ case "$arm_index" in
   7) near=tangent1 ;;
   8) cluster=2e-4; near=cone_lmo; coefficient=0.5 ;;
   9) cluster=2e-4; near=cone_lmo; coefficient=2.0 ;;
+  10) cluster=2e-4; near=cone_lmo_top1; coefficient=0.5 ;;
+  11) cluster=2e-4; near=cone_lmo_mix25; coefficient=0.5 ;;
   *) echo "Unknown experiment index" >&2; exit 2 ;;
 esac
 if [[ "${1:-}" == "--describe" ]]; then
@@ -61,6 +63,7 @@ export NVIDIA_TF32_OVERRIDE=0 P2GD_TEST_DEVICE=cuda
 python -B -m unittest discover -s scripts -p test_cluster_cone_lmo.py -v
 python -B -m unittest discover -s scripts -p test_cluster_near_projection.py -v
 python -B -m unittest discover -s scripts -p test_cluster_followup_1b.py -v
+python -B -m unittest discover -s scripts -p test_cluster_lmo_shape.py -v
 export OPTIMIZER="$optimizer" SEED="$experiment_seed"
 export WIDTH=256 NUM_LAYERS=28 HEAD_DIM=128 SEQ_LENGTH=4096
 export GLOBAL_BATCH=128 MICRO_BATCH=4 GPUS_PER_NODE=1 TP_SIZE=1 PP_SIZE=1
@@ -88,7 +91,7 @@ export SPEL_PGD_DIRECTION_NORMALIZATION=none SPEL_PGD_FALLBACK_DIRECTION=pgd SPE
 export SPECTRAL_BALL_POWER_ITERATION_STEPS=10 SPECTRAL_BALL_SOLVER_TOLERANCE_F=2e-4
 export SPECTRAL_BALL_SOLVER_MAX_ITERATIONS=20 MUON_BALL_POWER_ITERATION_STEPS=10 MUON_BALL_MSIGN_STEPS=8
 export JOB_NAME="w256_${optimizer}_${mode}_${near}_cluster${cluster}_c${coefficient}_seed${experiment_seed}_1b"
-export RUN_ROOT="$PROJECT_DIR/results/${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
+export RUN_ROOT="$PROJECT_DIR/results/${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}${CLUSTER_RUN_SUFFIX:-}"
 export DATA_CACHE_PATH="$RUN_ROOT/data_cache"
 if [[ "$optimizer" == "spel_pgd_dist" ]]; then
   export CLUSTER_SNAPSHOT_DIR="$RUN_ROOT/snapshots"
@@ -106,6 +109,8 @@ keys={"WIDTH","NUM_LAYERS","HEAD_DIM","SEQ_LENGTH","GLOBAL_BATCH","MICRO_BATCH",
 config={k:v for k,v in os.environ.items() if k in keys or k.startswith(("SPEL_PGD_","MUON_BALL_","SPECTRAL_BALL_","CLUSTER_SNAPSHOT_"))}
 experimental=os.environ["OPTIMIZER"]=="spel_pgd_dist"
 config.update(actual_spectral_solver="fixed_warm_block8_fp32_ritz" if experimental else "reference_bf16_pi10",actual_return="approximate_radial_both_branches" if experimental else "reference_hard_pre_retraction",online_accuracy_gate=False,automatic_full_svd_fallback=False,post_direction_normalization=False,matched_frobenius_length=False,data_protocol="1b_budget_on_existing_3b_indexed_source",initialization="fresh_seed"+os.environ["SEED"],processed_tokens=int(os.environ["TRAIN_ITER"])*128*4096,smoke=os.environ.get("CLUSTER_SMOKE")=="1",torch_version=torch.__version__,cuda_version=torch.version.cuda,device=torch.cuda.get_device_name(0))
+mixed=os.environ["SPEL_PGD_CLUSTER_NEAR_PROJECTION"]=="cone_lmo_mix25"
+config.update(lmo_blend_fraction=0.25 if mixed else 0.0,matched_unblended_near_fro=mixed,post_direction_normalization=mixed)
 print(json.dumps(config,indent=2,sort_keys=True))' > "$RUN_ROOT/launch_config.json"
 start=$(date +%s)
 bash "$PROJECT_DIR/slurm/spel_olmo_1b_h20.sbatch" 2>&1 | tee "$RUN_ROOT/train.log"

@@ -1,0 +1,55 @@
+{
+  "checked_utc": "2026-11-05T07:06:24.067516+00:00",
+  "rows": [
+    {
+      "job": "4389998_0",
+      "cuda_preflight_test_counts": [
+        9,
+        7,
+        3,
+        8,
+        9,
+        7,
+        3,
+        8
+      ],
+      "smoke_completed": true,
+      "smoke_seconds": 79,
+      "smoke_calls": {
+        "component_updates": 1008,
+        "small_svd": 1008,
+        "full_svd": 0,
+        "svdvals": 0,
+        "saved": 4,
+        "successful_training": true
+      },
+      "stderr_sha256": "9b545e602be43e069faa3e836674c3d7657350a8a8d89befd17145c7d4dd9cd3",
+      "smoke_and_main_separate_processes": true
+    },
+    {
+      "job": "4389998_1",
+      "cuda_preflight_test_counts": [
+        9,
+        7,
+        3,
+        8,
+        9,
+        7,
+        3,
+        8
+      ],
+      "smoke_completed": true,
+      "smoke_seconds": 75,
+      "smoke_calls": {
+        "component_updates": 1008,
+        "small_svd": 1008,
+        "full_svd": 0,
+        "svdvals": 0,
+        "saved": 4,
+        "successful_training": true
+      },
+      "stderr_sha256": "61e5c903a43bf3acf0a8e257c46a164291b5f1a897289d8837cceba1dc567a9e",
+      "smoke_and_main_separate_processes": true
+    }
+  ]
+}

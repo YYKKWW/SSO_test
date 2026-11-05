@@ -35,7 +35,9 @@ def compute_cluster_radial_update(
         raise ValueError("invalid cluster spectral solver")
     if cluster_direction_mode not in ("matched_fro", "momentum_fro"):
         raise ValueError("invalid cluster direction mode")
-    if cluster_near_projection not in ("cone", "ambient", "tangent1", "cone_lmo"):
+    if cluster_near_projection not in (
+        "cone", "ambient", "tangent1", "cone_lmo", "cone_lmo_top1", "cone_lmo_mix25",
+    ):
         raise ValueError("invalid near-branch projection")
     if cluster_near_projection != "cone" and cluster_direction_mode != "momentum_fro":
         raise ValueError("mechanism controls require Frobenius-normalized momentum")
@@ -122,11 +124,15 @@ def compute_cluster_radial_update(
         elif cluster_near_projection == "tangent1":
             direction = host.project_to_tangent_plane(-momentum, cache.u1, cache.v1, eps=eps)
             rank = 1
-        elif cluster_near_projection == "cone_lmo":
+        elif cluster_near_projection in ("cone_lmo", "cone_lmo_top1", "cone_lmo_mix25"):
             from .spectral_cone_lmo import matrix_sign_cone_direction
+            if cluster_near_projection == "cone_lmo_top1":
+                rank = 1
+            mixed = cluster_near_projection == "cone_lmo_mix25"
             direction = matrix_sign_cone_direction(
                 -momentum, cache.u_basis[:, :rank], cache.v_basis[:, :rank],
                 msign=host.msign, steps=msign_steps,
+                blend=.25 if mixed else 0., match_reference_fro=mixed,
             )
         else:
             direction = host.project_spectral_sphere_cone(
@@ -163,7 +169,9 @@ def compute_cluster_radial_update(
         pgd_trial_rel_gap=next_cache.rel_gap if fallback else float("nan"),
         pgd_post_rel_gap=next_cache.rel_gap if fallback else float("nan"),
         cluster_dimension=rank,
-        cluster_cap_overflow=bool(cluster_near_projection in ("cone", "cone_lmo") and active > rank),
+        cluster_cap_overflow=bool(
+            cluster_near_projection in ("cone", "cone_lmo", "cone_lmo_mix25") and active > rank
+        ),
         cluster_step_multiplier=multiplier, radial_change_ratio=radial_ratio,
         cluster_flatten_distance=flatten_distance,
         **approximation_info,

@@ -515,7 +515,7 @@ class OptimizerConfig:
     """Cluster direction: MCSD length matching or Frobenius-normalized momentum."""
 
     spel_pgd_cluster_near_projection: str = "cone"
-    """Near-branch mechanism: cone, ambient (no correction), or tangent1."""
+    """Near correction: cone/ambient/tangent1, cone_lmo, cone_lmo_top1 or cone_lmo_mix25."""
 
     spel_pgd_pgd_lr_scale: float = 0.5
     """Extra step-size multiplier used only for the SpEL-PGD PGD fallback branch."""
