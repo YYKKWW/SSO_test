@@ -7,6 +7,7 @@ protocols and historical results are kept separate.
 | Start here | What it contains |
 |---|---|
 | **[Results overview](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md)** | Key 3B/6B comparisons, curves and next tests |
+| **[ELR and AUS study](docs/experiments/FROBENIUS_ELR_AUS_20261113.md)** | Latest normalized 3B grid, MuonH AUS replay, and tangent-direction diagnostics |
 | [Point-extrapolation pilot](docs/experiments/MCSD_POINT_PILOT_20261031.md) | Completed pilots and continuations; CPU-reproducible plots |
 | **[Latest results, November 5](docs/experiments/FROBENIUS_RESULTS_20261105.md)** | Complete 3B LR grid, MCSD-unitF endpoint and matched-step NorUnit curves |
 | [Algorithms](docs/experiments/OPTIMIZER_PSEUDOCODE_GUIDE.md) | Pseudocode and implementation paths |

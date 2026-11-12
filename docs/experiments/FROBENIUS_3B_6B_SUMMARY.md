@@ -1,11 +1,11 @@
 # Frobenius Sphere Experiments
 
-**Results and queue snapshot: November 12, 2026, 11:23 HKT**
+**Results and queue snapshot: November 13, 2026 (HKT)**
 
-[Latest H20 readout and validation curves](FROBENIUS_H20_READOUT_20261112.md).
-The best completed normalized MCSD result is **3.460299**. Both LR=0.012
-runs are still training and trail LR=0.010 at matched intermediate steps.
-The full-budget fixed-point run and seed-2026 selection gate await dependencies.
+[Latest H20 results and the ELR/AUS study](FROBENIUS_ELR_AUS_20261113.md).
+Both LR=0.012 runs finished behind LR=0.010. The best completed normalized
+MCSD result remains **3.460299**. The second-seed replication is running;
+the full-budget AUS comparison has no results yet.
 
 MCSD and MCSD-TP are evaluated against MuonH and NorMuon-Sphere using
 Megatron Dense LMs. The completed matched 3B comparison favors
@@ -20,12 +20,13 @@ at their respective endpoints.
 
 | Evidence | Coverage | Interpretation |
 |---|---|---|
-| Completed 3B | 60 runs in the October 29 ledger + 6 LR cells + 4 normalization/seed runs + 2 LR=0.008 runs | 72 completed runs across the ledger and dated readouts |
+| Completed 3B | 60 runs in the October 29 ledger + 6 LR cells + 4 normalization/seed runs + 4 LR=0.008/0.012 runs | 74 completed runs across the ledger and dated readouts |
 | Completed 6B | 4 runs, two methods and two seeds | Earlier frozen configurations, not the new Nesterov setting |
 | Completed point pilots | 8 earlier configurations + 2 fixed-gamma pilots | Separate from full-budget results |
 | November 2 point/LR batch | All 8 completed | [Complete LR readout](FROBENIUS_RESULTS_20261105.md), [3000-step point results](FROBENIUS_RESULTS_20261104.md#point-extrapolation-at-step-3000) |
 | November 4 normalization/seed batch | All 4 completed | [Matched endpoints and second-seed baselines](FROBENIUS_H20_READOUT_20261112.md#full-3b-results) |
-| November 10 fixed-point/unit-F batch | 2 pilots and 2 full 3B runs completed; 2 full 3B runs active | [Latest progress](FROBENIUS_H20_READOUT_20261112.md#lr0012-progress) |
+| November 10 fixed-point/unit-F batch | 2 pilots and 4 full 3B runs completed | [Completed LR grid](FROBENIUS_ELR_AUS_20261113.md#completed-3b-results) |
+| ELR/AUS study | Gradient/scale pilot and matched 3B arms | [Protocol and job IDs](FROBENIUS_ELR_AUS_20261113.md#controlled-h20-tests) |
 
 This is a dated evidence summary, not a live dashboard. All losses are
 validation cross-entropy; lower is better. No historical results were removed:
@@ -165,7 +166,7 @@ Its gap shrank from 0.066324 at step 1000 but did not improve between steps
 2800 and 3000. This is not a crossover or an established acceleration result.
 **These losses cannot be compared directly with the final 3B/6B tables.**
 Neither fixed-gamma pilot improved on its matched capped-FISTA variant.
-The full 3B fixed-gamma test, job 4424382, is waiting for 4419139.
+The full 3B fixed-gamma test, job 4424382, is running; no final result yet.
 
 ![Point-pilot validation and difference from Nesterov](frobenius_point_lr_20261104/point_validation_3000.png)
 
@@ -182,15 +183,16 @@ The full 3B fixed-gamma test, job 4424382, is waiting for 4419139.
 | Completed | MCSD-NorUnit, LR=0.010, seed=1234 | 4390469; final validation loss 3.460299 |
 | Mechanism | Sample accepted/live angular displacement and compare X/Y on identical diagnostic batches | Proposed; no extra production evaluations enabled |
 | Completed: fairness | Baseline second seed at the matched LR=0.010 setting | 4390470 / 4390471 |
-| In progress | Normalized variants at LR=0.012 | 4419139 and 4419140 are training |
-| Queued | Full 3B fixed-point extrapolation and normalized winner replication | 4424382 and CPU selection gate 4424383; no replication job ID yet |
+| Completed | Normalized variants at LR=0.012 | 4419139: 3.463637; 4419140: 3.463414 |
+| In progress | Full 3B fixed-point extrapolation and normalized winner replication | 4424382 and 4428698 |
+| Queued | MuonH reference, MCSD-TP control, MCSD-TP AUS replay | 4427413–4427415; [diagnostics](FROBENIUS_ELR_AUS_20261113.md#controlled-h20-tests) |
 | Transfer | Frozen best candidates, paired seeds, then 6B and larger widths | Deferred until full 3B evidence |
 
 The completed eight-job batch used two serial single-GPU lanes. Six full 3B runs were
 explicitly requested, not automatically promoted point pilots. The separate
 November 4 follow-up adds four 3B jobs on two serial lanes. The November 12
-[H20 readout](FROBENIUS_H20_READOUT_20261112.md) records the later jobs and
-their dependencies.
+[H20 readout](FROBENIUS_H20_READOUT_20261112.md) preserves the earlier
+snapshot; the [ELR/AUS study](FROBENIUS_ELR_AUS_20261113.md) is current.
 [Submission details](FROBENIUS_POINT_LR_BATCH_20261102.md).
 
 **Current research priority:** distinguish direction quality from actual
