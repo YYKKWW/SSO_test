@@ -2,6 +2,9 @@
 
 **H20 snapshot: November 13, 2026, 00:14 HKT.** [Experiment overview](FROBENIUS_3B_6B_SUMMARY.md)
 
+Later update on November 13: [the width-384 matched transfer](#width-384-transfer)
+is submitted; it has no training results yet.
+
 **Question.** Does projecting the Nesterov input before the LMO change the
 update direction enough to affect validation loss, once the actual angular
 step size is held fixed? A related question is whether the raw loss is nearly
@@ -100,3 +103,82 @@ direction alignment, and AUS-matched validation loss as separate evidence.
 Local validation: 97 tests passed, including bitwise equality of a MuonH
 update with the probe on and off, and restoration of the perturbed weights
 after a forward failure. The H20 runs have not yet validated the new diagnostic.
+
+## Which Projection Matters?
+
+Write `P_W Z = Z - W <W,Z>_F / R^2` on the Frobenius sphere. The true
+Riemannian gradient of the current batch is `P_W G`. In these experiments,
+the LMO instead takes either the ambient Nesterov source `S` or its current
+tangent projection `P_W S`. All three directions below use unit-F scaling
+and the same radial return. The minus sign is applied in the trial step.
+
+| Method | Before matrix sign | After matrix sign, before unit-F |
+|---|---|---|
+| MuonH | `S` | No explicit projection |
+| MCSD + unit-F | `P_W S` | No explicit projection |
+| MCSD-TP + unit-F | `P_W S` | Project the sign onto the tangent space |
+
+The MuonH step still moves in the tangent direction `-P_W msign(S)` to
+first order: the radial return removes the radial part to first order, but
+does not undo the choice of input to `msign`. If `P_W S = S`, MuonH and
+MCSD-TP have the same tangent ray at that state; with a matched, small AUS,
+they return the same point in exact arithmetic. This does not follow merely
+from a small radial component in the current `G` because `S` contains history.
+
+**Exact local check.** Take `W = diag(1,0)` and `S = G = [[-1,-1],[-1,2]]`.
+Using exact polar factors, the unnormalized alignment with `P_W G` is
+2.828427 after pre-projection vs. 2.773501 with the ambient input. After
+applying the same post-projection and unit-F scaling to both directions,
+the alignments are 2.309401 and 2.425356, respectively. Thus the exact LMO
+advantage before normalization does not guarantee a larger predicted
+decrease at the same AUS. This is a mathematical check, not an explanation
+of the observed LLM result on its own.
+
+At width 256 and peak LR 0.010, the existing MCSD-TP runs without the
+unit-F ablation trailed MuonH by 0.002663 (seed 1234) and 0.000459
+(seed 2026). The size of the gap is seed-sensitive. The existing 3B
+comparison cannot separate the projection, actual angular step and
+direction normalization effects.
+
+## Width-384 Transfer
+
+There is an encouraging but confounded historical result: at width 384,
+3B tokens, and initialization-energy-matched radii, MCSD and MCSD-TP
+finished at 3.299155 and 3.299154, vs. MuonH at 3.309457. The radius and
+optimizer protocol differ from the present study. This is a reason to
+repeat the comparison, not evidence that model width caused the reversal.
+See the [historical ledger](FROBENIUS_3B_6B_HISTORY.md).
+
+The new runs transfer the width-256 settings to width 384 (approximately
+127M parameters, 28 layers, 6 query heads, 3 KV groups) without retuning.
+All arms use shape radii, 3B tokens, seed 1234, peak LR 0.010,
+beta=0.95 Nesterov, the same auxiliary AdamW and a single H20. All three
+record per-matrix AUS. Both MCSD arms record same-state, post-projected
+direction comparisons on sampled steps, covering every logical matrix at
+those steps. The audit is observational and does not alter the updates.
+
+| Arm | Six-step trace check | Full 3B job |
+|---|---:|---:|
+| MuonH | 4428778 | 4428781 |
+| MCSD + unit-F | 4428779 | 4428783 |
+| MCSD-TP + unit-F | 4428780 | 4428784 |
+
+All six jobs were pending when submitted. The first check waits for the
+seed-2026 run `4428698` and the separate pilot array `4428745` to finish;
+the width-384 jobs then run serially, and the full runs require all three
+checks to pass. No checkpoints are saved. The wider trace and launcher
+changes passed 241 local tests; H20 execution is not yet verified.
+
+Compare the within-width validation-loss differences relative to MuonH.
+MCSD + unit-F is the pre-projection-only comparison; MCSD-TP + unit-F
+adds explicit post-projection. The baseline and MCSD are separate code
+paths with small arithmetic differences, so the paired direction audit
+is the stricter test of the pre-projection operation. At fixed tokens,
+width 384 also has fewer tokens per parameter. A change in the gap is a
+transfer result at this budget, not a scaling law or a retuned comparison.
+
+Interpret the mechanism jointly: if the width-256 loss gap shrinks under
+AUS replay, step length contributes. If it persists and the same-state
+ambient direction aligns better with the current gradient, that supports
+a direction-quality explanation. If the two rays are nearly identical,
+look first at the actual AUS and at what changes once trajectories diverge.

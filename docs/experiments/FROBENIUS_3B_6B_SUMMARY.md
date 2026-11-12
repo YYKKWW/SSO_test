@@ -186,7 +186,8 @@ The full 3B fixed-gamma test, job 4424382, is running; no final result yet.
 | Completed | Normalized variants at LR=0.012 | 4419139: 3.463637; 4419140: 3.463414 |
 | In progress | Full 3B fixed-point extrapolation and normalized winner replication | 4424382 and 4428698 |
 | Queued | MuonH reference, MCSD-TP control, MCSD-TP AUS replay | 4427413–4427415; [diagnostics](FROBENIUS_ELR_AUS_20261113.md#controlled-h20-tests) |
-| Transfer | Frozen best candidates, paired seeds, then 6B and larger widths | Deferred until full 3B evidence |
+| Queued | Width-384, matched 3B projection comparison | 4428781 / 4428783 / 4428784; [protocol](FROBENIUS_ELR_AUS_20261113.md#width-384-transfer) |
+| Transfer | Paired seeds, retuning and larger budgets | Deferred until the matched transfer results are available |
 
 The completed eight-job batch used two serial single-GPU lanes. Six full 3B runs were
 explicitly requested, not automatically promoted point pilots. The separate
