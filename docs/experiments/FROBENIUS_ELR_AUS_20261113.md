@@ -1,9 +1,9 @@
 # Frobenius Sphere: ELR, AUS, and Tangent Directions
 
-**H20 snapshot: November 13, 2026, 00:14 HKT.** [Experiment overview](FROBENIUS_3B_6B_SUMMARY.md)
+**H20 snapshot: November 13, 2026, 17:17 HKT.** [Experiment overview](FROBENIUS_3B_6B_SUMMARY.md)
 
-Later update on November 13: [the width-384 matched transfer](#width-384-transfer)
-is submitted; it has no training results yet.
+[400-step pilot results](#does-muonh-already-use-an-almost-tangent-input) |
+[3B replay progress](#controlled-h20-tests) | [Width-384 transfer](#width-384-transfer)
 
 **Question.** Does projecting the Nesterov input before the LMO change the
 update direction enough to affect validation loss, once the actual angular
@@ -25,7 +25,13 @@ At the same peak LR of 0.010, MuonH finished at **3.458490** and NorMuon-Sphere
 at **3.455796**. The best normalized MCSD variant trails MuonH by 0.001809.
 Both normalization variants selected 0.010 on this grid. Job **4428698** is
 the second-seed (2026) replication of the row-adaptive winner; no final
-endpoint yet. These results do not include any AUS replay.
+endpoint yet (10,910/11,445 updates; validation loss 3.470769 at step 10,800).
+These results do not include any AUS replay.
+
+The 3B fixed-point extrapolation run (`4424382`, gamma=0.95, peak LR 0.00125,
+no EMA, seed 1234) finished in 18:35:26 with **3.511619** at step 11,445.
+This is 0.049932 above the ordinary MCSD Nesterov endpoint (3.461687), under
+the respective tested recipes, not a coefficient-only or LR-matched ablation.
 
 ## What the Existing Logs Say About ELR
 
@@ -56,16 +62,16 @@ steps, and auxiliary AdamW for all three full-budget runs. Only constrained
 matrices are replayed. The full runs follow the three six-step checks
 (`4427410`, `4427411`, `4427412`) in a single-GPU lane.
 
-| Full 3B arm | Job | Test |
+| Full 3B arm | Job | Status and test |
 |---|---:|---|
-| MuonH | 4427413 | Record the actual AUS at each step for each logical matrix |
-| MCSD-TP + unit-F | 4427414 | Keep the original cosine schedule and record AUS |
-| MCSD-TP + unit-F, AUS replay | 4427415 | Match MuonH's recorded AUS, then compare loss at the same token count |
+| MuonH | 4427413 | Running, 2,030/11,445; val. loss 3.864423 at step 2,000; record per-matrix AUS |
+| MCSD-TP + unit-F | 4427414 | Pending; keep the original cosine schedule and record AUS |
+| MCSD-TP + unit-F, AUS replay | 4427415 | Pending; match MuonH's recorded AUS and compare loss at the same token count |
 
-All three were pending at this snapshot. The single-GPU lane starts with
-pilot `4428742` after the running job `4424382` exits. The first smoke
-job starts after the pilot exits, even if the pilot fails; the remaining
-smoke and full-budget runs require a successful predecessor.
+All three six-step CUDA checks completed. The replay matched `6 x 196`
+matrix steps with maximum absolute chord error `6.19e-8` and RMS error
+`6.48e-9`, below the `2e-6` absolute tolerance. This verifies replay on
+the short trajectory only; there is no 3B AUS-matched loss yet.
 
 The replay checks the returned
 FP32 chord against its target (absolute tolerance `2e-6`); it does not match
@@ -79,12 +85,40 @@ the full MuonH vs. MCSD-TP runs differ in other parts of the update as well.
 
 ### Does MuonH Already Use an Almost Tangent Input?
 
-The separate MuonH pilot (`4428742`, pending) uses the same 3B schedule but
-stops after 400 updates (104,857,600 tokens). It records the signed radial cosine of `G`,
-`S`, and `msign(S)` for every logical constrained matrix at steps
-1, 25, 100, 229, and 400, plus ELR, AUS, and paired direction metrics.
-Report the absolute cosine distributions by matrix type and layer, not a
-mean of signed values that can cancel.
+MuonH pilot `4428742` completed in 40:27 with the full 3B LR schedule and
+an early exit after 400 updates (104,857,600 tokens). Validation loss was
+4.918553 at step 400, matching the full reference at that point. The
+pilot sampled all 196 logical matrices at each of steps 1, 25, 100, 229,
+and 400 (980 observations). No NaNs or skipped updates were reported.
+
+The first three columns report the median absolute radial cosine
+`|<W,Z>|/(||W||_F ||Z||_F)`. The last reports the share of matrices for
+which `msign(P_W S)` aligns better with the current gradient than
+`msign(S)`, after both directions receive the same post-projection and
+unit-F normalization. Differences within `1e-6` are ties.
+
+| Step | Raw gradient `G` | Nesterov input `S` | `msign(S)` | Pre-projection wins |
+|---:|---:|---:|---:|---:|
+| 25 | 0.080% | 0.230% | 1.972% | 71.43% |
+| 100 | 0.194% | 2.222% | 12.230% | 96.94% |
+| 229 | 0.252% | 4.266% | 11.123% | 64.80% |
+| 400 | 0.313% | 7.471% | 12.609% | 34.69% |
+
+The raw gradient was nearly tangent, but the actual input to MuonH's
+matrix sign was not as close. At step 400, its median ELR/LR was 1.000000
+while median AUS/LR was 0.990733 (10th percentile 0.980489). The equal-AUS
+alignment comparison favors neither direction overall at steps 229 and
+400 pooled (49.74% pre-projection wins); the result varies by matrix type:
+
+| Matrix | Pre-projection wins, steps 229 and 400 |
+|---|---:|
+| Query | 91.07% |
+| Key | 94.64% |
+| Value | 35.71% |
+| Attention output | 46.43% |
+| MLP gate | 33.93% |
+| MLP up | 32.14% |
+| MLP down | 14.29% |
 
 At steps 25, 229, and 400, a separate no-backward check scales one logical
 matrix at a time by 0.9 or 1.1 in an early, middle, or late layer. It compares
@@ -92,7 +126,10 @@ masked token loss on the same microbatch, records a repeated unperturbed
 forward, and restores the BF16 weight before the training forward. The
 finite differences use one microbatch; the optimizer's radial cosines use
 the accumulated gradient seen by the optimizer after gradient clipping.
-Do not compare them as identical samples.
+Do not compare them as identical samples. Across 126 perturbations, the
+median absolute loss change was `1.43e-4` (maximum `4.68e-3`), and repeated
+unperturbed forwards matched. Q and K median changes were `3.39e-5` and
+`2.96e-5`; the MLP gate reached `4.68e-3` on one perturbation.
 
 Exact scale invariance of the loss for a matrix implies `<W,G>_F = 0`,
 but small `<W,G>_F` at one iterate does not prove scale invariance. Even if
@@ -100,9 +137,10 @@ but small `<W,G>_F` at one iterate does not prove scale invariance. Even if
 operation can create a radial component. Interpret scale sensitivity,
 direction alignment, and AUS-matched validation loss as separate evidence.
 
-Local validation: 97 tests passed, including bitwise equality of a MuonH
-update with the probe on and off, and restoration of the perturbed weights
-after a forward failure. The H20 runs have not yet validated the new diagnostic.
+These are first-order comparisons on a single early MuonH trajectory,
+not paired validation-loss outcomes. The result motivates testing an
+attention-Q/K-only pre-projection ablation if the pattern persists later,
+not replacing the full MCSD method before the replay results are in.
 
 ## Which Projection Matters?
 
@@ -163,8 +201,8 @@ those steps. The audit is observational and does not alter the updates.
 | MCSD + unit-F | 4428779 | 4428783 |
 | MCSD-TP + unit-F | 4428780 | 4428784 |
 
-All six jobs were pending when submitted. The first check waits for the
-seed-2026 run `4428698` and the separate pilot array `4428745` to finish;
+All six jobs were pending at 17:17 HKT. The separate pilot array `4428745`
+finished, so the first check now only waits for seed-2026 run `4428698`;
 the width-384 jobs then run serially, and the full runs require all three
 checks to pass. No checkpoints are saved. The wider trace and launcher
 changes passed 241 local tests; H20 execution is not yet verified.

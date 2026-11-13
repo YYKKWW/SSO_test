@@ -1,11 +1,13 @@
 # Frobenius Sphere Experiments
 
-**Results and queue snapshot: November 13, 2026 (HKT)**
+**Results and queue snapshot: November 13, 2026, 17:17 HKT**
 
 [Latest H20 results and the ELR/AUS study](FROBENIUS_ELR_AUS_20261113.md).
-Both LR=0.012 runs finished behind LR=0.010. The best completed normalized
-MCSD result remains **3.460299**. The second-seed replication is running;
-the full-budget AUS comparison has no results yet.
+The [400-step MuonH diagnostic](FROBENIUS_ELR_AUS_20261113.md#does-muonh-already-use-an-almost-tangent-input)
+found nearly tangent raw gradients but larger radial components after
+momentum. Pre-projection improved first-order alignment most consistently
+for Q/K, not for MLP matrices. All three six-step AUS checks passed;
+the 3B reference is running and the 3B replay has no result yet.
 
 MCSD and MCSD-TP are evaluated against MuonH and NorMuon-Sphere using
 Megatron Dense LMs. The completed matched 3B comparison favors
@@ -20,13 +22,13 @@ at their respective endpoints.
 
 | Evidence | Coverage | Interpretation |
 |---|---|---|
-| Completed 3B | 60 runs in the October 29 ledger + 6 LR cells + 4 normalization/seed runs + 4 LR=0.008/0.012 runs | 74 completed runs across the ledger and dated readouts |
+| Completed 3B | 60 runs in the October 29 ledger + 6 LR cells + 4 normalization/seed runs + 4 LR=0.008/0.012 runs + 1 fixed-point run | 75 completed runs across the ledger and dated readouts |
 | Completed 6B | 4 runs, two methods and two seeds | Earlier frozen configurations, not the new Nesterov setting |
 | Completed point pilots | 8 earlier configurations + 2 fixed-gamma pilots | Separate from full-budget results |
 | November 2 point/LR batch | All 8 completed | [Complete LR readout](FROBENIUS_RESULTS_20261105.md), [3000-step point results](FROBENIUS_RESULTS_20261104.md#point-extrapolation-at-step-3000) |
 | November 4 normalization/seed batch | All 4 completed | [Matched endpoints and second-seed baselines](FROBENIUS_H20_READOUT_20261112.md#full-3b-results) |
-| November 10 fixed-point/unit-F batch | 2 pilots and 4 full 3B runs completed | [Completed LR grid](FROBENIUS_ELR_AUS_20261113.md#completed-3b-results) |
-| ELR/AUS study | Gradient/scale pilot and matched 3B arms | [Protocol and job IDs](FROBENIUS_ELR_AUS_20261113.md#controlled-h20-tests) |
+| November 10 fixed-point/unit-F batch | 2 pilots and 5 full 3B runs completed | [LR grid and fixed-point endpoint](FROBENIUS_ELR_AUS_20261113.md#completed-3b-results) |
+| ELR/AUS study | Gradient/scale pilot and three short checks complete; 3B reference running | [Results and job IDs](FROBENIUS_ELR_AUS_20261113.md#controlled-h20-tests) |
 
 This is a dated evidence summary, not a live dashboard. All losses are
 validation cross-entropy; lower is better. No historical results were removed:
@@ -166,7 +168,9 @@ Its gap shrank from 0.066324 at step 1000 but did not improve between steps
 2800 and 3000. This is not a crossover or an established acceleration result.
 **These losses cannot be compared directly with the final 3B/6B tables.**
 Neither fixed-gamma pilot improved on its matched capped-FISTA variant.
-The full 3B fixed-gamma test, job 4424382, is running; no final result yet.
+The full 3B fixed-gamma test (`4424382`) finished at **3.511619** in
+18:35:26. It did not close the gap to MCSD's Nesterov endpoint (3.461687)
+under the tested recipes, which use different peak LRs.
 
 ![Point-pilot validation and difference from Nesterov](frobenius_point_lr_20261104/point_validation_3000.png)
 
@@ -184,8 +188,9 @@ The full 3B fixed-gamma test, job 4424382, is running; no final result yet.
 | Mechanism | Sample accepted/live angular displacement and compare X/Y on identical diagnostic batches | Proposed; no extra production evaluations enabled |
 | Completed: fairness | Baseline second seed at the matched LR=0.010 setting | 4390470 / 4390471 |
 | Completed | Normalized variants at LR=0.012 | 4419139: 3.463637; 4419140: 3.463414 |
-| In progress | Full 3B fixed-point extrapolation and normalized winner replication | 4424382 and 4428698 |
-| Queued | MuonH reference, MCSD-TP control, MCSD-TP AUS replay | 4427413–4427415; [diagnostics](FROBENIUS_ELR_AUS_20261113.md#controlled-h20-tests) |
+| Completed | Full 3B fixed-point extrapolation | 4424382: 3.511619 |
+| In progress | Normalized winner replication, seed 2026 | 4428698: 3.470769 at 10,800/11,445, not final |
+| In progress | MuonH reference, MCSD-TP control, MCSD-TP AUS replay | Three short checks passed; 4427413 running, 4427414–4427415 pending |
 | Queued | Width-384, matched 3B projection comparison | 4428781 / 4428783 / 4428784; [protocol](FROBENIUS_ELR_AUS_20261113.md#width-384-transfer) |
 | Transfer | Paired seeds, retuning and larger budgets | Deferred until the matched transfer results are available |
 
