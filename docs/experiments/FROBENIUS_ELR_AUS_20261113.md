@@ -1,6 +1,6 @@
 # Frobenius Sphere: ELR, AUS, and Tangent Directions
 
-**H20 snapshot: November 13, 2026, 17:17 HKT.** [Experiment overview](FROBENIUS_3B_6B_SUMMARY.md)
+**H20 snapshot: November 14, 2026, 11:11 HKT.** [Experiment overview](FROBENIUS_3B_6B_SUMMARY.md)
 
 [400-step pilot results](#does-muonh-already-use-an-almost-tangent-input) |
 [3B replay progress](#controlled-h20-tests) | [Width-384 transfer](#width-384-transfer)
@@ -23,10 +23,23 @@ Nesterov, Frobenius radius `R=sqrt(D_out)`. Entries are final validation loss.
 
 At the same peak LR of 0.010, MuonH finished at **3.458490** and NorMuon-Sphere
 at **3.455796**. The best normalized MCSD variant trails MuonH by 0.001809.
-Both normalization variants selected 0.010 on this grid. Job **4428698** is
-the second-seed (2026) replication of the row-adaptive winner; no final
-endpoint yet (10,910/11,445 updates; validation loss 3.470769 at step 10,800).
-These results do not include any AUS replay.
+Both normalization variants selected 0.010 on this grid. The second-seed
+replication of the row-adaptive variant (`4428698`) finished in 18:36:36,
+with final loss **3.464919** at step 11,445. Matched 3B endpoints at peak LR
+0.010 and beta=0.95 Nesterov are:
+
+| Method | Seed 1234 | Seed 2026 |
+|---|---:|---:|
+| NorMuon-Sphere | **3.455796** | **3.462039** |
+| MuonH | 3.458490 | 3.463144 |
+| MCSD-TP | 3.461153 | 3.463603 |
+| MCSD | 3.461687 | 3.464190 |
+| MCSD + unit-F + row adaptation | 3.460299 | 3.464919 |
+
+The combined variant improves on plain MCSD by 0.001388 at seed 1234 but
+trails it by 0.000729 at seed 2026. This comparison does not isolate the
+row adaptation: seed 2026 lacks a unit-F-only run. No evidence yet supports
+a consistent benefit across seeds. These results do not include AUS replay.
 
 The 3B fixed-point extrapolation run (`4424382`, gamma=0.95, peak LR 0.00125,
 no EMA, seed 1234) finished in 18:35:26 with **3.511619** at step 11,445.
@@ -64,14 +77,33 @@ matrices are replayed. The full runs follow the three six-step checks
 
 | Full 3B arm | Job | Status and test |
 |---|---:|---|
-| MuonH | 4427413 | Running, 2,030/11,445; val. loss 3.864423 at step 2,000; record per-matrix AUS |
-| MCSD-TP + unit-F | 4427414 | Pending; keep the original cosine schedule and record AUS |
+| MuonH | 4427413 | Completed: **3.458490** at step 11,445, 18:30:02; complete trace |
+| MCSD-TP + unit-F | 4427414 | Running, 1,640/11,445; val. loss 3.914616 at step 1,600 |
 | MCSD-TP + unit-F, AUS replay | 4427415 | Pending; match MuonH's recorded AUS and compare loss at the same token count |
 
 All three six-step CUDA checks completed. The replay matched `6 x 196`
 matrix steps with maximum absolute chord error `6.19e-8` and RMS error
 `6.48e-9`, below the `2e-6` absolute tolerance. This verifies replay on
 the short trajectory only; there is no 3B AUS-matched loss yet.
+
+The completed MuonH trace has 11,445 steps and 196 logical matrices per
+step. Its endpoint reproduces the uninstrumented result at the logged
+precision. The non-replayed MCSD-TP control began behind MuonH but had
+slightly lower loss at the latest matched validation step:
+
+| Step | MuonH | MCSD-TP + unit-F | MCSD-TP minus MuonH |
+|---:|---:|---:|---:|
+| 400 | 4.918553 | 4.988851 | +0.070298 |
+| 1000 | 4.079984 | 4.086126 | +0.006142 |
+| 1200 | 4.011436 | 4.012223 | +0.000787 |
+| 1400 | 3.967501 | 3.963995 | -0.003506 |
+| 1600 | 3.916692 | 3.914616 | -0.002076 |
+
+Across matched steps 401--1400 and all 196 logical matrices, the median
+ratio `AUS_MCSD-TP / AUS_MuonH` is 1.00948 (10th/90th percentiles:
+1.00397/1.01806). The nominal-LR control thus moves about 0.95% farther
+at the median. The two early validation leads are not evidence of a
+sustained crossover or a benefit from the direction alone.
 
 The replay checks the returned
 FP32 chord against its target (absolute tolerance `2e-6`); it does not match
@@ -195,17 +227,16 @@ record per-matrix AUS. Both MCSD arms record same-state, post-projected
 direction comparisons on sampled steps, covering every logical matrix at
 those steps. The audit is observational and does not alter the updates.
 
-| Arm | Six-step trace check | Full 3B job |
-|---|---:|---:|
-| MuonH | 4428778 | 4428781 |
-| MCSD + unit-F | 4428779 | 4428783 |
-| MCSD-TP + unit-F | 4428780 | 4428784 |
+| Arm | Six-step trace check | Full 3B job | Status |
+|---|---:|---:|---|
+| MuonH | 4428778 | 4428781 | Running, 7,650/11,445; val. loss 3.400546 at step 7,600 |
+| MCSD + unit-F | 4428779 | 4428783 | Pending, after MuonH |
+| MCSD-TP + unit-F | 4428780 | 4428784 | Pending, after MCSD + unit-F |
 
-All six jobs were pending at 17:17 HKT. The separate pilot array `4428745`
-finished, so the first check now only waits for seed-2026 run `4428698`;
-the width-384 jobs then run serially, and the full runs require all three
-checks to pass. No checkpoints are saved. The wider trace and launcher
-changes passed 241 local tests; H20 execution is not yet verified.
+All three six-step H20 checks completed with 196 matrices per step and
+no NaN or skipped iterations reported. The full jobs run serially. No
+checkpoints are saved. The current MuonH loss is an intermediate point,
+not a comparison with width 384 MCSD or with the older radius protocol.
 
 Compare the within-width validation-loss differences relative to MuonH.
 MCSD + unit-F is the pre-projection-only comparison; MCSD-TP + unit-F
@@ -220,3 +251,20 @@ AUS replay, step length contributes. If it persists and the same-state
 ambient direction aligns better with the current gradient, that supports
 a direction-quality explanation. If the two rays are nearly identical,
 look first at the actual AUS and at what changes once trajectories diverge.
+
+## Separate Spectral-Sphere Runs
+
+At 11:05 HKT the spectral `direct_pk` radial-return jobs were still running.
+Their protocol is width 256, seed 2345, sequence length 4096, peak LR 0.015,
+and 5,723 steps for 3B tokens, not the Frobenius protocol above.
+
+| Job | Configured arm | Val. loss at step 3,500 |
+|---|---|---:|
+| 4434107_0 | `none`, exact solver, radial-return configuration | 3.653660 |
+| 4434107_2 | `pgd_half`, exact solver, radial-return configuration | 3.649616 |
+
+The latter leads by 0.004044 at this point; neither is a final result. Both
+logs reported zero cumulative PGD branches at the snapshot. That counter
+does not by itself identify which direct-kernel trial rule was used, so the
+loss difference is not evidence of more PGD branching. The separate spectral
+ELR prefix `4434317` and branch array `4434318` are queued with dependencies.

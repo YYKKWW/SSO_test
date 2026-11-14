@@ -1,13 +1,13 @@
 # Frobenius Sphere Experiments
 
-**Results and queue snapshot: November 13, 2026, 17:17 HKT**
+**Results and queue snapshot: November 14, 2026, 11:11 HKT**
 
 [Latest H20 results and the ELR/AUS study](FROBENIUS_ELR_AUS_20261113.md).
-The [400-step MuonH diagnostic](FROBENIUS_ELR_AUS_20261113.md#does-muonh-already-use-an-almost-tangent-input)
-found nearly tangent raw gradients but larger radial components after
-momentum. Pre-projection improved first-order alignment most consistently
-for Q/K, not for MLP matrices. All three six-step AUS checks passed;
-the 3B reference is running and the 3B replay has no result yet.
+The 3B MuonH reference reproduced **3.458490** with full AUS logging.
+The nominal-LR MCSD-TP + unit-F run has a small lead at steps 1,400 and 1,600, but
+the AUS-matched run has not started. Row adaptation with unit-F did not
+repeat its gain over plain MCSD at seed 2026. The width-384 MuonH arm is
+running after all three short checks passed.
 
 MCSD and MCSD-TP are evaluated against MuonH and NorMuon-Sphere using
 Megatron Dense LMs. The completed matched 3B comparison favors
@@ -22,13 +22,13 @@ at their respective endpoints.
 
 | Evidence | Coverage | Interpretation |
 |---|---|---|
-| Completed 3B | 60 runs in the October 29 ledger + 6 LR cells + 4 normalization/seed runs + 4 LR=0.008/0.012 runs + 1 fixed-point run | 75 completed runs across the ledger and dated readouts |
+| Completed 3B | 60 runs in the October 29 ledger + 6 LR cells + 4 normalization/seed runs + 4 LR=0.008/0.012 runs + 1 fixed-point run + 1 seed replication + 1 AUS reference | 77 completed runs across the ledger and dated readouts |
 | Completed 6B | 4 runs, two methods and two seeds | Earlier frozen configurations, not the new Nesterov setting |
 | Completed point pilots | 8 earlier configurations + 2 fixed-gamma pilots | Separate from full-budget results |
 | November 2 point/LR batch | All 8 completed | [Complete LR readout](FROBENIUS_RESULTS_20261105.md), [3000-step point results](FROBENIUS_RESULTS_20261104.md#point-extrapolation-at-step-3000) |
 | November 4 normalization/seed batch | All 4 completed | [Matched endpoints and second-seed baselines](FROBENIUS_H20_READOUT_20261112.md#full-3b-results) |
 | November 10 fixed-point/unit-F batch | 2 pilots and 5 full 3B runs completed | [LR grid and fixed-point endpoint](FROBENIUS_ELR_AUS_20261113.md#completed-3b-results) |
-| ELR/AUS study | Gradient/scale pilot and three short checks complete; 3B reference running | [Results and job IDs](FROBENIUS_ELR_AUS_20261113.md#controlled-h20-tests) |
+| ELR/AUS study | Gradient/scale pilot, three short checks and 3B reference complete; 3B control running | [Results and job IDs](FROBENIUS_ELR_AUS_20261113.md#controlled-h20-tests) |
 
 This is a dated evidence summary, not a live dashboard. All losses are
 validation cross-entropy; lower is better. No historical results were removed:
@@ -189,9 +189,9 @@ under the tested recipes, which use different peak LRs.
 | Completed: fairness | Baseline second seed at the matched LR=0.010 setting | 4390470 / 4390471 |
 | Completed | Normalized variants at LR=0.012 | 4419139: 3.463637; 4419140: 3.463414 |
 | Completed | Full 3B fixed-point extrapolation | 4424382: 3.511619 |
-| In progress | Normalized winner replication, seed 2026 | 4428698: 3.470769 at 10,800/11,445, not final |
-| In progress | MuonH reference, MCSD-TP control, MCSD-TP AUS replay | Three short checks passed; 4427413 running, 4427414–4427415 pending |
-| Queued | Width-384, matched 3B projection comparison | 4428781 / 4428783 / 4428784; [protocol](FROBENIUS_ELR_AUS_20261113.md#width-384-transfer) |
+| Completed | Normalized winner replication, seed 2026 | 4428698: final 3.464919, vs. 3.464190 for plain MCSD |
+| In progress | MuonH reference, MCSD-TP control, MCSD-TP AUS replay | 4427413 completed at 3.458490; 4427414 running; 4427415 pending |
+| In progress | Width-384, matched 3B projection comparison | 4428781 running; 4428783 / 4428784 pending; [protocol](FROBENIUS_ELR_AUS_20261113.md#width-384-transfer) |
 | Transfer | Paired seeds, retuning and larger budgets | Deferred until the matched transfer results are available |
 
 The completed eight-job batch used two serial single-GPU lanes. Six full 3B runs were
