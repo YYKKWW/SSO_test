@@ -7,18 +7,21 @@ protocols and historical results are kept separate.
 | Start here | What it contains |
 |---|---|
 | **[Results overview](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md)** | Key 3B/6B comparisons, curves and next tests |
-| **[ELR and AUS study](docs/experiments/FROBENIUS_ELR_AUS_20261113.md)** | Latest normalized 3B grid, MuonH AUS replay, and tangent-direction diagnostics |
+| **[Latest results, November 19](docs/experiments/FROBENIUS_RESULTS_20261119.md)** | Completed momentum x projection comparison, late held-out audit, full 3B endpoints and downloadable figures |
+| [ELR and AUS study](docs/experiments/FROBENIUS_ELR_AUS_20261113.md) | Normalized 3B grid, completed MuonH AUS replay, and tangent-direction diagnostics |
 | [Point-extrapolation pilot](docs/experiments/MCSD_POINT_PILOT_20261031.md) | Completed pilots and continuations; CPU-reproducible plots |
-| **[Latest results, November 5](docs/experiments/FROBENIUS_RESULTS_20261105.md)** | Complete 3B LR grid, MCSD-unitF endpoint and matched-step NorUnit curves |
+| [Earlier LR grid, November 5](docs/experiments/FROBENIUS_RESULTS_20261105.md) | Complete 3B LR grid, MCSD-unitF endpoint and matched-step NorUnit curves |
 | [Algorithms](docs/experiments/OPTIMIZER_PSEUDOCODE_GUIDE.md) | Pseudocode and implementation paths |
 | [Complete history](docs/experiments/ALL_EXPERIMENTS.md) | LR/momentum/seed coverage, older protocols and cancellations |
 | [Related work](docs/experiments/FROBENIUS_RELATED_WORK.md) | Recent papers, applicability and testable hypotheses |
 
-**November 5, 2026, 15:10 HKT:** the six new 3B LR cells are complete;
-LR=0.010 is best in the local grid for MCSD, MuonH and NorMuon-Sphere.
-MCSD-unitF finishes at **3.460665**, improving standard MCSD by 0.001022
-at seed 1234 but not beating either baseline. NorUnit remains running;
-the paired baseline seeds are pending. These new comparisons are single-seed.
+**November 19, 2026:** the no-momentum pair and late-stage audit completed.
+With matched matrix-wise AUS, pre-projection improves the six-point
+2,000--3,000 validation mean by **0.009108 under Nesterov**, but worsens
+it by **0.000929 without momentum**. The small held-out audit is mixed.
+At full 3B, native MuonH still leads the tested normalized MCSD recipes
+at widths 256 and 384. These are one-seed mechanism results, not a claim
+of universal optimizer superiority. [Results and next tests](docs/experiments/FROBENIUS_RESULTS_20261119.md).
 
 ## Active Branch: Three-Geometry Experiment 3
 

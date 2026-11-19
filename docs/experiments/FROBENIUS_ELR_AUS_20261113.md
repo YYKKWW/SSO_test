@@ -1,9 +1,14 @@
 # Frobenius Sphere: ELR, AUS, and Tangent Directions
 
-**H20 snapshot: November 14, 2026, 11:11 HKT.** [Experiment overview](FROBENIUS_3B_6B_SUMMARY.md)
+**Frobenius outcomes updated November 19, 2026.** [Experiment overview](FROBENIUS_3B_6B_SUMMARY.md)
+
+All Frobenius full-budget jobs below completed. For the subsequent
+momentum x projection comparison, late held-out audit, downloadable
+curves and next tests, see the [November 19 readout](FROBENIUS_RESULTS_20261119.md).
+The separate spectral section retains its explicitly dated November 14 snapshot.
 
 [400-step pilot results](#does-muonh-already-use-an-almost-tangent-input) |
-[3B replay progress](#controlled-h20-tests) | [Width-384 transfer](#width-384-transfer)
+[Completed 3B replay](#controlled-h20-tests) | [Width-384 transfer](#width-384-transfer)
 
 **Question.** Does projecting the Nesterov input before the LMO change the
 update direction enough to affect validation loss, once the actual angular
@@ -78,18 +83,21 @@ matrices are replayed. The full runs follow the three six-step checks
 | Full 3B arm | Job | Status and test |
 |---|---:|---|
 | MuonH | 4427413 | Completed: **3.458490** at step 11,445, 18:30:02; complete trace |
-| MCSD-TP + unit-F | 4427414 | Running, 1,640/11,445; val. loss 3.914616 at step 1,600 |
-| MCSD-TP + unit-F, AUS replay | 4427415 | Pending; match MuonH's recorded AUS and compare loss at the same token count |
+| MCSD-TP + unit-F | 4427414 | Completed: **3.461894** at step 11,445, 18:38:59 |
+| MCSD-TP + unit-F, AUS replay | 4427415 | Completed: **3.462119** at step 11,445, 18:43:52 |
 
 All three six-step CUDA checks completed. The replay matched `6 x 196`
 matrix steps with maximum absolute chord error `6.19e-8` and RMS error
 `6.48e-9`, below the `2e-6` absolute tolerance. This verifies replay on
-the short trajectory only; there is no 3B AUS-matched loss yet.
+the short trajectory. The subsequent full replay matched all 11,445 x 196
+matrix updates, with maximum error **6.153e-8** and RMS **4.728e-10**.
+It finished 0.003629 behind MuonH, versus 0.003404 for the nominal-LR
+control: matching AUS did not close the full-budget gap in this seed.
 
 The completed MuonH trace has 11,445 steps and 196 logical matrices per
 step. Its endpoint reproduces the uninstrumented result at the logged
-precision. The non-replayed MCSD-TP control began behind MuonH but had
-slightly lower loss at the latest matched validation step:
+precision. The following **early-prefix** comparison showed an intermediate
+MCSD-TP lead; it did not persist to the 3B endpoint:
 
 | Step | MuonH | MCSD-TP + unit-F | MCSD-TP minus MuonH |
 |---:|---:|---:|---:|
@@ -170,9 +178,10 @@ operation can create a radial component. Interpret scale sensitivity,
 direction alignment, and AUS-matched validation loss as separate evidence.
 
 These are first-order comparisons on a single early MuonH trajectory,
-not paired validation-loss outcomes. The result motivates testing an
-attention-Q/K-only pre-projection ablation if the pattern persists later,
-not replacing the full MCSD method before the replay results are in.
+not paired validation-loss outcomes. The subsequent Q/K-only pilot did
+not establish a consistent gain. The completed late-stage held-out
+audit also has mixed signs across blocks and states; see the latest
+readout before selecting a projection policy from this early diagnostic.
 
 ## Which Projection Matters?
 
@@ -229,14 +238,15 @@ those steps. The audit is observational and does not alter the updates.
 
 | Arm | Six-step trace check | Full 3B job | Status |
 |---|---:|---:|---|
-| MuonH | 4428778 | 4428781 | Running, 7,650/11,445; val. loss 3.400546 at step 7,600 |
-| MCSD + unit-F | 4428779 | 4428783 | Pending, after MuonH |
-| MCSD-TP + unit-F | 4428780 | 4428784 | Pending, after MCSD + unit-F |
+| MuonH | 4428778 | 4428781 | Completed: **3.292725**, 25:17:42 |
+| MCSD + unit-F | 4428779 | 4428783 | Completed: **3.296856**, 25:26:48 |
+| MCSD-TP + unit-F | 4428780 | 4428784 | Completed: **3.297710**, 25:34:30 |
 
 All three six-step H20 checks completed with 196 matrices per step and
-no NaN or skipped iterations reported. The full jobs run serially. No
-checkpoints are saved. The current MuonH loss is an intermediate point,
-not a comparison with width 384 MCSD or with the older radius protocol.
+no NaN or skipped iterations reported. The full jobs ran serially. No
+checkpoints were saved. The MCSD gaps relative to MuonH were -0.004230
+and -0.004601 at step 6,000, then +0.004131 and +0.004985 at the endpoint.
+The intermediate lead reversed under the matched shape-radius protocol.
 
 Compare the within-width validation-loss differences relative to MuonH.
 MCSD + unit-F is the pre-projection-only comparison; MCSD-TP + unit-F
@@ -246,15 +256,17 @@ is the stricter test of the pre-projection operation. At fixed tokens,
 width 384 also has fewer tokens per parameter. A change in the gap is a
 transfer result at this budget, not a scaling law or a retuned comparison.
 
-Interpret the mechanism jointly: if the width-256 loss gap shrinks under
-AUS replay, step length contributes. If it persists and the same-state
-ambient direction aligns better with the current gradient, that supports
-a direction-quality explanation. If the two rays are nearly identical,
-look first at the actual AUS and at what changes once trajectories diverge.
+Interpret the mechanism jointly: the width-256 gap persisted under AUS
+replay, so step length alone did not explain it. However, training-gradient
+alignment and the small held-out audit do not identify a uniformly better
+direction. The isolated pre-projection-off training arm currently stops
+at 3,000; completing that matched pair is the next causal comparison.
 
 ## Separate Spectral-Sphere Runs
 
-At 11:05 HKT the spectral `direct_pk` radial-return jobs were still running.
+**Historical snapshot, November 14, 2026, 11:05 HKT:** the spectral
+`direct_pk` radial-return jobs were still running at that check. This section
+is not a current queue report or a Frobenius outcome.
 Their protocol is width 256, seed 2345, sequence length 4096, peak LR 0.015,
 and 5,723 steps for 3B tokens, not the Frobenius protocol above.
 

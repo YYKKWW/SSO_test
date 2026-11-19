@@ -1,13 +1,14 @@
 # Frobenius Sphere Experiments
 
-**Results and queue snapshot: November 14, 2026, 11:11 HKT**
+**Results and queue snapshot: November 19, 2026, 15:17 HKT**
 
-[Latest H20 results and the ELR/AUS study](FROBENIUS_ELR_AUS_20261113.md).
-The 3B MuonH reference reproduced **3.458490** with full AUS logging.
-The nominal-LR MCSD-TP + unit-F run has a small lead at steps 1,400 and 1,600, but
-the AUS-matched run has not started. Row adaptation with unit-F did not
-repeat its gain over plain MCSD at seed 2026. The width-384 MuonH arm is
-running after all three short checks passed.
+[Latest results: momentum x projection and late held-out audit](FROBENIUS_RESULTS_20261119.md).
+The no-momentum pair and the 9,000-step observational audit completed.
+Pre-projection improves the six-point late mean by **0.009108 with Nesterov**,
+but worsens it by **0.000929 without momentum**; the held-out audit is mixed.
+The complete 3B AUS replay ends at **3.462119**, behind MuonH's **3.458490**.
+At width 384, both tested normalized MCSD recipes also finish behind MuonH.
+The account's Slurm queue was empty at the check; no new jobs were submitted.
 
 MCSD and MCSD-TP are evaluated against MuonH and NorMuon-Sphere using
 Megatron Dense LMs. The completed matched 3B comparison favors
@@ -22,13 +23,15 @@ at their respective endpoints.
 
 | Evidence | Coverage | Interpretation |
 |---|---|---|
-| Completed 3B | 60 runs in the October 29 ledger + 6 LR cells + 4 normalization/seed runs + 4 LR=0.008/0.012 runs + 1 fixed-point run + 1 seed replication + 1 AUS reference | 77 completed runs across the ledger and dated readouts |
+| Historical 3B coverage through November 14 | 77 runs recorded across the earlier ledger and dated readouts | Historical count; newer AUS/width endpoints are listed separately below |
 | Completed 6B | 4 runs, two methods and two seeds | Earlier frozen configurations, not the new Nesterov setting |
 | Completed point pilots | 8 earlier configurations + 2 fixed-gamma pilots | Separate from full-budget results |
 | November 2 point/LR batch | All 8 completed | [Complete LR readout](FROBENIUS_RESULTS_20261105.md), [3000-step point results](FROBENIUS_RESULTS_20261104.md#point-extrapolation-at-step-3000) |
 | November 4 normalization/seed batch | All 4 completed | [Matched endpoints and second-seed baselines](FROBENIUS_H20_READOUT_20261112.md#full-3b-results) |
 | November 10 fixed-point/unit-F batch | 2 pilots and 5 full 3B runs completed | [LR grid and fixed-point endpoint](FROBENIUS_ELR_AUS_20261113.md#completed-3b-results) |
-| ELR/AUS study | Gradient/scale pilot, three short checks and 3B reference complete; 3B control running | [Results and job IDs](FROBENIUS_ELR_AUS_20261113.md#controlled-h20-tests) |
+| ELR/AUS and width-384 study | All six full 3B arms complete | [Endpoints and full curves](FROBENIUS_RESULTS_20261119.md#4-full-3b-endpoints-remain-the-main-performance-test) |
+| Momentum x projection | All four matched 3,000-step arms available | [Factorial comparison](FROBENIUS_RESULTS_20261119.md#1-completed-momentum-x-projection-comparison) |
+| Late held-out audit | 252 candidate records across three states | [Paired losses and caveats](FROBENIUS_RESULTS_20261119.md#3-completed-same-state-held-out-audit) |
 
 This is a dated evidence summary, not a live dashboard. All losses are
 validation cross-entropy; lower is better. No historical results were removed:
@@ -190,15 +193,18 @@ under the tested recipes, which use different peak LRs.
 | Completed | Normalized variants at LR=0.012 | 4419139: 3.463637; 4419140: 3.463414 |
 | Completed | Full 3B fixed-point extrapolation | 4424382: 3.511619 |
 | Completed | Normalized winner replication, seed 2026 | 4428698: final 3.464919, vs. 3.464190 for plain MCSD |
-| In progress | MuonH reference, MCSD-TP control, MCSD-TP AUS replay | 4427413 completed at 3.458490; 4427414 running; 4427415 pending |
-| In progress | Width-384, matched 3B projection comparison | 4428781 running; 4428783 / 4428784 pending; [protocol](FROBENIUS_ELR_AUS_20261113.md#width-384-transfer) |
-| Transfer | Paired seeds, retuning and larger budgets | Deferred until the matched transfer results are available |
+| Completed | MuonH reference, MCSD-TP control, MCSD-TP AUS replay | 3.458490 / 3.461894 / 3.462119 |
+| Completed | Width-384, matched 3B projection comparison | MuonH 3.292725; MCSD-unitF 3.296856; MCSD-TP-unitF 3.297710 |
+| Completed | No-momentum G vs. P_W G through 3,000 | 4459729 / 4459730; no consistent six-point projection gain |
+| Completed | Late same-state held-out audit | 4464032; mixed paired effects, no stable matrix-group winner |
+| Next priority | Nesterov no-pre-projection arm through full 3B, same post-projection/AUS | Proposed, not submitted; always-projected full-budget reference already exists |
+| Replication | Broader held-out samples, then a seed-specific matched-AUS pair if warranted | Proposed; defer new width and 6B grids |
 
 The completed eight-job batch used two serial single-GPU lanes. Six full 3B runs were
 explicitly requested, not automatically promoted point pilots. The separate
 November 4 follow-up adds four 3B jobs on two serial lanes. The November 12
 [H20 readout](FROBENIUS_H20_READOUT_20261112.md) preserves the earlier
-snapshot; the [ELR/AUS study](FROBENIUS_ELR_AUS_20261113.md) is current.
+snapshot; the [November 19 readout](FROBENIUS_RESULTS_20261119.md) is current.
 [Submission details](FROBENIUS_POINT_LR_BATCH_20261102.md).
 
 **Current research priority:** distinguish direction quality from actual
