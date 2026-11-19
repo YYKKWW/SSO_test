@@ -1,0 +1,54 @@
+{
+  "checked_at": "2026-11-17T11:24:46.341485+08:00",
+  "queue": "4453016|PENDING|w256_matched_geometry|gres/gpu:nvidia_h20:1|(Priority)\n4453009|PENDING|momentum_angle_pre_none_aus_replay_main_frobenius_manifold_mcsd_tp_unitfro_w256_|gres/gpu:nvidia_h20:1|(Resources)\n4453017_0|PENDING|w256_warm_radial_controls_3b|gres/gpu:nvidia_h20:1|(Priority)\n4453017_1|PENDING|w256_warm_radial_controls_3b|gres/gpu:nvidia_h20:1|(Priority)\n4453014|PENDING|momentum_angle_tangent_ema_pre_all_aus_replay_main_frobenius_manifold_mcsd_tp_un|gres/gpu:nvidia_h20:1|(Dependency)\n4453013|PENDING|momentum_angle_switch800_pre_all_aus_replay_main_frobenius_manifold_mcsd_tp_unit|gres/gpu:nvidia_h20:1|(Dependency)\n4453012|PENDING|momentum_angle_pre_none_aus_replay_main_frobenius_manifold_mcsd_tp_unitfro_w256_|gres/gpu:nvidia_h20:1|(Dependency)\n4453011|PENDING|momentum_angle_tangent_ema_pre_all_aus_replay_main_frobenius_manifold_mcsd_tp_un|gres/gpu:nvidia_h20:1|(Dependency)\n4453010|PENDING|momentum_angle_switch3_pre_all_aus_replay_main_frobenius_manifold_mcsd_tp_unitfr|gres/gpu:nvidia_h20:1|(Dependency)",
+  "sacct": "4453017_[0-1%2]|PENDING|0:0|00:00:00|Unknown",
+  "cpu_tests": [
+    {
+      "file": "test_direct_radial_3b.py.cpu.log",
+      "count": 2,
+      "ok": true
+    },
+    {
+      "file": "test_direct_top_pgd_pk.py.cpu.log",
+      "count": 12,
+      "ok": true
+    },
+    {
+      "file": "test_direct_top_repair.py.cpu.log",
+      "count": 9,
+      "ok": true
+    },
+    {
+      "file": "test_kernel_lmo_h20.py.cpu.log",
+      "count": 9,
+      "ok": true
+    },
+    {
+      "file": "test_warm_radial_3b.py.cpu.log",
+      "count": 7,
+      "ok": true
+    },
+    {
+      "file": "test_warm_radial_controls.py.cpu.log",
+      "count": 5,
+      "ok": true
+    }
+  ],
+  "disk": "Filesystem                   Size  Used Avail Use% Mounted on\nhpc2021-fs2:/home2/u3013198  100G   81G   20G  81% /home/u3013198",
+  "jobs": [
+    {
+      "job": "4453017_0",
+      "main_started": false,
+      "smoke_completed": false,
+      "out_tail": "",
+      "err_tail": ""
+    },
+    {
+      "job": "4453017_1",
+      "main_started": false,
+      "smoke_completed": false,
+      "out_tail": "",
+      "err_tail": ""
+    }
+  ]
+}

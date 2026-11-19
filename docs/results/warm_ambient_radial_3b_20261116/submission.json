@@ -1,0 +1,86 @@
+{
+  "base": "/home/u3013198/projects/direct-ambient-radial-3b-20261113",
+  "target": "/home/u3013198/projects/direct-ambient-radial-warm8k10-3b-20261116",
+  "overlay_sha256": "827042be01f182797510a9231c477af42ac080fc686e182a352a6c661470a012",
+  "base_manifest_sha256": "b6d9a49bfb5e4c4f750e62427b3f9c75ed63d27f95800c4a63bd002810bd7ed2",
+  "source_manifest_sha256": "9617f0aa4c6df6219115789ac295248dda30dcbbd449308d47d858f192f479d6",
+  "source_files": 3165,
+  "changed_files": [
+    {
+      "path": "scripts/direct_top_repair.py",
+      "old_sha256": "c1123a0777d34f8ac58ae16ff43d986a3fffef0ca2189ea74d1221d0eb4298fd",
+      "new_sha256": "e0890188c3f29adb327a49d3fe2033f6dc5932f8cc8a69455dd9d1d1bbf326a3"
+    },
+    {
+      "path": "scripts/direct_top_pgd_pk.py",
+      "old_sha256": "1dd5a0b4865e32be62819cb558a2d46f4a23e7013ccbaadaa391cd3d295f6694",
+      "new_sha256": "42ce5a704f53e2440854cf0c87d7c8642b9929aa60d0e04f8a3447b1a4d666f3"
+    },
+    {
+      "path": "scripts/run_kernel_lmo_pilot.py",
+      "old_sha256": "77294b1055e21755491156eee77097cd7b8b0fefe7c57e6b9b9b5fb36d58e69c",
+      "new_sha256": "3778cff82a6fe5d3b76556839b758d0960f84abf7b11d9c2c829bf5578fd6f98"
+    },
+    {
+      "path": "scripts/pretrain_kernel_lmo_pilot.py",
+      "old_sha256": "b9e5f3162240b4ed8979be2c49a135032558211cf3e2203b8ecde684629dd868",
+      "new_sha256": "b947ee5891d055210a07562b65809f8d49415a8f475f35f9ab53e0613fdbb854"
+    },
+    {
+      "path": "scripts/audit_warm_radial.py",
+      "old_sha256": null,
+      "new_sha256": "b82c0f40c927165f4f42e4eae79bcce18ac0cfa34275bc5b0073ad31399db51e"
+    },
+    {
+      "path": "scripts/test_warm_radial_3b.py",
+      "old_sha256": null,
+      "new_sha256": "3e796f97a01166b8c61840564485b8a7cf331d8ce48694f6e59052a21c02da5f"
+    },
+    {
+      "path": "scripts/prepare_warm_radial_3b.py",
+      "old_sha256": null,
+      "new_sha256": "9fd5c2c1601116ff4f6287b44d95deba236851d06b42d90c4d98cbeea2caccd9"
+    },
+    {
+      "path": "slurm/warm_ambient_radial_3b_20261116.sbatch",
+      "old_sha256": null,
+      "new_sha256": "227944469a41a084d5bf88174cca976ed1f64df82edf7042b0759ac83f49aef4"
+    }
+  ],
+  "created_utc": "2026-11-16T05:41:33.984970+00:00",
+  "reference_job": "4434107_2",
+  "job_id": "4442918",
+  "arm_indices": [
+    2
+  ],
+  "gpus_per_arm": 1,
+  "max_concurrent_gpus": 1,
+  "submitted_utc": "2026-11-16T05:42:12.319180+00:00",
+  "seed": 2345,
+  "width": 256,
+  "train_iterations": 5723,
+  "processed_tokens": 3000500224,
+  "solver": "warm_block8",
+  "iterations": 10,
+  "gap": 0.0002,
+  "rho": 0.5,
+  "return_rule": "radial_both_branches",
+  "checkpoints": false,
+  "cpu_preflight_passed": true,
+  "cuda_preflight": "inside allocation before smoke and fresh main run",
+  "training_config_changes": {
+    "KERNEL_SOLVER": {
+      "exact": "exact",
+      "warm": "warm_block8"
+    },
+    "SPEL_PGD_CLUSTER_SPECTRUM_MODE": {
+      "exact": "exact",
+      "warm": "warm_block8"
+    }
+  },
+  "data": {
+    "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+    "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+    "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B"
+  }
+}

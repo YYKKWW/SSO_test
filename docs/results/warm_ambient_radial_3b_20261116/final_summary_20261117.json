@@ -1,0 +1,350 @@
+{
+  "server": {
+    "checked_at": "2026-11-17T10:44:46.161423+08:00",
+    "job": "4442918_2",
+    "slurm_state": "COMPLETED",
+    "exit_code": "0:0",
+    "slurm_elapsed": "17:56:22",
+    "started_at": "2026-11-16T13:47:09+08:00",
+    "ended_at": "2026-11-17T07:43:31+08:00",
+    "allocated_gpus": 1,
+    "account_queue": [],
+    "queue_scope": "u3013198 only, not the entire cluster",
+    "home_disk_df_h": {
+      "total": "100G",
+      "used": "81G",
+      "available": "20G",
+      "used_percent": 81
+    },
+    "markers": {
+      "TRAINING_COMPLETED": true,
+      "COMPLETED": true
+    },
+    "training_wall_seconds": 64443
+  },
+  "config": {
+    "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B",
+    "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+    "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+    "OPTIMIZER": "spel_pgd_dist",
+    "SEED": "2345",
+    "WIDTH": "256",
+    "NUM_LAYERS": "28",
+    "HEAD_DIM": "128",
+    "SEQ_LENGTH": "4096",
+    "GLOBAL_BATCH": "128",
+    "MICRO_BATCH": "4",
+    "TRAIN_ITER": "5723",
+    "TRAIN_TOKENS": "3000000000",
+    "LR": "1.5e-2",
+    "MIN_LR": "1.5e-3",
+    "LR_WARMUP_ITERS": "250",
+    "LR_DECAY_ITERS": "5723",
+    "EVAL_INTERVAL": "250",
+    "EVAL_ITERS": "20",
+    "KERNEL_METHOD": "pgd_half",
+    "KERNEL_SOLVER": "warm_block8",
+    "KERNEL_STUDY": "direct_pk",
+    "SPEL_PGD_BRANCH_MODE": "auto",
+    "SPEL_PGD_GAP_THRESHOLD_REL": "2e-4",
+    "SPEL_PGD_CLUSTER_THRESHOLD_REL": "2e-4",
+    "SPEL_PGD_RADIAL_CLUSTER_MODE": "adaptive4",
+    "SPEL_PGD_PGD_LR_SCALE": "1",
+    "SPEL_PGD_CLUSTER_DIRECTION_MODE": "momentum_fro",
+    "SPEL_PGD_CLUSTER_NEAR_PROJECTION": "cone",
+    "SPEL_PGD_CLUSTER_SPECTRUM_MODE": "warm_block8",
+    "SPEL_PGD_CLUSTER_ITERATIONS": "10",
+    "SPEL_PGD_PROJECTION_MODE": "tp_radial_pgd_exact",
+    "SPEL_PGD_POST_RETURN_SPECTRAL_CACHE": "1",
+    "SPEL_PGD_GAP_ESTIMATOR_MODE": "exact_svd_gap_only",
+    "SPEL_PGD_GAP_PROBE_INTERVAL": "1",
+    "SPEL_PGD_GAP_AUDIT_INTERVAL": "0",
+    "SPEL_PGD_MAIN_POWER_DTYPE": "fp32",
+    "SPEL_PGD_POWER_ITERATION_STEPS": "10",
+    "SPEL_PGD_SIGMA2_POWER_ITERATION_STEPS": "10",
+    "SPEL_PGD_MSIGN_STEPS": "8",
+    "SPEL_PGD_TANGENT_PROJECT_AFTER_MSIGN": "1",
+    "SPEL_PGD_NORMALIZE_MSIGN_SPECTRAL": "0",
+    "SPEL_PGD_MATRIX_WEIGHT_DECAY": "0",
+    "SPEL_PGD_DIRECTION_NORMALIZATION": "none",
+    "SPEL_PGD_FALLBACK_DIRECTION": "pgd",
+    "SPEL_PGD_WARM_START_UV": "0",
+    "KERNEL_TRAINING_BUDGET": "3b",
+    "KERNEL_SNAPSHOT_STEPS": "2,250,1000,3000,5000,5720",
+    "KERNEL_SNAPSHOT_MAX": "48",
+    "PRETRAIN_ENTRYPOINT": "/home/u3013198/projects/direct-ambient-radial-warm8k10-3b-20261116/scripts/pretrain_kernel_lmo_pilot.py",
+    "KERNEL_AMBIENT_RETURN": "radial",
+    "KERNEL_PGD_TRIAL_RATIO": "0.5",
+    "KERNEL_PGD_LENGTH_REFERENCE": "current_D0_fro_norm_or_sqrt_rank_if_zero",
+    "KERNEL_SNAPSHOT_DIR": "/home/u3013198/projects/direct-ambient-radial-warm8k10-3b-20261116/results/4442918_2/snapshots",
+    "smoke": false,
+    "processed_tokens": 3000500224,
+    "geometry_precision": "fp32_highest",
+    "data_protocol": "3b budget on existing 3B indexed source",
+    "new_window_routing": true
+  },
+  "final_validation_loss": 3.432013,
+  "training_wall_seconds": 64443,
+  "validation": [
+    {
+      "step": 250,
+      "loss": 4.752597
+    },
+    {
+      "step": 500,
+      "loss": 4.186857
+    },
+    {
+      "step": 750,
+      "loss": 4.084884
+    },
+    {
+      "step": 1000,
+      "loss": 4.002032
+    },
+    {
+      "step": 1250,
+      "loss": 3.937781
+    },
+    {
+      "step": 1500,
+      "loss": 3.915532
+    },
+    {
+      "step": 1750,
+      "loss": 3.868604
+    },
+    {
+      "step": 2000,
+      "loss": 3.831728
+    },
+    {
+      "step": 2250,
+      "loss": 3.82314
+    },
+    {
+      "step": 2500,
+      "loss": 3.77442
+    },
+    {
+      "step": 2750,
+      "loss": 3.739328
+    },
+    {
+      "step": 3000,
+      "loss": 3.71176
+    },
+    {
+      "step": 3250,
+      "loss": 3.673693
+    },
+    {
+      "step": 3500,
+      "loss": 3.655288
+    },
+    {
+      "step": 3750,
+      "loss": 3.607457
+    },
+    {
+      "step": 4000,
+      "loss": 3.585044
+    },
+    {
+      "step": 4250,
+      "loss": 3.557631
+    },
+    {
+      "step": 4500,
+      "loss": 3.509275
+    },
+    {
+      "step": 4750,
+      "loss": 3.495223
+    },
+    {
+      "step": 5000,
+      "loss": 3.470299
+    },
+    {
+      "step": 5250,
+      "loss": 3.46229
+    },
+    {
+      "step": 5500,
+      "loss": 3.458169
+    },
+    {
+      "step": 5723,
+      "loss": 3.432013
+    }
+  ],
+  "health": {
+    "reports": 573,
+    "max_skipped": 0,
+    "max_nan": 0,
+    "last_regular_training_report": 5720,
+    "successful_training": true
+  },
+  "training_timing": {
+    "window": [
+      5510,
+      5700
+    ],
+    "reports": 20,
+    "mean_seconds": 10.94083,
+    "excludes_validation": true
+  },
+  "statistics": {
+    "method": "ambient_radial_half",
+    "solver": "warm_block8",
+    "window": 0.0002,
+    "geometry_precision": "fp32_highest",
+    "lmo_precision": "bf16_ns8",
+    "counts": {
+      "small_ritz_svd": 1442196,
+      "bootstrap_solves": 252,
+      "updates": 1441944,
+      "trial_solves": 1441944,
+      "near": 80422,
+      "censored_window": 0,
+      "window_gt4": 0,
+      "window_gt8": 0,
+      "kernel_accepted": 0,
+      "repair_calls": 0,
+      "near_repeats": 12688,
+      "ambient_near_calls": 80422,
+      "ambient_near_repeats": 12688,
+      "ambient_radial_calls": 80422,
+      "pgd_calls": 0,
+      "pgd_zero_d0_reference": 0,
+      "pgd_repeats": 0,
+      "projection_clipped_total": 0,
+      "pgd_returned_plateau": 0
+    },
+    "sums": {
+      "trial_length": 150426.5522523793,
+      "returned_length": 149459.6741709982,
+      "radial_length": 16447.09792192223,
+      "model_error": 42.98290341394636,
+      "momentum_trial": -258.9186941544805,
+      "momentum_returned": -255.39712992835697,
+      "d0_trial_length": 152462.87323285735,
+      "correction_length": 3228.57107067545,
+      "correction_ratio": 62829.819191399256,
+      "direction_ratio": 1401732.9999949867,
+      "near_d0_trial_length": 4072.6419403300533,
+      "near_correction_length": 3228.57107067545,
+      "near_correction_ratio": 62829.819191399256,
+      "near_direction_ratio": 40210.99999498984,
+      "near_trial_length": 2036.3209700082177,
+      "near_returned_length": 2095.919847697932,
+      "near_radial_length": 426.8361560377795,
+      "near_momentum_trial": -8.465009877186844,
+      "near_momentum_returned": -8.37017264393512
+    },
+    "q_hist": {
+      "1": 1361522,
+      "2": 80347,
+      "3": 75
+    },
+    "study": "direct_top_pgd_pk",
+    "d0": "mcsd_tp_bf16_ns8",
+    "near_counter": "window eligibility, including the uncorrected control",
+    "post_correction_rescaling": false,
+    "seed": 2345,
+    "pgd_normalization": "not_applicable",
+    "pgd_trial_length_ratio": 0.0,
+    "pgd_length_reference": "current MCSD-TP D0 before return",
+    "zero_d0_reference": "sqrt(min(matrix shape)) if D0 norm <= 1e-12",
+    "return_rule": "radial_both_branches",
+    "old_radial_length_field": "general return correction, including PGD",
+    "ambient_return": "radial",
+    "ambient_trial_length_ratio": 0.5,
+    "ambient_direction_normalization": "frobenius_before_return",
+    "configured_mode": "pgd_half",
+    "trial_length_matching": "Frobenius norm relative to same-state D0",
+    "actual_elr_matched": false,
+    "approximate_iterations": 10,
+    "online_full_svd_fallback": false,
+    "successful_training": true,
+    "snapshots": 32
+  },
+  "derived": {
+    "near_percent": 5.577331713298158,
+    "repeat_percent_of_near": 15.776777498694386,
+    "near_returned_over_trial": 1.0292679192364618,
+    "near_returned_over_d0_trial": 0.514633959578601
+  },
+  "comparisons": [
+    {
+      "job": "4434107_0",
+      "final_loss": 3.430719,
+      "wall_seconds": 92869,
+      "delta_loss_warm_minus_reference": 0.0012940000000001284,
+      "wall_change_percent": -30.608706888197357
+    },
+    {
+      "job": "4434107_2",
+      "final_loss": 3.429565,
+      "wall_seconds": 92875,
+      "delta_loss_warm_minus_reference": 0.0024479999999997837,
+      "wall_change_percent": -30.613189771197845
+    },
+    {
+      "job": "4434107_3",
+      "final_loss": 3.436268,
+      "wall_seconds": 92689,
+      "delta_loss_warm_minus_reference": -0.00425500000000012,
+      "wall_change_percent": -30.473950522715754
+    },
+    {
+      "job": "4346705_0",
+      "final_loss": 3.436023,
+      "wall_seconds": 59703,
+      "delta_loss_warm_minus_reference": -0.004010000000000069,
+      "wall_change_percent": 7.939299532686794
+    },
+    {
+      "job": "4346705_1",
+      "final_loss": 3.435041,
+      "wall_seconds": 66491,
+      "delta_loss_warm_minus_reference": -0.0030280000000000307,
+      "wall_change_percent": -3.0801161059391458
+    },
+    {
+      "job": "4346705_2",
+      "final_loss": 3.428613,
+      "wall_seconds": 63574,
+      "delta_loss_warm_minus_reference": 0.0034000000000000696,
+      "wall_change_percent": 1.3669110013527552
+    },
+    {
+      "job": "4346705_4",
+      "final_loss": 3.427854,
+      "wall_seconds": 63658,
+      "delta_loss_warm_minus_reference": 0.004159000000000024,
+      "wall_change_percent": 1.233152156838102
+    }
+  ],
+  "offline_audit": {
+    "samples": 8,
+    "mean_gap_abs_error": 1.4828642179581797e-06,
+    "max_gap_abs_error": 5.596972340815576e-06,
+    "max_abs_returned_radius_error": 4.853153603656679e-06,
+    "false_near": 0,
+    "missed_near": 0,
+    "max_exact_cluster_size": 2
+  },
+  "audit_true_near_samples": 2,
+  "audit_limits": "Eight selected snapshots, only two truly near (steps 31 and 37); not an unbiased routing-error estimate. No tangent-vector-angle audit. Returned tensors precede host update rounding.",
+  "evidence_sha256": {
+    "train.log": "4ee7dd5d847428a91d34aa6f75c99bc554e8bef4f7f331be4cd02e20a1fa23df",
+    "launch_config.json": "f73c9cf5e9586270f0a7c65708c37d8e31f50ae85414a0902e70f9dd449ea4d3",
+    "pilot_statistics.json": "f85ab2849b0b6848ca68753771ddb892dd726ef1bf4b7aea1a3263c50daaca52",
+    "training_wall_seconds.txt": "5d9e28249808f7b1cc829ff266bde2358ba042b3a263b4839e200315f1319573",
+    "warm_spectrum_audit.json": "9504eac35b8c9ed343c52e10d3382ba8cbe807415d84ea951baeb9636e349365",
+    "offline_audit.json": "5a6c1d8547d78d0ee9cd148f05c7421211765bf2968d7c78021bc886035615be",
+    "server_status_20261117.json": "b63bf97ce35f88cae22fedea1bd7508c136081fd56c82dda480c5aad7c83f41b"
+  }
+}

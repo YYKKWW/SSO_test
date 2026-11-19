@@ -1,0 +1,30 @@
+{
+  "base": "/home/u3013198/projects/cluster-lmo-confirmation-1b-20261110",
+  "base_manifest_sha256": "494ed0399edc488f598fec88f39fb9000658d17525000f8ec8410deb5bcdb9d5",
+  "target": "/home/u3013198/projects/direct-top-repair-100m-20261112",
+  "overlay_sha256": "502e2e5371478b6f62834a3d6b2f41ff72f7c4f857a8d2a713ac5be6eb88ee17",
+  "source_manifest_sha256": "79faea9f656d9ceb3a7f1cc5c233b0098b751dec27e0d6eaa91c5668b74e4a19",
+  "source_files": 3154,
+  "created_utc": "2026-11-12T08:18:40.550922+00:00",
+  "job_id": "4427402",
+  "study": "direct_top",
+  "submitted_utc": "2026-11-12T08:19:06.996285+00:00",
+  "arms": 3,
+  "arm_indices": [
+    0,
+    1,
+    2
+  ],
+  "max_concurrent_gpus": 2,
+  "gpus_per_arm": 1,
+  "train_iterations": 191,
+  "processed_tokens": 100139008,
+  "checkpoints": false,
+  "cpu_preflight_passed": true,
+  "cuda_preflight": "runs inside each allocation",
+  "data": {
+    "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+    "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+    "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B"
+  }
+}

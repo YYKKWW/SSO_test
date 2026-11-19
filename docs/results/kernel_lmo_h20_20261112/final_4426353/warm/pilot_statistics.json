@@ -1,0 +1,35 @@
+{
+  "method": "kernel1",
+  "solver": "warm_block8",
+  "window": 0.0002,
+  "geometry_precision": "fp32_highest",
+  "lmo_precision": "bf16_ns8",
+  "counts": {
+    "small_ritz_svd": 48132,
+    "bootstrap_solves": 252,
+    "updates": 47880,
+    "trial_solves": 47880,
+    "near": 14197,
+    "censored_window": 0,
+    "window_gt4": 176,
+    "window_gt8": 0,
+    "kernel_accepted": 14197
+  },
+  "sums": {
+    "trial_length": 4011.8748923953667,
+    "returned_length": 3984.0570355744876,
+    "radial_length": 415.8776317442673,
+    "model_error": 0.0006916403682137145,
+    "momentum_trial": -4.565029635077622,
+    "momentum_returned": -4.505633747693764
+  },
+  "q_hist": {
+    "1": 33683,
+    "2": 9549,
+    "3": 3521,
+    "4": 951,
+    "5": 176
+  },
+  "successful_training": true,
+  "snapshots": 24
+}

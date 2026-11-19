@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-11-19T15:05:33+08:00",
+  "scope": "Read-only accounting and queue recheck; final metrics remain the November 18 log extraction",
+  "account_queue": [],
+  "new_jobs_submitted": [],
+  "spectral_jobs": [
+    {"job": "4453017_0", "state": "COMPLETED", "exit_code": "0:0", "elapsed": "17:59:11", "end": "2026-11-18T08:32:26+08:00"},
+    {"job": "4453017_1", "state": "COMPLETED", "exit_code": "0:0", "elapsed": "17:59:18", "end": "2026-11-18T09:41:25+08:00"},
+    {"job": "4442918_2", "state": "COMPLETED", "exit_code": "0:0", "elapsed": "17:56:22", "end": "2026-11-17T07:43:31+08:00"},
+    {"job": "4434107_0", "state": "COMPLETED", "exit_code": "0:0", "elapsed": "1-01:50:38", "end": "2026-11-14T20:35:14+08:00"},
+    {"job": "4434107_2", "state": "COMPLETED", "exit_code": "0:0", "elapsed": "1-01:50:43", "end": "2026-11-14T20:35:19+08:00"},
+    {"job": "4434107_3", "state": "COMPLETED", "exit_code": "0:0", "elapsed": "1-01:47:03", "end": "2026-11-15T22:22:34+08:00"}
+  ],
+  "other_geometry_excluded": [
+    {"job": "4459729", "geometry": "Frobenius manifold", "state": "COMPLETED", "exit_code": "0:0", "elapsed": "04:55:02", "end": "2026-11-18T11:31:04+08:00"},
+    {"job": "4459730", "geometry": "Frobenius manifold", "state": "COMPLETED", "exit_code": "0:0", "elapsed": "04:55:43", "end": "2026-11-18T16:28:45+08:00"}
+  ]
+}

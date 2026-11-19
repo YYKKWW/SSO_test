@@ -1,0 +1,28 @@
+{
+  "base": "/home/u3013198/projects/cluster-lmo-confirmation-1b-20261110",
+  "base_manifest_sha256": "494ed0399edc488f598fec88f39fb9000658d17525000f8ec8410deb5bcdb9d5",
+  "target": "/home/u3013198/projects/kernel-lmo-stepmodel-100m-20261112-v3-counterfix",
+  "overlay_sha256": "75b69d0fe2ed6862fd568510405a7a063363500dd20afe652358fc019ee6927b",
+  "source_manifest_sha256": "f14796e287243ee24c4bb0e0c57f49e048ba0f194a0f933c8bc367896aaf00ea",
+  "source_files": 3152,
+  "created_utc": "2026-11-12T03:25:16.542951+00:00",
+  "job_id": "4426353",
+  "submitted_utc": "2026-11-12T03:25:35.107910+00:00",
+  "arms": 2,
+  "arm_indices": [
+    3,
+    5
+  ],
+  "max_concurrent_gpus": 2,
+  "gpus_per_arm": 1,
+  "train_iterations": 191,
+  "processed_tokens": 100139008,
+  "checkpoints": false,
+  "cpu_preflight_passed": true,
+  "cuda_preflight": "runs inside each allocation",
+  "data": {
+    "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+    "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+    "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B"
+  }
+}

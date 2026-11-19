@@ -1,129 +1,123 @@
 # MCSD on the Spectral Sphere
 
-Research code and reproducible experiment records for **MCSD-TP** and a
-**near-cluster P²GD-type hybrid**, compared with **MuonSphere** and **SSO** in
-Megatron-LM language-model pretraining.
+Research code and experiment records for **MCSD-TP**, near-region hybrids,
+and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
-[Results](docs/experiments/mcsd_p2gd_results_summary.md) ·
-[Algorithms and code](docs/algorithms/current_comparison_pseudocode.md) ·
+[Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
+[Latest 3B comparison](docs/experiments/warm_radial_controls_3b_20261117.md) ·
+[Algorithms](docs/algorithms/current_comparison_pseudocode.md) ·
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
-[Related work](docs/related_work.md) ·
-[Historical log](HISTORICAL_README.md)
+[Related work](docs/related_work.md)
 
-> **Research status, 2026-11-05:** 38 completed width-256 runs in the current
-> 1B/3B track. The approximate implementation runs without full-matrix SVDs,
-> but the hybrid has **not established a consistent advantage** over its
-> matched MCSD-TP control. This is an evolving research branch, not a frozen
-> paper release.
+> **Checked November 19, 2026, 15:05 HKT:** 49 completed width-256 runs in
+> the current 1B/3B ledger. The account queue is empty. No new jobs were
+> submitted in this update. Short pilots and local toy problems are reported
+> separately. This is a research branch, not a frozen paper release.
 
-## Latest Matched Comparison
+## Latest Result: Near-Region Step Attenuation
 
-**Width 256 · 28 layers · 1B tokens · seed 2345 · LR `1.5e-2` · one H20/run.**
-Six reference runs and six follow-ups completed 1908 iterations with no
-logged NaN/skipped iterations. Data, model and evaluation settings match.
+**Width 256 · 28 layers · 3B processed tokens · seed 2345 · LR 0.015 · eval20.**
+The fresh matched pair completed 5723 iterations with no logged NaN/skipped
+iterations. Each used one H20, warm block-8 K10 with FP32 QR/Ritz, and no
+original-matrix full SVD online.
 
-| Method | Final validation loss | Difference vs. MCSD-TP | Train + validation |
-|---|---:|---:|---:|
-| MuonSphere | 3.573290 | +0.000621 | **5:33:30** |
-| SSO | 3.579043 | +0.006374 | 6:11:37 |
-| MCSD-TP K10 | 3.572669 | 0 | 5:54:15 |
-| Hybrid K10/c8, wide cluster | 3.572540 | -0.000129 | 5:55:24 |
-| Hybrid K10/c8, narrow cluster | 3.573133 | +0.000464 | 5:55:46 |
-| Single-LMO near direction, c1 | 3.573165 | +0.000496 | 5:55:50 |
-| Ambient near direction, c8 | 3.573986 | +0.001317 | 5:56:10 |
-| Top-1 near correction, c8 | 3.572480 | -0.000189 | 5:54:13 |
-| Single-LMO near direction, c0.5 | 3.571923 | -0.000746 | 5:55:10 |
-| Single-LMO near direction, c2 | 3.575782 | +0.003113 | 5:55:29 |
-| Single-LMO top-1, c0.5 (new) | 3.572788 | +0.000119 | 5:54:55 |
-| **Single-LMO 25% shape blend, c0.5 (new)** | **3.571611** | **-0.001058** | 5:56:14 |
+| Method | Final validation loss | Train + validation | Comparison scope |
+|---|---:|---:|---|
+| **MCSD-TP, near-only half-D0** | **3.423857** | 17:57:09 | Fresh matched pair |
+| MCSD-TP control | 3.429645 | 17:56:55 | Fresh matched pair |
+| Ambient-radial hybrid, rho=0.5 | 3.432013 | 17:54:03 | Earlier matching-protocol warm run |
+| Exact MCSD-TP | 3.430719 | 25:47:49 | Exact-spectrum reference |
+| Exact ambient-radial, rho=0.5 | 3.429565 | 25:47:55 | Exact-spectrum reference |
+| MuonSphere | 3.436023 | **16:35:03** | Historical same-protocol baseline |
+| SSO | 3.435041 | 18:28:11 | Historical same-protocol baseline |
 
-![Single-LMO rank and spectral-shape comparisons](docs/experiments/cluster_summary/validation_1b_lmo_shape_20261105.png)
+**Interpretation:** the near-only half-D0 arm improves loss by **0.005788**
+over its source-matched control, with essentially unchanged time. It keeps
+the MCSD-TP direction and halves it only when the cached relative gap is
+at most `2e-4`. It is **not PGD or P2GD**. Its near/repeat rates are higher,
+so fewer branch calls or faster gap escape are not sufficient success criteria.
 
-[Latest analysis, branch statistics, and implementation](docs/experiments/cluster_lmo_shape_1b_20261104.md) ·
-[New machine-readable results](docs/results/cluster_lmo_shape_1b_20261104/final_20261105.json) ·
-[Earlier mechanism/scale comparisons](docs/experiments/cluster_mechanism_scales_1b_20261102.md) ·
-[Reference results](docs/results/cluster_cone_lmo_1b_20261031/final_20261101.json)
+The differences from historical MuonSphere / SSO are -0.012166 / -0.011184;
+runtime is about 8.3% longer / 2.8% shorter. These are contextual,
+single-seed comparisons, not evidence of consistent superiority.
 
-**What this supports:** the 25% shape blend is the best observed endpoint,
-0.000312 below unblended c0.5 and 0.001679 below MuonSphere. It adds 64 seconds
-to unblended c0.5 and 6.82% to MuonSphere time. Same-LMO top-1 is slightly
-worse than MCSD-TP, supporting further study of multiple directions in this
-configuration. However, these are selected **single-seed** candidates, not
-established gains. The blend still has **88.02% repeated near calls**, and
-earlier 3B hybrid gains changed sign between seeds.
+![Validation curves and same-step differences](docs/results/warm_radial_controls_3b_20261117/validation_comparison_20261118.png)
 
-**Matched 1B replication, seed 1234:** MCSD-TP **3.575916**, wide hybrid
-**3.575728** (difference **-0.000188**). Both completed with the same K10/eval20
-protocol. The two 1B paired gains have the same sign but remain very small;
-this does not resolve the conflicting 3B evidence.
-[Replication record](docs/results/cluster_followup_1b_20261101/paired_final_20261102.json).
+[Full curves, branch counts, precision audit and provenance](docs/experiments/warm_radial_controls_3b_20261117.md) ·
+[Machine-readable evidence](docs/results/warm_radial_controls_3b_20261117/final_summary_20261118.json)
 
-**Completed follow-ups:** all four matched 1B mechanism/step-scale tests,
-`4375034_0-3`, finished on 2026-11-03.
-[Configurations and comparison rules](docs/experiments/cluster_mechanism_scales_1b_20261102.md).
+## What Is Supported
 
-**Latest completion, 2026-11-05:** `4389998_0-1` both finished successfully
-after CUDA tests and separate four-step smokes. Each main run recorded
-480,816 small Ritz SVDs and **zero original-matrix full-SVD calls**.
-Neither job still occupies a GPU. No additional training was submitted in
-this results update.
-[Protocol, amplitude screening, and completion records](docs/experiments/cluster_lmo_shape_1b_20261104.md).
-
-## Algorithm Map
-
-| Method | Direction | Return and spectral computation |
+| Direction | Current evidence | Decision |
 |---|---|---|
-| MuonSphere (`muon_ball_dist`) | Matrix sign of Nesterov momentum | Reference hard pre-step radial normalization, BF16 PI10 |
-| SSO (`spectral_ball_dist`) | Spectral constrained direction with scalar multiplier solve | Reference hard pre-step radial normalization, BF16 PI10 |
-| MCSD-TP | Tangent projection → NS8 matrix sign → tangent projection | Warm block-8 K10, FP32 QR/Ritz, post-step approximate radial return |
-| Hybrid | MCSD-TP at large estimated gap; normalized-momentum cluster correction near the boundary | Same approximate return and returned-point cache as MCSD-TP |
+| Near-only half-D0 | Best current 3B endpoint; one matched seed | Test all-step matrix-half, then paired replication |
+| Single-LMO c0.5 | Small control gain at both 1B seeds; not consistently better than MuonSphere | Retain as a mechanism reference |
+| 25% shape blend | Best selected seed-2345 1B endpoint; extra gain does not repeat at seed1234 | Do not claim a confirmed blend advantage |
+| Ambient-radial switch | Exact half-step slightly helps; warm variant loses to matched control | Keep as a reference, not the leading candidate |
+| A2 / K-LMO and full-projection PGD pilots | Current 100M settings underperform | Do not extend these settings to long runs |
+| Anchored cone-face + radial | Local algebra/complete-return checks; conditional theory | Research candidate only, no LLM result yet |
 
-Current research reference: route threshold `5e-5`, cluster width `2e-3`,
-adaptive correction rank at most four, near-step multiplier `c=8`.
-`c` is **not** a branch-use percentage. Complete definitions and actual code
-links are in the [algorithm guide](docs/algorithms/current_comparison_pseudocode.md).
+[Complete favorable and unfavorable results](docs/experiments/mcsd_p2gd_results_summary.md) ·
+[1B second-seed confirmation](docs/experiments/cluster_lmo_confirmation_1b_20261110.md)
 
-The hybrid is **P²GD-type**, not standard P²GD: a near cluster replaces an exact
-multiple singular subspace, and radial return replaces metric projection.
-Neither exact feasibility nor stochastic Clarke-stationarity follows merely
-from the successful training runs.
+## Theory and Local Diagnostics
 
-## Reproduce and Inspect
+The [corner/momentum audit](docs/experiments/corner_momentum_audit_20261117.md)
+separates raw direction, momentum error and radial-return effects. Its
+constructed quadratic losses are not LLM loss measurements.
 
-1. Follow the [H20 environment and data runbook](docs/runbooks/cluster_experiments_reproduction.md).
-2. Inspect the [six-arm launch grid](slurm/cluster_cone_lmo_1b_20261031.sbatch),
-   including the explicit indexed-data and tokenizer paths.
-3. Run the focused tests before training:
+The new [anchored cone-face note](docs/experiments/anchored_cone_radial_theory_20261118.md)
+contains 324 algebra checks and 360 constructed states. On 72 exact-corner
+cases with momentum equal to gradient, all anchored updates decrease the
+quadratic objective; with cosine alignment 0.5, four increase it. The
+conditional target is Clarke stationarity, not B-stationarity. Exact spectral
+information, complete cluster coverage and decreasing-error assumptions are
+not automatically satisfied by fixed-K10 training.
 
-   ```bash
-   python -B -m unittest discover -s scripts -p 'test_cluster*.py' -v
-   ```
+## Next Tests, Not Submitted
 
-4. Use the dated [results ledger](docs/experiments/mcsd_p2gd_results_summary.md#ledger)
-   to match the data source, processed-token budget, seed, evaluation length,
-   and optimizer version. Do not pool unlike protocols.
+1. Same-state short LLM loss replay: D0, half-D0, ambient-half, complete cone,
+   anchored cone and finite-step correction, with matched realized lengths.
+2. One missing 3B **all-step matrix-only half-D0** arm at seed2345. Preserve
+   the AdamW learning rate; do not halve the global LR flag.
+3. Replicate control versus near-half at seed1234 with the current source.
 
-Datasets, environments, checkpoints, and matrix snapshots are not uploaded.
-Published JSON records contain configurations, endpoint metrics, source/log
-hashes, Slurm accounting, and offline audit summaries.
+Only promote a new cone direction after a matched loss probe. Keep width256,
+K10, gap2e-4 and the data/evaluation protocol fixed; defer wider gap grids,
+larger widths and 12B expansion. See the [predeclared comparisons](docs/experiments/mcsd_p2gd_results_summary.md#next).
 
-## Repository Guide
+## Implementation and Reproduction
 
-| Location | Purpose |
+| Component | Code / instructions |
 |---|---|
-| [Experimental optimizer](Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_cluster_radial.py) | Branch selection, directions, return, and cached spectra |
-| [Warm Ritz solver](Megatron-LM/emerging_optimizers/orthogonalized_optimizers/warm_block_ritz.py) | Fixed-budget approximate top spectrum; small 8×8 SVD only |
-| [Single-LMO candidate](Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_cone_lmo.py) | Separate experimental direction, not the default hybrid |
-| [Experiments](docs/experiments/mcsd_p2gd_results_summary.md) | Completed comparisons, limitations, and next decisions |
-| [Runbook](docs/runbooks/cluster_experiments_reproduction.md) | Environment, data, tests, and Slurm execution |
-| [Historical record](HISTORICAL_README.md) | Earlier width sweeps, exact-SVD/PGD exploration, and archived status |
+| Original cluster-radial optimizer | [spectral_cluster_radial.py](Megatron-LM/emerging_optimizers/orthogonalized_optimizers/spectral_cluster_radial.py) |
+| Warm FP32 Ritz spectrum | [warm_block_ritz.py](Megatron-LM/emerging_optimizers/orthogonalized_optimizers/warm_block_ritz.py) |
+| Current matched direction adapter | [direct_top_pgd_pk.py](scripts/direct_top_pgd_pk.py) |
+| Half-D0 regression tests | [test_warm_radial_controls.py](scripts/test_warm_radial_controls.py) |
+| Frozen two-arm launcher | [Slurm configuration](slurm/warm_radial_controls_3b_20261117.sbatch) |
+| Local anchored-face checks | [local_anchored_cone_radial.py](scripts/local_anchored_cone_radial.py) |
+| Environment and data | [H20 runbook](docs/runbooks/cluster_experiments_reproduction.md) |
+
+MuonSphere (`muon_ball_dist`) and SSO (`spectral_ball_dist`) retain their
+reference BF16 PI10 hard pre-step normalization. The current MCSD-TP variants
+use post-step approximate radial return and cache the transformed trial
+spectrum. Radial normalization is not the Frobenius nearest-point projection.
+
+Published evidence includes configurations, endpoint metrics, curves,
+checksums, accounting and audit summaries. Datasets, environments, checkpoints,
+matrix snapshots and bulk raw-log archives remain outside Git. Some collectors
+require these local archives; the published JSON is sufficient to inspect the
+reported comparisons, not to reconstruct missing model checkpoints.
+
+Publication checks on November19: 80 local CPU unit tests passed, the 324
+anchored-face algebra cases reran successfully, and linked evidence/code
+was checked for existence and JSON/Python syntax. No new CUDA training ran.
 
 ## Attribution
 
 Built on [Spectral Sphere Optimizer](https://github.com/Unakar/Spectral-Sphere-Optimizer),
 [Megatron-LM](https://github.com/NVIDIA/Megatron-LM), and the included optimizer
 implementations. MuonSphere is called MuonBall in legacy filenames. Preserve
-the upstream license and attribution files when redistributing code.
-The separate Frobenius-geometry branch and historical paper experiments are
-not merged into the current results. See [related work](docs/related_work.md)
-for verified papers and the limits of their applicability.
+upstream licenses and attribution. The separate Frobenius-geometry study is
+not pooled here. Earlier width sweeps and 12B runs remain in the
+[historical record](HISTORICAL_README.md).

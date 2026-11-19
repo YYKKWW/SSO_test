@@ -1,0 +1,34 @@
+[
+  {
+    "arm": 0,
+    "method": "none",
+    "changes": {
+      "KERNEL_METHOD": {
+        "reference": "pgd_half",
+        "control": "none"
+      },
+      "KERNEL_PGD_TRIAL_RATIO": {
+        "reference": "0.5",
+        "control": "0.0"
+      }
+    },
+    "tp_near_trial_ratio": null,
+    "other_recorded_training_fields_equal": true
+  },
+  {
+    "arm": 1,
+    "method": "tp_half",
+    "changes": {
+      "KERNEL_METHOD": {
+        "reference": "pgd_half",
+        "control": "tp_half"
+      },
+      "KERNEL_PGD_TRIAL_RATIO": {
+        "reference": "0.5",
+        "control": "0.0"
+      }
+    },
+    "tp_near_trial_ratio": "0.5",
+    "other_recorded_training_fields_equal": true
+  }
+]

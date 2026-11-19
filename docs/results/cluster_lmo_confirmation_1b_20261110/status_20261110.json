@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-11-10T23:42:30.052204+08:00",
+  "source": "H20 squeue and per-run completion/log checks",
+  "array_id": "4419145",
+  "concurrent_gpu_limit": 2,
+  "runs": [
+    {"job": "4419145_0", "state": "PENDING", "reason": "Resources", "smoke_complete": false, "main_started": false, "main_complete": false},
+    {"job": "4419145_1", "state": "PENDING", "reason": "Resources", "smoke_complete": false, "main_started": false, "main_complete": false},
+    {"job": "4419145_2", "state": "PENDING", "reason": "Resources", "smoke_complete": false, "main_started": false, "main_complete": false},
+    {"job": "4419145_3", "state": "PENDING", "reason": "Resources", "smoke_complete": false, "main_started": false, "main_complete": false},
+    {"job": "4419145_4", "state": "PENDING", "reason": "Resources", "smoke_complete": false, "main_started": false, "main_complete": false}
+  ]
+}

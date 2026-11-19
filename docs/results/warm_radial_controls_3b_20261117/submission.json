@@ -1,0 +1,95 @@
+{
+  "base": "/home/u3013198/projects/direct-ambient-radial-warm8k10-3b-20261116",
+  "target": "/home/u3013198/projects/warm-radial-controls-3b-20261117",
+  "overlay_sha256": "58a2dff1db0a4edabb6ee8e59733a33f5c20942f0dec3fa1f8b5d4fbed5c40e0",
+  "base_manifest_sha256": "9617f0aa4c6df6219115789ac295248dda30dcbbd449308d47d858f192f479d6",
+  "source_manifest_sha256": "ec80d212d45bf1c7dfcad269e38a515c533874c8eb712fc0e57dd03a363cd186",
+  "source_files": 3168,
+  "changed_files": [
+    {
+      "path": "scripts/direct_top_pgd_pk.py",
+      "old_sha256": "42ce5a704f53e2440854cf0c87d7c8642b9929aa60d0e04f8a3447b1a4d666f3",
+      "new_sha256": "c88bbcef069c8927913ab9c34ef224ba2ceabf7689f7dc26665822943ea39c69"
+    },
+    {
+      "path": "scripts/prepare_warm_radial_controls.py",
+      "old_sha256": null,
+      "new_sha256": "cfcb0faf848ff8d9bf2b1413d87f0c98bc1f8af434087f77d04866153e79d7ac"
+    },
+    {
+      "path": "scripts/run_kernel_lmo_pilot.py",
+      "old_sha256": "3778cff82a6fe5d3b76556839b758d0960f84abf7b11d9c2c829bf5578fd6f98",
+      "new_sha256": "039866cdcaf959ff69c0c3f8d5005d2d715029365c3e08e657387c5979a5fcca"
+    },
+    {
+      "path": "scripts/test_warm_radial_controls.py",
+      "old_sha256": null,
+      "new_sha256": "dca599c885ec17ed90a20d82691d4de03dd276d06c14d0336ac0b6066b6b7c19"
+    },
+    {
+      "path": "slurm/warm_radial_controls_3b_20261117.sbatch",
+      "old_sha256": null,
+      "new_sha256": "981a910c09adf67b869baf529626a03f91dd83faf98a125e67021900f572cd47"
+    }
+  ],
+  "reference_job": "4442918_2",
+  "created_utc": "2026-11-17T03:23:39.242830+00:00",
+  "job_id": "4453017",
+  "arm_indices": [
+    0,
+    1
+  ],
+  "gpus_per_arm": 1,
+  "max_concurrent_gpus": 2,
+  "submitted_utc": "2026-11-17T03:24:11.617252+00:00",
+  "seed": 2345,
+  "width": 256,
+  "train_iterations": 5723,
+  "processed_tokens": 3000500224,
+  "solver": "warm_block8",
+  "iterations": 10,
+  "gap": 0.0002,
+  "return_rule": "radial_both_branches",
+  "checkpoints": false,
+  "cpu_preflight_passed": true,
+  "cuda_preflight": "inside allocation before smoke and fresh main training",
+  "config_comparison": [
+    {
+      "arm": 0,
+      "method": "none",
+      "changes": {
+        "KERNEL_METHOD": {
+          "reference": "pgd_half",
+          "control": "none"
+        },
+        "KERNEL_PGD_TRIAL_RATIO": {
+          "reference": "0.5",
+          "control": "0.0"
+        }
+      },
+      "tp_near_trial_ratio": null,
+      "other_recorded_training_fields_equal": true
+    },
+    {
+      "arm": 1,
+      "method": "tp_half",
+      "changes": {
+        "KERNEL_METHOD": {
+          "reference": "pgd_half",
+          "control": "tp_half"
+        },
+        "KERNEL_PGD_TRIAL_RATIO": {
+          "reference": "0.5",
+          "control": "0.0"
+        }
+      },
+      "tp_near_trial_ratio": "0.5",
+      "other_recorded_training_fields_equal": true
+    }
+  ],
+  "data": {
+    "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+    "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+    "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B"
+  }
+}

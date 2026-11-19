@@ -2,20 +2,239 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
-**Results verified 2026-11-05.** This page
-covers **38 completed width-256 runs: 26 at 1B and 12 at 3B tokens**. Budgets
+**Status rechecked 2026-11-19 15:05 HKT; account queue empty.** Both warm-K10
+controls remain COMPLETED with exit 0:0. No additional spectral-sphere LLM
+endpoint or new submission is added by this check. This page
+covers **49 completed width-256 runs: 31 at 1B and 18 at 3B tokens**. Budgets
 are processed tokens, not model sizes. Historical width sweeps, 12B tests,
 Frobenius-geometry experiments, smokes, and failed jobs are not pooled here.
 
+**New completed 3B pair:** current-backend MCSD-TP **`4453017_0`** reaches
+**3.429645 / 17:56:55**; near-only half-D0 **`4453017_1`** reaches
+**3.423857 / 17:57:09**. Both exit 0:0, pass 44 CUDA checks plus smoke, and
+have zero logged NaN/skipped iterations. The completed ambient half-step
+reference is 3.432013. No new tasks were submitted in this check.
+[Paired curves, configuration checks and next experiments](warm_radial_controls_3b_20261117.md).
+
+**New local theory, not an H20 result:** [anchored cone-face plus radial](anchored_cone_radial_theory_20261118.md).
+All 324 FP64 algebra checks pass. On the 72 exact-corner quadratic cases per
+alignment, anchored radial has 0 increases for M=G and 4 for cosine 0.5,
+matching the complete true-cone count, not outperforming it. The proof framework
+targets conditional Clarke stationarity; it also includes a B-nonstationary
+stalling counterexample. Do not count these tests in the 49 LLM runs or
+attribute the completed half-D0 result to this new candidate.
+
+**New local diagnostic, not a training run:** [momentum/cone angles and
+complete radial returns](corner_momentum_audit_20261117.md). All32 warm-run
+snapshots are audited; nine near states remain simple-top points, so their
+top-2 cone is explicitly a nearby-corner model. Their mean global/top-block
+angles for -M are 0.211/66.45 degrees. Expanded maximum gap error is 2.93e-3
+at startup, versus 8.20e-7 in the selected near states; no sampled misrouting.
+The separate quadratic loss checks are not LLM loss measurements. No queued
+source or H20 job is changed by this local study.
+
 [Latest results](#latest) · [Candidates](#candidates) · [Protocol](#comparisons) · [Numerics](#precision) · [Next](#next) · [Ledger](#ledger)
 
-> **Bottom line:** the approximate engineering path is working, with no
-> original-matrix full SVD in the current updates. A reliable optimization
-> advantage from the multi-direction near branch has **not** been established.
+> **Bottom line:** keeping the MCSD direction and halving it only in the near
+> region gives the strongest observed seed2345 3B endpoint here: **3.423857**.
+> It beats matched control by **0.005788** and ambient-half by **0.008156**,
+> despite MORE near calls and repeats. This supports step attenuation, not
+> PGD/P2GD direction switching. Next distinguish targeted attenuation from
+> globally reducing matrix steps, and replicate the matched pair.
+
+**Previous exact 3B endpoints:** [exact ambient-radial follow-up](direct_ambient_radial_3b_20261113.md)
+finished all 5723 steps with exit 0:0 and zero logged NaN/skipped iterations.
+Control / rho=0.5 / rho=1.0: **3.430719 / 3.429565 / 3.436268**,
+with main train+validation times **25:47:49 / 25:47:55 / 25:44:49**.
+Historical MuonSphere / SSO: 3.436023 / 3.435041; old K10 control /
+ambient-c8: 3.428613 / 3.427854. The half-step exact hybrid is 45.9% slower
+than old ambient and 0.001711 worse, so it is not an engineering upgrade.
+Its final near-call rate is 5.683%, with 16.022% consecutive repeats among
+those calls; the corresponding full-step figures are 3.923% / 9.270%.
+These replace the earlier intermediate statistics. The independent ELR
+prefix and eight 32-step branches also completed, but have no final validation
+endpoint and are excluded from the long-run counts. No jobs were added here.
+
+**Previous warm follow-up:** **`4442918_2`**, width256 / seed2345 / rho0.5 /
+window2e-4 / warm block-8 K10 FP32 Ritz, finished November17 at07:43 UTC+08.
+Final loss **3.432013**, main train+validation **17:54:03**, exit0:0 and zero
+NaN/skipped iterations in 573 regular reports. Near calls are **5.577%** of
+component updates, with **15.777%** consecutive repeats among near calls.
+There are zero original-matrix full SVDs online; the offline eight-snapshot
+audit has no routing errors but only two truly near samples, both early.
+The results-only check at10:44 found an empty account queue and about20GB
+free. The separate11:24 submission is recorded above.
+[Results, limitations and next controls](direct_ambient_radial_3b_20261113.md#latest-warm-k10-completed-november-17).
+
+**Local follow-up, 2026-11-11:** [Sections 3-6 theory audit](step_aware_hybrid_review_20261111.md)
+and [MCSD-TP/A1/A2/A4 paired trajectories](step_aware_hybrid_results_20261111.md).
+1200 exact-spectrum CPU trajectories were extended to 2000 steps, with
+complete-return, capacity and matched-trial-length audits. These are not LLM
+results and are excluded from the counts below. Two read-only H20 connections
+timed out; the previous server status is not reclassified as current.
+No new H20 job was submitted or modified.
+
+**Local theory refinement:** [kernel-preserving LMO and conditional stochastic
+proof](kernel_lmo_theory_20261111.md), with [864 paired local trajectories](kernel_lmo_results_20261111.md).
+This follow-up separates the finite-step correction from LMO amplitude,
+relaxes bounded samples to bounded conditional variance, and adds a tighter
+return bound. The small local LMO gain alone did not justify long training;
+the separately authorized 100M pilot is reported below.
+These synthetic results are excluded from all LLM counts.
+
+**Confirmation now complete, checked 2026-11-12:**
+[five matched seed-1234 1B runs](cluster_lmo_confirmation_1b_20261110.md),
+array **`4419145_0-4`**, at most two H20 GPUs concurrently. The batch compares
+unblended single-LMO c0.5 and the 25% blend with fresh MCSD-TP, MuonSphere and
+SSO references. All five finished successfully and are now included in the
+completed-run count. No production algorithm was changed.
+
+**Local theory study, 2026-11-06:** [selected-face LMO feasibility and
+MCSD/P2GD/PGD toy comparisons](local_cone_lmo_feasibility_20261106.md).
+Includes exact-cone proofs, missing-direction and radial-return counterexamples,
+432 algebra checks, and 768 small CPU trajectories. Not an H20 experiment or
+a stochastic convergence claim; excluded from the completed-run count below.
+
+**Local projection follow-up:** [MCSD / MCSD-TP with cone-LMO and exact
+sphere projection](local_projected_lmo_study_20261106.md). Includes 288 paired
+toy trajectories extended to 10,000 steps, an exact-projection ascent
+counterexample, and a separately defined stochastic safeguard with sufficient
+convergence conditions. Its safeguard mostly selects PGD; this is not an LLM
+performance improvement or a theorem for the unguarded hybrid.
 
 <a id="latest"></a>
 
-## Latest: Twelve Matched 1B Runs
+## Latest: Completed 3B Radial Comparison
+
+Same width256 / seed2345 / LR0.015 / 3B / eval20 protocol. Baselines are reused
+historical runs; the two old experimental rows use different spectrum,
+switching and scaling rules. Times include main training and validation.
+
+| Method | Final loss | Time | Source |
+|---|---:|---:|---|
+| **Current MCSD-TP, near-only half-D0** | **3.423857** | 17:57:09 | `4453017_1` |
+| Current MCSD-TP warm K10 control | 3.429645 | 17:56:55 | `4453017_0` |
+| Warm ambient-radial rho=0.5 | 3.432013 | 17:54:03 | `4442918_2` |
+| Exact MCSD-TP control | 3.430719 | 25:47:49 | `4434107_0` |
+| Exact ambient-radial rho=0.5 | 3.429565 | 25:47:55 | `4434107_2` |
+| Exact ambient-radial rho=1.0 | 3.436268 | 25:44:49 | `4434107_3` |
+| MuonSphere | 3.436023 | **16:35:03** | `4346705_0` |
+| SSO | 3.435041 | 18:28:11 | `4346705_1` |
+| MCSD-TP warm block-8 K10 | 3.428613 | 17:39:34 | `4346705_2` |
+| Ambient K10/c8 | 3.427854 | 17:40:58 | `4346705_4` |
+
+Near-half improves on historical MuonSphere / SSO by 0.012166 / 0.011184
+in this seed, and on old ambient/c8 by 0.003997. It is about 8.3% slower than
+MuonSphere; the gain is not a free speedup. Most importantly, it also beats
+the source-matched current control, without changing the MCSD direction.
+Near eligibility is 14.067% versus 9.217% (control) and 5.577% (ambient);
+consecutive repeats among near calls are 54.771% / 40.453% / 15.777%.
+Higher repetition coexists with better loss. These are evolving trajectories,
+not matched same-state direction comparisons, and only one seed is tested.
+[Final statistics, all curves, audit limits and follow-up](warm_radial_controls_3b_20261117.md).
+
+## Previous: Five Seed-1234 Confirmation Runs
+
+Same 1B/eval20 protocol, final step 1908, fresh matched source. All five have
+Slurm exit 0:0 and no logged NaN/skipped iterations.
+
+| Method | Final loss | Difference vs. control | Train + validation | Job |
+|---|---:|---:|---:|---|
+| MCSD-TP K10 | 3.575916 | 0 | 5:55:15 | `4419145_0` |
+| Single-LMO c0.5 | 3.575186 | -0.000730 | 5:56:11 | `4419145_1` |
+| 25% shape blend c0.5 | 3.575362 | -0.000554 | 5:55:37 | `4419145_2` |
+| MuonSphere | **3.571786** | **-0.004130** | **5:33:30** | `4419145_3` |
+| SSO | 3.580017 | +0.004101 | 6:11:00 | `4419145_4` |
+
+Unblended c0.5 improves on MCSD-TP in both paired seeds, by 0.000746 and
+0.000730. The blend's extra advantage does not repeat: it is 0.000176 worse
+than unblended in this confirmation. Neither hybrid consistently beats
+MuonSphere. Lower repetition and overflow are not sufficient predictors of
+better validation loss. [Full analysis and evidence](cluster_lmo_confirmation_1b_20261110.md).
+
+The separately submitted [A2 / Kernel-LMO 100M pilot](kernel_lmo_h20_pilot_20261112.md)
+now has **eight completed configurations**, including two counter-fix reruns.
+MCSD-TP exact:
+4.918329 (57:31); MuonSphere: 4.919347 (38:06); SSO: 4.927444 (41:43).
+A2 exact / input x1.5 / warm K10 reach 5.073903 / 5.069594 / 5.087419:
+none is a current long-run candidate. Both original Kernel-LMO attempts
+stopped on a legacy top-4 statistics dictionary at q=5. The fresh reruns
+**`4426353_3` (exact) and `4426353_5` (warm K10)** now complete with loss
+**5.078964 (57:05)** and **5.082469 (40:33)**, respectively. Both passed
+nine CUDA tests with no logged NaN/skipped iterations; q=5 is recorded without
+failure. Near calls account for 30.78% / 29.65% of positive-LR component
+updates. The extra kernel LMO does not close the gap to MCSD-TP/MuonSphere,
+even with exact spectra. Prioritize same-matrix, matched-return-length
+diagnostics; do not promote these settings to 1B/3B. No new jobs were added
+in this results check.
+The pilot used one H20 per arm and at most two concurrent GPUs. It is not
+included in completed 1B/3B counts and must not be compared at unmatched
+training budgets.
+
+**Direct top-repair follow-up now complete:** [same-D0 audit and H20 results](direct_top_repair_100m_20261112.md).
+All three exact-spectrum runs **4427402_0-2** completed on November 12;
+100M tokens each, seed 1234, at most two H20 GPUs concurrently. No repair /
+multiple-root repair / finite-step spectral-slack repair achieve
+**4.918329 / 4.918715 / 4.912478**, with main train+validation times
+57:13 / 57:14 / 57:03. The finite-step candidate is 0.005851 below control
+and 0.006869 below the previous same-budget MuonSphere reference, but remains
+about 49.7% slower than MuonSphere. Its mean returned step grows only 0.088%;
+13.33% of component updates invoke a correction. Capacity reaches q=7;
+10.48% of correction calls require q>4, with no imposed cap in these runs.
+Both CUDA suites and all smokes passed; no NaN/skipped iterations are logged.
+This one-seed short result supports replication and a matched MCSD-TP-PGD
+reference, not a convergence claim or automatic 1B/3B promotion. No jobs
+were added in that results check; these short runs do not enter the 1B/3B count.
+
+**Latest 100M comparison complete, checked November 13:**
+[finite-step repair versus normalized MCSD-TP-PGD](direct_top_pgd_pk_100m_20261113.md),
+array **4428745_0-5**. All six width-256 / seed-2345 jobs completed with exit
+0:0 and no NaN/skipped iterations; each passed 26 CUDA checks and smoke.
+
+| Method | Final loss | Main train + validation | Actual near operation |
+|---|---:|---:|---|
+| MCSD-TP control | 4.922614 | 56:57 | None |
+| Finite-step repair | 4.915827 | 57:37 | 13.39% top repairs |
+| MCSD-TP-PGD, half D0 trial length | 5.210238 | 57:38 | 27.12% full projections |
+| MCSD-TP-PGD, full D0 trial length | 5.341342 | 57:42 | 31.29% full projections |
+| **MuonSphere** | **4.903361** | **38:16** | Reference |
+| SSO | 4.936409 | 41:52 | Reference |
+
+Finite-step minus control is **-0.005851 / -0.006787** at seeds 1234/2345;
+finite-step minus MuonSphere is **-0.006869 / +0.012466**. Thus the control
+gain repeats, but a consistent MuonSphere advantage does not. Finite-step
+still costs 50.6% more time than MuonSphere in the new seed. Its maximum q
+is 7; 12.40% of correction calls exceed four directions. PGD half/full
+produce cached zero-gap plateaus after 84.26% / 93.88% of their projections,
+but retain 99.24% / 94.90% of total near trial length. Do not attribute the
+poor loss solely to erased steps or compare these trial ratios to historical
+`pgd_lr_scale` values. All experimental arms share exact spectra and a 2e-4
+window. The finite correction is not standard P2GD; PGD uses full sphere
+projection rather than radial return.
+
+The results-only check did not add jobs. The proposed matched 1B finite-step
+check remains unsubmitted. The completed 100M batch is excluded from the
+completed 1B/3B count.
+
+### Completed 3B Radial Follow-Up: Protocol
+
+At the user's request, [array 4434107](direct_ambient_radial_3b_20261113.md)
+was submitted on November 13 at 18:44 UTC+08. Only three missing width-256 /
+seed-2345 / LR 0.015 configurations run: exact-cache MCSD-TP control, and
+ambient momentum with rho=0.5/1.0 D0 trial-length matching, all with
+`X_next = R * Y / ||Y||_2`. They use the 3B budget (5723 steps), 250 warmup,
+eval20/250, exact spectra and window 2e-4. This is **not full-projection PGD**
+and still retains one full trial SVD per component for the exact cache.
+
+All three jobs have now completed, including their 32 CUDA-allocation checks,
+smoke and post-training audits. Results are reported at the top of this page.
+Historical MuonSphere 3.436023 and SSO 3.435041 are reused, not rerun: saved
+training configurations and baseline source hashes match. Older K10 MCSD-TP
+3.428613 and ambient/c8 3.427854 remain contextual because spectral accuracy,
+routing and step scaling differ. The fresh exact control is not a duplicate
+of the K10 control. This batch adds three completed 3B runs to the registry.
+
+## Previous: Twelve Matched 1B Runs
 
 Seed **2345**, LR **1.5e-2**, 1908 steps, **20 validation batches** per evaluation.
 Six reference runs and six follow-ups completed with exit 0:0 and no logged
@@ -125,11 +344,16 @@ cause of poorer loss.
 | **MCSD-TP K10** | Competitive control; lower than both baselines in the latest 1B and second-seed 3B runs | Retain as the matched reference |
 | **Wide hybrid K10/c8** | Tiny 1B gains at two seeds; 3B gain changes sign across seeds | Retain for mechanism tests, not a default winner |
 | Top-1 c8 | Slightly better than wide hybrid at 1B and better at seed-2345 3B; only one mechanism seed | Retain as an important simpler control |
-| Ambient c8 | Best seed-2345 3B endpoint, but worse than control/MuonSphere at 1B | Budget-dependent reference; do not promote at 1B |
+| Ambient c8 | Strong historical seed-2345 3B endpoint, but worse than control/MuonSphere at 1B | Budget-dependent reference; do not promote at 1B |
+| Exact ambient-radial rho=0.5 | 3B gain of 0.001154 over exact control; worse and 45.9% slower than old ambient/c8 | Mechanism reference; test direction versus attenuation before another long run |
+| Warm ambient-radial rho=0.5 | Loss 3.432013, worse than current control 3.429645 and near-half 3.423857 | Retain as a direction-switching reference, not the leading candidate |
+| **MCSD-TP near-only half-D0** | 3.423857 at seed2345/3B; gain 0.005788 over matched control, with more repeats | Prioritize global matrix-half control and paired replication; no PGD/P2GD claim |
+| Anchored cone-face + radial | 324 local algebra checks; 0/72 aligned-gradient and 4/72 misaligned-momentum quadratic increases; no LLM run | Same-state loss probe only; conditional Clarke result, not a B-stationarity or fixed-K10 guarantee |
+| Exact ambient-radial rho=1.0 | Worse than exact control by 0.005549 despite fewer repeats | Do not extend this setting |
 | Narrow cluster c8 | Eliminates sampled capacity overflows; worsens latest 1B endpoint | Do not expand the long-run grid |
-| **Single-LMO c0.5** | Strong unblended 1B reference; 5.800% near calls and 92.18% repeats | Retain for paired confirmation of the blend |
+| **Single-LMO c0.5** | Control gains 0.000746 / 0.000730 at paired 1B seeds; not consistently ahead of MuonSphere | Retain as a reference; second-seed confirmation is complete |
 | Single-LMO top-1/c0.5 | Slightly worse than control; less repetition does not recover adaptive-q performance | Keep as the same-LMO rank ablation, not the leading candidate |
-| **Single-LMO 25% blend/c0.5** | Best observed 1B endpoint, only 0.000312 below unblended; 4.252% near calls, 88.02% repeats | Prioritize paired-seed confirmation, not a larger grid |
+| **Single-LMO 25% blend/c0.5** | Extra gain 0.000312 at seed2345 does not repeat: 0.000176 worse than unblended at seed1234 | Do not expand the blend grid or describe the extra gain as confirmed |
 | Single-LMO c1/c2 | Both worse than control at 1B; c2 reduces repetition but worsens loss | Keep as step-scale references; no wider grid yet |
 | K20 | More accurate sampled spectra, not consistently better loss | Accuracy reference, not automatic upgrade |
 | c12 / K40 | Lower repetition / numerical error without better earlier 1B endpoints | Defer |
@@ -216,12 +440,43 @@ spectral accuracy. See the [complete audit comparison](cluster_lmo_shape_1b_2026
 
 ## Completed Follow-Ups and Next Decisions
 
+**November19 priorities; all entries below are proposals, not queued jobs:**
+
+| Priority | Missing evidence | Decision it enables |
+|---|---|---|
+| 0 | Same-state short LLM loss probe: D0/half-D0/ambient/full cone/anchored cone/A2, matched trial length and full-return ELR | Separate momentum alignment, local geometry and radial-return effects; existing matrix snapshots cannot reconstruct LLM loss |
+| 1 | All-step matrix-only half-D0, retaining AdamW LR and all other settings | Determine whether gap-conditioned attenuation adds value beyond a smaller matrix-update scale |
+| 2 | Current control and near-half at a second seed with the same source | Test reproducibility of the 0.005788 paired gain |
+| Conditional | Cone correction with matched trial scale only after positive same-state evidence | Require improvement over half-D0, not just lower repeats or larger returned gap |
+
+Keep data, LR0.015, K10, window2e-4, eval20, momentum and return fixed.
+The 32-state ambient audit and small quadratic study are complete, but they
+do not measure real LLM loss changes or establish globally accurate routing.
+Reuse the completed ambient arm and baselines. Do not repeat the now-completed
+controls. Larger widths, broader gap grids and 12B runs remain deferred.
+
+**Concrete minimal follow-up:** one all-step matrix-half 3B run at seed2345,
+then two source-matched seed1234 runs (control and near-half). Reuse the
+completed seed2345 pair; never relabel historical seed1234 implementations as
+fresh matched controls. A short same-state replay should restore weights,
+optimizer and spectral cache, RNG, and data position for each candidate. Use
+paired training and held-out probe batches, record mean/median loss change,
+ascent fraction, actual returned length, required cluster capacity and sampled
+spectral error. Report absolute and length-matched results; a tiny step can
+artificially reduce ascent counts. The replay is diagnostic, not an online
+line search. A candidate must improve on half-D0 without relying on larger
+steps before a separate short training pilot is justified.
+
 | Test | Configuration | Verified status |
 |---|---|---|
 | Frozen-matrix scale audit | 160 saved samples; single-LMO c0.5/1/2 plus wide/narrow references; cached and oracle spectra | `4373185`, completed in 47 seconds |
 | Paired 1B replication | Seed 1234, K10 control vs. wide hybrid c8, LR 1.5e-2, 1908 steps, eval20 | `4373351_0–1`, both COMPLETED on 2026-11-02 |
 | Mechanisms and LMO scales | Seed 2345, ambient/top-1 c8, single-LMO c0.5/c2, 1B/eval20 | `4375034_0–3`, all COMPLETED by 2026-11-03 00:58 HKT |
 | Single-LMO rank/shape | Seed 2345, top-1 or 25% shape blend, c0.5, 1B/eval20 | `4389998_0–1`, both COMPLETED by 2026-11-05 02:20 HKT |
+| Exact ambient-radial 3B | Seed2345, matched exact control and rho=0.5/1.0, eval20 | `4434107_0,2,3`, all COMPLETED by November 15; [results](direct_ambient_radial_3b_20261113.md) |
+| Warm ambient-radial 3B | Seed2345, rho=0.5/window2e-4, warm block-8 K10 FP32 Ritz | `4442918_2`, COMPLETED November17; [summary and audit](../results/warm_ambient_radial_3b_20261116/final_summary_20261117.json) |
+| Warm matched controls 3B | Same spectral backend; D0 versus near-only half-D0 | `4453017_0-1`, COMPLETED November18; [results and provenance](../results/warm_radial_controls_3b_20261117/final_summary_20261118.json) |
+| ELR/AUS mechanisms | Shared 250-step prefix, eight restored 32-step branches | `4434317`, `4434318_0-7`, all COMPLETED; not a 1B/3B validation comparison |
 
 The corrected pair was submitted **2026-11-02 00:55 HKT**; at most two GPUs
 concurrently, no checkpoints. [Submission metadata](../results/cluster_followup_1b_20261101/submission_v2.json)
@@ -259,14 +514,23 @@ was screened offline and is almost inactive on the selected snapshots, so
 it was not promoted to another full 1B run.
 [Protocol, screening, results and job IDs](cluster_lmo_shape_1b_20261104.md).
 
-**Next recommended, not submitted:** compare unblended c0.5 and the 25% blend
-at seed 1234 under the same 1B/eval20 protocol, verifying compatibility with
-the completed MCSD-TP reference. Keep all other settings fixed and report
-unfavorable outcomes too. This batch has no remaining queued or running jobs;
-this update launches no new training. Keep larger widths, broad gap sweeps
-and 3B expansion deferred. A common larger fixed validation set would help resolve
-small differences, but old checkpoints are unavailable for retrospective
-re-evaluation. Do not count queued tests as completed results.
+**Now completed:** unblended c0.5 and the 25% blend at seed 1234 under the
+same 1B/eval20 protocol, plus fresh MCSD-TP, MuonSphere and SSO references.
+The historical seed-1234 control used a different source manifest, so it is
+not silently reused as a strictly source-matched control. The five new runs
+share one frozen snapshot and introduce no production algorithm changes.
+Array **`4419145_0-4`** was submitted on 2026-11-10, capped at two GPUs with
+checkpoints disabled. All five completed successfully; results checked on
+2026-11-12 are reported at the top of this page.
+[Protocol, job mapping and predeclared analysis](cluster_lmo_confirmation_1b_20261110.md).
+
+Report unfavorable outcomes as well as favorable ones. Following the now
+completed radial 3B batch, keep larger widths, broad gap sweeps and unrelated
+3B expansion deferred; the completed controls now prioritize step attenuation
+over the ambient switch. A common larger fixed validation
+set would help resolve small differences, but old checkpoints are unavailable
+for retrospective re-evaluation. Do not count queued tests as completed
+results or treat two seeds as a significance test.
 
 <a id="ledger"></a>
 
@@ -281,7 +545,11 @@ re-evaluation. Do not count queued tests as completed results.
 | Paired 1B replication, seed 1234, eval20 | 2 | [JSON](../results/cluster_followup_1b_20261101/paired_final_20261102.json) |
 | Mechanism/scale 1B follow-ups, seed 2345, eval20 | 4 | [JSON](../results/cluster_mechanism_scales_1b_20261102/final_20261104.json), [analysis](cluster_mechanism_scales_1b_20261102.md) |
 | LMO rank/shape 1B follow-ups, seed 2345, eval20 | 2 | [JSON](../results/cluster_lmo_shape_1b_20261104/final_20261105.json), [analysis](cluster_lmo_shape_1b_20261104.md) |
-| **Total completed** | **38** | Deduplicated by Slurm Job ID; failed jobs and smokes excluded |
+| Matched confirmation 1B, seed 1234, eval20 | 5 | [Collected results](../results/cluster_lmo_confirmation_1b_20261110/confirmation_results_20261112.json), [analysis](cluster_lmo_confirmation_1b_20261110.md) |
+| Exact ambient-radial 3B, seed2345, eval20 | 3 | [Final results](../results/direct_ambient_radial_3b_20261113/final_summary_20261116.json), [analysis](direct_ambient_radial_3b_20261113.md) |
+| Warm ambient-radial 3B, seed2345, eval20 | 1 | [Final result](../results/warm_ambient_radial_3b_20261116/final_summary_20261117.json), [analysis](direct_ambient_radial_3b_20261113.md#latest-warm-k10-completed-november-17) |
+| Warm matched controls 3B, seed2345, eval20 | 2 | [Final results](../results/warm_radial_controls_3b_20261117/final_summary_20261118.json), [analysis](warm_radial_controls_3b_20261117.md) |
+| **Total completed** | **49** | Deduplicated by Slurm Job ID; failed jobs, smokes and short ELR branches excluded |
 
 <details>
 <summary>All earlier 1B endpoints, including unfavorable outcomes</summary>

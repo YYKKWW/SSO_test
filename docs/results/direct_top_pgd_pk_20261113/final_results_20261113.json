@@ -1,0 +1,824 @@
+{
+  "checked_at": "2026-11-13T17:12:25+08:00",
+  "batch": "4428745",
+  "shared_config": {
+    "SEED": "2345",
+    "WIDTH": "256",
+    "NUM_LAYERS": "28",
+    "HEAD_DIM": "128",
+    "SEQ_LENGTH": "4096",
+    "GLOBAL_BATCH": "128",
+    "MICRO_BATCH": "4",
+    "TRAIN_ITER": "191",
+    "LR": "1.5e-2",
+    "MIN_LR": "1.5e-3",
+    "LR_WARMUP_ITERS": "25",
+    "LR_DECAY_ITERS": "191",
+    "EVAL_INTERVAL": "50",
+    "EVAL_ITERS": "20",
+    "TRAIN_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/train/olmo_mix_1124_3b_train_text_document",
+    "VALID_DATA_PREFIX": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_3b/indexed/valid/olmo_mix_1124_3b_valid_text_document",
+    "TOKENIZER_MODEL": "/home/u3013198/projects/SSO_test/data/olmo_mix_1124_1b/tokenizer/OLMo-2-1124-7B"
+  },
+  "rows": [
+    {
+      "job": "4428745_0",
+      "method": "MCSD-TP control",
+      "accounting": {
+        "JobID": "4428745_0",
+        "State": "COMPLETED",
+        "Elapsed": "00:59:50",
+        "Start": "2026-11-13T02:49:14",
+        "End": "2026-11-13T03:49:04",
+        "ExitCode": "0:0"
+      },
+      "validation": {
+        "50": 6.516366,
+        "100": 5.628499,
+        "150": 5.104277,
+        "191": 4.922614
+      },
+      "final_loss": 4.922614,
+      "main_wall_seconds": 3417,
+      "health": {
+        "skipped": {
+          "reports": 20,
+          "maximum": 0
+        },
+        "nan": {
+          "reports": 20,
+          "maximum": 0
+        }
+      },
+      "cuda_test_counts": [
+        9,
+        9,
+        8
+      ],
+      "complete": true,
+      "seed": "2345",
+      "lr": "1.5e-2",
+      "eval_iters": "20",
+      "stats": {
+        "method": "none",
+        "solver": "exact",
+        "window": 0.0002,
+        "geometry_precision": "fp32_highest",
+        "lmo_precision": "bf16_ns8",
+        "counts": {
+          "full_svd": 48132,
+          "bootstrap_solves": 252,
+          "updates": 47880,
+          "trial_solves": 47880,
+          "near": 3709,
+          "censored_window": 0,
+          "window_gt4": 0,
+          "window_gt8": 0,
+          "kernel_accepted": 0,
+          "repair_calls": 0,
+          "near_repeats": 1358,
+          "pgd_calls": 0,
+          "pgd_zero_d0_reference": 0,
+          "pgd_repeats": 0,
+          "projection_clipped_total": 0,
+          "pgd_returned_plateau": 0
+        },
+        "sums": {
+          "trial_length": 4862.278906830868,
+          "returned_length": 4819.325072856682,
+          "radial_length": 530.0946539834304,
+          "model_error": 2.235071575211877,
+          "momentum_trial": -5.447106404845854,
+          "momentum_returned": -5.369713852804907,
+          "d0_trial_length": 4862.278892246344,
+          "correction_length": 0.0,
+          "correction_ratio": 0.0,
+          "direction_ratio": 47880.0,
+          "near_d0_trial_length": 163.91124039310452,
+          "near_correction_length": 0.0,
+          "near_correction_ratio": 0.0,
+          "near_direction_ratio": 3709.0,
+          "near_trial_length": 163.9112401198486,
+          "near_returned_length": 163.0397840346039,
+          "near_radial_length": 22.735759343476015,
+          "near_momentum_trial": -0.23340803070789207,
+          "near_momentum_returned": -0.23060368979611212
+        },
+        "q_hist": {
+          "1": 44171,
+          "2": 3363,
+          "3": 342,
+          "4": 4
+        },
+        "study": "direct_top_pgd_pk",
+        "d0": "mcsd_tp_bf16_ns8",
+        "near_counter": "window eligibility, including the uncorrected control",
+        "post_correction_rescaling": false,
+        "seed": 2345,
+        "pgd_normalization": "frobenius_before_projection",
+        "pgd_trial_length_ratio": 0.0,
+        "pgd_length_reference": "current MCSD-TP D0 before return",
+        "zero_d0_reference": "sqrt(min(matrix shape)) if D0 norm <= 1e-12",
+        "return_rule": "full_svd_projection_on_pgd_else_radial",
+        "old_radial_length_field": "general return correction, including PGD",
+        "successful_training": true,
+        "snapshots": 24
+      },
+      "metrics": {
+        "near_percent": 7.746449456975773,
+        "repair_percent": 0.0,
+        "pgd_percent": 0.0,
+        "near_repeat_percent": 36.61364249123753,
+        "pgd_repeat_percent": null,
+        "pgd_plateau_percent": null,
+        "mean_trial": 0.10155135561467979,
+        "mean_returned": 0.10065424128773354,
+        "near_trial": 0.04419283907248547,
+        "near_returned": 0.04395788191820003,
+        "near_length_retained": 0.9946833659204366,
+        "near_direction_ratio": 1.0,
+        "mean_model_error_near": 0.0006026075964442914,
+        "top4_percent_near": 0.0,
+        "top8_percent_near": 0.0,
+        "max_q": 4
+      },
+      "audit_summary": [
+        {
+          "mode": "none",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.08263489484358838,
+          "mean_returned_length": 0.08169504086617682,
+          "near_mean_returned_length": 0.09983813139324438,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 0,
+          "max_radius_error": 3.397282455352979e-14
+        },
+        {
+          "mode": "finite_step",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.08263316493895198,
+          "mean_returned_length": 0.08176049777183966,
+          "near_mean_returned_length": 0.10001268314167865,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 0,
+          "max_radius_error": 3.1530333899354446e-14
+        },
+        {
+          "mode": "pgd_half",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.06387179329400103,
+          "mean_returned_length": 0.06301862510247212,
+          "near_mean_returned_length": 0.050034356023365194,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 1,
+          "max_radius_error": 8.681944052568724e-14
+        },
+        {
+          "mode": "pgd_full",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.08263489484358838,
+          "mean_returned_length": 0.08178111541352401,
+          "near_mean_returned_length": 0.10006766351950354,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 1,
+          "max_clipped": 2,
+          "max_radius_error": 1.1035616864774056e-13
+        }
+      ],
+      "delta_vs_control": 0.0
+    },
+    {
+      "job": "4428745_1",
+      "method": "Finite-step repair",
+      "accounting": {
+        "JobID": "4428745_1",
+        "State": "COMPLETED",
+        "Elapsed": "01:00:05",
+        "Start": "2026-11-13T03:32:02",
+        "End": "2026-11-13T04:32:07",
+        "ExitCode": "0:0"
+      },
+      "validation": {
+        "50": 6.472855,
+        "100": 5.596349,
+        "150": 5.093357,
+        "191": 4.915827
+      },
+      "final_loss": 4.915827,
+      "main_wall_seconds": 3457,
+      "health": {
+        "skipped": {
+          "reports": 20,
+          "maximum": 0
+        },
+        "nan": {
+          "reports": 20,
+          "maximum": 0
+        }
+      },
+      "cuda_test_counts": [
+        9,
+        9,
+        8
+      ],
+      "complete": true,
+      "seed": "2345",
+      "lr": "1.5e-2",
+      "eval_iters": "20",
+      "stats": {
+        "method": "finite_step",
+        "solver": "exact",
+        "window": 0.0002,
+        "geometry_precision": "fp32_highest",
+        "lmo_precision": "bf16_ns8",
+        "counts": {
+          "full_svd": 48132,
+          "bootstrap_solves": 252,
+          "updates": 47880,
+          "trial_solves": 47880,
+          "near": 6411,
+          "censored_window": 0,
+          "window_gt4": 795,
+          "window_gt8": 0,
+          "kernel_accepted": 0,
+          "repair_calls": 6411,
+          "near_repeats": 3612,
+          "pgd_calls": 0,
+          "pgd_zero_d0_reference": 0,
+          "pgd_repeats": 0,
+          "projection_clipped_total": 0,
+          "pgd_returned_plateau": 0
+        },
+        "sums": {
+          "trial_length": 4870.546064187098,
+          "returned_length": 4827.786758003304,
+          "radial_length": 519.7630458213491,
+          "model_error": 0.0005221715928299183,
+          "momentum_trial": -5.495644001187102,
+          "momentum_returned": -5.418213567869415,
+          "d0_trial_length": 4870.590805333695,
+          "correction_length": 4.027691803550596,
+          "correction_ratio": 97.82556518167006,
+          "direction_ratio": 47878.9026742205,
+          "near_d0_trial_length": 253.63310398759333,
+          "near_correction_length": 4.027691803550596,
+          "near_correction_ratio": 97.82556518167006,
+          "near_direction_ratio": 6409.902674220682,
+          "near_trial_length": 253.5883480613138,
+          "near_returned_length": 252.66362543894303,
+          "near_radial_length": 12.038218083072948,
+          "near_momentum_trial": -0.3276067996910115,
+          "near_momentum_returned": -0.3259145189223318
+        },
+        "q_hist": {
+          "1": 41469,
+          "2": 3734,
+          "3": 1216,
+          "4": 666,
+          "5": 632,
+          "6": 162,
+          "7": 1
+        },
+        "study": "direct_top_pgd_pk",
+        "d0": "mcsd_tp_bf16_ns8",
+        "near_counter": "window eligibility, including the uncorrected control",
+        "post_correction_rescaling": false,
+        "seed": 2345,
+        "pgd_normalization": "frobenius_before_projection",
+        "pgd_trial_length_ratio": 0.0,
+        "pgd_length_reference": "current MCSD-TP D0 before return",
+        "zero_d0_reference": "sqrt(min(matrix shape)) if D0 norm <= 1e-12",
+        "return_rule": "full_svd_projection_on_pgd_else_radial",
+        "old_radial_length_field": "general return correction, including PGD",
+        "successful_training": true,
+        "snapshots": 24
+      },
+      "metrics": {
+        "near_percent": 13.389724310776943,
+        "repair_percent": 13.389724310776943,
+        "pgd_percent": 0.0,
+        "near_repeat_percent": 56.34066448291998,
+        "pgd_repeat_percent": null,
+        "pgd_plateau_percent": null,
+        "mean_trial": 0.1017240197198642,
+        "mean_returned": 0.10083096821226617,
+        "near_trial": 0.03955519389507313,
+        "near_returned": 0.03941095389782297,
+        "near_length_retained": 0.9963534498748058,
+        "near_direction_ratio": 0.9998288370333305,
+        "mean_model_error_near": 8.144932036030546e-08,
+        "top4_percent_near": 12.400561534861955,
+        "top8_percent_near": 0.0,
+        "max_q": 7
+      },
+      "audit_summary": [
+        {
+          "mode": "none",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.082131621268137,
+          "mean_returned_length": 0.08070055502646688,
+          "near_mean_returned_length": 0.09743315047016694,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 0,
+          "max_radius_error": 3.730349362740526e-14
+        },
+        {
+          "mode": "finite_step",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.08213035497117023,
+          "mean_returned_length": 0.0807663232398698,
+          "near_mean_returned_length": 0.09760853237257477,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 0,
+          "max_radius_error": 3.730349362740526e-14
+        },
+        {
+          "mode": "pgd_half",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.06382019817508329,
+          "mean_returned_length": 0.06247447002293255,
+          "near_mean_returned_length": 0.048830257127408766,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 1,
+          "max_clipped": 2,
+          "max_radius_error": 1.509903313490213e-13
+        },
+        {
+          "mode": "pgd_full",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.08213162126813701,
+          "mean_returned_length": 0.08078572540248363,
+          "near_mean_returned_length": 0.09766027147287833,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 2,
+          "max_clipped": 2,
+          "max_radius_error": 1.1746159600534156e-13
+        }
+      ],
+      "delta_vs_control": -0.0067870000000000985
+    },
+    {
+      "job": "4428745_2",
+      "method": "MCSD-TP-PGD rho=0.5",
+      "accounting": {
+        "JobID": "4428745_2",
+        "State": "COMPLETED",
+        "Elapsed": "00:59:51",
+        "Start": "2026-11-13T03:49:10",
+        "End": "2026-11-13T04:49:01",
+        "ExitCode": "0:0"
+      },
+      "validation": {
+        "50": 6.566698,
+        "100": 5.836784,
+        "150": 5.383227,
+        "191": 5.210238
+      },
+      "final_loss": 5.210238,
+      "main_wall_seconds": 3458,
+      "health": {
+        "skipped": {
+          "reports": 20,
+          "maximum": 0
+        },
+        "nan": {
+          "reports": 20,
+          "maximum": 0
+        }
+      },
+      "cuda_test_counts": [
+        9,
+        9,
+        8
+      ],
+      "complete": true,
+      "seed": "2345",
+      "lr": "1.5e-2",
+      "eval_iters": "20",
+      "stats": {
+        "method": "pgd_half",
+        "solver": "exact",
+        "window": 0.0002,
+        "geometry_precision": "fp32_highest",
+        "lmo_precision": "bf16_ns8",
+        "counts": {
+          "full_svd": 48132,
+          "bootstrap_solves": 252,
+          "updates": 47880,
+          "trial_solves": 47880,
+          "near": 12986,
+          "censored_window": 0,
+          "window_gt4": 1106,
+          "window_gt8": 0,
+          "kernel_accepted": 0,
+          "repair_calls": 0,
+          "near_repeats": 7962,
+          "pgd_calls": 12986,
+          "pgd_zero_d0_reference": 0,
+          "pgd_repeats": 7962,
+          "projection_clipped_total": 31970,
+          "pgd_returned_plateau": 10942
+        },
+        "sums": {
+          "trial_length": 4365.821938767441,
+          "returned_length": 4326.828656218326,
+          "radial_length": 458.1766161732604,
+          "model_error": 23.28911786973426,
+          "momentum_trial": -6.107728401220996,
+          "momentum_returned": -6.015121494412185,
+          "d0_trial_length": 4836.542763215167,
+          "correction_length": 890.5688907741344,
+          "correction_ratio": 11859.162323471157,
+          "direction_ratio": 41386.99999692514,
+          "near_d0_trial_length": 941.4416784940043,
+          "near_correction_length": 890.5688907741344,
+          "near_correction_ratio": 11859.162323471157,
+          "near_direction_ratio": 6492.9999969248875,
+          "near_trial_length": 470.72083993256103,
+          "near_returned_length": 467.1202369740644,
+          "near_radial_length": 33.619946837931856,
+          "near_momentum_trial": -2.311781257871189,
+          "near_momentum_returned": -2.278926017720096,
+          "pgd_trial_length": 470.72083993256103,
+          "pgd_returned_length": 467.1202369740644,
+          "pgd_radial_length": 33.619946837931856,
+          "pgd_momentum_trial": -2.311781257871189,
+          "pgd_momentum_returned": -2.278926017720096
+        },
+        "q_hist": {
+          "1": 34894,
+          "2": 5743,
+          "3": 4132,
+          "4": 2005,
+          "5": 669,
+          "6": 333,
+          "7": 86,
+          "8": 18
+        },
+        "study": "direct_top_pgd_pk",
+        "d0": "mcsd_tp_bf16_ns8",
+        "near_counter": "window eligibility, including the uncorrected control",
+        "post_correction_rescaling": false,
+        "seed": 2345,
+        "pgd_normalization": "frobenius_before_projection",
+        "pgd_trial_length_ratio": 0.5,
+        "pgd_length_reference": "current MCSD-TP D0 before return",
+        "zero_d0_reference": "sqrt(min(matrix shape)) if D0 norm <= 1e-12",
+        "return_rule": "full_svd_projection_on_pgd_else_radial",
+        "old_radial_length_field": "general return correction, including PGD",
+        "successful_training": true,
+        "snapshots": 24
+      },
+      "metrics": {
+        "near_percent": 27.121971595655808,
+        "repair_percent": 0.0,
+        "pgd_percent": 27.121971595655808,
+        "near_repeat_percent": 61.31218235022332,
+        "pgd_repeat_percent": 61.31218235022332,
+        "pgd_plateau_percent": 84.25997227783768,
+        "mean_trial": 0.09118258017475858,
+        "mean_returned": 0.09036818413154397,
+        "near_trial": 0.036248332044706684,
+        "near_returned": 0.03597106398999418,
+        "near_length_retained": 0.9923508741210343,
+        "near_direction_ratio": 0.49999999976319787,
+        "mean_model_error_near": 0.0017934019613225212,
+        "top4_percent_near": 8.516864315416603,
+        "top8_percent_near": 0.0,
+        "max_q": 8
+      },
+      "audit_summary": [
+        {
+          "mode": "none",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.06111647065307585,
+          "mean_returned_length": 0.06075850894577835,
+          "near_mean_returned_length": 0.04190053592868865,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 0,
+          "max_radius_error": 3.1530333899354446e-14
+        },
+        {
+          "mode": "finite_step",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.06111646803831681,
+          "mean_returned_length": 0.060759070701618005,
+          "near_mean_returned_length": 0.041902033944261056,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 0,
+          "max_radius_error": 3.1530333899354446e-14
+        },
+        {
+          "mode": "pgd_half",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.0532593408569892,
+          "mean_returned_length": 0.05290240226670606,
+          "near_mean_returned_length": 0.020950918117829214,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 1,
+          "max_radius_error": 7.815970093361102e-14
+        },
+        {
+          "mode": "pgd_full",
+          "states": 8,
+          "near_states": 3,
+          "mean_trial_length": 0.06111647065307585,
+          "mean_returned_length": 0.06075873574666395,
+          "near_mean_returned_length": 0.041901140731050245,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 1,
+          "max_radius_error": 5.595524044110789e-14
+        }
+      ],
+      "delta_vs_control": 0.2876240000000001
+    },
+    {
+      "job": "4428745_3",
+      "method": "MCSD-TP-PGD rho=1.0",
+      "accounting": {
+        "JobID": "4428745_3",
+        "State": "COMPLETED",
+        "Elapsed": "00:59:54",
+        "Start": "2026-11-13T04:32:11",
+        "End": "2026-11-13T05:32:05",
+        "ExitCode": "0:0"
+      },
+      "validation": {
+        "50": 6.691874,
+        "100": 6.028179,
+        "150": 5.552951,
+        "191": 5.341342
+      },
+      "final_loss": 5.341342,
+      "main_wall_seconds": 3462,
+      "health": {
+        "skipped": {
+          "reports": 20,
+          "maximum": 0
+        },
+        "nan": {
+          "reports": 20,
+          "maximum": 0
+        }
+      },
+      "cuda_test_counts": [
+        9,
+        9,
+        8
+      ],
+      "complete": true,
+      "seed": "2345",
+      "lr": "1.5e-2",
+      "eval_iters": "20",
+      "stats": {
+        "method": "pgd_full",
+        "solver": "exact",
+        "window": 0.0002,
+        "geometry_precision": "fp32_highest",
+        "lmo_precision": "bf16_ns8",
+        "counts": {
+          "full_svd": 48132,
+          "bootstrap_solves": 252,
+          "updates": 47880,
+          "trial_solves": 47880,
+          "near": 14984,
+          "censored_window": 0,
+          "window_gt4": 4634,
+          "window_gt8": 684,
+          "kernel_accepted": 0,
+          "repair_calls": 0,
+          "near_repeats": 8300,
+          "pgd_calls": 14984,
+          "pgd_zero_d0_reference": 0,
+          "pgd_repeats": 8300,
+          "projection_clipped_total": 56422,
+          "pgd_returned_plateau": 14067
+        },
+        "sums": {
+          "trial_length": 4769.347893405672,
+          "returned_length": 4667.954944560841,
+          "radial_length": 699.7466774468934,
+          "model_error": 189.60366453587537,
+          "momentum_trial": -8.046119816927742,
+          "momentum_returned": -7.645385597422873,
+          "d0_trial_length": 4769.347876829842,
+          "correction_length": 1399.8037178950108,
+          "correction_ratio": 16867.14302904817,
+          "direction_ratio": 47880.0000009913,
+          "near_d0_trial_length": 1199.263076283939,
+          "near_correction_length": 1399.8037178950108,
+          "near_correction_ratio": 16867.14302904817,
+          "near_direction_ratio": 14984.000000991648,
+          "near_trial_length": 1199.263079662108,
+          "near_returned_length": 1138.09082523681,
+          "near_radial_length": 264.85924646339623,
+          "near_momentum_trial": -4.359815069888555,
+          "near_momentum_returned": -4.0299807757032795,
+          "pgd_trial_length": 1199.263079662108,
+          "pgd_returned_length": 1138.09082523681,
+          "pgd_radial_length": 264.85924646339623,
+          "pgd_momentum_trial": -4.359815069888555,
+          "pgd_momentum_returned": -4.0299807757032795
+        },
+        "q_hist": {
+          "1": 32896,
+          "2": 3776,
+          "3": 3824,
+          "4": 2750,
+          "5": 1634,
+          "6": 960,
+          "7": 717,
+          "8": 639,
+          "9": 405,
+          "10": 224,
+          "11": 50,
+          "12": 5
+        },
+        "study": "direct_top_pgd_pk",
+        "d0": "mcsd_tp_bf16_ns8",
+        "near_counter": "window eligibility, including the uncorrected control",
+        "post_correction_rescaling": false,
+        "seed": 2345,
+        "pgd_normalization": "frobenius_before_projection",
+        "pgd_trial_length_ratio": 1.0,
+        "pgd_length_reference": "current MCSD-TP D0 before return",
+        "zero_d0_reference": "sqrt(min(matrix shape)) if D0 norm <= 1e-12",
+        "return_rule": "full_svd_projection_on_pgd_else_radial",
+        "old_radial_length_field": "general return correction, including PGD",
+        "successful_training": true,
+        "snapshots": 24
+      },
+      "metrics": {
+        "near_percent": 31.294903926482874,
+        "repair_percent": 0.0,
+        "pgd_percent": 31.294903926482874,
+        "near_repeat_percent": 55.392418579818475,
+        "pgd_repeat_percent": 55.392418579818475,
+        "pgd_plateau_percent": 93.88013881473572,
+        "mean_trial": 0.0996104405473198,
+        "mean_returned": 0.09749279332833836,
+        "near_trial": 0.08003624397104299,
+        "near_returned": 0.07595373900405833,
+        "near_length_retained": 0.9489917971605251,
+        "near_direction_ratio": 1.0000000000661804,
+        "mean_model_error_near": 0.012653741626793604,
+        "top4_percent_near": 30.92632140950347,
+        "top8_percent_near": 4.564869193806727,
+        "max_q": 12
+      },
+      "audit_summary": [
+        {
+          "mode": "none",
+          "states": 8,
+          "near_states": 4,
+          "mean_trial_length": 0.07959767892438334,
+          "mean_returned_length": 0.07922427248142545,
+          "near_mean_returned_length": 0.10418090437287472,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 0,
+          "max_radius_error": 3.907985046680551e-14
+        },
+        {
+          "mode": "finite_step",
+          "states": 8,
+          "near_states": 4,
+          "mean_trial_length": 0.07958996296066714,
+          "mean_returned_length": 0.07886579288447317,
+          "near_mean_returned_length": 0.10346394517897017,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 0,
+          "max_clipped": 0,
+          "max_radius_error": 3.730349362740526e-14
+        },
+        {
+          "mode": "pgd_half",
+          "states": 8,
+          "near_states": 4,
+          "mean_trial_length": 0.05374323654023809,
+          "mean_returned_length": 0.0527621176900926,
+          "near_mean_returned_length": 0.051256594790209026,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 2,
+          "max_clipped": 4,
+          "max_radius_error": 1.1746159600534156e-13
+        },
+        {
+          "mode": "pgd_full",
+          "states": 8,
+          "near_states": 4,
+          "mean_trial_length": 0.07959767892438334,
+          "mean_returned_length": 0.07777698639588702,
+          "near_mean_returned_length": 0.10128633220179786,
+          "non_descent_momentum": 0,
+          "near_returned_plateau": 2,
+          "max_clipped": 5,
+          "max_radius_error": 1.219024881038422e-13
+        }
+      ],
+      "delta_vs_control": 0.41872799999999977
+    },
+    {
+      "job": "4428745_4",
+      "method": "MuonSphere",
+      "accounting": {
+        "JobID": "4428745_4",
+        "State": "COMPLETED",
+        "Elapsed": "00:39:58",
+        "Start": "2026-11-13T04:49:02",
+        "End": "2026-11-13T05:29:00",
+        "ExitCode": "0:0"
+      },
+      "validation": {
+        "50": 6.473329,
+        "100": 5.605504,
+        "150": 5.083833,
+        "191": 4.903361
+      },
+      "final_loss": 4.903361,
+      "main_wall_seconds": 2296,
+      "health": {
+        "skipped": {
+          "reports": 20,
+          "maximum": 0
+        },
+        "nan": {
+          "reports": 20,
+          "maximum": 0
+        }
+      },
+      "cuda_test_counts": [
+        9,
+        9,
+        8
+      ],
+      "complete": true,
+      "seed": "2345",
+      "lr": "1.5e-2",
+      "eval_iters": "20",
+      "delta_vs_control": -0.019252999999999965
+    },
+    {
+      "job": "4428745_5",
+      "method": "SSO",
+      "accounting": {
+        "JobID": "4428745_5",
+        "State": "COMPLETED",
+        "Elapsed": "00:43:48",
+        "Start": "2026-11-13T05:29:02",
+        "End": "2026-11-13T06:12:50",
+        "ExitCode": "0:0"
+      },
+      "validation": {
+        "50": 6.494344,
+        "100": 5.628458,
+        "150": 5.114617,
+        "191": 4.936409
+      },
+      "final_loss": 4.936409,
+      "main_wall_seconds": 2512,
+      "health": {
+        "skipped": {
+          "reports": 20,
+          "maximum": 0
+        },
+        "nan": {
+          "reports": 20,
+          "maximum": 0
+        }
+      },
+      "cuda_test_counts": [
+        9,
+        9,
+        8
+      ],
+      "complete": true,
+      "seed": "2345",
+      "lr": "1.5e-2",
+      "eval_iters": "20",
+      "delta_vs_control": 0.013795000000000002
+    }
+  ],
+  "timing": "Main training + validation only; Slurm elapsed also includes CUDA tests, smoke and offline replay.",
+  "note": "Counterfactual replay evaluates momentum scores, not LLM objective changes. Near/repair/PGD rates have distinct meanings."
+}

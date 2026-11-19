@@ -1,0 +1,50 @@
+{
+  "method": "finite_step",
+  "solver": "exact",
+  "window": 0.0002,
+  "geometry_precision": "fp32_highest",
+  "lmo_precision": "bf16_ns8",
+  "counts": {
+    "full_svd": 48132,
+    "bootstrap_solves": 252,
+    "updates": 47880,
+    "trial_solves": 47880,
+    "near": 6382,
+    "censored_window": 0,
+    "window_gt4": 669,
+    "window_gt8": 0,
+    "kernel_accepted": 0,
+    "repair_calls": 6382
+  },
+  "sums": {
+    "trial_length": 4873.9573246790615,
+    "returned_length": 4830.230215951617,
+    "radial_length": 522.4810301409577,
+    "model_error": 0.0004982796336696643,
+    "momentum_trial": -5.338784763042611,
+    "momentum_returned": -5.261417859210809,
+    "d0_trial_length": 4874.0000754548755,
+    "correction_length": 3.835860176057714,
+    "correction_ratio": 95.66287701655078,
+    "direction_ratio": 47878.930947558525,
+    "near_d0_trial_length": 245.75841575192914,
+    "near_correction_length": 3.835860176057714,
+    "near_correction_ratio": 95.66287701655078,
+    "near_direction_ratio": 6380.930947558702
+  },
+  "q_hist": {
+    "1": 41498,
+    "2": 3901,
+    "3": 1029,
+    "4": 783,
+    "5": 544,
+    "6": 105,
+    "7": 20
+  },
+  "study": "direct_top_repair",
+  "d0": "mcsd_tp_bf16_ns8",
+  "near_counter": "window eligibility, including the uncorrected control",
+  "post_correction_rescaling": false,
+  "successful_training": true,
+  "snapshots": 24
+}

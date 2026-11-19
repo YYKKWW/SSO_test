@@ -1,0 +1,149 @@
+{
+  "checked_date": "2026-11-12",
+  "timezone": "Asia/Shanghai",
+  "batch": "4424416",
+  "remote_root": "/home/u3013198/projects/kernel-lmo-stepmodel-100m-20261112-v2",
+  "source_manifest_sha256": "ef2a5728c83f5b6692b217e0069b779c7be955d67f3a36d9ca538a58779cf61c",
+  "width": 256,
+  "seed": 1234,
+  "training_steps": 191,
+  "processed_tokens": 100139008,
+  "evaluation_steps": [
+    50,
+    100,
+    150,
+    191
+  ],
+  "evaluation_batches": 20,
+  "provenance": "Read remotely from sacct, train.log, training_wall_seconds.txt and snapshots/pilot_statistics.json. Raw logs remain on H20; bulk archive transfer stalled and the incomplete local archive was removed.",
+  "arms": [
+    {
+      "arm": 0,
+      "method": "MCSD-TP",
+      "solver": "exact",
+      "state": "COMPLETED",
+      "slurm_seconds": 3592,
+      "training_seconds": 3451,
+      "validation": [
+        6.468626,
+        5.623314,
+        5.104645,
+        4.918329
+      ],
+      "updates": 47880,
+      "near": 0,
+      "svd": 48132,
+      "ritz": 0
+    },
+    {
+      "arm": 1,
+      "method": "A2",
+      "solver": "exact",
+      "state": "COMPLETED",
+      "slurm_seconds": 3541,
+      "training_seconds": 3416,
+      "validation": [
+        6.480133,
+        5.644739,
+        5.192223,
+        5.073903
+      ],
+      "updates": 47880,
+      "near": 14876,
+      "svd": 48132,
+      "ritz": 0
+    },
+    {
+      "arm": 2,
+      "method": "A2 input x1.5",
+      "solver": "exact",
+      "state": "COMPLETED",
+      "slurm_seconds": 3586,
+      "training_seconds": 3449,
+      "validation": [
+        6.484708,
+        5.656663,
+        5.19443,
+        5.069594
+      ],
+      "updates": 47880,
+      "near": 13196,
+      "svd": 48132,
+      "ritz": 0
+    },
+    {
+      "arm": 3,
+      "method": "Kernel-LMO theta1",
+      "solver": "exact",
+      "state": "FAILED",
+      "slurm_seconds": 838,
+      "training_seconds": 715,
+      "validation": [],
+      "updates": 10124,
+      "near": 475,
+      "svd": 10376,
+      "ritz": 0,
+      "error": "KeyError: 5 in legacy _record_update_info, before first validation"
+    },
+    {
+      "arm": 4,
+      "method": "A2",
+      "solver": "warm_block8_k10",
+      "state": "COMPLETED",
+      "slurm_seconds": 2540,
+      "training_seconds": 2436,
+      "validation": [
+        6.521814,
+        5.658011,
+        5.204269,
+        5.087419
+      ],
+      "updates": 47880,
+      "near": 14066,
+      "svd": 0,
+      "ritz": 48132
+    },
+    {
+      "arm": 5,
+      "method": "Kernel-LMO theta1",
+      "solver": "warm_block8_k10",
+      "state": "FAILED",
+      "slurm_seconds": 600,
+      "training_seconds": 507,
+      "validation": [],
+      "updates": 10196,
+      "near": 481,
+      "svd": 0,
+      "ritz": 10448,
+      "error": "KeyError: 5 in legacy _record_update_info, before first validation"
+    },
+    {
+      "arm": 6,
+      "method": "MuonSphere",
+      "solver": "reference",
+      "state": "COMPLETED",
+      "slurm_seconds": 2383,
+      "training_seconds": 2286,
+      "validation": [
+        6.485603,
+        5.63235,
+        5.105802,
+        4.919347
+      ]
+    },
+    {
+      "arm": 7,
+      "method": "SSO",
+      "solver": "reference",
+      "state": "COMPLETED",
+      "slurm_seconds": 2609,
+      "training_seconds": 2503,
+      "validation": [
+        6.45797,
+        5.627861,
+        5.112372,
+        4.927444
+      ]
+    }
+  ]
+}

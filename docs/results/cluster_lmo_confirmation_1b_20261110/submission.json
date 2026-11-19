@@ -1,0 +1,122 @@
+{
+  "array_id": "4419145",
+  "root": "/home/u3013198/projects/cluster-lmo-confirmation-1b-20261110",
+  "submitted_at": "2026-11-10T23:21:32.977761+08:00",
+  "status_at_submission": "submitted_not_yet_training",
+  "gpus_per_run": 1,
+  "concurrent_gpu_limit": 2,
+  "arms": [
+    {
+      "index": 0,
+      "name": "MCSD-TP K10 control",
+      "configuration": [
+        "2",
+        "spel_pgd_dist",
+        "control",
+        "cone",
+        "2e-3",
+        "1.0",
+        "1234",
+        "1908",
+        "20"
+      ],
+      "job": "4419145_0"
+    },
+    {
+      "index": 1,
+      "name": "Single-LMO adaptive top<=4 c0.5",
+      "configuration": [
+        "8",
+        "spel_pgd_dist",
+        "adaptive4",
+        "cone_lmo",
+        "2e-4",
+        "0.5",
+        "1234",
+        "1908",
+        "20"
+      ],
+      "job": "4419145_1"
+    },
+    {
+      "index": 2,
+      "name": "Single-LMO 25% shape blend c0.5",
+      "configuration": [
+        "11",
+        "spel_pgd_dist",
+        "adaptive4",
+        "cone_lmo_mix25",
+        "2e-4",
+        "0.5",
+        "1234",
+        "1908",
+        "20"
+      ],
+      "job": "4419145_2"
+    },
+    {
+      "index": 3,
+      "name": "MuonSphere",
+      "configuration": [
+        "0",
+        "muon_ball_dist",
+        "none",
+        "cone",
+        "2e-3",
+        "8.0",
+        "1234",
+        "1908",
+        "20"
+      ],
+      "job": "4419145_3"
+    },
+    {
+      "index": 4,
+      "name": "SSO",
+      "configuration": [
+        "1",
+        "spectral_ball_dist",
+        "none",
+        "cone",
+        "2e-3",
+        "8.0",
+        "1234",
+        "1908",
+        "20"
+      ],
+      "job": "4419145_4"
+    }
+  ],
+  "source_manifest_sha256": "494ed0399edc488f598fec88f39fb9000658d17525000f8ec8410deb5bcdb9d5",
+  "provenance": {
+    "created_at": "2026-11-10T23:13:49.540558+08:00",
+    "source_root": "/home/u3013198/projects/cluster-lmo-shape-1b-20261104",
+    "destination": "/home/u3013198/projects/cluster-lmo-confirmation-1b-20261110",
+    "source_manifest_sha256": "39eb506417f262f6e18be7848952e42a163c27b8067357926c73b3f4e58c830e",
+    "source_files_verified_and_copied": 3137,
+    "added_files": [
+      "docs/experiments/cluster_lmo_confirmation_1b_20261110.md",
+      "scripts/test_cluster_lmo_confirmation.py",
+      "slurm/cluster_lmo_confirmation_1b_20261110.sbatch"
+    ],
+    "production_files_changed": [],
+    "additions_archive_sha256": "1ff1c27d13a72f857ed3ef8f3060133c9431e2dae1a45899dd131cf45f3411f3",
+    "manifest_sha256": "494ed0399edc488f598fec88f39fb9000658d17525000f8ec8410deb5bcdb9d5"
+  },
+  "train_iterations": 1908,
+  "processed_tokens": 1000341504,
+  "seed": 1234,
+  "eval_batches": 20,
+  "local_cpu_tests_passed": 79,
+  "h20_cpu_tests_passed": 79,
+  "checkpoint": false,
+  "startup_gate": "CUDA unit tests and separate-process four-step smoke before fresh training",
+  "cuda_status": "pending allocation",
+  "reference_seed2345_jobs": [
+    "4368382_2",
+    "4375034_2",
+    "4389998_1",
+    "4368383_0",
+    "4368383_1"
+  ]
+}

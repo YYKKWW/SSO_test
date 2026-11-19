@@ -1,0 +1,26 @@
+[
+  {
+    "protocol": "certified_det",
+    "n": 90,
+    "mean_delta": 0.0016302174382540396,
+    "wins": 16,
+    "ties": 0,
+    "losses": 74
+  },
+  {
+    "protocol": "certified_ema",
+    "n": 90,
+    "mean_delta": 0.0016246117685024153,
+    "wins": 15,
+    "ties": 0,
+    "losses": 75
+  },
+  {
+    "protocol": "practical_nesterov",
+    "n": 78,
+    "mean_delta": 0.0003980577981434104,
+    "wins": 33,
+    "ties": 0,
+    "losses": 45
+  }
+]

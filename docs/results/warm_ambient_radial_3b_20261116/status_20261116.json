@@ -1,0 +1,33 @@
+{
+  "checked_utc": "2026-11-16T05:47:15.647656+00:00",
+  "job_id": "4442918_2",
+  "queue": "             JOBID           NAME      STATE       TIME               NODELIST(REASON)\n           4442841 pre_all_aus_re    PENDING       0:00                   (Dependency)\n           4442840 pre_qk_aus_rep    PENDING       0:00                   (Dependency)\n           4442839 pre_none_aus_r    PENDING       0:00                   (Dependency)\n           4442838 pre_all_aus_re    PENDING       0:00                   (Dependency)\n           4442837 pre_qk_aus_rep    PENDING       0:00                   (Dependency)\n           4442836 pre_none_aus_r    PENDING       0:00                   (Dependency)\n           4442549 momentum_angle    PENDING       0:00                    (Resources)\n         4442918_2 w256_warm8k10_    RUNNING       0:06                        SPG-7-2\n           4428784 aus_control_ma    RUNNING   15:44:33                        SPG-7-1\n",
+  "job": "JobId=4442918 ArrayJobId=4442918 ArrayTaskId=2 ArrayTaskThrottle=1 JobName=w256_warm8k10_radial_half_3b UserId=u3013198(531894) GroupId=math_opt(1824) MCS_label=N/A Priority=33075 Nice=0 Account=math_opt QOS=gpu JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:06 TimeLimit=2-00:00:00 TimeMin=N/A SubmitTime=2026-11-16T13:42:12 EligibleTime=2026-11-16T13:42:21 AccrueTime=2026-11-16T13:42:21 StartTime=2026-11-16T13:47:09 EndTime=2026-11-18T13:47:09 Deadline=N/A PreemptEligibleTime=2026-11-16T14:47:09 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-11-16T13:47:09 Scheduler=Main Partition=c_math_gpu AllocNode:Sid=hpc2021:4031891 ReqNodeList=(null) ExcNodeList=(null) NodeList=SPG-7-2 BatchHost=SPG-7-2 NumNodes=1 NumCPUs=12 NumTasks=1 CPUs/Task=12 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=12,mem=80G,node=1,billing=12,gres/gpu=1 AllocTRES=cpu=12,mem=80G,node=1,billing=12,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=12 MinMemoryNode=80G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=NO Exclusive=NO Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/home/u3013198/projects/direct-ambient-radial-warm8k10-3b-20261116/slurm/warm_ambient_radial_3b_20261116.sbatch SubmitLine=sbatch --parsable --export=ALL slurm/warm_ambient_radial_3b_20261116.sbatch WorkDir=/home/u3013198/projects/direct-ambient-radial-warm8k10-3b-20261116 StdErr=/home/u3013198/projects/direct-ambient-radial-warm8k10-3b-20261116/logs/warm_radial_3b_4442918_2.err StdIn=/dev/null StdOut=/home/u3013198/projects/direct-ambient-radial-warm8k10-3b-20261116/logs/warm_radial_3b_4442918_2.out TresPerNode=gres/gpu:nvidia_h20:1 TresPerTask=cpu=12\n",
+  "config_comparison": {
+    "reference_job": "4434107_2",
+    "changes": {
+      "KERNEL_SOLVER": {
+        "exact": "exact",
+        "warm": "warm_block8"
+      },
+      "SPEL_PGD_CLUSTER_SPECTRUM_MODE": {
+        "exact": "exact",
+        "warm": "warm_block8"
+      }
+    },
+    "ignored_output_metadata": [
+      "KERNEL_SNAPSHOT_DIR",
+      "PRETRAIN_ENTRYPOINT",
+      "data_protocol",
+      "geometry_precision",
+      "new_window_routing",
+      "processed_tokens",
+      "smoke"
+    ],
+    "other_recorded_training_fields_equal": true
+  },
+  "cuda_started": true,
+  "smoke_complete": false,
+  "main_started": false,
+  "storage": "Filesystem                   Size  Used Avail Use% Mounted on\nhpc2021-fs2:/home2/u3013198  100G   80G   21G  80% /home/u3013198\n"
+}

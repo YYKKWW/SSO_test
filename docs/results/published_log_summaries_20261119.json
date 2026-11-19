@@ -1,0 +1,274 @@
+{
+  "published_on": "2026-11-19",
+  "scope": "Compact extracts, not a new evaluation; bulk source logs remain local.",
+  "rows": [
+    {
+      "job": "4442918_2",
+      "local_log": "docs/results/warm_ambient_radial_3b_20261116/train.log",
+      "log_sha256": "4ee7dd5d847428a91d34aa6f75c99bc554e8bef4f7f331be4cd02e20a1fa23df",
+      "bytes": 1982708,
+      "validation": [
+        {
+          "step": 250,
+          "loss": 4.752597
+        },
+        {
+          "step": 500,
+          "loss": 4.186857
+        },
+        {
+          "step": 750,
+          "loss": 4.084884
+        },
+        {
+          "step": 1000,
+          "loss": 4.002032
+        },
+        {
+          "step": 1250,
+          "loss": 3.937781
+        },
+        {
+          "step": 1500,
+          "loss": 3.915532
+        },
+        {
+          "step": 1750,
+          "loss": 3.868604
+        },
+        {
+          "step": 2000,
+          "loss": 3.831728
+        },
+        {
+          "step": 2250,
+          "loss": 3.82314
+        },
+        {
+          "step": 2500,
+          "loss": 3.77442
+        },
+        {
+          "step": 2750,
+          "loss": 3.739328
+        },
+        {
+          "step": 3000,
+          "loss": 3.71176
+        },
+        {
+          "step": 3250,
+          "loss": 3.673693
+        },
+        {
+          "step": 3500,
+          "loss": 3.655288
+        },
+        {
+          "step": 3750,
+          "loss": 3.607457
+        },
+        {
+          "step": 4000,
+          "loss": 3.585044
+        },
+        {
+          "step": 4250,
+          "loss": 3.557631
+        },
+        {
+          "step": 4500,
+          "loss": 3.509275
+        },
+        {
+          "step": 4750,
+          "loss": 3.495223
+        },
+        {
+          "step": 5000,
+          "loss": 3.470299
+        },
+        {
+          "step": 5250,
+          "loss": 3.46229
+        },
+        {
+          "step": 5500,
+          "loss": 3.458169
+        },
+        {
+          "step": 5723,
+          "loss": 3.432013
+        }
+      ],
+      "final_validation": {
+        "step": 5723,
+        "loss": 3.432013
+      },
+      "health": {
+        "max_reported_nan": 0,
+        "max_reported_skipped": 0
+      }
+    },
+    {
+      "job": "4427402_0",
+      "local_log": "docs/results/direct_top_repair_20261112/h20/results/4427402_0/train.log",
+      "log_sha256": "9d1623273ceeab21d2e91be89774859f2e6b20b2a9c96746d9cfeca61cbc89aa",
+      "bytes": 144384,
+      "validation": [
+        {
+          "step": 50,
+          "loss": 6.468626
+        },
+        {
+          "step": 100,
+          "loss": 5.623314
+        },
+        {
+          "step": 150,
+          "loss": 5.104645
+        },
+        {
+          "step": 191,
+          "loss": 4.918329
+        }
+      ],
+      "final_validation": {
+        "step": 191,
+        "loss": 4.918329
+      },
+      "health": {
+        "max_reported_nan": 0,
+        "max_reported_skipped": 0
+      }
+    },
+    {
+      "job": "4427402_1",
+      "local_log": "docs/results/direct_top_repair_20261112/h20/results/4427402_1/train.log",
+      "log_sha256": "8972744089d428c5f3748ff37a91dede041e75eb6b2e8c3da05741ae2e46e523",
+      "bytes": 146150,
+      "validation": [
+        {
+          "step": 50,
+          "loss": 6.465553
+        },
+        {
+          "step": 100,
+          "loss": 5.62409
+        },
+        {
+          "step": 150,
+          "loss": 5.105925
+        },
+        {
+          "step": 191,
+          "loss": 4.918715
+        }
+      ],
+      "final_validation": {
+        "step": 191,
+        "loss": 4.918715
+      },
+      "health": {
+        "max_reported_nan": 0,
+        "max_reported_skipped": 0
+      }
+    },
+    {
+      "job": "4427402_2",
+      "local_log": "docs/results/direct_top_repair_20261112/h20/results/4427402_2/train.log",
+      "log_sha256": "0038d5e4fd008fd5bb40b03fe9dc80d9ad2d58071ac5a78553c87339251d8c83",
+      "bytes": 146353,
+      "validation": [
+        {
+          "step": 50,
+          "loss": 6.474305
+        },
+        {
+          "step": 100,
+          "loss": 5.63293
+        },
+        {
+          "step": 150,
+          "loss": 5.09916
+        },
+        {
+          "step": 191,
+          "loss": 4.912478
+        }
+      ],
+      "final_validation": {
+        "step": 191,
+        "loss": 4.912478
+      },
+      "health": {
+        "max_reported_nan": 0,
+        "max_reported_skipped": 0
+      }
+    },
+    {
+      "job": "4426353_3",
+      "local_log": "docs/results/kernel_lmo_h20_20261112/final_4426353/exact/train.log",
+      "log_sha256": "8f6173d1c03410d065acefeca09b7f170318906f208bf8957ae05445edf28219",
+      "bytes": 136901,
+      "validation": [
+        {
+          "step": 50,
+          "loss": 6.481397
+        },
+        {
+          "step": 100,
+          "loss": 5.659883
+        },
+        {
+          "step": 150,
+          "loss": 5.203477
+        },
+        {
+          "step": 191,
+          "loss": 5.078964
+        }
+      ],
+      "final_validation": {
+        "step": 191,
+        "loss": 5.078964
+      },
+      "health": {
+        "max_reported_nan": 0,
+        "max_reported_skipped": 0
+      }
+    },
+    {
+      "job": "4426353_5",
+      "local_log": "docs/results/kernel_lmo_h20_20261112/final_4426353/warm/train.log",
+      "log_sha256": "6f617f36a5b79d4ca33ee0f6a9f2bd06bc283f2004df1f21a9960c7acef168a9",
+      "bytes": 141942,
+      "validation": [
+        {
+          "step": 50,
+          "loss": 6.512057
+        },
+        {
+          "step": 100,
+          "loss": 5.663931
+        },
+        {
+          "step": 150,
+          "loss": 5.205884
+        },
+        {
+          "step": 191,
+          "loss": 5.082469
+        }
+      ],
+      "final_validation": {
+        "step": 191,
+        "loss": 5.082469
+      },
+      "health": {
+        "max_reported_nan": 0,
+        "max_reported_skipped": 0
+      }
+    }
+  ]
+}
