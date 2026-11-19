@@ -5,6 +5,7 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
 [Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
 [Latest 3B comparison](docs/experiments/warm_radial_controls_3b_20261117.md) ·
+[Spectral ELR confirmation](docs/experiments/spectral_elr_confirmation_20261119.md) ·
 [Algorithms](docs/algorithms/current_comparison_pseudocode.md) ·
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
@@ -14,7 +15,20 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 > submitted in this update. Short pilots and local toy problems are reported
 > separately. This is a research branch, not a frozen paper release.
 
-## Latest Result: Near-Region Step Attenuation
+## Latest Mechanism Study: Actual Step Control
+
+All **13 width-256, 32-update** ELR confirmation arms completed. MCSD-TP with
+AUS calibration and a uniform 0.95 coefficient reached **4.550776**, versus
+4.561753 with local-output matching and 4.578351 for the common-return
+MuonSphere reference. Uncapped spectral matching degraded SSO/MCSD-TP;
+AUS/output caps recovered most of the loss. Missing attenuated Muon controls
+and later-checkpoint replication prevent a direction-superiority claim.
+These short interventions are separate from the 1B/3B results below.
+
+[Full table, curves, angle diagnostics and next tests](docs/experiments/spectral_elr_confirmation_20261119.md) ·
+[Numerical record](docs/results/spectral_elr_confirmation_20261119/summary.json)
+
+## Latest 3B Result: Near-Region Step Attenuation
 
 **Width 256 · 28 layers · 3B processed tokens · seed 2345 · LR 0.015 · eval20.**
 The fresh matched pair completed 5723 iterations with no logged NaN/skipped

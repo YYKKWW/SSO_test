@@ -1,0 +1,18 @@
+{
+  "analysis_date": "2026-11-19",
+  "completed_date": "2026-11-18",
+  "array": "4464129",
+  "remote_project": "spectral-elr-confirm-w256-20261118-v1",
+  "frozen_overlay_sha256": "32dea01a632ab865499f4e0b3986de3976a38d61476a1c9783832c7dbb55cf77",
+  "accounting": [
+    {"job": "4464129_0", "state": "COMPLETED", "elapsed": "02:20:06", "exit_code": "0:0", "node": "SPG-7-2"},
+    {"job": "4464129_1", "state": "COMPLETED", "elapsed": "07:13:47", "exit_code": "0:0", "node": "SPG-7-1"}
+  ],
+  "cuda_tests_per_lane": {"geometry": 8, "output": 5, "confirmation": 3, "all_passed": true},
+  "fresh_evaluation_check": {"old_token_hashes": 5, "new_token_hashes": 21, "overlap": 0},
+  "negative_control": "Each lane: two labels, three updates, identical component hashes and heldout results",
+  "source_log_hashes": "summary.json: source_sha256",
+  "uploaded": "Aggregated metrics, per-step/per-microbatch results, figures and analysis scripts only",
+  "not_uploaded": "Checkpoints, raw activation/matrix tensors and complete training logs",
+  "new_jobs_submitted_by_results_update": false
+}
