@@ -5,17 +5,70 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
 [Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
 [Latest 3B comparison](docs/experiments/warm_radial_controls_3b_20261117.md) ·
+[Latest budget controls](docs/experiments/p2gd_budget_matching_20261120.md) ·
+[Returned-step replay](docs/experiments/p2gd_returned_elr_replay_20261119.md) ·
 [Spectral ELR confirmation](docs/experiments/spectral_elr_confirmation_20261119.md) ·
 [Algorithms](docs/algorithms/current_comparison_pseudocode.md) ·
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
 
-> **Checked November 19, 2026, 15:05 HKT:** 49 completed width-256 runs in
-> the current 1B/3B ledger. The account queue is empty. No new jobs were
-> submitted in this update. Short pilots and local toy problems are reported
-> separately. This is a research branch, not a frozen paper release.
+> **Checked November 21, 2026:** 49 completed width-256 runs in
+> the current 1B/3B ledger, unchanged by the two new short replays. Both spectral
+> replay jobs are complete. Four separate Frobenius-band jobs are running;
+> their results are not pooled here. No new jobs were submitted in this update.
+> This is a research branch, not a frozen paper release.
 
-## Latest Mechanism Study: Actual Step Control
+## Latest Result: Budget Matching Changes the Comparison
+
+The follow-up **16-update / 15-candidate** budget replay completed in **16:30**
+on one H20. These are counterfactuals on one common trajectory, not 15 training
+runs. Each loss difference is against half-D0 at the same returned budget:
+
+| Direction | Matched spectral ELR, 100% | Matched local output, 100% |
+|---|---:|---:|
+| Finite D0 repair | +0.000081403 | -0.000000290 |
+| Cluster-cone momentum | -0.000886338 | -0.000114720 |
+| Finite-momentum repair | **-0.000898480** | -0.000100044 |
+
+Negative is better. Both momentum-cone variants win **7/7 informative steps**
+under spectral matching, but make only **0.34x the independent-input output
+movement** and **0.13x the AUS** of half-D0. Under output matching, the gain
+shrinks and spectral movement rises to 2.93x. The finite-D0 signal does not
+survive equal spectral movement. FP32 matching also leaves up to 6.33% budget
+error after BF16 rounding in the spectral case.
+
+**Decision:** retain momentum-cone directions for a short controlled test;
+do not yet claim a P2GD geometric benefit. Add spectral-matched ambient/top-1
+and output-attenuated half-D0 controls at a later checkpoint before long runs.
+
+[Full results, precision audit, figure and six-way next test](docs/experiments/p2gd_budget_matching_20261120.md) ·
+[Verified numerical record](docs/results/p2gd_budget_20261120/h20_summary.json)
+
+## Earlier Replay: Equal AUS Leaves Unequal Movement
+
+The new **16-update same-state replay** completed on one H20 in **12:47**.
+Eight counterfactual directions share one MCSD-TP/near-half trajectory;
+they are not eight independent training runs. Only **seven steps / 12 matrix
+components** enter the near region, all with numerical cluster size two.
+
+| Candidate at matched returned AUS | Mean held-out loss difference from half-D0 | Better / worse steps |
+|---|---:|---:|
+| Ambient momentum | +0.002099895 | 0 / 7 |
+| Cluster-cone momentum | +0.002107545 | 0 / 7 |
+| Gap-preserving momentum repair | +0.002112242 | 0 / 7 |
+| **Gap-preserving D0 repair** | **-0.000012626** | **6 / 1** |
+
+**Interpretation at this stage:** the momentum family makes about **8.4x** larger spectral
+and **2.9x** larger local-output moves despite equal AUS. Finite-D0 repair
+has a tiny favorable signal but also **5.6% smaller spectral movement**.
+Neither result isolates a geometric benefit. The completed budget controls
+above address the next amplitude question; do not pool absolute losses across
+the two evaluation sets or count the repeated states as new independent cases.
+
+[All eight directions, raw numerical records, figure and next tests](docs/experiments/p2gd_returned_elr_replay_20261119.md) ·
+[Verified H20 summary](docs/results/returned_step_repair_20261119/h20_summary.json)
+
+## Earlier 32-Step Confirmation: Actual Step Control
 
 All **13 width-256, 32-update** ELR confirmation arms completed. MCSD-TP with
 AUS calibration and a uniform 0.95 coefficient reached **4.550776**, versus
@@ -69,7 +122,9 @@ single-seed comparisons, not evidence of consistent superiority.
 | 25% shape blend | Best selected seed-2345 1B endpoint; extra gain does not repeat at seed1234 | Do not claim a confirmed blend advantage |
 | Ambient-radial switch | Exact half-step slightly helps; warm variant loses to matched control | Keep as a reference, not the leading candidate |
 | A2 / K-LMO and full-projection PGD pilots | Current 100M settings underperform | Do not extend these settings to long runs |
-| Anchored cone-face + radial | Local algebra/complete-return checks; conditional theory | Research candidate only, no LLM result yet |
+| Finite D0 repair + radial | Tiny AUS signal disappears at equal spectral movement | Do not prioritize long training |
+| Momentum-cone + radial | Positive same-state spectral-budget result; much lower output movement | Add ambient/top-1 and output-attenuated controls |
+| Anchored cone-face + radial | Local algebra checks; matched-AUS LLM replay does not improve over half-D0 on average | Research candidate, not a demonstrated LLM improvement |
 
 [Complete favorable and unfavorable results](docs/experiments/mcsd_p2gd_results_summary.md) ·
 [1B second-seed confirmation](docs/experiments/cluster_lmo_confirmation_1b_20261110.md)
@@ -90,14 +145,21 @@ not automatically satisfied by fixed-K10 training.
 
 ## Next Tests, Not Submitted
 
-1. Same-state short LLM loss replay: D0, half-D0, ambient-half, complete cone,
-   anchored cone and finite-step correction, with matched realized lengths.
-2. One missing 3B **all-step matrix-only half-D0** arm at seed2345. Preserve
-   the AdamW learning rate; do not halve the global LR flag.
-3. Replicate control versus near-half at seed1234 with the current source.
+1. Later-checkpoint same-state replay: half-D0, output-attenuated half-D0,
+   and spectral-matched ambient / top-1 / cluster-cone / finite-momentum.
+   Determine whether correction improves over both direction and scale controls.
+2. For a surviving candidate only, run a 32-step independent branch comparison,
+   then check warm-block implementation error and cost.
+3. Add the missing **MuonSphere coefficient 0.985 / 0.95** short controls to
+   the earlier 32-step study. Retain SSO/MCSD/MCSD-TP references.
+
+After these short checks, the open 3B controls are **all-step matrix-only
+half-D0** and a second-seed control/near-half pair. Preserve the AdamW
+learning rate; do not halve the global LR flag. No new long jobs are queued.
 
 Only promote a new cone direction after a matched loss probe. Keep width256,
-K10, gap2e-4 and the data/evaluation protocol fixed; defer wider gap grids,
+gap2e-4 and the data/evaluation protocol fixed; use exact spectra for the short
+geometry oracle and K10 for subsequent warm implementation checks. Defer wider gap grids,
 larger widths and 12B expansion. See the [predeclared comparisons](docs/experiments/mcsd_p2gd_results_summary.md#next).
 
 ## Implementation and Reproduction
@@ -123,9 +185,11 @@ matrix snapshots and bulk raw-log archives remain outside Git. Some collectors
 require these local archives; the published JSON is sufficient to inspect the
 reported comparisons, not to reconstruct missing model checkpoints.
 
-Publication checks on November19: 80 local CPU unit tests passed, the 324
-anchored-face algebra cases reran successfully, and linked evidence/code
-was checked for existence and JSON/Python syntax. No new CUDA training ran.
+Publication checks on November21: 18 related CPU unit tests passed, both H20
+summaries reproduced exactly from the published JSONL records, and the raw
+records plus completion records match the remote SHA256 checksums.
+The earlier November19 checks (80 CPU tests and 324 anchored-face algebra
+cases) remain recorded separately; no new CUDA training ran in this update.
 
 ## Attribution
 

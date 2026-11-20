@@ -1,0 +1,90 @@
+{
+  "updates": 16,
+  "width": 256,
+  "seed": 1234,
+  "matching": "own-state half-D0 AUS",
+  "directions": [
+    "half_d0",
+    "ambient",
+    "top1",
+    "cluster_cone",
+    "finite_momentum",
+    "anchored_momentum",
+    "finite_d0",
+    "anchored_d0"
+  ],
+  "near_components": 12,
+  "max_cluster_dimension": 2,
+  "top4_overflow": 0,
+  "additional_training_tokens": 8388608,
+  "heldout_microbatches": 20,
+  "checkpoint_unchanged": true,
+  "summaries": [
+    {
+      "method": "half_d0",
+      "informative_steps": 7,
+      "mean_loss_difference_vs_half": 0.0,
+      "better_steps": 0,
+      "equal_steps": 7,
+      "changed_bf16_elements": 0
+    },
+    {
+      "method": "ambient",
+      "informative_steps": 7,
+      "mean_loss_difference_vs_half": 0.00209989547729515,
+      "better_steps": 0,
+      "equal_steps": 0,
+      "changed_bf16_elements": 2962068
+    },
+    {
+      "method": "top1",
+      "informative_steps": 7,
+      "mean_loss_difference_vs_half": 0.002099674088614556,
+      "better_steps": 0,
+      "equal_steps": 0,
+      "changed_bf16_elements": 2959661
+    },
+    {
+      "method": "cluster_cone",
+      "informative_steps": 7,
+      "mean_loss_difference_vs_half": 0.002107545307704533,
+      "better_steps": 0,
+      "equal_steps": 0,
+      "changed_bf16_elements": 2962700
+    },
+    {
+      "method": "finite_momentum",
+      "informative_steps": 7,
+      "mean_loss_difference_vs_half": 0.002112242153712783,
+      "better_steps": 0,
+      "equal_steps": 0,
+      "changed_bf16_elements": 2962408
+    },
+    {
+      "method": "anchored_momentum",
+      "informative_steps": 7,
+      "mean_loss_difference_vs_half": 0.002108849797930214,
+      "better_steps": 0,
+      "equal_steps": 0,
+      "changed_bf16_elements": 2962732
+    },
+    {
+      "method": "finite_d0",
+      "informative_steps": 7,
+      "mean_loss_difference_vs_half": -1.2625966752999318e-05,
+      "better_steps": 6,
+      "equal_steps": 0,
+      "changed_bf16_elements": 1060338
+    },
+    {
+      "method": "anchored_d0",
+      "informative_steps": 7,
+      "mean_loss_difference_vs_half": 2.482959202560713e-06,
+      "better_steps": 1,
+      "equal_steps": 1,
+      "changed_bf16_elements": 1072192
+    }
+  ],
+  "scope": "Counterfactual complete LLM updates on one common trajectory; not eight training runs",
+  "production_timing": false
+}

@@ -1,0 +1,19 @@
+{
+  "base": "/home/u3013198/projects/spectral-elr-confirm-w256-20261118-v1",
+  "target": "/home/u3013198/projects/mcsd-tp-p2gd-elr-replay-20261119-v1",
+  "overlay_sha256": "5e7ecd18e9b5ff46ca1571a1c0cbb0923d7a2a08d8f8bc74d48a34ff03ae5f60",
+  "base_manifest_sha256": "c3afb0d5589c520bc0b028f327d92f6cb16c260b6e89ff2e4061734bfb70ccb8",
+  "width": 256,
+  "seed": 1234,
+  "common_updates": 16,
+  "directions": 8,
+  "near_threshold": 0.0002,
+  "cluster_window": 0.0002,
+  "gpus": 1,
+  "time_limit_hours": 3,
+  "checkpoint_saving": false,
+  "inherited_layout": "252 components, FC1 unsplit",
+  "created_utc": "2026-11-19T08:18:06.842575+00:00",
+  "job_id": "4472441",
+  "submitted_utc": "2026-11-19T08:18:06.872803+00:00"
+}

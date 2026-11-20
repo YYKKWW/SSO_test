@@ -2,9 +2,24 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
-**Status rechecked 2026-11-19 15:05 HKT; account queue empty.** Both warm-K10
-controls remain COMPLETED with exit 0:0. No additional spectral-sphere LLM
-endpoint or new submission is added by this check. This page
+**Status verified 2026-11-21:** new spectral/output-budget replay **4479762**
+completed in **16:30**, exit 0:0. At matched spectral movement, cluster-cone
+and finite-momentum directions improve paired loss by about 0.00089, but
+their output movement is only about one third of half-D0's. Finite-D0 does
+not retain its earlier tiny benefit at equal spectral movement.
+[Latest results and missing mechanism controls](p2gd_budget_matching_20261120.md).
+Both spectral replay jobs are complete; four separate Frobenius-band jobs
+are running and excluded here. No new jobs were submitted in this update.
+
+The earlier short same-state MCSD-TP/P2GD ELR replay
+**4472441** completed on one H20 in **12:47**, exit 0:0. Across seven
+informative steps, finite-D0 repair is only 1.26e-5 better than half-D0 on
+average; momentum-cone variants are about 0.0021 worse. Equal AUS still
+permits about 8.4x spectral movement for the momentum family. This is a
+mechanism diagnostic, not eight independent training runs.
+[Complete results, ELR analysis and next controls](p2gd_returned_elr_replay_20261119.md).
+Both warm-K10 controls remain COMPLETED with exit 0:0. There is no new
+full-budget LLM endpoint. This page
 covers **49 completed width-256 runs: 31 at 1B and 18 at 3B tokens**. Budgets
 are processed tokens, not model sizes. Historical width sweeps, 12B tests,
 Frobenius-geometry experiments, smokes, and failed jobs are not pooled here.
@@ -440,20 +455,33 @@ spectral accuracy. See the [complete audit comparison](cluster_lmo_shape_1b_2026
 
 ## Completed Follow-Ups and Next Decisions
 
-**November19 priorities; all entries below are proposals, not queued jobs:**
+**November21 priorities; all entries below are proposals, not queued jobs.**
+Both the matched-AUS replay and its spectral/output-budget follow-up are
+complete. They reuse seven informative steps and 12 near components, all
+numerical q=2. Momentum-cone candidates lose under AUS matching and win under
+spectral matching; their independent-input output movement changes substantially.
+Finite-D0 loses its tiny benefit at equal spectral movement. The priority is
+to isolate correction from direction-family and amplitude changes at a later
+checkpoint, not repeat the same budgets on the same states.
 
 | Priority | Missing evidence | Decision it enables |
 |---|---|---|
-| 0 | Same-state short LLM loss probe: D0/half-D0/ambient/full cone/anchored cone/A2, matched trial length and full-return ELR | Separate momentum alignment, local geometry and radial-return effects; existing matrix snapshots cannot reconstruct LLM loss |
-| 1 | All-step matrix-only half-D0, retaining AdamW LR and all other settings | Determine whether gap-conditioned attenuation adds value beyond a smaller matrix-update scale |
-| 2 | Current control and near-half at a second seed with the same source | Test reproducibility of the 0.005788 paired gain |
-| Conditional | Cone correction with matched trial scale only after positive same-state evidence | Require improvement over half-D0, not just lower repeats or larger returned gap |
+| 0 | Spectral-matched ambient / top-1 / cluster-cone / finite-momentum, with half-D0 and output-attenuated half-D0 controls | Isolate multi-direction correction; the observed spectral-matched gain has a roughly 66% output-reduction confound |
+| 1 | Surviving candidate in a 32-step independent branch comparison from a later checkpoint | Test whether same-state gains persist when optimizer states diverge |
+| 2 | MuonSphere at 0.985 and 0.95 coefficient in the 32-step confirmation protocol | Distinguish MCSD-TP directional benefit from a generic smaller-step benefit |
+| Later | All-step matrix-only half-D0; then current control/near-half at a second seed | Test targeted attenuation and reproducibility of the 0.005788 3B paired gain; keep AdamW LR fixed |
+| Conditional | Warm block-8 K10 implementation of a surviving exact-oracle mechanism | Measure accuracy and cost before any new full-budget run |
 
-Keep data, LR0.015, K10, window2e-4, eval20, momentum and return fixed.
-The 32-state ambient audit and small quadratic study are complete, but they
-do not measure real LLM loss changes or establish globally accurate routing.
-Reuse the completed ambient arm and baselines. Do not repeat the now-completed
-controls. Larger widths, broader gap grids and 12B runs remain deferred.
+Within each study keep data, LR0.015, window2e-4, eval20 and momentum fixed.
+Short geometry probes use the common exact radial oracle; full-budget warm
+references use K10. Do not silently mix these backends or compare their absolute
+losses across evaluation sets. Use a later checkpoint and fresh fixed batches
+for the next short probe. The seven informative steps are correlated, not
+seven independent seeds. See the [complete proposed protocol](p2gd_budget_matching_20261120.md#next-test-decision).
+Reuse completed full-budget ambient/baseline endpoints for context, but do
+not substitute them for new same-state budget-matched controls. Do not repeat
+the completed replay unchanged. Larger widths, broader gap grids and 12B
+runs remain deferred.
 
 **Concrete minimal follow-up:** one all-step matrix-half 3B run at seed2345,
 then two source-matched seed1234 runs (control and near-half). Reuse the
