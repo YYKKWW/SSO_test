@@ -7,7 +7,8 @@ protocols and historical results are kept separate.
 | Start here | What it contains |
 |---|---|
 | **[Results overview](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md)** | Key 3B/6B comparisons, curves and next tests |
-| **[Latest results, November 19](docs/experiments/FROBENIUS_RESULTS_20261119.md)** | Completed momentum x projection comparison, late held-out audit, full 3B endpoints and downloadable figures |
+| **[Latest results, November 22](docs/experiments/FROBENIUS_BAND_RESULTS_20261122.md)** | Completed norm-band pilots; validation, norms, AUS and actual msign angles through 3,000 steps |
+| [Momentum and projection, November 19](docs/experiments/FROBENIUS_RESULTS_20261119.md) | Factorial comparison, late held-out audit and full 3B endpoints |
 | [ELR and AUS study](docs/experiments/FROBENIUS_ELR_AUS_20261113.md) | Normalized 3B grid, completed MuonH AUS replay, and tangent-direction diagnostics |
 | [Point-extrapolation pilot](docs/experiments/MCSD_POINT_PILOT_20261031.md) | Completed pilots and continuations; CPU-reproducible plots |
 | [Earlier LR grid, November 5](docs/experiments/FROBENIUS_RESULTS_20261105.md) | Complete 3B LR grid, MCSD-unitF endpoint and matched-step NorUnit curves |
@@ -15,13 +16,15 @@ protocols and historical results are kept separate.
 | [Complete history](docs/experiments/ALL_EXPERIMENTS.md) | LR/momentum/seed coverage, older protocols and cancellations |
 | [Related work](docs/experiments/FROBENIUS_RELATED_WORK.md) | Recent papers, applicability and testable hypotheses |
 
-**November 19, 2026:** the no-momentum pair and late-stage audit completed.
-With matched matrix-wise AUS, pre-projection improves the six-point
-2,000--3,000 validation mean by **0.009108 under Nesterov**, but worsens
-it by **0.000929 without momentum**. The small held-out audit is mixed.
-At full 3B, native MuonH still leads the tested normalized MCSD recipes
-at widths 256 and 384. These are one-seed mechanism results, not a claim
-of universal optimizer superiority. [Results and next tests](docs/experiments/FROBENIUS_RESULTS_20261119.md).
+**November 22, 2026:** all four norm-band pilots completed. At 3,000 steps
+(0.786B tokens), the narrow cone / wider ambient arms reach **3.773680 /
+3.773764**, versus native MuonH's **3.784674**. Most norms reach the upper
+bound, changing effective step size; this is not yet evidence of a full-3B
+or direction-only advantage. The native control reproduces all 15 old
+validation values. [Curves, diagnostics and next tests](docs/experiments/FROBENIUS_BAND_RESULTS_20261122.md).
+
+The earlier matched-AUS and held-out studies remain separate. At full 3B,
+MuonH still leads the tested normalized MCSD recipes at widths 256 and 384.
 
 ## Active Branch: Three-Geometry Experiment 3
 
