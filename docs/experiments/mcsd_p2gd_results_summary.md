@@ -2,14 +2,19 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
-**Status verified 2026-11-21:** new spectral/output-budget replay **4479762**
+**Status rechecked 2026-11-22:** no new spectral-sphere completion since the
+previous publication. The latest spectral/output-budget replay **4479762**
 completed in **16:30**, exit 0:0. At matched spectral movement, cluster-cone
 and finite-momentum directions improve paired loss by about 0.00089, but
 their output movement is only about one third of half-D0's. Finite-D0 does
 not retain its earlier tiny benefit at equal spectral movement.
+Output-matched momentum has a smaller held-out gain (about 0.00010--0.00014)
+but slightly worse training-microbatch loss. All candidates decrease held-out
+loss from before the update in 4/7 informative steps, not 7/7.
 [Latest results and missing mechanism controls](p2gd_budget_matching_20261120.md).
-Both spectral replay jobs are complete; four separate Frobenius-band jobs
-are running and excluded here. No new jobs were submitted in this update.
+Both spectral replay jobs are complete. The four separate Frobenius-band jobs
+are now also COMPLETED, exit 0:0, and excluded here. The account queue is empty.
+No new jobs were submitted in this update; the six-way follow-up is still a proposal.
 
 The earlier short same-state MCSD-TP/P2GD ELR replay
 **4472441** completed on one H20 in **12:47**, exit 0:0. Across seven
@@ -455,7 +460,7 @@ spectral accuracy. See the [complete audit comparison](cluster_lmo_shape_1b_2026
 
 ## Completed Follow-Ups and Next Decisions
 
-**November21 priorities; all entries below are proposals, not queued jobs.**
+**November22 priorities; all entries below are proposals, not queued jobs.**
 Both the matched-AUS replay and its spectral/output-budget follow-up are
 complete. They reuse seven informative steps and 12 near components, all
 numerical q=2. Momentum-cone candidates lose under AUS matching and win under
@@ -463,6 +468,9 @@ spectral matching; their independent-input output movement changes substantially
 Finite-D0 loses its tiny benefit at equal spectral movement. The priority is
 to isolate correction from direction-family and amplitude changes at a later
 checkpoint, not repeat the same budgets on the same states.
+Preserve training-microbatch and held-out signs separately. Relative wins are
+not absolute descent: each candidate decreases held-out loss in 4/7 informative
+steps, and those complete updates also include unchanged safe/non-matrix paths.
 
 | Priority | Missing evidence | Decision it enables |
 |---|---|---|

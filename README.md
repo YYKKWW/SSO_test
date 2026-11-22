@@ -12,10 +12,11 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
 
-> **Checked November 21, 2026:** 49 completed width-256 runs in
-> the current 1B/3B ledger, unchanged by the two new short replays. Both spectral
-> replay jobs are complete. Four separate Frobenius-band jobs are running;
-> their results are not pooled here. No new jobs were submitted in this update.
+> **Rechecked November 22, 2026:** no new spectral-sphere completion since
+> job 4479762. The current 1B/3B ledger still contains 49 completed width-256
+> runs; the two short replays remain separate. All four Frobenius-band jobs
+> have now completed and are excluded from this ledger. The account queue is
+> empty. This update reanalyzes existing results; it submits no new jobs.
 > This is a research branch, not a frozen paper release.
 
 ## Latest Result: Budget Matching Changes the Comparison
@@ -36,6 +37,14 @@ movement** and **0.13x the AUS** of half-D0. Under output matching, the gain
 shrinks and spectral movement rises to 2.93x. The finite-D0 signal does not
 survive equal spectral movement. FP32 matching also leaves up to 6.33% budget
 error after BF16 rounding in the spectral case.
+
+**Relative wins are not monotonic descent:** every candidate reduces held-out
+loss from before the update in **4/7**, not 7/7, informative steps. For example,
+spectral-matched finite momentum beats half-D0 by 0.000898 on average, with a
+complete-update mean change of -0.002005; half-D0 changes it by -0.001107.
+Output-matched momentum slightly improves held-out loss but worsens the first
+training microbatch. Stochastic updates need not decrease validation loss at
+every step; these numbers are diagnostics, not a descent or convergence proof.
 
 **Decision:** retain momentum-cone directions for a short controlled test;
 do not yet claim a P2GD geometric benefit. Add spectral-matched ambient/top-1
@@ -185,9 +194,11 @@ matrix snapshots and bulk raw-log archives remain outside Git. Some collectors
 require these local archives; the published JSON is sufficient to inspect the
 reported comparisons, not to reconstruct missing model checkpoints.
 
-Publication checks on November21: 18 related CPU unit tests passed, both H20
-summaries reproduced exactly from the published JSONL records, and the raw
-records plus completion records match the remote SHA256 checksums.
+Publication recheck on November22: 23 related CPU tests passed, including five
+new aggregation checks separating relative wins from pre-update descent.
+The expanded budget summary preserves every historical metric and raw-file
+checksum; the H20 files were rechecked unchanged. Online accounting and the
+empty queue are recorded in the [status record](docs/results/p2gd_budget_20261120/status_check_20261122.json).
 The earlier November19 checks (80 CPU tests and 324 anchored-face algebra
 cases) remain recorded separately; no new CUDA training ran in this update.
 

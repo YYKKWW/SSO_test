@@ -1,10 +1,13 @@
 # Spectral and Output ELR Controls for MCSD-TP and P2GD
 
-**Completed November 20; verified November 21, 2026.** Follow-up to
+**Completed November 20; rechecked November 22, 2026.** Follow-up to
 [the matched-AUS replay](p2gd_returned_elr_replay_20261119.md).
 H20 job **4479762** completed all 16 common updates on one H20, SPG-7-2,
 in **16:30**, exit 0:0. It is not a new 1B/3B training comparison. No new
 checkpoints were saved. The checkpoint and prior common training replay match.
+There is no new spectral-sphere run since the previous publication. This
+update adds complete-update descent statistics and checks the same raw data;
+the proposed six-way follow-up has not been submitted.
 
 **Main finding:** momentum-cone directions improve the paired held-out loss
 after spectral matching, but their local-output changes are only about one
@@ -36,6 +39,40 @@ mean is essentially tied. The 95% half-D0 controls themselves improve over
 the original half-D0 by about 4.2e-5. That attenuation effect is already
 subtracted in the 95% rows above.
 
+These are relative improvements, not seven successive decreases from the
+pre-update loss: **every candidate decreases held-out loss in 4/7 informative
+steps**. Mean changes from before the complete update are -0.00110667 for
+half-D0, -0.00200515 for spectral-100% finite momentum, and -0.00120671 for
+output-100% finite momentum. Safe-component and non-matrix updates are common,
+so not all of this complete-update decrease is attributable to the near branch.
+
+### Relative Benefit Versus Complete-Update Descent
+
+The following values use the 100% budgets and the same seven informative
+steps. Training differences refer to the first training microbatch, not the
+entire accumulated training batch.
+
+| Candidate | Held-out difference from half-D0 | Held-out change from pre-update | Training-microbatch difference from half-D0 |
+|---|---:|---:|---:|
+| half-D0 | 0 | -0.001106668 | 0 |
+| Cluster cone / spectral | -0.000886338 | -0.001993006 | -0.000650508 |
+| Finite momentum / spectral | -0.000898480 | -0.002005148 | -0.000657797 |
+| Cluster cone / output | -0.000114720 | -0.001221388 | +0.000190156 |
+| Finite momentum / output | -0.000100044 | -0.001206711 | +0.000165531 |
+
+All five decrease held-out loss in four steps and increase it in three.
+The nine other common steps have no near-component change and therefore
+zero between-candidate differences. Averaging over all 16 steps gives
+-0.000393085 for spectral-matched finite momentum and -0.000043769 for
+output-matched finite momentum versus half-D0. This dilution is reported,
+not hidden by selecting informative steps. Neither denominator creates
+independent observations.
+
+Validation loss need not decrease on every stochastic update. The point of
+this distinction is to avoid turning a paired advantage into a monotonic
+descent claim. Without a zero-near-update control, the full loss change
+cannot be assigned exclusively to the repaired near direction.
+
 ![Budget-matched losses and independent-input output changes](../results/p2gd_budget_20261120/budget_comparison.png)
 
 ### What Matching Leaves Uncontrolled
@@ -60,6 +97,10 @@ There is no consistent evidence for paying extra for the finite-step formula.
 At matched output the held-out gain is smaller, while the first training
 microbatch loss is **worse** for the momentum family. Neither a universal
 descent claim nor a long-training advantage follows from this diagnostic.
+The mean training-microbatch differences from the same-budget half-D0 control
+are +0.000166 to +0.000275 for output-matched finite momentum and +0.000190
+to +0.000247 for output-matched cluster-cone repair. The training and held-out
+signs must therefore be reported together.
 
 ### Precision and Verification
 
@@ -72,8 +113,10 @@ activation inputs preserve the approximate one-third output ratio under
 spectral matching, so the difference is not confined to calibration inputs.
 
 The completion record and both raw numerical files match the H20 SHA256
-checksums. Rebuilding the summary reproduces all fields, and all 18 relevant
-CPU tests pass. Search work averages about 11--15 evaluations per calibrated
+checksums. The November22 expansion preserves all historical summary fields
+and adds pre-update changes, descent/increase counts and all-step paired means.
+All **23** relevant CPU tests pass, including five summary regression tests.
+Search work averages about 11--15 evaluations per calibrated
 candidate. This is an exact-SVD diagnostic, not evidence for production speed.
 
 ## Next Test Decision
@@ -105,7 +148,10 @@ and the **output-attenuated half-D0 control**, proceed to a 32-step independent
 branch comparison. Then test the surviving mechanism with warm block-8 K10.
 Separately, the previous 32-step study still lacks attenuated MuonSphere
 controls (coefficients 0.985/0.95); those test direction versus global scale.
-No new experiments were submitted by this publication update.
+The original cluster-cone formula is the simplest candidate to carry forward;
+keep finite momentum as an ablation, not a presumed improvement. Require
+consistent paired evidence on both the original and a later checkpoint before
+expanding the budget. No new experiments were submitted by this publication update.
 
 ## Question
 
@@ -200,9 +246,12 @@ evidence of a direction improvement.
 
 ## Local Verification
 
-Eighteen CPU tests pass, including matching after the full return, rebuilding
+Twenty-three CPU tests pass, including matching after the full return, rebuilding
 the finite-step model at the final coefficient, explicit rejection of
 unreachable targets, and restoration after an injected evaluation failure.
+The five summary tests also check duplicate/per-step record consistency,
+relative versus absolute loss changes, training/held-out sign differences,
+the all-step denominator, and preservation of previously published metrics.
 
 Three saved training matrices (128x256, 1536x256 and 256x256) also pass all
 45 candidate checks, including 42 calibrated matches. Their input activations
@@ -225,6 +274,7 @@ python scripts/audit_p2gd_budget_local.py \
   docs/results/p2gd_budget_20261120/local_geometry.json
 python scripts/summarize_p2gd_budget.py \
   docs/results/p2gd_budget_20261120/h20 /tmp/budget_summary.json
+PYTHONPATH=scripts python -m unittest test_summarize_p2gd_budget -v
 python scripts/publish_returned_step_repair.py \
   docs/results/returned_step_repair_20261119 \
   --budget-root docs/results/p2gd_budget_20261120

@@ -1,0 +1,28 @@
+{
+  "checked_date": "2026-11-22",
+  "timezone": "Asia/Shanghai",
+  "new_spectral_experiment_since_previous_publication": false,
+  "latest_spectral_job": {
+    "job_id": "4479762",
+    "state": "COMPLETED",
+    "elapsed": "00:16:30",
+    "exit_code": "0:0",
+    "node": "SPG-7-2"
+  },
+  "account_queue": [],
+  "separate_frobenius_band_jobs_excluded_from_spectral_results": [
+    {"job_id": "4479797", "state": "COMPLETED", "elapsed": "04:50:47", "exit_code": "0:0"},
+    {"job_id": "4479798", "state": "COMPLETED", "elapsed": "04:53:45", "exit_code": "0:0"},
+    {"job_id": "4479799", "state": "COMPLETED", "elapsed": "04:51:03", "exit_code": "0:0"},
+    {"job_id": "4479800", "state": "COMPLETED", "elapsed": "04:55:04", "exit_code": "0:0"}
+  ],
+  "remote_sha256_rechecked_unchanged": {
+    "BUDGET_COMPLETED.json": "67d8ff808439e5fe50746865792d63661f755f218d6ea4d00c30598899955037",
+    "repair_geometry.jsonl": "035b9559fd825d2f78a01c929eb4d722bc2ffade8264935219c0830736bb77c7",
+    "repair_loss_replay.jsonl": "288f9e87a1c2a2fe0adcc4a14b47790c77759e0c731257f7f75415df77d72e73"
+  },
+  "cpu_tests_passed": 23,
+  "summary_extension": "Relative wins, pre-update complete-loss changes, descent counts and all-step means are separate fields; all historical fields unchanged",
+  "new_jobs_submitted_by_this_update": 0,
+  "next_six_way_replay": "proposed_not_submitted"
+}

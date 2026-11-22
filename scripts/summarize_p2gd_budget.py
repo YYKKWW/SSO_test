@@ -19,8 +19,13 @@ def summarize(directory):
     geometry = [r for r in geometry if r['iteration'] in completed]
     if not loss or not all(r['restore_asserted'] for r in loss):
         raise ValueError('Missing or unrestored replay')
+    if len(completed) != len(loss):
+        raise ValueError('Duplicate replay iteration')
     if len(geometry)!=sum(r['near_components'] for r in loss):
         raise ValueError('Inconsistent geometry/loss snapshot')
+    if Counter(r['iteration'] for r in geometry) != Counter({
+            r['iteration']: r['near_components'] for r in loss if r['near_components']}):
+        raise ValueError('Inconsistent per-step geometry/loss snapshot')
     informative = [r for r in loss if r['near_components']]
     names = [a['name'] for a in ARMS]
     for row in loss:
@@ -33,12 +38,16 @@ def summarize(directory):
     for arm in ARMS:
         name,metric,fraction=(arm[k] for k in ('name','metric','fraction'))
         control = 'half_d0' if fraction==1. else metric+'_095_half_d0'
-        deltas=[];absolute=[];training=[]
-        for row in informative:
+        deltas=[];absolute=[];training=[];before=[];all_deltas=[]
+        for row in loss:
             by = {a['method']:a for a in row['results']}
+            all_deltas.append(by[name]['heldout_loss']-by[control]['heldout_loss'])
+            if not row['near_components']:
+                continue
             deltas.append(by[name]['heldout_loss']-by[control]['heldout_loss'])
             absolute.append(by[name]['heldout_difference_vs_half'])
             training.append(by[name]['training_microbatch_loss']-by[control]['training_microbatch_loss'])
+            before.append(by[name]['heldout_loss']-row['before_heldout'])
         comp=[next(a for a in row['rows'] if a['method']==name) for row in geometry]
         def mean(values):
             return sum(values)/len(values) if values else None
@@ -48,6 +57,11 @@ def summarize(directory):
         results.append(dict(**arm,matched_control=control,informative_steps=len(deltas),
             mean_difference_vs_matched_control=mean(deltas),mean_difference_vs_original_half=mean(absolute),
             better_steps=sum(d < -1e-7 for d in deltas),worse_steps=sum(d > 1e-7 for d in deltas),
+            mean_all_step_difference_vs_matched_control=mean(all_deltas),
+            mean_heldout_change_from_pre_update=mean(before),
+            heldout_decrease_steps=sum(d < -1e-7 for d in before),
+            heldout_increase_steps=sum(d > 1e-7 for d in before),
+            heldout_tied_steps=sum(abs(d) <= 1e-7 for d in before),
             mean_training_difference_vs_matched_control=mean(training),matching_violations=violations,
             mean_spectral_elr=mean([r['returned_spectral_elr'] for r in comp]),
             mean_calibration_output_elr=mean([r['local_output_elr'] for r in comp]),
@@ -59,9 +73,11 @@ def summarize(directory):
             mean_alpha_ratio=mean([r['alpha_ratio'] for r in comp]),
             mean_search_evaluations=mean([r['evaluations'] for r in comp]),
             max_radius_error=max((r['radius_error'] for r in comp),default=None)))
-    return dict(completed_steps=sorted(completed),informative_steps=len(informative),
+    return dict(completed_steps=sorted(completed),total_steps=len(loss),informative_steps=len(informative),
         near_components=len(geometry),cluster_dimensions=dict(Counter(r['cluster_dimension'] for r in geometry)),
         results=results,scope='Same-state counterfactuals on one common trajectory; correlated observations',
+        descent_scope='Pre-update changes are complete LLM updates, including shared safe and non-matrix updates; '
+            'not near-branch-only descent. Descent counts use informative steps and tolerance 1e-7.',
         source_sha256={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (loss_path,geometry_path)})
 
 
