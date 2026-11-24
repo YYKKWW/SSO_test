@@ -1,12 +1,12 @@
 # Frobenius Sphere Experiments
 
-**Results and queue snapshot: November 22, 2026, HKT**
+**Results and queue snapshot: November 25, 2026, HKT**
 
-[Latest: completed norm-band pilots](FROBENIUS_BAND_RESULTS_20261122.md).
-At 3,000 steps (**0.786B**, not full 3B), native MuonH reaches 3.784674;
-the wider ambient band reaches **3.773764**, and the narrow active-cone
-band **3.773680**. Norms mostly reach the upper bound, changing ELR/AUS.
-This is not a direction-only comparison or a completed 3B improvement.
+[Latest: completed full 3B norm-band A/B](FROBENIUS_BAND_RESULTS_20261125.md).
+A reaches **3.460861**, B **3.459655**: both trail MuonH **3.458490**
+and NorMuon-Sphere **3.455796** at the endpoint and in the fixed late window.
+The pilot advantage reverses near 2.6B tokens. The complete per-matrix
+norm/AUS traces are valid; no matched-AUS annulus control has run yet.
 The account's Slurm queue was empty at the check; no new jobs were submitted.
 
 The [November 19 momentum x projection and held-out readout](FROBENIUS_RESULTS_20261119.md)
@@ -37,6 +37,7 @@ at their respective endpoints.
 | Momentum x projection | All four matched 3,000-step arms available | [Factorial comparison](FROBENIUS_RESULTS_20261119.md#1-completed-momentum-x-projection-comparison) |
 | Late held-out audit | 252 candidate records across three states | [Paired losses and caveats](FROBENIUS_RESULTS_20261119.md#3-completed-same-state-held-out-audit) |
 | Norm-band pilot | Four completed 3,000-step runs; 28,224 sampled matrix records | [Validation, norm saturation, AUS and measured msign angles](FROBENIUS_BAND_RESULTS_20261122.md) |
+| Full 3B norm-band A/B | Both complete; full every-matrix norm/AUS traces | [Pilot gains reverse; neither beats MuonH/NorMuon at full budget](FROBENIUS_BAND_RESULTS_20261125.md) |
 
 This is a dated evidence summary, not a live dashboard. All losses are
 validation cross-entropy; lower is better. No historical results were removed:
@@ -203,7 +204,8 @@ under the tested recipes, which use different peak LRs.
 | Completed | No-momentum G vs. P_W G through 3,000 | 4459729 / 4459730; no consistent six-point projection gain |
 | Completed | Late same-state held-out audit | 4464032; mixed paired effects, no stable matrix-group winner |
 | Completed | Frobenius norm-band pilot | 4479797--4479800; best early endpoint 3.773680; [not full 3B](FROBENIUS_BAND_RESULTS_20261122.md) |
-| Proposed | Full-budget narrow cone / wider ambient band, then norm/AUS control | Restart from initialization; no new submissions |
+| Completed | Full-budget narrow cone / wider ambient band | 4487882: 3.459655; 4487881: 3.460861; neither beats MuonH |
+| Next mechanism test | B with matrix-wise MuonH AUS targets | Proposed, not submitted; needs general-ray step inversion |
 | Next priority | Nesterov no-pre-projection arm through full 3B, same post-projection/AUS | Proposed, not submitted; always-projected full-budget reference already exists |
 | Replication | Broader held-out samples, then a seed-specific matched-AUS pair if warranted | Proposed; defer new width and 6B grids |
 
@@ -213,7 +215,8 @@ November 4 follow-up adds four 3B jobs on two serial lanes. The November 12
 [H20 readout](FROBENIUS_H20_READOUT_20261112.md) preserves the earlier
 snapshot; the [November 19 readout](FROBENIUS_RESULTS_20261119.md) covers the
 completed projection studies, and the [November 22 readout](FROBENIUS_BAND_RESULTS_20261122.md)
-adds the norm-band pilot.
+adds the norm-band pilot. The [November 25 readout](FROBENIUS_BAND_RESULTS_20261125.md)
+supersedes that pilot's provisional performance interpretation with full 3B endpoints.
 [Submission details](FROBENIUS_POINT_LR_BATCH_20261102.md).
 
 **Current research priority:** distinguish direction quality from actual

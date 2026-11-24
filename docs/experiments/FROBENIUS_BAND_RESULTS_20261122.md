@@ -1,5 +1,9 @@
 # Frobenius Norm-Band Results
 
+**Full-budget follow-up completed:** the [November 25 report](FROBENIUS_BAND_RESULTS_20261125.md)
+shows that neither selected arm retains its advantage at 3B. The pilot
+results below are preserved as early-budget evidence, not a final ranking.
+
 **Verified November 22, 2026.** All four 3,000-step pilots completed on
 November 21 with exit 0:0, zero NaNs and zero skipped updates. The account's
 Slurm queue was empty at the check. No new training jobs were submitted.
