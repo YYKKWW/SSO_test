@@ -1,0 +1,27 @@
+{
+  "seeds": 20,
+  "square_horizons": [
+    256,
+    1024
+  ],
+  "matrix_steps": 512,
+  "dtype": "float64",
+  "device": "cpu",
+  "torch": "2.14.0",
+  "part": "all",
+  "trajectory_momentum": "current-sample EMA, beta=1-T^(-1/2)",
+  "trajectory_alpha": "min(0.1/(4*sqrt(n)), 0.5, T^(-3/4))",
+  "noise": "centered Gaussian; expected squared Frobenius norm = noise_rms^2; common random numbers",
+  "near_threshold": 0.1,
+  "cluster_threshold": 0.1,
+  "true_multiplicity_tolerance": 1e-12,
+  "radius": 1.0,
+  "stationarity": "exact actual-edge limiting residual only for diagonal square; matrix mapping is a diagnostic",
+  "matched_note": "Numerical cluster threshold 2e-4; q supplied from constructed spectrum; full capacity, no top4 cap",
+  "hashes": {
+    "scripts/local_paper_sphere.py": "975b8dea731d5af3ef40ace302869c4068fbfde3e2a9145b3c2841f876ee9f77",
+    "scripts/p2gd_six_geometry.py": "407637b8cde303c649c954a1ca0953740dd7d5423150a1756377f8e8b5c4b5b3",
+    "scripts/p2gd_budget_geometry.py": "965531b0a7e76c0cb4bbb51944910b500548c724143fad4ee4f13ab0b6629c20",
+    "scripts/p2gd_elr_geometry.py": "67b7dacc988ca8dc3b9c91764c088ce740bd3f81e7bd3ec844a94e7b1a593a6b"
+  }
+}

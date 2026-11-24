@@ -1,0 +1,453 @@
+{
+  "verified": true,
+  "updates_per_arm": 256,
+  "initial_loss": 4.102629888057709,
+  "results": [
+    {
+      "policy": "half_d0",
+      "final_loss": 3.9428776144981383,
+      "last_four_mean_loss": 3.9804558157920837,
+      "near_rate": 0.007688492063492063,
+      "geometry": {
+        "near_components": 496,
+        "repeated_near_events": 4,
+        "repeat_fraction": 0.008064516129032258,
+        "mean_observed_streak": 1.008130081300813,
+        "max_observed_streak": 2,
+        "streak_scope": "Truncated to steps 513--768; not complete lifetime residence times",
+        "cluster_dimensions": {
+          "2": 496
+        },
+        "exceeds_top4": 0,
+        "correction_ranks": {},
+        "over_one_percent_budget": 0,
+        "reference_cluster_unmatched": 0,
+        "means": {
+          "bf16_spectral_elr": 0.008327313148671942,
+          "bf16_output_elr": 0.011025973852919113,
+          "alpha_ratio": 1.0,
+          "evaluations": 0,
+          "norm_svd_calls": 0
+        }
+      },
+      "unmatched_components": 0,
+      "max_budget_error": 0.0,
+      "max_radius_error": 5.341395969971074e-07,
+      "wall_seconds": 5157.006386041641,
+      "mean_step_seconds": 20.035543821131796,
+      "first32_mean_step_seconds": 20.210101573888096,
+      "curve": [
+        {
+          "iteration": 512,
+          "loss": 4.102629888057709
+        },
+        {
+          "iteration": 544,
+          "loss": 4.08121817111969
+        },
+        {
+          "iteration": 576,
+          "loss": 4.050711500644684
+        },
+        {
+          "iteration": 608,
+          "loss": 4.037419140338898
+        },
+        {
+          "iteration": 640,
+          "loss": 4.018350386619568
+        },
+        {
+          "iteration": 672,
+          "loss": 4.036000621318817
+        },
+        {
+          "iteration": 704,
+          "loss": 3.974641740322113
+        },
+        {
+          "iteration": 736,
+          "loss": 3.9683032870292663
+        },
+        {
+          "iteration": 768,
+          "loss": 3.9428776144981383
+        }
+      ]
+    },
+    {
+      "policy": "ambient",
+      "final_loss": 3.935438561439514,
+      "last_four_mean_loss": 3.9664448112249375,
+      "near_rate": 0.017051091269841268,
+      "geometry": {
+        "near_components": 1100,
+        "repeated_near_events": 557,
+        "repeat_fraction": 0.5063636363636363,
+        "mean_observed_streak": 2.0257826887661143,
+        "max_observed_streak": 18,
+        "streak_scope": "Truncated to steps 513--768; not complete lifetime residence times",
+        "cluster_dimensions": {
+          "2": 1100
+        },
+        "exceeds_top4": 0,
+        "correction_ranks": {
+          "0": 1100
+        },
+        "over_one_percent_budget": 0,
+        "reference_cluster_unmatched": 0,
+        "means": {
+          "bf16_spectral_elr": 0.00829576389356093,
+          "bf16_output_elr": 0.004447680860969492,
+          "alpha_ratio": 0.1369176399707794,
+          "correction_fraction": 0.0,
+          "momentum_angle": 0.005677616529727436,
+          "evaluations": 15.170909090909092,
+          "norm_svd_calls": 31.341818181818184
+        }
+      },
+      "unmatched_components": 57,
+      "max_budget_error": 0.0019948938835335716,
+      "max_radius_error": 5.228764532461128e-07,
+      "wall_seconds": 5377.295213699341,
+      "mean_step_seconds": 20.89633120355029,
+      "first32_mean_step_seconds": 20.64491223861114,
+      "curve": [
+        {
+          "iteration": 512,
+          "loss": 4.102629888057709
+        },
+        {
+          "iteration": 544,
+          "loss": 4.073283588886261
+        },
+        {
+          "iteration": 576,
+          "loss": 4.047415399551392
+        },
+        {
+          "iteration": 608,
+          "loss": 4.028135347366333
+        },
+        {
+          "iteration": 640,
+          "loss": 4.012260937690735
+        },
+        {
+          "iteration": 672,
+          "loss": 4.0066282749176025
+        },
+        {
+          "iteration": 704,
+          "loss": 3.9734930038452148
+        },
+        {
+          "iteration": 736,
+          "loss": 3.9502194046974184
+        },
+        {
+          "iteration": 768,
+          "loss": 3.935438561439514
+        }
+      ]
+    },
+    {
+      "policy": "top1",
+      "final_loss": 3.9292348265647887,
+      "last_four_mean_loss": 3.9646576106548306,
+      "near_rate": 0.03490823412698413,
+      "geometry": {
+        "near_components": 2252,
+        "repeated_near_events": 1736,
+        "repeat_fraction": 0.7708703374777975,
+        "mean_observed_streak": 4.364341085271318,
+        "max_observed_streak": 164,
+        "streak_scope": "Truncated to steps 513--768; not complete lifetime residence times",
+        "cluster_dimensions": {
+          "2": 2080,
+          "3": 167,
+          "4": 5
+        },
+        "exceeds_top4": 0,
+        "correction_ranks": {
+          "1": 2252
+        },
+        "over_one_percent_budget": 0,
+        "reference_cluster_unmatched": 0,
+        "means": {
+          "bf16_spectral_elr": 0.008306548056865962,
+          "bf16_output_elr": 0.004720329819102383,
+          "alpha_ratio": 0.13339443091256792,
+          "correction_fraction": 0.013014065928121666,
+          "momentum_angle": 0.7457672732818825,
+          "evaluations": 15.3348134991119,
+          "norm_svd_calls": 31.6696269982238
+        }
+      },
+      "unmatched_components": 138,
+      "max_budget_error": 0.002792316172912078,
+      "max_radius_error": 6.373778701496136e-07,
+      "wall_seconds": 5701.104204416275,
+      "mean_step_seconds": 22.159890618377176,
+      "first32_mean_step_seconds": 21.581336208051653,
+      "curve": [
+        {
+          "iteration": 512,
+          "loss": 4.102629888057709
+        },
+        {
+          "iteration": 544,
+          "loss": 4.0711143732070925
+        },
+        {
+          "iteration": 576,
+          "loss": 4.054658901691437
+        },
+        {
+          "iteration": 608,
+          "loss": 4.024523282051087
+        },
+        {
+          "iteration": 640,
+          "loss": 4.00415209531784
+        },
+        {
+          "iteration": 672,
+          "loss": 4.009172654151916
+        },
+        {
+          "iteration": 704,
+          "loss": 3.9722630858421324
+        },
+        {
+          "iteration": 736,
+          "loss": 3.947959876060486
+        },
+        {
+          "iteration": 768,
+          "loss": 3.9292348265647887
+        }
+      ]
+    },
+    {
+      "policy": "cluster_cone",
+      "final_loss": 3.9113258957862853,
+      "last_four_mean_loss": 3.94519482254982,
+      "near_rate": 0.08530195932539683,
+      "geometry": {
+        "near_components": 5503,
+        "repeated_near_events": 5085,
+        "repeat_fraction": 0.9240414319462111,
+        "mean_observed_streak": 13.165071770334928,
+        "max_observed_streak": 240,
+        "streak_scope": "Truncated to steps 513--768; not complete lifetime residence times",
+        "cluster_dimensions": {
+          "2": 3413,
+          "3": 965,
+          "4": 600,
+          "5": 368,
+          "6": 148,
+          "7": 9
+        },
+        "exceeds_top4": 525,
+        "correction_ranks": {
+          "2": 2930,
+          "1": 865,
+          "3": 890,
+          "4": 469,
+          "5": 275,
+          "6": 72,
+          "7": 2
+        },
+        "over_one_percent_budget": 0,
+        "reference_cluster_unmatched": 0,
+        "means": {
+          "bf16_spectral_elr": 0.008281674629878492,
+          "bf16_output_elr": 0.004511597154463327,
+          "alpha_ratio": 0.13901871336648058,
+          "correction_fraction": 0.025048596171109768,
+          "momentum_angle": 1.4360473618341412,
+          "evaluations": 15.082318735235326,
+          "norm_svd_calls": 31.16463747047065
+        }
+      },
+      "unmatched_components": 268,
+      "max_budget_error": 0.0032337492033563293,
+      "max_radius_error": 5.341395969971074e-07,
+      "wall_seconds": 6809.4234790802,
+      "mean_step_seconds": 26.48736614959671,
+      "first32_mean_step_seconds": 23.039932867817697,
+      "curve": [
+        {
+          "iteration": 512,
+          "loss": 4.102629888057709
+        },
+        {
+          "iteration": 544,
+          "loss": 4.068125605583191
+        },
+        {
+          "iteration": 576,
+          "loss": 4.050778114795685
+        },
+        {
+          "iteration": 608,
+          "loss": 4.018566751480103
+        },
+        {
+          "iteration": 640,
+          "loss": 3.997292721271515
+        },
+        {
+          "iteration": 672,
+          "loss": 3.9859290719032288
+        },
+        {
+          "iteration": 704,
+          "loss": 3.9551955103874206
+        },
+        {
+          "iteration": 736,
+          "loss": 3.928328812122345
+        },
+        {
+          "iteration": 768,
+          "loss": 3.9113258957862853
+        }
+      ]
+    },
+    {
+      "policy": "half_output_of_cluster",
+      "final_loss": 3.9470582008361816,
+      "last_four_mean_loss": 3.966587948799133,
+      "near_rate": 0.008851066468253968,
+      "geometry": {
+        "near_components": 571,
+        "repeated_near_events": 48,
+        "repeat_fraction": 0.0840630472854641,
+        "mean_observed_streak": 1.0917782026768643,
+        "max_observed_streak": 5,
+        "streak_scope": "Truncated to steps 513--768; not complete lifetime residence times",
+        "cluster_dimensions": {
+          "2": 570,
+          "3": 1
+        },
+        "exceeds_top4": 0,
+        "correction_ranks": {},
+        "over_one_percent_budget": 0,
+        "reference_cluster_unmatched": 33,
+        "means": {
+          "bf16_spectral_elr": 0.003783659967096382,
+          "bf16_output_elr": 0.004400820740875372,
+          "alpha_ratio": 0.3487367281354246,
+          "evaluations": 27.705779334500875,
+          "norm_svd_calls": 43.86339754816112
+        }
+      },
+      "unmatched_components": 9,
+      "max_budget_error": 0.0015313844631603055,
+      "max_radius_error": 5.341395969971074e-07,
+      "wall_seconds": 5375.56508564949,
+      "mean_step_seconds": 20.890945071538226,
+      "first32_mean_step_seconds": 21.16472250134393,
+      "curve": [
+        {
+          "iteration": 512,
+          "loss": 4.102629888057709
+        },
+        {
+          "iteration": 544,
+          "loss": 4.084156894683838
+        },
+        {
+          "iteration": 576,
+          "loss": 4.049836504459381
+        },
+        {
+          "iteration": 608,
+          "loss": 4.038253903388977
+        },
+        {
+          "iteration": 640,
+          "loss": 4.030134665966034
+        },
+        {
+          "iteration": 672,
+          "loss": 3.9967268228530886
+        },
+        {
+          "iteration": 704,
+          "loss": 3.9745699048042296
+        },
+        {
+          "iteration": 736,
+          "loss": 3.9479968667030336
+        },
+        {
+          "iteration": 768,
+          "loss": 3.9470582008361816
+        }
+      ]
+    }
+  ],
+  "cluster_contrasts": [
+    {
+      "control": "half_d0",
+      "final_cluster_minus_control": -0.03155171871185303,
+      "tail_cluster_minus_control": -0.035260993242263616,
+      "training_wall_ratio": 1.3204217659127049
+    },
+    {
+      "control": "ambient",
+      "final_cluster_minus_control": -0.02411266565322867,
+      "tail_cluster_minus_control": -0.021249988675117404,
+      "training_wall_ratio": 1.2663287412103266
+    },
+    {
+      "control": "top1",
+      "final_cluster_minus_control": -0.017908930778503418,
+      "tail_cluster_minus_control": -0.019462788105010453,
+      "training_wall_ratio": 1.1944043179925359
+    },
+    {
+      "control": "half_output_of_cluster",
+      "final_cluster_minus_control": -0.03573230504989633,
+      "tail_cluster_minus_control": -0.021393126249313,
+      "training_wall_ratio": 1.2667363096874247
+    }
+  ],
+  "source_sha256": {
+    "branch_half_d0/metrics/trajectory_validation.jsonl": "a0088ed75bb6821a25e5dfcc67487a76a0f07a752a819bbd8af444f663895b90",
+    "branch_half_d0/metrics/trajectory_update.jsonl": "97fb5f86c22cdf88da2cad8e02b516924a971f8cdc5966b033904bb329dc7233",
+    "branch_half_d0/metrics/trajectory_geometry.jsonl": "3ca491b1ba739dd7939aa3560348cfcc4a2dbaef3e7102a4863c7afb96b23e08",
+    "branch_half_d0/metrics/training_stream.jsonl": "ba491ad0deb431fcf66005a3dc30a14c08d17575623d96f7ea7f764f13cda30f",
+    "branch_half_d0/metrics/trajectory_initial.jsonl": "e87a6d3e7bb2a52f00d4d75f1330286a1f5d46eb90aa67b16a82844336db77fe",
+    "branch_half_d0/metrics/evaluation_data.jsonl": "f74237edd5bc6b2c73f0bc5a0a3adcab2d777b8c20ecd421d1bbb1852ade197a",
+    "branch_ambient/metrics/trajectory_validation.jsonl": "50c3e192878f22fae93f4c3ce60054a2be2e8883e2c5eeccab6342e50eb7703c",
+    "branch_ambient/metrics/trajectory_update.jsonl": "55d839f4a06c78a45c8c30447a2fc96062d8f9745419760eec3bace88a74bbd9",
+    "branch_ambient/metrics/trajectory_geometry.jsonl": "95deceb4d66cd767394699d46d568f06ba38882441f2448324e0d62a8ded5415",
+    "branch_ambient/metrics/training_stream.jsonl": "878e3d4583e17993dfdab4c62765f97cc9ed7a2ac918075909b34cd343cf2e63",
+    "branch_ambient/metrics/trajectory_initial.jsonl": "e87a6d3e7bb2a52f00d4d75f1330286a1f5d46eb90aa67b16a82844336db77fe",
+    "branch_ambient/metrics/evaluation_data.jsonl": "f74237edd5bc6b2c73f0bc5a0a3adcab2d777b8c20ecd421d1bbb1852ade197a",
+    "branch_top1/metrics/trajectory_validation.jsonl": "1178ee7f2c4111484c67e5a087472135e333d59c4f5b0970bb178617fee56989",
+    "branch_top1/metrics/trajectory_update.jsonl": "f6acf1d87467ad75c2981b8a694691c99e9a7604ba6b538da81406a03b7d86d8",
+    "branch_top1/metrics/trajectory_geometry.jsonl": "4abea8172f9b9c970f46ecaf09479abdd01d8a3b828bc134a6b2e92cbdeaa585",
+    "branch_top1/metrics/training_stream.jsonl": "e73f3939f2d96039138a6ed5ef535b8c4a9b07422e237b3a5bd939f0ef05db95",
+    "branch_top1/metrics/trajectory_initial.jsonl": "e87a6d3e7bb2a52f00d4d75f1330286a1f5d46eb90aa67b16a82844336db77fe",
+    "branch_top1/metrics/evaluation_data.jsonl": "f74237edd5bc6b2c73f0bc5a0a3adcab2d777b8c20ecd421d1bbb1852ade197a",
+    "branch_cluster_cone/metrics/trajectory_validation.jsonl": "9cd31fe35de9ab4b291e7e811ad5cf0b35b8f86e8395666acd0a0099b2eaf5a6",
+    "branch_cluster_cone/metrics/trajectory_update.jsonl": "d1602dc0e1aacdf1225afe683881ebb188cd3d1067a07c5a775ae15b7f363d2c",
+    "branch_cluster_cone/metrics/trajectory_geometry.jsonl": "ea605b8eebc4a2d8d542169d35ea96a3dff58a346984086d3ea239b3e007c3f6",
+    "branch_cluster_cone/metrics/training_stream.jsonl": "a94dd124896f24b707bfa62cff49596b3946166db25a89c0081aad3836008622",
+    "branch_cluster_cone/metrics/trajectory_initial.jsonl": "e87a6d3e7bb2a52f00d4d75f1330286a1f5d46eb90aa67b16a82844336db77fe",
+    "branch_cluster_cone/metrics/evaluation_data.jsonl": "f74237edd5bc6b2c73f0bc5a0a3adcab2d777b8c20ecd421d1bbb1852ade197a",
+    "branch_half_output_of_cluster/metrics/trajectory_validation.jsonl": "d779826dfee3ad423384a4e4b2d568bd84a121341929b5c8071dd947ad41cd9b",
+    "branch_half_output_of_cluster/metrics/trajectory_update.jsonl": "c57fa360da99f66cfe1bb085718edbb852949913383b5e445d69bf09c59e503d",
+    "branch_half_output_of_cluster/metrics/trajectory_geometry.jsonl": "7715e95acfb149c522a94a3368a524c402a476e1a81299b464c43d1785b45422",
+    "branch_half_output_of_cluster/metrics/training_stream.jsonl": "64e37e12d8cde5f301dbfc38e04f3bd38f334879caaa3383d4e1eabda68bddd0",
+    "branch_half_output_of_cluster/metrics/trajectory_initial.jsonl": "e87a6d3e7bb2a52f00d4d75f1330286a1f5d46eb90aa67b16a82844336db77fe",
+    "branch_half_output_of_cluster/metrics/evaluation_data.jsonl": "f74237edd5bc6b2c73f0bc5a0a3adcab2d777b8c20ecd421d1bbb1852ade197a"
+  },
+  "scope": "One shared checkpoint and seed; independently evolving optimizer states, not independent seeds",
+  "budget_scope": "Same own-state matching rule; not identical absolute displacements after divergence"
+}

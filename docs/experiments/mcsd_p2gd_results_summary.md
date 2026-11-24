@@ -2,8 +2,41 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
-**Status rechecked 2026-11-22:** no new spectral-sphere completion since the
-previous publication. The latest spectral/output-budget replay **4479762**
+**Latest, November25:** [five independent short paths **4488446_0-4**](p2gd_trajectory_panel_20261122.md)
+and shared prefix4488445 all COMPLETED, exit0:0. At step768, cluster-cone
+loss is **3.911326**, versus top-1 **3.929235**, ambient **3.935439**,
+half-D0 **3.942878**, and output attenuation **3.947058**. Last-four means
+give the same best arm. Cluster uses8.530% near decisions,92.4% consecutive
+near events and clusters up to7, with525 top4 overflows in the *uncapped*
+oracle. Its training time is19.4% above top-1. All BF16 matching errors stay
+below1%; strict search mismatches are disclosed. This is one starting
+checkpoint/seed, not evidence of beating MuonSphere/SSO or a full-budget result.
+No new jobs submitted; the49-run1B/3B ledger is unchanged.
+
+**Previous, November22:** [BF16-matched replay **4487990**](p2gd_late_controls_20261122.md)
+COMPLETED, exit0:0, elapsed1:41:22. On14 informative states513-528,
+P2GD-cluster minus ambient/top-1/output-attenuated half-D0 is
+**-9.116e-6 / +7.644e-6 / +2.941e-6**. All14 states pass the <=1% BF16
+budget filter; maximum cluster mismatch is0.0578%. All28 near components have
+cluster dimension2, so this window does not motivate more top capacity.
+This was mixed evidence, not a selected winner. Its approved follow-up:
+[prefix **4488445**, independent paths **4488446_0-4**](p2gd_trajectory_panel_20261122.md),
+256 updates per policy, max two H20, no new1B/3B run, is now complete.
+The49 completed full-budget
+results below remain unchanged.
+
+**Previous:** [six-way results and local sphere tests](p2gd_local_and_six_results_20261122.md).
+Job **4487800** finished all 48 updates in 37:16 on one H20; its final
+postprocessing check compared different audit windows, so Slurm reports
+FAILED. Corrected post-hoc verification passes with identical shared-prefix
+states and unchanged checkpoint hashes. Of 32 measured states, 24 contain
+near components (47 total, all top-2). Cluster-cone does not beat ambient or
+top-1 at equal spectral movement. Simple output attenuation reproduces 98.6%
+of its mean gain over half-D0. Local matched tests show a synthetic geometric
+benefit, not a replicated LLM advantage. The 49 completed full-budget runs
+below are unchanged; the later-state diagnostic above is excluded.
+
+**Previous budget replay:** the spectral/output-budget replay **4479762**
 completed in **16:30**, exit 0:0. At matched spectral movement, cluster-cone
 and finite-momentum directions improve paired loss by about 0.00089, but
 their output movement is only about one third of half-D0's. Finite-D0 does
@@ -12,9 +45,9 @@ Output-matched momentum has a smaller held-out gain (about 0.00010--0.00014)
 but slightly worse training-microbatch loss. All candidates decrease held-out
 loss from before the update in 4/7 informative steps, not 7/7.
 [Latest results and missing mechanism controls](p2gd_budget_matching_20261120.md).
-Both spectral replay jobs are complete. The four separate Frobenius-band jobs
-are now also COMPLETED, exit 0:0, and excluded here. The account queue is empty.
-No new jobs were submitted in this update; the six-way follow-up is still a proposal.
+Those two earlier spectral replay jobs are complete. The four separate Frobenius-band jobs
+are now also COMPLETED, exit 0:0, and excluded here. The queue was empty at
+that earlier check; the separately authorized six-way submission is recorded above.
 
 The earlier short same-state MCSD-TP/P2GD ELR replay
 **4472441** completed on one H20 in **12:47**, exit 0:0. Across seven
@@ -460,7 +493,17 @@ spectral accuracy. See the [complete audit comparison](cluster_lmo_shape_1b_2026
 
 ## Completed Follow-Ups and Next Decisions
 
-**November22 priorities; all entries below are proposals, not queued jobs.**
+**November25 priorities; no new jobs submitted.** The six-way replay, later
+BF16 replay and five independent256-update paths have now completed.
+The latter favors cluster-cone on endpoint and tail mean, unlike the mixed
+same-state results. Repeat cluster/top-1/output attenuation from a second
+starting state; collect paired snapshots on the cluster path to inspect
+residence and capacity; then test approximate spectra and cheaper calibration
+offline. Preserve the complete numerical cluster reference (observed q up to7).
+MuonSphere/SSO short branches remain missing. See the
+[current analysis and follow-up plan](p2gd_trajectory_panel_20261122.md).
+
+**Historical November22 planning context (superseded):**
 Both the matched-AUS replay and its spectral/output-budget follow-up are
 complete. They reuse seven informative steps and 12 near components, all
 numerical q=2. Momentum-cone candidates lose under AUS matching and win under

@@ -1,0 +1,241 @@
+{
+  "prefix": {
+    "prefix_steps": 16,
+    "state_records": 80,
+    "verified": true
+  },
+  "restore": {
+    "updates": 2,
+    "final_loss": 4.10734269618988,
+    "last_four_mean_loss": 4.104986292123794,
+    "near_components": 3,
+    "unmatched_components": 0,
+    "max_budget_error": 0.0,
+    "max_radius_error": 2.2442477765061142e-07,
+    "mean_step_seconds": 23.167947872076184,
+    "first32_mean_step_seconds": 23.167947872076184,
+    "curves": [
+      {
+        "iteration": 512,
+        "policy": "half_d0",
+        "loss": 4.102629888057709,
+        "batches": [
+          {
+            "loss": 4.302544116973877,
+            "valid_tokens": 16384.0,
+            "tokens": "01b705609fefbba2cf6d6b713a92f8c6b6156453fdfb29ace6282d92c0b44e5c"
+          },
+          {
+            "loss": 4.061561584472656,
+            "valid_tokens": 16384.0,
+            "tokens": "e367ba42eb19a8d0ce2d3a656baf8ee2ac9299bd66aff1a251fdc80a7417c200"
+          },
+          {
+            "loss": 4.160144805908203,
+            "valid_tokens": 16384.0,
+            "tokens": "ce5ce66e78e75dc8fa527051ee067236c5d7c84bcca3c63116395ec6ae45c53b"
+          },
+          {
+            "loss": 3.8567428588867188,
+            "valid_tokens": 16384.0,
+            "tokens": "600fec524ff05841debc44477eceaabbdfa8d8bb82fb2b6a2d859ddc3ec2c410"
+          },
+          {
+            "loss": 4.1183576583862305,
+            "valid_tokens": 16384.0,
+            "tokens": "dd3e1007d10b0e5b4b7418c9b8c95b16884edec8f27669a5a03a50d18f79f99d"
+          },
+          {
+            "loss": 3.875199317932129,
+            "valid_tokens": 16384.0,
+            "tokens": "ea8e39fe24b6aebb2bae218f063eb5961d4019e3019540f34a59ad8fb19c6bcb"
+          },
+          {
+            "loss": 3.9063782691955566,
+            "valid_tokens": 16384.0,
+            "tokens": "39f0159e18bd9bb1576ea83b2773fb112532614258da69eeaf8e4a17240c723e"
+          },
+          {
+            "loss": 4.228918075561523,
+            "valid_tokens": 16384.0,
+            "tokens": "85192e4f3e0c1e494729df5b3aa7b930dfc557ba34f3d0215f9602043b336121"
+          },
+          {
+            "loss": 4.267674446105957,
+            "valid_tokens": 16384.0,
+            "tokens": "b4f183d46c7c26e9817417b31ebfe5f2184753e5370f92dbced4e9bcb2266c68"
+          },
+          {
+            "loss": 4.14644718170166,
+            "valid_tokens": 16384.0,
+            "tokens": "167857aa3dc0b1f40e036223e328bfeb31510c2509738b2ecb7753bd816fa9eb"
+          },
+          {
+            "loss": 4.4890313148498535,
+            "valid_tokens": 16384.0,
+            "tokens": "7be412dbc6abb352325956ac72b9f3212fda7df069db00d20f3c8f096446230f"
+          },
+          {
+            "loss": 4.035799503326416,
+            "valid_tokens": 16384.0,
+            "tokens": "27ab3c40071aa7a6ad7bb2d123ee587d5be649e88f1e9185ead848f673f9deb4"
+          },
+          {
+            "loss": 3.713137149810791,
+            "valid_tokens": 16384.0,
+            "tokens": "ee714c3f98f143e264c32ef21226eddfda695f1ac95d5239a0fa619860ee7800"
+          },
+          {
+            "loss": 3.98689866065979,
+            "valid_tokens": 16384.0,
+            "tokens": "07150567255f044064ce966cbeb73c70fbfc764de9a1ec803884f2d85b92937a"
+          },
+          {
+            "loss": 4.123488426208496,
+            "valid_tokens": 16384.0,
+            "tokens": "b1d2c9a60556406d58c28d821027a03c77b08d27f3c68098f69c4b67f7e6b921"
+          },
+          {
+            "loss": 3.9778647422790527,
+            "valid_tokens": 16384.0,
+            "tokens": "f1276b32dd5dc190778092c163268c909120e9fc163e96396a71fd2239bc411c"
+          },
+          {
+            "loss": 4.230025768280029,
+            "valid_tokens": 16384.0,
+            "tokens": "b9b39763269e1f70b72a44c30a32952fb3d886d8027c0df87ff000741184984d"
+          },
+          {
+            "loss": 4.251350402832031,
+            "valid_tokens": 16384.0,
+            "tokens": "036a85c27542ba856ebc0f1c3ceaa577b0fee953ee6322f985559235f4139ff9"
+          },
+          {
+            "loss": 4.032221794128418,
+            "valid_tokens": 16384.0,
+            "tokens": "44d7fa35a6b35d29e68b01697e2fe601cac42483b2acbb7377f71630146173a3"
+          },
+          {
+            "loss": 4.288811683654785,
+            "valid_tokens": 16384.0,
+            "tokens": "0f90a5b9544eb1e4ec76f415b488f83aeb3c855b09cfc45657fa93b865072c2d"
+          }
+        ],
+        "scope": "20 fixed held-out microbatches; separate from calibration; not a full validation benchmark"
+      },
+      {
+        "iteration": 514,
+        "policy": "half_d0",
+        "loss": 4.10734269618988,
+        "batches": [
+          {
+            "loss": 4.311300277709961,
+            "valid_tokens": 16384.0,
+            "tokens": "01b705609fefbba2cf6d6b713a92f8c6b6156453fdfb29ace6282d92c0b44e5c"
+          },
+          {
+            "loss": 4.06153678894043,
+            "valid_tokens": 16384.0,
+            "tokens": "e367ba42eb19a8d0ce2d3a656baf8ee2ac9299bd66aff1a251fdc80a7417c200"
+          },
+          {
+            "loss": 4.177873611450195,
+            "valid_tokens": 16384.0,
+            "tokens": "ce5ce66e78e75dc8fa527051ee067236c5d7c84bcca3c63116395ec6ae45c53b"
+          },
+          {
+            "loss": 3.86569881439209,
+            "valid_tokens": 16384.0,
+            "tokens": "600fec524ff05841debc44477eceaabbdfa8d8bb82fb2b6a2d859ddc3ec2c410"
+          },
+          {
+            "loss": 4.111956596374512,
+            "valid_tokens": 16384.0,
+            "tokens": "dd3e1007d10b0e5b4b7418c9b8c95b16884edec8f27669a5a03a50d18f79f99d"
+          },
+          {
+            "loss": 3.8740742206573486,
+            "valid_tokens": 16384.0,
+            "tokens": "ea8e39fe24b6aebb2bae218f063eb5961d4019e3019540f34a59ad8fb19c6bcb"
+          },
+          {
+            "loss": 3.915900468826294,
+            "valid_tokens": 16384.0,
+            "tokens": "39f0159e18bd9bb1576ea83b2773fb112532614258da69eeaf8e4a17240c723e"
+          },
+          {
+            "loss": 4.235474586486816,
+            "valid_tokens": 16384.0,
+            "tokens": "85192e4f3e0c1e494729df5b3aa7b930dfc557ba34f3d0215f9602043b336121"
+          },
+          {
+            "loss": 4.27099609375,
+            "valid_tokens": 16384.0,
+            "tokens": "b4f183d46c7c26e9817417b31ebfe5f2184753e5370f92dbced4e9bcb2266c68"
+          },
+          {
+            "loss": 4.141540050506592,
+            "valid_tokens": 16384.0,
+            "tokens": "167857aa3dc0b1f40e036223e328bfeb31510c2509738b2ecb7753bd816fa9eb"
+          },
+          {
+            "loss": 4.485215187072754,
+            "valid_tokens": 16384.0,
+            "tokens": "7be412dbc6abb352325956ac72b9f3212fda7df069db00d20f3c8f096446230f"
+          },
+          {
+            "loss": 4.043276309967041,
+            "valid_tokens": 16384.0,
+            "tokens": "27ab3c40071aa7a6ad7bb2d123ee587d5be649e88f1e9185ead848f673f9deb4"
+          },
+          {
+            "loss": 3.7180423736572266,
+            "valid_tokens": 16384.0,
+            "tokens": "ee714c3f98f143e264c32ef21226eddfda695f1ac95d5239a0fa619860ee7800"
+          },
+          {
+            "loss": 3.9916725158691406,
+            "valid_tokens": 16384.0,
+            "tokens": "07150567255f044064ce966cbeb73c70fbfc764de9a1ec803884f2d85b92937a"
+          },
+          {
+            "loss": 4.130472183227539,
+            "valid_tokens": 16384.0,
+            "tokens": "b1d2c9a60556406d58c28d821027a03c77b08d27f3c68098f69c4b67f7e6b921"
+          },
+          {
+            "loss": 3.9897570610046387,
+            "valid_tokens": 16384.0,
+            "tokens": "f1276b32dd5dc190778092c163268c909120e9fc163e96396a71fd2239bc411c"
+          },
+          {
+            "loss": 4.239738464355469,
+            "valid_tokens": 16384.0,
+            "tokens": "b9b39763269e1f70b72a44c30a32952fb3d886d8027c0df87ff000741184984d"
+          },
+          {
+            "loss": 4.263618469238281,
+            "valid_tokens": 16384.0,
+            "tokens": "036a85c27542ba856ebc0f1c3ceaa577b0fee953ee6322f985559235f4139ff9"
+          },
+          {
+            "loss": 4.034873962402344,
+            "valid_tokens": 16384.0,
+            "tokens": "44d7fa35a6b35d29e68b01697e2fe601cac42483b2acbb7377f71630146173a3"
+          },
+          {
+            "loss": 4.2838358879089355,
+            "valid_tokens": 16384.0,
+            "tokens": "0f90a5b9544eb1e4ec76f415b488f83aeb3c855b09cfc45657fa93b865072c2d"
+          }
+        ],
+        "scope": "20 fixed held-out microbatches; separate from calibration; not a full validation benchmark"
+      }
+    ],
+    "successful_updates": true
+  },
+  "restored_state_records": 10,
+  "checkpoint": "/home/u3013198/projects/mcsd-p2gd-paths-20261122-v1/common_checkpoint",
+  "spectral_cache": "none: exact spectra recomputed",
+  "new_evaluation_data": true
+}

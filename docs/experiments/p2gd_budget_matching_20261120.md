@@ -7,7 +7,8 @@ in **16:30**, exit 0:0. It is not a new 1B/3B training comparison. No new
 checkpoints were saved. The checkpoint and prior common training replay match.
 There is no new spectral-sphere run since the previous publication. This
 update adds complete-update descent statistics and checks the same raw data;
-the proposed six-way follow-up has not been submitted.
+the [six-way follow-up](p2gd_six_controls_20261122.md) was separately authorized
+and submitted on November22 as4487800. It has no completed result yet.
 
 **Main finding:** momentum-cone directions improve the paired held-out loss
 after spectral matching, but their local-output changes are only about one

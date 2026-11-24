@@ -1,0 +1,10 @@
+{
+  "iteration": 512,
+  "files": {
+    "iter_0000512/.metadata": "78fe4f60b7084695be2249b99b40d591ab60ceb7d4302cf45a731b76524529a4",
+    "iter_0000512/__0_0.distcp": "5771f85c0eb70d0e18d786c5ff27d017eb05f6a4dc8badb934217397c6da5160",
+    "iter_0000512/common.pt": "02d02a37a916030623f5534e68306fa9a9db5db4a3981159722c84d514650358",
+    "iter_0000512/metadata.json": "9817072de14c715c70e8435a7fee90bac30abaf6885fc53ade6fe88babeef851",
+    "latest_checkpointed_iteration.txt": "94f8607915dff25f013e45fc0642fb9830b0fb25ab0ab46d477eaf1061def379"
+  }
+}

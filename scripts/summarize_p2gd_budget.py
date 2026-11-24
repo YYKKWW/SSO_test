@@ -12,9 +12,11 @@ def read(path):
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
-def summarize(directory):
+def summarize(directory, arms=ARMS, analysis_first=None):
     loss_path, geometry_path = directory/'repair_loss_replay.jsonl',directory/'repair_geometry.jsonl'
     loss, geometry = read(loss_path), read(geometry_path)
+    if analysis_first is not None:
+        loss = [r for r in loss if r['iteration'] >= analysis_first]
     completed = {r['iteration'] for r in loss}
     geometry = [r for r in geometry if r['iteration'] in completed]
     if not loss or not all(r['restore_asserted'] for r in loss):
@@ -27,7 +29,7 @@ def summarize(directory):
             r['iteration']: r['near_components'] for r in loss if r['near_components']}):
         raise ValueError('Inconsistent per-step geometry/loss snapshot')
     informative = [r for r in loss if r['near_components']]
-    names = [a['name'] for a in ARMS]
+    names = [a['name'] for a in arms]
     for row in loss:
         if [a['method'] for a in row['results']]!=names:
             raise ValueError('Missing method')
@@ -35,7 +37,7 @@ def summarize(directory):
         if any(tokens(a)!=tokens(row['results'][0]) for a in row['results']):
             raise ValueError('Unpaired held-out data')
     results=[]
-    for arm in ARMS:
+    for arm in arms:
         name,metric,fraction=(arm[k] for k in ('name','metric','fraction'))
         control = 'half_d0' if fraction==1. else metric+'_095_half_d0'
         deltas=[];absolute=[];training=[];before=[];all_deltas=[]
@@ -51,7 +53,11 @@ def summarize(directory):
         comp=[next(a for a in row['rows'] if a['method']==name) for row in geometry]
         def mean(values):
             return sum(values)/len(values) if values else None
-        errors=[abs((r['returned_spectral_elr'] if metric=='spectral' else r['local_output_elr'])-r['target'])
+        def matched_value(r):
+            if r.get('matching_space')=='bf16_forward':
+                return r['bf16_spectral_elr'] if metric=='spectral' else r['bf16_output_elr']
+            return r['returned_spectral_elr'] if metric=='spectral' else r['local_output_elr']
+        errors=[abs(matched_value(r)-r['target'])
                 for r in comp] if metric!='reference' else []
         violations=sum(e>r['tolerance']+1e-8 for e,r in zip(errors,comp))
         results.append(dict(**arm,matched_control=control,informative_steps=len(deltas),

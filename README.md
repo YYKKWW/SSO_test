@@ -4,6 +4,9 @@ Research code and experiment records for **MCSD-TP**, near-region hybrids,
 and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
 [Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
+[BF16-matched results](docs/experiments/p2gd_late_controls_20261122.md) ·
+[Independent short trajectories](docs/experiments/p2gd_trajectory_panel_20261122.md) ·
+[Six-control and local tests](docs/experiments/p2gd_local_and_six_results_20261122.md) ·
 [Latest 3B comparison](docs/experiments/warm_radial_controls_3b_20261117.md) ·
 [Latest budget controls](docs/experiments/p2gd_budget_matching_20261120.md) ·
 [Returned-step replay](docs/experiments/p2gd_returned_elr_replay_20261119.md) ·
@@ -12,14 +15,64 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
 
-> **Rechecked November 22, 2026:** no new spectral-sphere completion since
-> job 4479762. The current 1B/3B ledger still contains 49 completed width-256
-> runs; the two short replays remain separate. All four Frobenius-band jobs
-> have now completed and are excluded from this ledger. The account queue is
-> empty. This update reanalyzes existing results; it submits no new jobs.
+> **Updated November 25, 2026:** all five256-update paths **4488446_0-4**
+> and prefix **4488445** COMPLETED, exit0:0. Cluster-cone has the lowest
+> endpoint and last-four-evaluation mean, but uses the near branch more often
+> and costs more. This is a single-checkpoint signal, not a replicated win.
+> The current 1B/3B ledger still contains 49 completed width-256 runs;
+> short replays and the separate Frobenius-band jobs are not added to it.
+> No new jobs were submitted in this update. The older six-way replay4487800 retains its
+> original postprocessing-FAILED status and corrected post-hoc verification.
 > This is a research branch, not a frozen paper release.
 
-## Latest Result: Budget Matching Changes the Comparison
+## Latest: Independent Short Trajectories
+
+Width256; same step512 checkpoint, full optimizer state and training batches;
+256 updates per policy,20 fixed held-out microbatches. After divergence each
+arm matches its own-state reference budget, not an identical absolute step.
+
+| Near-region policy | Final loss | Last-four mean | Near rate | H20 time |
+|---|---:|---:|---:|---:|
+| Half-D0 | 3.942878 | 3.980456 | 0.769% | 1:26:11 |
+| Ambient | 3.935439 | 3.966445 | 1.705% | 1:29:51 |
+| Top-1 | 3.929235 | 3.964658 | 3.491% | 1:35:15 |
+| **Cluster-cone** | **3.911326** | **3.945195** | 8.530% | 1:53:43 |
+| Output-attenuated half-D0 | 3.947058 | 3.966588 | 0.885% | 1:29:50 |
+
+Cluster improves on top-1 by0.017909 at the endpoint, with19.4% higher
+diagnostic training time. Its92.4% consecutive-near fraction is not alone a
+failure indicator; the resulting trajectory needs clusters up to size7,
+with525 events exceeding top4. All matching errors stay below1%, though
+strict-tolerance failures are retained. This panel does not contain
+MuonSphere/SSO and is not a full validation or1B/3B comparison.
+
+[Curves, capacity audit, verified records and next tests](docs/experiments/p2gd_trajectory_panel_20261122.md)
+
+## Previous BF16-Matched Single-Step Result
+
+At steps513-528, cluster-cone minus ambient/top-1/output-attenuated half-D0
+held-out loss is **-9.116e-6 / +7.644e-6 / +2.941e-6** over14 informative states.
+Maximum cluster BF16 budget error is0.0578%; all28 numerical clusters have
+dimension2. This is mixed evidence, not a P2GD winner. The approved independent
+paths test cumulative behavior, not a larger hyperparameter grid.
+
+[Full results, precision audit and source records](docs/experiments/p2gd_late_controls_20261122.md)
+
+## Previous Result: No Isolated P2GD Gain in the LLM Replay
+
+Across 24 informative states, cluster-cone minus ambient loss is **+0.000003216**,
+and cluster-cone minus top-1 is **+0.000001483**, at matched spectral movement.
+Output-attenuated half-D0 reproduces **98.6%** of the cluster arm's mean gain
+over the original half-D0. Finite-step repair does not improve it. These are
+correlated one-step comparisons, not independent training runs.
+
+Local FP64 sphere tests show a geometric advantage over ambient/top-1 on
+constructed matched-step problems, but not universal superiority over half-D0.
+Keep P2GD as a mechanism candidate; do not promote it to 3B based on this window.
+
+[Six-way table, local trajectories, integrity checks and next decision](docs/experiments/p2gd_local_and_six_results_20261122.md)
+
+## Previous Result: Budget Matching Changes the Comparison
 
 The follow-up **16-update / 15-candidate** budget replay completed in **16:30**
 on one H20. These are counterfactuals on one common trajectory, not 15 training
@@ -154,13 +207,18 @@ not automatically satisfied by fixed-K10 training.
 
 ## Next Tests, Not Submitted
 
-1. Later-checkpoint same-state replay: half-D0, output-attenuated half-D0,
-   and spectral-matched ambient / top-1 / cluster-cone / finite-momentum.
-   Determine whether correction improves over both direction and scale controls.
-2. For a surviving candidate only, run a 32-step independent branch comparison,
-   then check warm-block implementation error and cost.
-3. Add the missing **MuonSphere coefficient 0.985 / 0.95** short controls to
-   the earlier 32-step study. Retain SSO/MCSD/MCSD-TP references.
+1. Repeat the bounded256-update cluster/top-1/output-attenuation comparison
+   from another starting state and fresh evaluation data; keep half-D0 as a
+   reference where affordable. No new gap search or longer horizon yet.
+2. Sample identical near states along the cluster trajectory to distinguish
+   multi-direction correction from altered near-region residence.
+3. Offline, test capacity4/6 versus the complete observed cluster, then
+   warm-block K10/K20 and cheaper coefficient calibration. Top4 is not enough
+   to reproduce all current exact-oracle updates.
+
+MuonSphere/SSO matched short branches and the older MuonSphere coefficient
+controls remain missing. Existing full-budget endpoints are not substitutes
+for these comparisons. See the [detailed decision](docs/experiments/p2gd_trajectory_panel_20261122.md#next-tests-not-submitted-by-this-update).
 
 After these short checks, the open 3B controls are **all-step matrix-only
 half-D0** and a second-seed control/near-half pair. Preserve the AdamW
@@ -194,7 +252,13 @@ matrix snapshots and bulk raw-log archives remain outside Git. Some collectors
 require these local archives; the published JSON is sufficient to inspect the
 reported comparisons, not to reconstruct missing model checkpoints.
 
-Publication recheck on November22: 23 related CPU tests passed, including five
+Publication recheck on November25:43 replay/trajectory tests and8 local-sphere
+tests passed, including
+return/restore and new streak/capacity aggregation checks. Five complete raw
+trajectories were reaggregated with paired model/optimizer/data verification.
+No new CUDA training or long job was launched for publication.
+
+Earlier publication recheck on November22:23 related CPU tests passed, including five
 new aggregation checks separating relative wins from pre-update descent.
 The expanded budget summary preserves every historical metric and raw-file
 checksum; the H20 files were rechecked unchanged. Online accounting and the

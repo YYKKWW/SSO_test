@@ -8,6 +8,8 @@ from p2gd_budget_geometry import ARMS, candidates, norm2
 
 
 class BudgetReplay(RepairReplay):
+    candidate_factory = staticmethod(candidates)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.methods = tuple(a['name'] for a in ARMS)
@@ -24,11 +26,11 @@ class BudgetReplay(RepairReplay):
         info = dict(effective_alpha=alpha, target=target, measured=target,
             tolerance=2e-6+2e-3*target, relative_error=0., evaluations=1, metric='aus',
             matching_enforced=False, reference_reused=False, return_kind='radial')
-        if not near:
+        if not near or self.iteration < getattr(self, 'measure_first', self.first):
             return baseline, info
         q = int(((1-s/s[0])<=self.near_threshold).sum())
         context = self.contexts[self.key(W)]
-        points, records, targets = candidates(x,self.current_momentum,d0,u[:,:q],s[:q],vh[:q].T,
+        points, records, targets = self.candidate_factory(x,self.current_momentum,d0,u[:,:q],s[:q],vh[:q].T,
             radius,alpha,context['calibration'],baseline)
         g = self.raw_gradient_view(W).float()
         h_independent = context['heldout']
@@ -53,6 +55,12 @@ class BudgetReplay(RepairReplay):
             if metric!='reference':
                 value = record['bf16_spectral_elr'] if metric=='spectral' else record['bf16_output_elr']
                 expected = forward_targets[metric]*record['budget_fraction']
+                ref = record.get('target_reference', 'half_d0')
+                if ref != 'half_d0':
+                    ref_delta = points[ref].to(forward_dtype).float()-forward_x
+                    expected = float((norm2(ref_delta)/forward_norm) if metric=='spectral' else
+                        (context['calibration']@ref_delta.T).norm()/forward_output_norm)*record['budget_fraction']
+                record['bf16_budget_target'] = expected
                 record['bf16_budget_relative_error'] = abs(value-expected)/max(expected,1e-30)
         self.emit('repair_geometry',dict(iteration=self.iteration,component=context['index'],
             parameter=context['parameter'],shape=list(x.shape),gap=gap,cluster_dimension=q,

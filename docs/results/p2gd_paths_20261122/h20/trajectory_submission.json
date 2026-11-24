@@ -1,0 +1,23 @@
+{
+  "project": "/home/u3013198/projects/mcsd-p2gd-paths-20261122-v1",
+  "width": 256,
+  "seed": 1234,
+  "first": 513,
+  "last": 768,
+  "steps_per_arm": 256,
+  "policies": [
+    "half_d0",
+    "ambient",
+    "top1",
+    "cluster_cone",
+    "half_output_of_cluster"
+  ],
+  "max_concurrent_h20": 2,
+  "checkpoint": "one temporary common state at 512",
+  "branch_checkpoint_saving": false,
+  "prerequisite": "/home/u3013198/projects/mcsd-p2gd-late-20261122-v1",
+  "decision": "Mixed tiny BF16 signal: bounded cumulative-effect falsification, not a selected P2GD winner",
+  "created_utc": "2026-11-22T12:40:51.056010+00:00",
+  "prefix_job": "4488445",
+  "array_job": "4488446"
+}
