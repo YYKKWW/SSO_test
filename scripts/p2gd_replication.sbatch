@@ -19,9 +19,10 @@ source "$HOME/envs/sso_h20/bin/activate"
 export MEGATRON_PATH="$PROJECT_DIR/Megatron-LM"
 export PYTHONPATH="$PROJECT_DIR/studies/p2gd_elr:$PROJECT_DIR/elr/h20_elr:$PROJECT_DIR/elr:$MEGATRON_PATH${PYTHONPATH:+:$PYTHONPATH}"
 export NVIDIA_TF32_OVERRIDE=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 ELR_TEST_DEVICE=cuda
-python -B -m unittest test_p2gd_replication test_p2gd_trajectory test_p2gd_trajectory_integrity -v
+python -B -m unittest test_p2gd_recovery test_p2gd_replication test_p2gd_trajectory test_p2gd_trajectory_integrity -v
 case "${P2GD_STAGE:?}" in
   prefix) python -B studies/p2gd_elr/run_p2gd_replication.py prefix ;;
+  recover) python -B studies/p2gd_elr/run_p2gd_replication.py recover ;;
   branch) python -B studies/p2gd_elr/run_p2gd_replication.py branch --index "${SLURM_ARRAY_TASK_ID:?}" ;;
   audit) python -B studies/p2gd_elr/audit_p2gd_snapshots.py ;;
   *) exit 2 ;;

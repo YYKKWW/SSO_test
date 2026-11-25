@@ -83,20 +83,42 @@ def prefix(root):
     old=prior/'results/branch_half_d0/metrics'
     proof=verify_repeated_prefix(metrics,old)
     write(root/'results/common_checkpoint_manifest.json',checkpoint_manifest(checkpoint,768))
+    restore_gate(root,proof,old)
+    if checkpoint_manifest(source,512)!=manifest:
+        raise RuntimeError('Original checkpoint modified')
+
+
+def restore_gate(root,proof,old):
+    checkpoint=validate(root)
+    if (root/'results/restore_smoke').exists() or (root/'results/PREFIX_READY.json').exists():
+        raise RuntimeError('Refuse duplicate/partial restore gate')
     run(root,'restore_smoke',settings(root,checkpoint,'half_d0',769,770))
     smoke=root/'results/restore_smoke/metrics'
     verify_branch(smoke,last=770,first=769)
-    verify_restored_state(read(metrics/'checkpoint_post_state.jsonl'),read(smoke/'trajectory_initial.jsonl'))
+    verify_restored_state(read(root/'results/common_prefix/metrics/checkpoint_post_state.jsonl'),
+                          read(smoke/'trajectory_initial.jsonl'))
     new=read(smoke/'evaluation_data.jsonl')[0];previous=read(old/'evaluation_data.jsonl')[0]
     if set(new['heldout_tokens']+[new['calibration_tokens']]) & set(previous['heldout_tokens']+[previous['calibration_tokens']]):
         raise RuntimeError('Evaluation batches overlap previous panel')
     validate(root)
-    if checkpoint_manifest(source,512)!=manifest:
-        raise RuntimeError('Original checkpoint modified')
     write(root/'results/PREFIX_READY.json',dict(verified=True,
         matched_reference_state_records=proof['matched_reference_state_records'],
         exact_post_save_model_and_optimizer_restored=True,new_evaluation_batches=True,
         checkpoint=str(checkpoint),first=769,last=1024))
+
+
+def recover(root):
+    """Reuse the verified saved prefix; never replay its 256 training updates."""
+    record=json.loads((root/'results/recovery_preparation.json').read_text())
+    source=Path(record['source'])
+    if (root/'common_checkpoint').resolve()!=(source/'common_checkpoint').resolve():
+        raise RuntimeError('Recovery checkpoint does not match its source')
+    if (root/'results/common_prefix').resolve()!=(source/'results/common_prefix').resolve():
+        raise RuntimeError('Recovery prefix does not match its source')
+    validate(root)
+    old=Path(os.environ['P2GD_PREVIOUS_PATHS_ROOT'])/'results/branch_half_d0/metrics'
+    proof=verify_repeated_prefix(root/'results/common_prefix/metrics',old)
+    restore_gate(root,proof,old)
 
 
 def branch(root,index):
@@ -129,11 +151,13 @@ def branch(root,index):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('stage',choices=('prefix','branch'))
+    parser.add_argument('stage',choices=('prefix','recover','branch'))
     parser.add_argument('--index',type=int,choices=range(4))
     args=parser.parse_args();root=Path(os.environ['PROJECT_DIR'])
     if args.stage=='prefix':
         prefix(root)
+    elif args.stage=='recover':
+        recover(root)
     else:
         if args.index is None:
             parser.error('branch needs --index')

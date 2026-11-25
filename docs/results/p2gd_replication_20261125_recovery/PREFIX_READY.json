@@ -1,0 +1,9 @@
+{
+  "verified": true,
+  "matched_reference_state_records": 45,
+  "exact_post_save_model_and_optimizer_restored": true,
+  "new_evaluation_batches": true,
+  "checkpoint": "/home/u3013198/projects/mcsd-p2gd-replication-20261125-recovery-v1/common_checkpoint",
+  "first": 769,
+  "last": 1024
+}

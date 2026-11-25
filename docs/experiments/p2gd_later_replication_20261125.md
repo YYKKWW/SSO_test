@@ -1,5 +1,11 @@
 # Later-Start Replication and Snapshot Audit
 
+**Recovery submitted November 25 at 11:29 UTC+08:** a
+[separate recovery batch](p2gd_replication_recovery_20261125.md) reuses the
+saved step-768 checkpoint. Jobs 4506264 / 4506265 / 4506266 perform the restore
+gate, four original short branches and snapshot audit, respectively. The
+historical failure below remains unchanged; submission is not a new result.
+
 ## Latest Status: Prefix Verification Failed
 
 Checked **November 25, 2026 at 11:02 UTC+08**. There are **zero new branch

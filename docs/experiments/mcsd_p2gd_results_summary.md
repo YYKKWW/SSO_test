@@ -2,6 +2,14 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
+**Recovery, November 25 at 11:29 UTC+08:**
+[4506264 / 4506265 / 4506266](p2gd_replication_recovery_20261125.md) resume the
+original four-arm design through a separate restore gate and frozen source
+directory. The gate passed; half-D0/top-1 are running, with two paths queued.
+They reuse step768 rather than replaying the prefix. At most two
+H20 run concurrently. No final new branch outcome is available yet;
+the 49-run 1B/3B ledger and earlier algorithm comparisons are unchanged.
+
 **Latest status, November 25 at 11:02 UTC+08:**
 [later-start replication](p2gd_later_replication_20261125.md) has **no new
 branch results**. Prefix **4504395** completed all 256 training updates and

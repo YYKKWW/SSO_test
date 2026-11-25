@@ -4,6 +4,7 @@ Research code and experiment records for **MCSD-TP**, near-region hybrids,
 and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
 [Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
+[Recovery batch](docs/experiments/p2gd_replication_recovery_20261125.md) ·
 [Latest replication status](docs/experiments/p2gd_later_replication_20261125.md) ·
 [BF16-matched results](docs/experiments/p2gd_late_controls_20261122.md) ·
 [Independent short trajectories](docs/experiments/p2gd_trajectory_panel_20261122.md) ·
@@ -16,7 +17,15 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
 
-> **Checked November 25, 2026, 11:02 UTC+08:** the later-start replication
+> **Recovery submitted November 25, 2026, 11:29 UTC+08:** jobs
+> **4506264 / 4506265 / 4506266** reuse step768 for the two-update restore
+> gate, four dependent short paths (at most two H20), and snapshot audit.
+> The restore gate has **passed**; half-D0/top-1 are running and the other
+> two paths wait on the concurrency limit. Final branch results are pending.
+> No repeated prefix training, new checkpoint copy or 3B sweep is launched.
+> This is a pending replication, not new algorithm-comparison evidence.
+>
+> **Previous check, November 25, 2026, 11:02 UTC+08:** the later-start replication
 > stopped at a prefix-verifier bug. Prefix **4504395** finished its 256 training
 > updates but has scheduler status **FAILED**; four dependent branches
 > **4504396_0-3** and audit **4504397** were cancelled before running.

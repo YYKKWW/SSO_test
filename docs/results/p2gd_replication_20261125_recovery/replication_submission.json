@@ -1,0 +1,31 @@
+{
+  "project": "/home/u3013198/projects/mcsd-p2gd-replication-20261125-recovery-v1",
+  "prior": "/home/u3013198/projects/mcsd-p2gd-paths-20261122-v1",
+  "width": 256,
+  "seed": 1234,
+  "prefix_first": 769,
+  "prefix_last": 770,
+  "first": 769,
+  "last": 1024,
+  "steps_per_arm": 256,
+  "policies": [
+    "half_d0",
+    "top1",
+    "cluster_cone",
+    "half_output_of_cluster"
+  ],
+  "max_concurrent_h20": 2,
+  "valid_skip_batches": 160,
+  "gap": 0.0002,
+  "cluster_window": 0.0002,
+  "checkpoint_saving": "none; reuse existing step768",
+  "snapshots": "cluster path only, <=24 and <=256 MiB",
+  "scope": "Later-start replication, not a second seed; no 1B/3B job",
+  "created_utc": "2026-11-25T03:29:04.259239+00:00",
+  "prefix_stage": "recover",
+  "repeated_prefix_updates": 0,
+  "recovered_from": "/home/u3013198/projects/mcsd-p2gd-replication-20261125-v1",
+  "prefix_job": "4506264",
+  "branch_job": "4506265",
+  "audit_job": "4506266"
+}

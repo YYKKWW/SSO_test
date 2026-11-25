@@ -42,13 +42,20 @@ def main():
         snapshots='cluster path only, <=24 and <=256 MiB',
         scope='Later-start replication, not a second seed; no 1B/3B job',
         created_utc=datetime.now(timezone.utc).isoformat())
+    recovery=(root/'results/recovery_preparation.json').exists()
+    if recovery:
+        result.update(prefix_stage='recover',prefix_first=769,prefix_last=770,
+            repeated_prefix_updates=0,checkpoint_saving='none; reuse existing step768',
+            recovered_from=json.loads((root/'results/recovery_preparation.json').read_text())['source'])
     write(pending,result)
     def submit(stage,args):
         value=subprocess.check_output(['sbatch','--parsable','--export=ALL',*args,entry],
-            cwd=root,env=dict(env,P2GD_STAGE=stage),text=True).strip().split(';')[0]
+            cwd=root,env=dict(env,P2GD_STAGE='recover' if stage=='prefix' and recovery else stage),
+            text=True).strip().split(';')[0]
         result[stage+'_job']=value;write(pending,result)
         return value
-    prefix=submit('prefix',['--time=03:00:00','--job-name=w256_p2gd_rep_prefix'])
+    prefix=submit('prefix',['--time=00:45:00' if recovery else '--time=03:00:00',
+        '--job-name=w256_p2gd_rep_restore' if recovery else '--job-name=w256_p2gd_rep_prefix'])
     array=submit('branch',['--array=0-3%2','--dependency=afterok:'+prefix,'--kill-on-invalid-dep=yes'])
     submit('audit',['--time=00:30:00','--job-name=w256_p2gd_snapshot','--dependency=afterok:'+array,'--kill-on-invalid-dep=yes'])
     pending.replace(receipt)
