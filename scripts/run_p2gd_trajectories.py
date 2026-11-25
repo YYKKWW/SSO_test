@@ -26,17 +26,17 @@ def branch_settings(root, checkpoint, policy, last=768):
         ELR_NEAR_THRESHOLD='2e-4',TRANSFORMER_IMPL='local')
 
 
-def verify_branch(metrics, last=768):
+def verify_branch(metrics, last=768, first=513):
     updates=read(metrics/'trajectory_update.jsonl')
-    if [r['iteration'] for r in updates]!=list(range(513,last+1)):
+    if [r['iteration'] for r in updates]!=list(range(first,last+1)):
         raise RuntimeError('Missing branch updates')
     if not all(r['components']==252 and r['exact_commit'] and r['max_radius_error']<=5e-5 for r in updates):
         raise RuntimeError('Invalid branch returns/layout')
     stream=read(metrics/'training_stream.jsonl')
-    if [r['iteration'] for r in stream]!=list(range(513,last+1)) or any(len(r['batches'])!=32 for r in stream):
+    if [r['iteration'] for r in stream]!=list(range(first,last+1)) or any(len(r['batches'])!=32 for r in stream):
         raise RuntimeError('Training data/accumulation count mismatch')
     evaluation=read(metrics/'trajectory_validation.jsonl')
-    expected=sorted({512,last}|set(range(544,last+1,32)))
+    expected=sorted({first-1,last}|set(range(((first+31)//32)*32,last+1,32)))
     if [r['iteration'] for r in evaluation]!=expected:
         raise RuntimeError('Evaluation interval mismatch')
     data=read(metrics/'evaluation_data.jsonl')
@@ -55,7 +55,7 @@ def verify_branch(metrics, last=768):
         curves=evaluation,successful_updates=True)
 
 
-def verify_initial(branch, reference):
+def verify_initial(branch, reference, first=513):
     for name in ('trajectory_initial','evaluation_data'):
         if read(branch/(name+'.jsonl'))!=read(reference/(name+'.jsonl')):
             raise RuntimeError('Unmatched initial '+name)
@@ -64,9 +64,9 @@ def verify_initial(branch, reference):
             raise RuntimeError('Training token stream mismatch')
     a=read(branch/'trajectory_validation.jsonl')[0]
     b=read(reference/'trajectory_validation.jsonl')[0]
-    if a['iteration']!=512 or a['batches']!=b['batches'] or abs(a['loss']-b['loss'])>1e-7:
+    if a['iteration']!=first-1 or a['batches']!=b['batches'] or abs(a['loss']-b['loss'])>1e-7:
         raise RuntimeError('Different starting held-out loss')
-    verify_prefix_state(read(branch/'state.jsonl'),read(reference/'state.jsonl'),513,513)
+    verify_prefix_state(read(branch/'state.jsonl'),read(reference/'state.jsonl'),first,first)
 
 
 def validate_checkpoint(root):

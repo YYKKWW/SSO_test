@@ -2,7 +2,20 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
-**Latest, November25:** [five independent short paths **4488446_0-4**](p2gd_trajectory_panel_20261122.md)
+**Latest status, November 25 at 11:02 UTC+08:**
+[later-start replication](p2gd_later_replication_20261125.md) has **no new
+branch results**. Prefix **4504395** completed all 256 training updates and
+saved step 768, then failed a postprocessing check that incorrectly expected
+per-step rather than sparse state audits. The four branches **4504396_0-3**
+and snapshot audit **4504397** were cancelled by their dependency rules.
+Corrected local verification exactly matches the original half-D0 training
+stream, initial state, nine evaluation records and 45 sampled state records.
+This is a repeated reference path, **not** a successful new comparison.
+Restoration from the new checkpoint has not yet been tested. The local fix
+has regression coverage; original H20 source/status are preserved, with no
+resubmission in this update. First finish this replication, not a new grid.
+
+**Latest completed panel, November25:** [five independent short paths **4488446_0-4**](p2gd_trajectory_panel_20261122.md)
 and shared prefix4488445 all COMPLETED, exit0:0. At step768, cluster-cone
 loss is **3.911326**, versus top-1 **3.929235**, ambient **3.935439**,
 half-D0 **3.942878**, and output attenuation **3.947058**. Last-four means
@@ -11,7 +24,7 @@ near events and clusters up to7, with525 top4 overflows in the *uncapped*
 oracle. Its training time is19.4% above top-1. All BF16 matching errors stay
 below1%; strict search mismatches are disclosed. This is one starting
 checkpoint/seed, not evidence of beating MuonSphere/SSO or a full-budget result.
-No new jobs submitted; the49-run1B/3B ledger is unchanged.
+The49-run1B/3B ledger is unchanged.
 
 **Previous, November22:** [BF16-matched replay **4487990**](p2gd_late_controls_20261122.md)
 COMPLETED, exit0:0, elapsed1:41:22. On14 informative states513-528,

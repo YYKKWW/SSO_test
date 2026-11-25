@@ -72,7 +72,13 @@ above ambient. It performs about15 coefficient trials and31 norm-SVD calls
 per near event on average, in addition to common spectral work. This is an
 exact-oracle budget-matching diagnostic, not evidence of production speed.
 
-### Next Tests, Not Submitted by This Update
+### Follow-Up Status and Next Tests
+
+The [later-start follow-up](p2gd_later_replication_20261125.md) was submitted
+as prefix4504395 / four branches4504396 / audit4504397. On November25 it
+stopped at a prefix-verifier bug after reproducing the reference path; the
+branches and audit did not run. The priorities below remain pending, not
+completed evidence. The results-only check did not resubmit them.
 
 1. **Confirm the cumulative signal:** repeat the bounded256-update comparison
    of cluster, top-1 and output-attenuated half-D0 at a second starting state

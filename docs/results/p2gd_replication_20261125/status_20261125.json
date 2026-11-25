@@ -1,0 +1,78 @@
+{
+  "checked_utc": "2026-11-25T03:02:33.997502+00:00",
+  "jobs": {
+    "4504395": {
+      "scheduler_id": "4504395",
+      "state": "FAILED",
+      "elapsed": "01:25:16",
+      "exit_code": "1:0",
+      "start_scheduler_time": "2026-11-25T03:06:22",
+      "end_scheduler_time": "2026-11-25T04:31:38"
+    },
+    "4504396": {
+      "scheduler_id": "4504396",
+      "state": "CANCELLED",
+      "elapsed": "00:00:00",
+      "exit_code": "0:0",
+      "start_scheduler_time": "None",
+      "end_scheduler_time": "2026-11-25T04:32:01"
+    },
+    "4504397": {
+      "scheduler_id": "4504397",
+      "state": "CANCELLED",
+      "elapsed": "00:00:00",
+      "exit_code": "0:0",
+      "start_scheduler_time": "None",
+      "end_scheduler_time": "2026-11-25T04:32:01"
+    }
+  },
+  "scheduler_time_zone": "HKT (UTC+08)",
+  "source_manifest_sha256": "935bb6684ef5012f915beb23e3cce6268869a827a87340b73b66bc7095db1149",
+  "frozen_source_verified": true,
+  "checkpoint_iteration": "768",
+  "checkpoint_files": {
+    "iter_0000768/.metadata": {
+      "bytes": 268592,
+      "sha256": "f5e4c289d32a8d4900346ef2fb5a3036af909d01a678761d9bbee2019a8d2f80"
+    },
+    "iter_0000768/__0_0.distcp": {
+      "bytes": 959333580,
+      "sha256": "eb542ec7fcd05fd36f5b754a3077b06c87e675d3f20007973bac33b80960a1ee"
+    },
+    "iter_0000768/common.pt": {
+      "bytes": 36060,
+      "sha256": "8f4f9a6b6e757ddfc6845e65f261d595843709200c2a5c120d721edd67e68d44"
+    },
+    "iter_0000768/metadata.json": {
+      "bytes": 119,
+      "sha256": "9817072de14c715c70e8435a7fee90bac30abaf6885fc53ade6fe88babeef851"
+    },
+    "latest_checkpointed_iteration.txt": {
+      "bytes": 3,
+      "sha256": "f7b856c054de7ccced087ad4f9413380ec494e40abc818b840aaad990ca3c5bc"
+    }
+  },
+  "prefix_ready": false,
+  "restore_smoke_present": false,
+  "branch_directories": [],
+  "snapshot_audit_completed": false,
+  "failure_evidence": [
+    {
+      "file": "replicate_4504395_4294967294.err",
+      "tail": [
+        "Ran 16 tests in 4.285s",
+        "",
+        "OK",
+        "Traceback (most recent call last):",
+        "  File \"/home/u3013198/projects/mcsd-p2gd-replication-20261125-v1/studies/p2gd_elr/run_p2gd_replication.py\", line 112, in <module>",
+        "    prefix(root)",
+        "  File \"/home/u3013198/projects/mcsd-p2gd-replication-20261125-v1/studies/p2gd_elr/run_p2gd_replication.py\", line 57, in prefix",
+        "    count=verify_prefix_state(read(metrics/'state.jsonl'),read(old/'state.jsonl'),513,768)",
+        "          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/home/u3013198/projects/mcsd-p2gd-replication-20261125-v1/studies/p2gd_elr/verify_p2gd_six.py\", line 17, in verify_prefix_state",
+        "    raise ValueError('Missing shared-prefix state audit')",
+        "ValueError: Missing shared-prefix state audit"
+      ]
+    }
+  ]
+}

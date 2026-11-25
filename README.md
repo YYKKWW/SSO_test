@@ -4,6 +4,7 @@ Research code and experiment records for **MCSD-TP**, near-region hybrids,
 and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
 [Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
+[Latest replication status](docs/experiments/p2gd_later_replication_20261125.md) ·
 [BF16-matched results](docs/experiments/p2gd_late_controls_20261122.md) ·
 [Independent short trajectories](docs/experiments/p2gd_trajectory_panel_20261122.md) ·
 [Six-control and local tests](docs/experiments/p2gd_local_and_six_results_20261122.md) ·
@@ -15,17 +16,20 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
 
-> **Updated November 25, 2026:** all five256-update paths **4488446_0-4**
-> and prefix **4488445** COMPLETED, exit0:0. Cluster-cone has the lowest
-> endpoint and last-four-evaluation mean, but uses the near branch more often
-> and costs more. This is a single-checkpoint signal, not a replicated win.
+> **Checked November 25, 2026, 11:02 UTC+08:** the later-start replication
+> stopped at a prefix-verifier bug. Prefix **4504395** finished its 256 training
+> updates but has scheduler status **FAILED**; four dependent branches
+> **4504396_0-3** and audit **4504397** were cancelled before running.
+> There are **no new branch results**. Corrected post-hoc checks exactly match
+> the previous half-D0 path; checkpoint restoration still needs its smoke test.
+> The earlier completed five-path signal below remains **unreplicated**.
 > The current 1B/3B ledger still contains 49 completed width-256 runs;
 > short replays and the separate Frobenius-band jobs are not added to it.
-> No new jobs were submitted in this update. The older six-way replay4487800 retains its
-> original postprocessing-FAILED status and corrected post-hoc verification.
+> The verifier is fixed locally with regression tests; no H20 source was
+> overwritten and no jobs were resubmitted in this results-only update.
 > This is a research branch, not a frozen paper release.
 
-## Latest: Independent Short Trajectories
+## Latest Completed Comparison: Independent Short Trajectories
 
 Width256; same step512 checkpoint, full optimizer state and training batches;
 256 updates per policy,20 fixed held-out microbatches. After divergence each
@@ -47,6 +51,12 @@ strict-tolerance failures are retained. This panel does not contain
 MuonSphere/SSO and is not a full validation or1B/3B comparison.
 
 [Curves, capacity audit, verified records and next tests](docs/experiments/p2gd_trajectory_panel_20261122.md)
+
+**Next:** reuse the saved step-768 checkpoint only after verifying restoration,
+then finish the already planned four-arm comparison and snapshot audit. Test
+top-4/top-6 capacity and warm-block cost offline before selecting a cheaper
+variant. Do not expand the gap grid or promote this single-panel result to a
+1B/3B claim.
 
 ## Previous BF16-Matched Single-Step Result
 

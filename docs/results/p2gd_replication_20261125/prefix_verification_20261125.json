@@ -1,0 +1,132 @@
+{
+  "generated_utc": "2026-11-25T03:12:55.076824+00:00",
+  "scheduler": {
+    "checked_utc": "2026-11-25T03:02:33.997502+00:00",
+    "jobs": {
+      "4504395": {
+        "scheduler_id": "4504395",
+        "state": "FAILED",
+        "elapsed": "01:25:16",
+        "exit_code": "1:0",
+        "start_scheduler_time": "2026-11-25T03:06:22",
+        "end_scheduler_time": "2026-11-25T04:31:38"
+      },
+      "4504396": {
+        "scheduler_id": "4504396",
+        "state": "CANCELLED",
+        "elapsed": "00:00:00",
+        "exit_code": "0:0",
+        "start_scheduler_time": "None",
+        "end_scheduler_time": "2026-11-25T04:32:01"
+      },
+      "4504397": {
+        "scheduler_id": "4504397",
+        "state": "CANCELLED",
+        "elapsed": "00:00:00",
+        "exit_code": "0:0",
+        "start_scheduler_time": "None",
+        "end_scheduler_time": "2026-11-25T04:32:01"
+      }
+    },
+    "scheduler_time_zone": "HKT (UTC+08)",
+    "source_manifest_sha256": "935bb6684ef5012f915beb23e3cce6268869a827a87340b73b66bc7095db1149",
+    "frozen_source_verified": true,
+    "checkpoint_iteration": "768",
+    "checkpoint_files": {
+      "iter_0000768/.metadata": {
+        "bytes": 268592,
+        "sha256": "f5e4c289d32a8d4900346ef2fb5a3036af909d01a678761d9bbee2019a8d2f80"
+      },
+      "iter_0000768/__0_0.distcp": {
+        "bytes": 959333580,
+        "sha256": "eb542ec7fcd05fd36f5b754a3077b06c87e675d3f20007973bac33b80960a1ee"
+      },
+      "iter_0000768/common.pt": {
+        "bytes": 36060,
+        "sha256": "8f4f9a6b6e757ddfc6845e65f261d595843709200c2a5c120d721edd67e68d44"
+      },
+      "iter_0000768/metadata.json": {
+        "bytes": 119,
+        "sha256": "9817072de14c715c70e8435a7fee90bac30abaf6885fc53ade6fe88babeef851"
+      },
+      "latest_checkpointed_iteration.txt": {
+        "bytes": 3,
+        "sha256": "f7b856c054de7ccced087ad4f9413380ec494e40abc818b840aaad990ca3c5bc"
+      }
+    },
+    "prefix_ready": false,
+    "restore_smoke_present": false,
+    "branch_directories": [],
+    "snapshot_audit_completed": false,
+    "failure_evidence": [
+      {
+        "file": "replicate_4504395_4294967294.err",
+        "tail": [
+          "Ran 16 tests in 4.285s",
+          "",
+          "OK",
+          "Traceback (most recent call last):",
+          "  File \"/home/u3013198/projects/mcsd-p2gd-replication-20261125-v1/studies/p2gd_elr/run_p2gd_replication.py\", line 112, in <module>",
+          "    prefix(root)",
+          "  File \"/home/u3013198/projects/mcsd-p2gd-replication-20261125-v1/studies/p2gd_elr/run_p2gd_replication.py\", line 57, in prefix",
+          "    count=verify_prefix_state(read(metrics/'state.jsonl'),read(old/'state.jsonl'),513,768)",
+          "          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+          "  File \"/home/u3013198/projects/mcsd-p2gd-replication-20261125-v1/studies/p2gd_elr/verify_p2gd_six.py\", line 17, in verify_prefix_state",
+          "    raise ValueError('Missing shared-prefix state audit')",
+          "ValueError: Missing shared-prefix state audit"
+        ]
+      }
+    ]
+  },
+  "prefix_verification": {
+    "updates": 256,
+    "final_loss": 3.9428776144981383,
+    "last_four_mean_loss": 3.9804558157920837,
+    "near_components": 496,
+    "max_radius_error": 5.341395969971074e-07,
+    "matched_reference_state_records": 45,
+    "audited_iterations": [
+      513,
+      544,
+      576,
+      608,
+      640,
+      672,
+      704,
+      736,
+      768
+    ],
+    "state_records_per_audit": 5,
+    "exact_initial_model_and_optimizer": true,
+    "exact_training_stream": true,
+    "exact_update_records": true,
+    "exact_sampled_weight_gradient_momentum": true,
+    "exact_validation_curve": true,
+    "scope": "Repeated reference path only; checkpoint restore is a separate gate"
+  },
+  "post_update_signature_recorded": true,
+  "restore_smoke_completed": false,
+  "prefix_ready": false,
+  "new_branch_results": 0,
+  "snapshot_audit_completed": false,
+  "original_failure": "Dense audit expectation applied to a sparse first/last/every-32 schedule",
+  "correction": "Require all declared sparse audits and equal component counts; retain dense update/stream checks",
+  "limitation": "Post-hoc prefix verification is not a restore proof or a later-start replication result",
+  "input_sha256": {
+    "docs/results/p2gd_replication_20261125/h20/common_prefix/metrics/checkpoint_post_state.jsonl": "bfb65353dbbadadd22d659eaf70075560258821f555b00598d3be00f4d87085c",
+    "docs/results/p2gd_replication_20261125/h20/common_prefix/metrics/evaluation_data.jsonl": "f74237edd5bc6b2c73f0bc5a0a3adcab2d777b8c20ecd421d1bbb1852ade197a",
+    "docs/results/p2gd_replication_20261125/h20/common_prefix/metrics/state.jsonl": "f6f2ccb558755f79f4cf5d189e8db2f4e21238af1a18f24b007a741438142986",
+    "docs/results/p2gd_replication_20261125/h20/common_prefix/metrics/training_stream.jsonl": "b7b5870d3e15c9dd0cc51657f9b08ee92432ca19320ff3ed8d583801118d8107",
+    "docs/results/p2gd_replication_20261125/h20/common_prefix/metrics/trajectory_geometry.jsonl": "3ca491b1ba739dd7939aa3560348cfcc4a2dbaef3e7102a4863c7afb96b23e08",
+    "docs/results/p2gd_replication_20261125/h20/common_prefix/metrics/trajectory_initial.jsonl": "e87a6d3e7bb2a52f00d4d75f1330286a1f5d46eb90aa67b16a82844336db77fe",
+    "docs/results/p2gd_replication_20261125/h20/common_prefix/metrics/trajectory_update.jsonl": "97fb5f86c22cdf88da2cad8e02b516924a971f8cdc5966b033904bb329dc7233",
+    "docs/results/p2gd_replication_20261125/h20/common_prefix/metrics/trajectory_validation.jsonl": "a0088ed75bb6821a25e5dfcc67487a76a0f07a752a819bbd8af444f663895b90",
+    "docs/results/p2gd_paths_20261122/h20/branch_half_d0/metrics/evaluation_data.jsonl": "f74237edd5bc6b2c73f0bc5a0a3adcab2d777b8c20ecd421d1bbb1852ade197a",
+    "docs/results/p2gd_paths_20261122/h20/branch_half_d0/metrics/state.jsonl": "f6f2ccb558755f79f4cf5d189e8db2f4e21238af1a18f24b007a741438142986",
+    "docs/results/p2gd_paths_20261122/h20/branch_half_d0/metrics/training_stream.jsonl": "ba491ad0deb431fcf66005a3dc30a14c08d17575623d96f7ea7f764f13cda30f",
+    "docs/results/p2gd_paths_20261122/h20/branch_half_d0/metrics/trajectory_geometry.jsonl": "3ca491b1ba739dd7939aa3560348cfcc4a2dbaef3e7102a4863c7afb96b23e08",
+    "docs/results/p2gd_paths_20261122/h20/branch_half_d0/metrics/trajectory_initial.jsonl": "e87a6d3e7bb2a52f00d4d75f1330286a1f5d46eb90aa67b16a82844336db77fe",
+    "docs/results/p2gd_paths_20261122/h20/branch_half_d0/metrics/trajectory_update.jsonl": "97fb5f86c22cdf88da2cad8e02b516924a971f8cdc5966b033904bb329dc7233",
+    "docs/results/p2gd_paths_20261122/h20/branch_half_d0/metrics/trajectory_validation.jsonl": "a0088ed75bb6821a25e5dfcc67487a76a0f07a752a819bbd8af444f663895b90"
+  }
+}

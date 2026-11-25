@@ -9,8 +9,10 @@ def read(path):
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
-def verify_prefix_state(current, prior, first=253, last=268):
-    expected = set(range(first,last+1))
+def verify_prefix_state(current, prior, first=253, last=268, *, expected_iterations=None):
+    expected = set(range(first,last+1) if expected_iterations is None else expected_iterations)
+    if not expected or min(expected)!=first or max(expected)!=last:
+        raise ValueError('Invalid shared-prefix audit schedule')
     a = [r for r in current if first <= r['iteration'] <= last]
     b = [r for r in prior if first <= r['iteration'] <= last]
     if {r['iteration'] for r in a} != expected or {r['iteration'] for r in b} != expected:

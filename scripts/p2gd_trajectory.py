@@ -44,6 +44,13 @@ class Trajectory(ConfirmationIntervention):
         self.evaluation_records = []
         self.step_rows = []
 
+    def observe_near_component(self, context, x, momentum, d0, u, s, v,
+                               radius, alpha, before, point, info):
+        pass
+
+    def after_optimizer_update(self, model, optimizer):
+        pass
+
     def auditing(self):
         return self.iteration == self.first or self.iteration == self.last or self.iteration % self.interval == 0
 
@@ -105,6 +112,8 @@ class Trajectory(ConfirmationIntervention):
         if near:
             point, info = selected_return(self.policy, x, M.float(), d0, u[:,:q], s[:q], vh[:q].T,
                 float(target_radius), alpha, entry['calibration'], before, entry['module'].weight.dtype)
+            self.observe_near_component(context, x, M.float(), d0, u, s, vh.T,
+                float(target_radius), alpha, before, point, info)
             self.emit('trajectory_geometry', dict(iteration=self.iteration, component=index,
                 parameter=entry['name'], gap=gap, cluster_dimension=q, cluster_truncated=False, **info))
         else:
@@ -192,6 +201,7 @@ class Trajectory(ConfirmationIntervention):
                 if not bool(result[0]):
                     raise RuntimeError('Skipped optimizer update')
                 owner.finish_update()
+                owner.after_optimizer_update(model, optimizer)
                 if owner.iteration % owner.interval == 0 or owner.iteration == owner.last:
                     owner.evaluate_heldout(model, owner.iteration)
                 return result

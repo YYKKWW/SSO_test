@@ -24,12 +24,12 @@ def main():
     parser.add_argument('--target', type=Path, required=True)
     parser.add_argument('--overlay', type=Path, required=True)
     parser.add_argument('--submit', action='store_true')
-    parser.add_argument('--study', choices=('aus','budget','six','late','paths'), default='aus')
+    parser.add_argument('--study', choices=('aus','budget','six','late','paths','replication'), default='aus')
     parser.add_argument('--prior-replay', type=Path)
     parser.add_argument('--six-reference', type=Path)
     args = parser.parse_args()
-    if args.study=='paths' and args.submit:
-        parser.error('Stage paths first; submit_p2gd_trajectories.py handles the dependent array')
+    if args.study in ('paths','replication') and args.submit:
+        parser.error('Stage first; use the study-specific submission script for dependent arrays')
     base, root = args.base.resolve(), args.target.resolve()
     if root == base or root.is_relative_to(base):
         raise ValueError('Use a separate project')
@@ -37,10 +37,10 @@ def main():
     if args.study == 'budget' and (args.prior_replay is None or not
             (args.prior_replay/'results/REPLAY_COMPLETED.json').exists()):
         raise ValueError('Budget replay requires a completed prior AUS replay')
-    if args.study in ('six','late','paths') and (args.prior_replay is None or not
+    if args.study in ('six','late','paths','replication') and (args.prior_replay is None or not
             (args.prior_replay/'results/BUDGET_COMPLETED.json').exists()):
         raise ValueError('Six-way replay requires a completed prior budget replay')
-    if args.study in ('late','paths'):
+    if args.study in ('late','paths','replication'):
         if args.six_reference is None:
             raise ValueError('Later replay requires the six-way evaluation provenance')
         probes=[json.loads(line) for line in (args.six_reference/'results/six_replay/metrics/model_probe.jsonl').read_text().splitlines()]
@@ -88,8 +88,8 @@ def main():
     (root/'source.sha256').write_text(''.join(f'{sha(root/p)}  {p}\n' for p in sorted(entries)))
     result = dict(base=str(base), target=str(root), overlay_sha256=digest,
         base_manifest_sha256=sha(base/'source.sha256'), width=256, seed=1234,
-        study=args.study,common_updates={'six':48,'late':276,'paths':260}.get(args.study,16),
-        directions={'aus':8,'budget':15,'six':6,'late':5,'paths':5}[args.study],
+        study=args.study,common_updates={'six':48,'late':276,'paths':260,'replication':256}.get(args.study,16),
+        directions={'aus':8,'budget':15,'six':6,'late':5,'paths':5,'replication':4}[args.study],
         near_threshold=2e-4, cluster_window=2e-4,
         gpus=1, time_limit_hours=3, checkpoint_saving=False,
         inherited_layout='252 components, FC1 unsplit',
@@ -97,7 +97,7 @@ def main():
     if args.study=='six':
         result.update(prefix_updates=16,measured_updates=32,measured_first=269,measured_last=300,
             valid_skip_batches=68,prior_replay=str(args.prior_replay.resolve()))
-    if args.study in ('late','paths'):
+    if args.study in ('late','paths','replication'):
         required={'studies/p2gd_elr/'+name for name in ('verify_p2gd_six.py','verify_p2gd_late.py',
             'p2gd_late_geometry.py','p2gd_late_replay.py','run_p2gd_late.py','pretrain_p2gd_late.py',
             'summarize_p2gd_late.py','test_p2gd_late.py','p2gd_late.sbatch')}
@@ -107,7 +107,7 @@ def main():
             measured_first=513,measured_last=528,valid_skip_batches=96,alternative_policies=4,
             matching_space='BF16 forward weights',prior_replay=str(args.prior_replay.resolve()),
             six_reference=str(args.six_reference.resolve()))
-    if args.study=='paths':
+    if args.study in ('paths','replication'):
         required={'studies/p2gd_elr/'+name for name in ('p2gd_trajectory.py','p2gd_trajectory_geometry.py',
             'pretrain_p2gd_trajectory.py','run_p2gd_trajectories.py','submit_p2gd_trajectories.py',
             'p2gd_trajectory.sbatch','test_p2gd_trajectory.py','test_p2gd_trajectory_integrity.py')}
@@ -117,6 +117,18 @@ def main():
             valid_skip_batches=128,max_concurrent_h20=2,branch_time_limit_hours=6,
             checkpoint_saving='one common checkpoint at 512; no branch checkpoints',
             study_kind='five independent trajectories, same initial state and token order')
+    if args.study=='replication':
+        required={'studies/p2gd_elr/'+name for name in ('p2gd_replication.py',
+            'pretrain_p2gd_replication.py','run_p2gd_replication.py',
+            'submit_p2gd_replication.py','p2gd_replication.sbatch',
+            'audit_p2gd_snapshots.py','summarize_p2gd_replication.py','test_p2gd_replication.py')}
+        if not required.issubset(entries):
+            raise ValueError('Replication overlay missing files: '+str(sorted(required-set(entries))))
+        result.update(measured_first=769,measured_last=1024,valid_skip_batches=160,
+            prefix_updates=256,fast_continuation_updates=0,alternative_policies=3,
+            checkpoint_saving='one common checkpoint at 768; no branch checkpoints',
+            study_kind='four independent later-start trajectories, same seed as the previous panel',
+            snapshot_limit=24,snapshot_byte_budget=256*1024**2)
     (root/'results/replay_preparation.json').write_text(json.dumps(result,indent=2)+'\n')
     if args.submit:
         old = Path(previous['original_reference'])
