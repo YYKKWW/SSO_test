@@ -1,5 +1,9 @@
 # Full 3B Norm-Band Results
 
+**Subsequent control:** B's MuonH-AUS replay was implemented and submitted
+as 4504355. The [10:56 HKT progress readout](FROBENIUS_BAND_AUS_PROGRESS_20261125.md)
+covers a verified 4,800-step prefix, not a completed replay endpoint.
+
 **Verified November 25, 2026.** A/B completed on November 23 with exit 0:0,
 zero NaNs and zero skipped updates. Both used one H20. The account queue
 was empty at the check; about 15 GiB remained on the home filesystem.
@@ -176,8 +180,8 @@ do not silently clip and claim exact matching. Check the returned FP32 chord
 with the existing 2e-6 absolute tolerance, keep one msign evaluation per matrix,
 and record errors. A six-step gate is an engineering check, not a short-run
 performance selection. The full budget matters because the present ordering
-reverses after 2.5B tokens. This control still requires implementation and
-testing; the old tangent-only replay formula is not a drop-in replacement.
+reverses after 2.5B tokens. The general-ray control is now running after
+CUDA/pretraining checks; the old tangent-only formula was not reused.
 
 If matching restores an advantage, replicate against MuonH/NorMuon at a
 second seed. If it does not, stop expanding the band grid and retain this as
@@ -189,4 +193,5 @@ identical post-projection, unit-F, return and actual AUS. The existing
 3,000-step matched-AUS results are not a full-budget answer about the
 Riemannian-gradient mechanism. Annulus performance cannot replace that test.
 
-**No new tasks were submitted in this readout.**
+The full A/B readout itself submitted no new tasks. The subsequent control
+4504355 is running; the progress readout adds no further training jobs.
