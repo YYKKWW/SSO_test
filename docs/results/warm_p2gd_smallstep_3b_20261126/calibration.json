@@ -1,0 +1,23 @@
+{
+  "source": "p2gd_replication_20261125_recovery/raw_results_20261126.tar.gz",
+  "prefix_iterations": [769, 800],
+  "effective_ratio_formula": "0.5 * alpha_ratio",
+  "selected_common_ratio": 0.075,
+  "selection_uses_validation_loss": false,
+  "cluster_cone": {
+    "source_sha256": "8eba3c1bb416c8608c1238a4d0516b9755869fd51b526bb478a4bd4dc2ec4ae9",
+    "calls": 461,
+    "mean": 0.07529476233263077,
+    "median": 0.07334136962890625,
+    "min": 0.04327392578125001,
+    "max": 0.12615966796875
+  },
+  "top1": {
+    "source_sha256": "33aa6a842a022b1d0290c412ab7603339c983432bd91f3c5faaaffc17a387ba5",
+    "calls": 238,
+    "mean": 0.07027384663830284,
+    "median": 0.0641632080078125,
+    "min": 0.04267883300781249,
+    "max": 0.11340332031249999
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "checked_utc": "2026-11-26T18:08:32Z",
+  "local_regression_tests_passed": 40,
+  "local_bf16_audit_smoke": "passed",
+  "overlay_scp_exit_code": 0,
+  "remote_preparation": "not confirmed; SSH connection timed out before remote command execution",
+  "submission": "not attempted",
+  "job_ids": [],
+  "last_successful_server_check": {
+    "free_home_space_approx_gb": 13,
+    "existing_jobs_untouched": ["4514694", "4514695_0", "4514695_1"]
+  },
+  "requested_batch": {
+    "modes": ["cone", "top1", "ambient"],
+    "tokens": 3000000000,
+    "width": 256,
+    "seed": 2345,
+    "lr": 0.015,
+    "gap": 0.0002,
+    "raw_momentum_ratio": 0.075,
+    "solver": "persistent_warm_block8_k10_fp32_ritz",
+    "direction_capacity": 6,
+    "max_concurrent_new_gpus": 2,
+    "checkpoints": false,
+    "online_returned_step_search": false
+  }
+}

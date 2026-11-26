@@ -4,6 +4,7 @@ Research code and experiment records for **MCSD-TP**, near-region hybrids,
 and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
 [Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
+[New 3B transfer](docs/experiments/warm_p2gd_smallstep_3b_20261126.md) ·
 [Latest paired results](docs/experiments/p2gd_replication_recovery_20261125.md) ·
 [BF16-matched results](docs/experiments/p2gd_late_controls_20261122.md) ·
 [Independent short trajectories](docs/experiments/p2gd_trajectory_panel_20261122.md) ·
@@ -16,7 +17,12 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
 
-> **Checked November 26, 2026:** all four later-start paths **4506265_0-3**,
+> **3B extension:** three small-step warm K10 arms are implemented and locally
+> tested; the overlay was uploaded, but H20 SSH timeouts currently block
+> preparation/submission. **No new job ID is confirmed.** Existing warm K10
+> 3B references are reused, not rerun. [Protocol and status](docs/experiments/warm_p2gd_smallstep_3b_20261126.md).
+>
+> **Completed results checked November 26:** all four later-start paths **4506265_0-3**,
 > restore **4506264** and audit **4506266** COMPLETED, exit0:0. Cluster remains
 > better than top-1 and shrinkage controls under the BF16 matching rule, but
 > costs more. This is two starts of **one seed**, not independent-seed proof.
@@ -43,13 +49,15 @@ absolute steps are not identical after divergence. This is not a comparison
 against MuonSphere/SSO or a full validation benchmark.
 
 Top6 covers all observed clusters in this panel; top4 misses directions in
-4.85% of near calls. Oracle-warm block8/K10 looks accurate in 23 snapshots,
-but persistent-cache training is untested and per-call speed is not training
-throughput. BF16 budget search still costs about31.5 norm SVDs per cluster call.
+4.85% of near calls. Oracle-warm block8/K10 looks accurate in 23 snapshots.
+Persistent warm K10 training already exists; the new top6/small-step policy
+is the untested transfer, and per-call speed is not training throughput.
+BF16 budget search still costs about31.5 norm SVDs per cluster call.
 
-**Next:** independent-seed exact controls; a32-step persistent block8/K10,
-top<=6 pilot with sparse audits; then separately replace expensive per-step
-budget search. No wider gap grid or3B expansion yet.
+**Requested next:** three width256/3B arms (top<=6 cluster, top-1, ambient),
+persistent block8/K10, a shared frozen small-step coefficient, no online
+budget search. Sparse offline BF16 audits disclose actual step differences;
+this is not the exact matched-step protocol. At most two new concurrent H20s.
 
 [Curves, matching/capacity audits, raw evidence and next plan](docs/experiments/p2gd_replication_recovery_20261125.md)
 

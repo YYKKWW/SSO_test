@@ -10,7 +10,12 @@ from kernel_lmo_h20 import PilotAdapter, pilot_dispatch
 
 def main():
     out=Path(os.environ["KERNEL_SNAPSHOT_DIR"]); out.mkdir(parents=True,exist_ok=True)
-    if os.environ.get("KERNEL_STUDY", "kernel") == "direct_pk":
+    if os.environ.get("KERNEL_WARM_P2GD_MODE"):
+        from warm_p2gd_transfer import WarmP2GDAdapter
+        adapter=WarmP2GDAdapter(os.environ["KERNEL_WARM_P2GD_MODE"],
+            ratio=float(os.environ["KERNEL_WARM_P2GD_RATIO"]),
+            capacity=int(os.environ["KERNEL_WARM_P2GD_CAPACITY"]))
+    elif os.environ.get("KERNEL_STUDY", "kernel") == "direct_pk":
         from direct_top_pgd_pk import DirectPKAdapter
         adapter=DirectPKAdapter(os.environ["KERNEL_METHOD"],os.environ["KERNEL_SOLVER"],
             ambient_return=os.environ.get("KERNEL_AMBIENT_RETURN","sphere_projection"))

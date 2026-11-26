@@ -2,6 +2,14 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
+**Requested 3B extension:** [small-step warm transfer](warm_p2gd_smallstep_3b_20261126.md)
+adds cluster top<=6, top-1 and ambient at the same fixed raw-momentum ratio
+0.075. Persistent warm block8/K10 is an existing tested backend, not a new
+proposal. Forty local regression tests passed; files were uploaded, but SSH
+timeouts currently prevent H20 preparation/submission. No job ID or new loss
+is confirmed. Completed half-D0, control, MuonSphere/SSO references are reused.
+The 49 completed full-budget results below are unchanged.
+
 **Latest completed, November 26:**
 [four later-start paths 4506265_0-3](p2gd_replication_recovery_20261125.md),
 restore4506264 and audit4506266 all COMPLETED, exit0:0. No skipped/NaN

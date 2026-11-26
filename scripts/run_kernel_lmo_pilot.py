@@ -62,6 +62,8 @@ def main():
                         help="Opt-in spectral override for direct-PK radial arms only")
     parser.add_argument("--near-tp-half",action="store_true",
                         help="Radial control: halve D0 only inside the near window")
+    parser.add_argument("--warm-p2gd-mode",choices=("cone","top1","ambient"))
+    parser.add_argument("--warm-p2gd-ratio",type=float,default=.075)
     args=parser.parse_args()
     if args.ambient_return != "sphere_projection" and args.study != "direct_pk":
         parser.error("--ambient-return radial requires --study direct_pk")
@@ -76,6 +78,9 @@ def main():
         if args.study != "direct_pk" or method != "none" or args.ambient_return != "radial":
             parser.error("--near-tp-half requires the direct-PK radial control arm")
         method="tp_half"
+    if args.warm_p2gd_mode and (args.study != "direct_pk" or method != "none"
+                              or solver != "warm_block8" or args.ambient_return != "radial"):
+        parser.error("warm P2GD transfer requires the warm direct-PK radial control arm")
     root=Path(os.environ["PROJECT_DIR"])
     env=dict(os.environ)
     env.update(OPTIMIZER=optimizer,SEED="2345" if args.study=="direct_pk" else "1234",WIDTH="256",NUM_LAYERS="28",HEAD_DIM="128",SEQ_LENGTH="4096",
@@ -105,6 +110,16 @@ def main():
             env["KERNEL_TP_NEAR_RATIO"]="0.5"
         if args.ambient_return == "radial":
             env["JOB_NAME"] += "_radial"
+    # Explicit opt-in; legacy experiments do not inherit this variant.
+    for key in ("KERNEL_WARM_P2GD_MODE","KERNEL_WARM_P2GD_RATIO","KERNEL_WARM_P2GD_CAPACITY"):
+        env.pop(key, None)
+    if args.warm_p2gd_mode:
+        import math
+        if not math.isfinite(args.warm_p2gd_ratio) or args.warm_p2gd_ratio <= 0:
+            parser.error("warm P2GD ratio must be finite and positive")
+        env.update(KERNEL_WARM_P2GD_MODE=args.warm_p2gd_mode,
+                   KERNEL_WARM_P2GD_RATIO=str(args.warm_p2gd_ratio),KERNEL_WARM_P2GD_CAPACITY="6")
+        env["JOB_NAME"] = f"warm_p2gd_{args.warm_p2gd_mode}_{args.budget}"
     run_id=f"{env['SLURM_ARRAY_JOB_ID']}_{env['SLURM_ARRAY_TASK_ID']}"
     if args.arm==0 and args.study=="kernel":
         source=Path(env["PREVIOUS_CONFIRMATION_DIR"])
@@ -115,7 +130,8 @@ def main():
     folder=root/"results"/run_id
     run_training(env,folder,False)
     if args.study=="direct_pk" and optimizer=="spel_pgd_dist":
-        subprocess.run(["python","-B",str(root/"scripts/audit_direct_pk.py"),
+        if not args.warm_p2gd_mode:
+            subprocess.run(["python","-B",str(root/"scripts/audit_direct_pk.py"),
             "--snapshots",str(folder/"snapshots"),"--limit","8","--device","cuda",
             "--ambient-return",args.ambient_return,
             "--output",str(folder/"offline_audit.json")],check=True,env=env)
@@ -123,6 +139,9 @@ def main():
             subprocess.run(["python","-B",str(root/"scripts/audit_warm_radial.py"),
                 "--snapshots",str(folder/"snapshots"),"--limit","8","--device","cuda",
                 "--output",str(folder/"warm_spectrum_audit.json")],check=True,env=env)
+        if args.warm_p2gd_mode:
+            subprocess.run(["python","-B",str(root/"scripts/audit_warm_p2gd_transfer.py"),
+                str(folder/"snapshots"),"--output",str(folder/"bf16_step_audit.json")],check=True,env=env)
     elif args.study=="direct_top":
         subprocess.run(["python","-B",str(root/"scripts/local_direct_top_repair.py"),
             "--snapshots",str(folder/"snapshots"),"--limit","8","--skip-synthetic",
