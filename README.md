@@ -7,8 +7,8 @@ protocols and historical results are kept separate.
 | Start here | What it contains |
 |---|---|
 | **[Results overview](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md)** | Key 3B/6B comparisons, curves and next tests |
-| **[Running AUS replay, November 25 10:56](docs/experiments/FROBENIUS_BAND_AUS_PROGRESS_20261125.md)** | Verified prefix through 4,800; matched-step validation and numerical replay checks, not a final 3B result |
-| **[Latest results, November 25](docs/experiments/FROBENIUS_BAND_RESULTS_20261125.md)** | Completed full 3B band A/B; pilot gains reverse late; validation, training, norm/AUS diagnostics and next control |
+| **[Latest results, November 26](docs/experiments/FROBENIUS_BAND_AUS_RESULTS_20261126.md)** | Completed 3B B AUS replay; late loss nearly matches MuonH; train/validation curves, full trace verification and next direction control |
+| [Full band A/B, November 25](docs/experiments/FROBENIUS_BAND_RESULTS_20261125.md) | Completed full 3B; pilot gains reverse late; norm/AUS and polar-angle diagnostics |
 | [Norm-band pilot, November 22](docs/experiments/FROBENIUS_BAND_RESULTS_20261122.md) | Earlier 3,000-step results, preserved separately from full-budget evidence |
 | [Momentum and projection, November 19](docs/experiments/FROBENIUS_RESULTS_20261119.md) | Factorial comparison, late held-out audit and full 3B endpoints |
 | [ELR and AUS study](docs/experiments/FROBENIUS_ELR_AUS_20261113.md) | Normalized 3B grid, completed MuonH AUS replay, and tangent-direction diagnostics |
@@ -18,11 +18,12 @@ protocols and historical results are kept separate.
 | [Complete history](docs/experiments/ALL_EXPERIMENTS.md) | LR/momentum/seed coverage, older protocols and cancellations |
 | [Related work](docs/experiments/FROBENIUS_RELATED_WORK.md) | Recent papers, applicability and testable hypotheses |
 
-**November 25, 10:56 HKT:** B's MuonH-AUS replay is running (4504355).
-At step 4,800 it reaches **3.683396**, versus original B **3.675631**,
-MuonH **3.689314**, and NorMuon-Sphere **3.685995** at that same step.
-Replay error passes across 940,800 matrix decisions. This is **1.258B of
-the scheduled 3B**, not an endpoint claim. [Progress and next steps](docs/experiments/FROBENIUS_BAND_AUS_PROGRESS_20261125.md).
+**November 26:** B's MuonH-AUS replay completed full 3B (4504355).
+Final loss is **3.458382**, versus MuonH **3.458490**; the predeclared late
+mean is **3.464850**, versus MuonH **3.464835**. Thus the late gap nearly
+disappears, but this is not a stable performance win. All 2,243,220 matrix
+updates pass replay checks; NorMuon-Sphere remains lower. The account queue
+was empty at the check. [Final curves, analysis and next tests](docs/experiments/FROBENIUS_BAND_AUS_RESULTS_20261126.md).
 
 **Completed full-budget evidence:** A ends at **3.460861**,
 B at **3.459655**, versus MuonH **3.458490** and NorMuon-Sphere **3.455796**.

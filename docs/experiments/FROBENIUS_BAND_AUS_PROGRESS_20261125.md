@@ -1,5 +1,10 @@
 # Running B AUS Replay Progress
 
+**Archival snapshot.** The run has since completed. See the
+[November 26 full 3B results](FROBENIUS_BAND_AUS_RESULTS_20261126.md):
+endpoint 3.458382, late mean 3.464850, essentially matching MuonH late.
+The observations and prospective decisions below remain as recorded on November 25.
+
 **Snapshot: November 25, 2026, 10:56 HKT.** Job **4504355** is running on
 one H20. The captured log reaches step 4,820; this readout uses the safely
 flushed prefix through **4,800 / 11,445**, or **1.258B processed tokens**.

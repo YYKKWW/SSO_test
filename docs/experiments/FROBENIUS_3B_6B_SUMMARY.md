@@ -1,23 +1,24 @@
 # Frobenius Sphere Experiments
 
-**Results and queue snapshot: November 25, 2026, 10:56 HKT**
+**Results and queue snapshot: November 26, 2026, 15:27 UTC+8**
 
-[Running B AUS replay](FROBENIUS_BAND_AUS_PROGRESS_20261125.md): job 4504355
-has a verified prefix through **4,800 / 11,445**. At the same validation
-step, replayed B is **3.683396**, original B **3.675631**, MuonH **3.689314**,
-and NorMuon-Sphere **3.685995**. The 940,800 checked matrix decisions pass
-the AUS tolerance. This intermediate result must not replace full 3B endpoints.
+[Latest: completed full 3B B AUS replay](FROBENIUS_BAND_AUS_RESULTS_20261126.md).
+Job 4504355 finishes at **3.458382**, versus MuonH **3.458490**. Its
+predeclared late mean is **3.464850**, versus MuonH **3.464835**: a near-match,
+not an established advantage. All **2,243,220** matrix updates pass AUS
+verification. NorMuon-Sphere remains lower at **3.455796**. The account queue
+was empty at the check; no new jobs were submitted for this readout.
 
-[Latest: completed full 3B norm-band A/B](FROBENIUS_BAND_RESULTS_20261125.md).
+[Earlier: completed full 3B norm-band A/B](FROBENIUS_BAND_RESULTS_20261125.md).
 A reaches **3.460861**, B **3.459655**: both trail MuonH **3.458490**
 and NorMuon-Sphere **3.455796** at the endpoint and in the fixed late window.
-The pilot advantage reverses near 2.6B tokens. The complete per-matrix
-norm/AUS traces are valid. The account now has the single-GPU AUS control
-running; no additional jobs were submitted during this readout.
+The pilot advantage reverses near 2.6B tokens. The completed AUS control
+above largely removes B's late deficit, supporting angular step size as an
+important part of the comparison. It does not isolate the pre-LMO geometry.
 
 The [November 19 momentum x projection and held-out readout](FROBENIUS_RESULTS_20261119.md)
-remains the main mechanism evidence. At full 3B, the AUS replay ends at
-3.462119, behind MuonH's 3.458490. Both width-384 normalized MCSD recipes
+remains the main mechanism evidence. At full 3B, the earlier MCSD-TP + unit-F
+AUS replay ends at 3.462119, behind MuonH's 3.458490. Both width-384 normalized MCSD recipes
 also finish behind MuonH. These endpoints are not replaced by short pilots.
 
 MCSD and MCSD-TP are evaluated against MuonH and NorMuon-Sphere using
@@ -44,7 +45,7 @@ at their respective endpoints.
 | Late held-out audit | 252 candidate records across three states | [Paired losses and caveats](FROBENIUS_RESULTS_20261119.md#3-completed-same-state-held-out-audit) |
 | Norm-band pilot | Four completed 3,000-step runs; 28,224 sampled matrix records | [Validation, norm saturation, AUS and measured msign angles](FROBENIUS_BAND_RESULTS_20261122.md) |
 | Full 3B norm-band A/B | Both complete; full every-matrix norm/AUS traces | [Pilot gains reverse; neither beats MuonH/NorMuon at full budget](FROBENIUS_BAND_RESULTS_20261125.md) |
-| B with MuonH AUS targets | Running, verified through 4,800 | [Matched-step curves and prefix checks](FROBENIUS_BAND_AUS_PROGRESS_20261125.md) |
+| B with MuonH AUS targets | Complete full 3B; 58 validation points | [Late loss nearly matches MuonH; all trace checks pass](FROBENIUS_BAND_AUS_RESULTS_20261126.md) |
 
 This is a dated evidence summary, not a live dashboard. All losses are
 validation cross-entropy; lower is better. No historical results were removed:
@@ -212,9 +213,10 @@ under the tested recipes, which use different peak LRs.
 | Completed | Late same-state held-out audit | 4464032; mixed paired effects, no stable matrix-group winner |
 | Completed | Frobenius norm-band pilot | 4479797--4479800; best early endpoint 3.773680; [not full 3B](FROBENIUS_BAND_RESULTS_20261122.md) |
 | Completed | Full-budget narrow cone / wider ambient band | 4487882: 3.459655; 4487881: 3.460861; neither beats MuonH |
-| Running mechanism test | B with matrix-wise MuonH AUS targets | 4504355; general-ray inversion validated; full 3B endpoint pending |
+| Completed mechanism test | B with matrix-wise MuonH AUS targets | 4504355; final 3.458382, late mean 3.464850; no stable late win vs. MuonH |
 | Next priority | Nesterov no-pre-projection arm through full 3B, same post-projection/AUS | Proposed, not submitted; always-projected full-budget reference already exists |
-| Replication | Broader held-out samples, then a seed-specific matched-AUS pair if warranted | Proposed; defer new width and 6B grids |
+| Cheap mechanism diagnostic | Same-state radial-gradient contamination, matched sphere/AUS | Proposed; tests extension sensitivity before claiming practical gains |
+| Replication | Broader held-out samples, then a seed-specific matched-AUS pair if warranted | Endpoint-and-late-mean promotion condition not met; defer width/6B and band grids |
 
 The completed eight-job batch used two serial single-GPU lanes. Six full 3B runs were
 explicitly requested, not automatically promoted point pilots. The separate
@@ -224,6 +226,8 @@ snapshot; the [November 19 readout](FROBENIUS_RESULTS_20261119.md) covers the
 completed projection studies, and the [November 22 readout](FROBENIUS_BAND_RESULTS_20261122.md)
 adds the norm-band pilot. The [November 25 readout](FROBENIUS_BAND_RESULTS_20261125.md)
 supersedes that pilot's provisional performance interpretation with full 3B endpoints.
+The [November 26 AUS control](FROBENIUS_BAND_AUS_RESULTS_20261126.md) adds the
+completed matched-angular-step comparison and its revised next-test priorities.
 [Submission details](FROBENIUS_POINT_LR_BATCH_20261102.md).
 
 **Current research priority:** distinguish direction quality from actual

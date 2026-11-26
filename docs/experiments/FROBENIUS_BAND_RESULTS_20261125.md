@@ -1,8 +1,9 @@
 # Full 3B Norm-Band Results
 
-**Subsequent control:** B's MuonH-AUS replay was implemented and submitted
-as 4504355. The [10:56 HKT progress readout](FROBENIUS_BAND_AUS_PROGRESS_20261125.md)
-covers a verified 4,800-step prefix, not a completed replay endpoint.
+**Completed subsequent control:** B's MuonH-AUS replay 4504355 reaches
+3.458382 at full 3B, with late mean 3.464850, nearly matching MuonH late.
+See the [November 26 final analysis](FROBENIUS_BAND_AUS_RESULTS_20261126.md).
+The original A/B evidence and prospective plan below are preserved as of November 25.
 
 **Verified November 25, 2026.** A/B completed on November 23 with exit 0:0,
 zero NaNs and zero skipped updates. Both used one H20. The account queue
@@ -194,4 +195,5 @@ identical post-projection, unit-F, return and actual AUS. The existing
 Riemannian-gradient mechanism. Annulus performance cannot replace that test.
 
 The full A/B readout itself submitted no new tasks. The subsequent control
-4504355 is running; the progress readout adds no further training jobs.
+4504355 is now complete; its [final readout](FROBENIUS_BAND_AUS_RESULTS_20261126.md)
+supersedes the control's prospective status above without changing A/B's results.
