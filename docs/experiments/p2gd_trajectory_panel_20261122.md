@@ -77,8 +77,10 @@ exact-oracle budget-matching diagnostic, not evidence of production speed.
 The [later-start follow-up](p2gd_later_replication_20261125.md) was submitted
 as prefix4504395 / four branches4504396 / audit4504397. On November25 it
 stopped at a prefix-verifier bug after reproducing the reference path; the
-branches and audit did not run. The priorities below remain pending, not
-completed evidence. The results-only check did not resubmit them.
+original branches and audit did not run. A [separate recovery](p2gd_replication_recovery_20261125.md)
+has now completed all four later-start paths and the snapshot audit.
+Cluster still wins under the matching rule, but this remains the same seed.
+The historical priorities below led to that recovery; its new plan supersedes them.
 
 1. **Confirm the cumulative signal:** repeat the bounded256-update comparison
    of cluster, top-1 and output-attenuated half-D0 at a second starting state

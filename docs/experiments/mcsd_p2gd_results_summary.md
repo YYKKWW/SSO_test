@@ -2,15 +2,31 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
-**Recovery, November 25 at 11:29 UTC+08:**
-[4506264 / 4506265 / 4506266](p2gd_replication_recovery_20261125.md) resume the
-original four-arm design through a separate restore gate and frozen source
-directory. The gate passed; half-D0/top-1 are running, with two paths queued.
-They reuse step768 rather than replaying the prefix. At most two
-H20 run concurrently. No final new branch outcome is available yet;
-the 49-run 1B/3B ledger and earlier algorithm comparisons are unchanged.
+**Latest completed, November 26:**
+[four later-start paths 4506265_0-3](p2gd_replication_recovery_20261125.md),
+restore4506264 and audit4506266 all COMPLETED, exit0:0. No skipped/NaN
+iterations; initial state, training data and held-out evaluations are paired.
 
-**Latest status, November 25 at 11:02 UTC+08:**
+| Near policy, steps769--1024 | Final loss | Last-four mean | H20 time |
+|---|---:|---:|---:|
+| Half-D0 | 3.825426 | 3.843236 | 1:25:14 |
+| Top-1 | 3.800925 | 3.823121 | 1:50:58 |
+| **Cluster-cone, P2GD-type** | **3.791397** | **3.817367** | 2:17:50 |
+| Output-matched half-D0 | 3.812997 | 3.838130 | 1:37:23 |
+
+Cluster beats all three controls at all eight post-update evaluations.
+Its maximum BF16 relative budget error is0.471%, but639/9508 near calls
+miss the stricter search tolerance. It costs24.2% more than top-1.
+Top4 omits directions in461/9508 calls; top6 covers this entire panel.
+Oracle-warm block8/K10 has maximum radius/gap errors1.55e-6/2.03e-6 on23
+snapshots, not persistent-cache training evidence. Near occupancy14.74%
+and93.23% repeats coexist with better loss; repetition is not itself failure.
+Two starts of seed1234 now favor the cluster, but not two independent seeds.
+No new ambient/MuonSphere/SSO arm,1B/3B run or job was added in this update.
+Next: independent-seed controls, persistent-cache short pilot, and a separate
+budget-search cost ablation. The49-run1B/3B ledger below is unchanged.
+
+**Historical failure, November 25 at 11:02 UTC+08:**
 [later-start replication](p2gd_later_replication_20261125.md) has **no new
 branch results**. Prefix **4504395** completed all 256 training updates and
 saved step 768, then failed a postprocessing check that incorrectly expected
@@ -19,11 +35,11 @@ and snapshot audit **4504397** were cancelled by their dependency rules.
 Corrected local verification exactly matches the original half-D0 training
 stream, initial state, nine evaluation records and 45 sampled state records.
 This is a repeated reference path, **not** a successful new comparison.
-Restoration from the new checkpoint has not yet been tested. The local fix
-has regression coverage; original H20 source/status are preserved, with no
-resubmission in this update. First finish this replication, not a new grid.
+At that time restoration was untested. The separate recovery batch above
+subsequently passed restoration and completed; original failed/cancelled
+job IDs and frozen source remain preserved.
 
-**Latest completed panel, November25:** [five independent short paths **4488446_0-4**](p2gd_trajectory_panel_20261122.md)
+**Earlier completed panel, November25:** [five independent short paths **4488446_0-4**](p2gd_trajectory_panel_20261122.md)
 and shared prefix4488445 all COMPLETED, exit0:0. At step768, cluster-cone
 loss is **3.911326**, versus top-1 **3.929235**, ambient **3.935439**,
 half-D0 **3.942878**, and output attenuation **3.947058**. Last-four means

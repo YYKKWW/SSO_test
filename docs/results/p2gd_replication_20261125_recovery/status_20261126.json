@@ -1,0 +1,82 @@
+{
+  "checked_utc": "2026-11-26T07:19:10.344968+00:00",
+  "jobs": [
+    {
+      "job_id": "4506264",
+      "state": "COMPLETED",
+      "elapsed": "00:01:35",
+      "exit_code": "0:0",
+      "start_utc8": "2026-11-25T11:29:20",
+      "end_utc8": "2026-11-25T11:30:55"
+    },
+    {
+      "job_id": "4506266",
+      "state": "COMPLETED",
+      "elapsed": "00:00:16",
+      "exit_code": "0:0",
+      "start_utc8": "2026-11-25T15:14:50",
+      "end_utc8": "2026-11-25T15:15:06"
+    },
+    {
+      "job_id": "4506265_0",
+      "state": "COMPLETED",
+      "elapsed": "01:25:14",
+      "exit_code": "0:0",
+      "start_utc8": "2026-11-25T11:31:21",
+      "end_utc8": "2026-11-25T12:56:35"
+    },
+    {
+      "job_id": "4506265_1",
+      "state": "COMPLETED",
+      "elapsed": "01:50:58",
+      "exit_code": "0:0",
+      "start_utc8": "2026-11-25T11:31:21",
+      "end_utc8": "2026-11-25T13:22:19"
+    },
+    {
+      "job_id": "4506265_2",
+      "state": "COMPLETED",
+      "elapsed": "02:17:50",
+      "exit_code": "0:0",
+      "start_utc8": "2026-11-25T12:56:46",
+      "end_utc8": "2026-11-25T15:14:36"
+    },
+    {
+      "job_id": "4506265_3",
+      "state": "COMPLETED",
+      "elapsed": "01:37:23",
+      "exit_code": "0:0",
+      "start_utc8": "2026-11-25T13:22:26",
+      "end_utc8": "2026-11-25T14:59:49"
+    }
+  ],
+  "source_manifest_verified": true,
+  "source_errors": "",
+  "source_manifest_sha256": "e4921418128b14b353daf799e86c71df1f0bb744dc22efed2cb0d99c926dd0a4",
+  "training_log_checks": {
+    "branch_top1": {
+      "reports": 27,
+      "max_reported_skipped": 0,
+      "max_reported_nan": 0,
+      "traceback": false
+    },
+    "branch_half_d0": {
+      "reports": 27,
+      "max_reported_skipped": 0,
+      "max_reported_nan": 0,
+      "traceback": false
+    },
+    "branch_cluster_cone": {
+      "reports": 27,
+      "max_reported_skipped": 0,
+      "max_reported_nan": 0,
+      "traceback": false
+    },
+    "branch_half_output_of_cluster": {
+      "reports": 27,
+      "max_reported_skipped": 0,
+      "max_reported_nan": 0,
+      "traceback": false
+    }
+  }
+}

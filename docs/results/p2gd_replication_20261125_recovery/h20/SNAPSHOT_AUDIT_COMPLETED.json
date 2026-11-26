@@ -1,0 +1,1802 @@
+{
+  "snapshots": 23,
+  "results": [
+    {
+      "snapshot": "step769_component61.pt",
+      "category": "entry",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0038574994541704655,
+          "bf16_output_elr": 0.0043241544626653194,
+          "spectral_elr": 0.007102739065885544,
+          "momentum_work": -9.08959045773372e-05,
+          "radius_error": 0.0
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0038574994541704655,
+          "bf16_output_elr": 0.0043241544626653194,
+          "spectral_elr": 0.007102739065885544,
+          "momentum_work": -9.08959045773372e-05,
+          "radius_error": 0.0
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0038574994541704655,
+          "bf16_output_elr": 0.0043241544626653194,
+          "spectral_elr": 0.007102739065885544,
+          "momentum_work": -9.08959045773372e-05,
+          "radius_error": 0.0
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.006338485050946474,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 7.748603820800781e-07,
+          "point_relative_error": 1.2412139938078326e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0057604038156569,
+          "radius_error": 0.0,
+          "gap_error": 1.1920928955078125e-07,
+          "point_relative_error": 0.0
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0024289973080158234,
+          "radius_error": 1.0728836059570312e-06,
+          "gap_error": 1.430511474609375e-06,
+          "point_relative_error": 1.0135228194485535e-06
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.0041756900027394295,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 2.980232238769531e-07,
+          "point_relative_error": 1.2412139938078326e-07
+        }
+      ],
+      "svdvals_seconds": 0.011133380699902773
+    },
+    {
+      "snapshot": "step769_component164.pt",
+      "category": "entry",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.003697965294122696,
+          "bf16_output_elr": 0.004093061666935682,
+          "spectral_elr": 0.008311557583510876,
+          "momentum_work": -9.74222166405525e-06,
+          "radius_error": 5.960464477539063e-08
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.003697965294122696,
+          "bf16_output_elr": 0.004093061666935682,
+          "spectral_elr": 0.008311557583510876,
+          "momentum_work": -9.74222166405525e-06,
+          "radius_error": 5.960464477539063e-08
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.003697965294122696,
+          "bf16_output_elr": 0.004093061666935682,
+          "spectral_elr": 0.008311557583510876,
+          "momentum_work": -9.74222166405525e-06,
+          "radius_error": 5.960464477539063e-08
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.002310869749635458,
+          "radius_error": 1.0728836059570312e-06,
+          "gap_error": 1.0728836059570312e-06,
+          "point_relative_error": 1.1333011116221314e-06
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035571609623730183,
+          "radius_error": 1.1920928955078125e-07,
+          "gap_error": 5.960464477539063e-08,
+          "point_relative_error": 1.238523026358962e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0025373240932822227,
+          "radius_error": 9.5367431640625e-07,
+          "gap_error": 1.0728836059570312e-06,
+          "point_relative_error": 1.0141442317035398e-06
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004221509210765362,
+          "radius_error": 1.1920928955078125e-07,
+          "gap_error": 5.960464477539063e-08,
+          "point_relative_error": 1.238523026358962e-07
+        }
+      ],
+      "svdvals_seconds": 0.004683015868067741
+    },
+    {
+      "snapshot": "step771_component218.pt",
+      "category": "repeat",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.002725255209952593,
+          "bf16_output_elr": 0.003134234808385372,
+          "spectral_elr": 0.00784769281744957,
+          "momentum_work": -6.9074217208253685e-06,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.002725255209952593,
+          "bf16_output_elr": 0.003134234808385372,
+          "spectral_elr": 0.00784769281744957,
+          "momentum_work": -6.9074217208253685e-06,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.002725255209952593,
+          "bf16_output_elr": 0.003134234808385372,
+          "spectral_elr": 0.00784769281744957,
+          "momentum_work": -6.9074217208253685e-06,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.0019786162301898003,
+          "radius_error": 3.5762786865234375e-07,
+          "gap_error": 1.7881393432617188e-07,
+          "point_relative_error": 3.000094466187875e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035542803816497326,
+          "radius_error": 4.172325134277344e-07,
+          "gap_error": 4.172325134277344e-07,
+          "point_relative_error": 4.782431233252282e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002296172082424164,
+          "radius_error": 4.76837158203125e-07,
+          "gap_error": 3.5762786865234375e-07,
+          "point_relative_error": 4.781292091138312e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004204169847071171,
+          "radius_error": 4.172325134277344e-07,
+          "gap_error": 4.172325134277344e-07,
+          "point_relative_error": 4.782431233252282e-07
+        }
+      ],
+      "svdvals_seconds": 0.004711523186415434
+    },
+    {
+      "snapshot": "step771_component240.pt",
+      "category": "repeat",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.006073902826756239,
+          "bf16_output_elr": 0.0061432491056621075,
+          "spectral_elr": 0.007602249272167683,
+          "momentum_work": -1.171138501376845e-05,
+          "radius_error": 5.960464477539063e-08
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.006073902826756239,
+          "bf16_output_elr": 0.0061432491056621075,
+          "spectral_elr": 0.007602249272167683,
+          "momentum_work": -1.171138501376845e-05,
+          "radius_error": 5.960464477539063e-08
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.006073902826756239,
+          "bf16_output_elr": 0.0061432491056621075,
+          "spectral_elr": 0.007602249272167683,
+          "momentum_work": -1.171138501376845e-05,
+          "radius_error": 5.960464477539063e-08
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.001986557152122259,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 2.980232238769531e-07,
+          "point_relative_error": 2.407071519883175e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035483683459460735,
+          "radius_error": 0.0,
+          "gap_error": 5.960464477539062e-07,
+          "point_relative_error": 0.0
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0022985637187957764,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 2.980232238769531e-07,
+          "point_relative_error": 2.407071519883175e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004220820963382721,
+          "radius_error": 0.0,
+          "gap_error": 5.960464477539062e-07,
+          "point_relative_error": 0.0
+        }
+      ],
+      "svdvals_seconds": 0.0047256532125175
+    },
+    {
+      "snapshot": "step818_component225.pt",
+      "category": "large_cluster",
+      "q": 5,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 1,
+          "point_relative_error": 2.9014776373514906e-05,
+          "master_output_elr": 0.003941739443689585,
+          "bf16_output_elr": 0.0041045742109417915,
+          "spectral_elr": 0.00802839919924736,
+          "momentum_work": -1.999702726607211e-05,
+          "radius_error": 5.960464477539063e-08
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.003940660506486893,
+          "bf16_output_elr": 0.004102698527276516,
+          "spectral_elr": 0.008025397546589375,
+          "momentum_work": -2.002187102334574e-05,
+          "radius_error": 0.0
+        },
+        {
+          "name": "full",
+          "capacity": 5,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.003940660506486893,
+          "bf16_output_elr": 0.004102698527276516,
+          "spectral_elr": 0.008025397546589375,
+          "momentum_work": -2.002187102334574e-05,
+          "radius_error": 0.0
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.002025747671723366,
+          "radius_error": 4.76837158203125e-07,
+          "gap_error": 8.940696716308594e-07,
+          "point_relative_error": 4.779636810781085e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035703578032553196,
+          "radius_error": 1.1920928955078125e-07,
+          "gap_error": 7.748603820800781e-07,
+          "point_relative_error": 1.2418418293691502e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0020348569378256798,
+          "radius_error": 5.960464477539063e-08,
+          "gap_error": 7.152557373046875e-07,
+          "point_relative_error": 0.0
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.00366976298391819,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 7.152557373046875e-07,
+          "point_relative_error": 8.350942835022579e-07
+        }
+      ],
+      "svdvals_seconds": 0.009675059001892805
+    },
+    {
+      "snapshot": "step833_component12.pt",
+      "category": "repeat",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.006680034101009369,
+          "bf16_output_elr": 0.006762846373021603,
+          "spectral_elr": 0.007196493446826935,
+          "momentum_work": -5.866861101821996e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.006680034101009369,
+          "bf16_output_elr": 0.006762846373021603,
+          "spectral_elr": 0.007196493446826935,
+          "momentum_work": -5.866861101821996e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.006680034101009369,
+          "bf16_output_elr": 0.006762846373021603,
+          "spectral_elr": 0.007196493446826935,
+          "momentum_work": -5.866861101821996e-05,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.001996767707169056,
+          "radius_error": 5.960464477539062e-07,
+          "gap_error": 1.2516975402832031e-06,
+          "point_relative_error": 5.971082259748073e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035369237884879112,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 1.0132789611816406e-06,
+          "point_relative_error": 8.351501037395792e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002303711138665676,
+          "radius_error": 1.7881393432617188e-07,
+          "gap_error": 8.344650268554688e-07,
+          "point_relative_error": 1.2406783866936166e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004188497085124254,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 1.0132789611816406e-06,
+          "point_relative_error": 8.351501037395792e-07
+        }
+      ],
+      "svdvals_seconds": 0.004717633128166199
+    },
+    {
+      "snapshot": "step833_component16.pt",
+      "category": "repeat",
+      "q": 4,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.005229301284998655,
+          "bf16_output_elr": 0.005643450189381838,
+          "spectral_elr": 0.006651896517723799,
+          "momentum_work": -0.00013748067431151867,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 4,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.005229301284998655,
+          "bf16_output_elr": 0.005643450189381838,
+          "spectral_elr": 0.006651896517723799,
+          "momentum_work": -0.00013748067431151867,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.005229301284998655,
+          "bf16_output_elr": 0.005643450189381838,
+          "spectral_elr": 0.006651896517723799,
+          "momentum_work": -0.00013748067431151867,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.002073391806334257,
+          "radius_error": 1.0728836059570312e-06,
+          "gap_error": 1.0132789611816406e-06,
+          "point_relative_error": 1.0737646789493738e-06
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.003644030075520277,
+          "radius_error": 0.0,
+          "gap_error": 1.1920928955078125e-07,
+          "point_relative_error": 0.0
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0022626942954957485,
+          "radius_error": 5.960464477539062e-07,
+          "gap_error": 2.980232238769531e-07,
+          "point_relative_error": 5.970866254756402e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004170319996774197,
+          "radius_error": 7.748603820800781e-07,
+          "gap_error": 1.1324882507324219e-06,
+          "point_relative_error": 8.352961344826326e-07
+        }
+      ],
+      "svdvals_seconds": 0.010930165182799101
+    },
+    {
+      "snapshot": "step833_component217.pt",
+      "category": "entry",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0043539563193917274,
+          "bf16_output_elr": 0.0046030799858272076,
+          "spectral_elr": 0.007165313232690096,
+          "momentum_work": -4.855514362134272e-06,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0043539563193917274,
+          "bf16_output_elr": 0.0046030799858272076,
+          "spectral_elr": 0.007165313232690096,
+          "momentum_work": -4.855514362134272e-06,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0043539563193917274,
+          "bf16_output_elr": 0.0046030799858272076,
+          "spectral_elr": 0.007165313232690096,
+          "momentum_work": -4.855514362134272e-06,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.00199430575594306,
+          "radius_error": 4.76837158203125e-07,
+          "gap_error": 6.556510925292969e-07,
+          "point_relative_error": 5.379383196668641e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035574589855968952,
+          "radius_error": 5.960464477539063e-08,
+          "gap_error": 4.172325134277344e-07,
+          "point_relative_error": 7.15439938403506e-08
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002303413115441799,
+          "radius_error": 5.960464477539063e-08,
+          "gap_error": 2.384185791015625e-07,
+          "point_relative_error": 7.15439938403506e-08
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004203479737043381,
+          "radius_error": 5.960464477539063e-08,
+          "gap_error": 4.172325134277344e-07,
+          "point_relative_error": 7.15439938403506e-08
+        }
+      ],
+      "svdvals_seconds": 0.004698430188000202
+    },
+    {
+      "snapshot": "step834_component88.pt",
+      "category": "entry",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0033296681940555573,
+          "bf16_output_elr": 0.003853150177747011,
+          "spectral_elr": 0.006655966397374868,
+          "momentum_work": -7.278169505298138e-05,
+          "radius_error": 0.0
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0033296681940555573,
+          "bf16_output_elr": 0.003853150177747011,
+          "spectral_elr": 0.006655966397374868,
+          "momentum_work": -7.278169505298138e-05,
+          "radius_error": 0.0
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0033296681940555573,
+          "bf16_output_elr": 0.003853150177747011,
+          "spectral_elr": 0.006655966397374868,
+          "momentum_work": -7.278169505298138e-05,
+          "radius_error": 0.0
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.00203351816162467,
+          "radius_error": 2.980232238769531e-07,
+          "gap_error": 5.960464477539062e-07,
+          "point_relative_error": 3.000270396569249e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.003630660939961672,
+          "radius_error": 1.430511474609375e-06,
+          "gap_error": 1.4901161193847656e-06,
+          "point_relative_error": 1.430990892004047e-06
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002273836173117161,
+          "radius_error": 1.9073486328125e-06,
+          "gap_error": 1.6689300537109375e-06,
+          "point_relative_error": 1.9675062503665686e-06
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004151259083300829,
+          "radius_error": 4.76837158203125e-07,
+          "gap_error": 1.4901161193847656e-06,
+          "point_relative_error": 4.780796984960034e-07
+        }
+      ],
+      "svdvals_seconds": 0.01114772167056799
+    },
+    {
+      "snapshot": "step834_component225.pt",
+      "category": "large_cluster",
+      "q": 5,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 1,
+          "point_relative_error": 1.2978101040062029e-05,
+          "master_output_elr": 0.0031778295524418354,
+          "bf16_output_elr": 0.0033629711251705885,
+          "spectral_elr": 0.007659762166440487,
+          "momentum_work": -1.828067615861073e-05,
+          "radius_error": 5.960464477539063e-08
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0031779336277395487,
+          "bf16_output_elr": 0.0033637257292866707,
+          "spectral_elr": 0.007659541442990303,
+          "momentum_work": -1.8284747056895867e-05,
+          "radius_error": 0.0
+        },
+        {
+          "name": "full",
+          "capacity": 5,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0031779336277395487,
+          "bf16_output_elr": 0.0033637257292866707,
+          "spectral_elr": 0.007659541442990303,
+          "momentum_work": -1.8284747056895867e-05,
+          "radius_error": 0.0
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.002001238986849785,
+          "radius_error": 5.960464477539062e-07,
+          "gap_error": 3.5762786865234375e-07,
+          "point_relative_error": 5.926742119299888e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.003606281243264675,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 7.748603820800781e-07,
+          "point_relative_error": 2.367771543276831e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0020090173929929733,
+          "radius_error": 7.152557373046875e-07,
+          "gap_error": 7.152557373046875e-07,
+          "point_relative_error": 7.186034736150759e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.003666012082248926,
+          "radius_error": 3.5762786865234375e-07,
+          "gap_error": 5.960464477539062e-07,
+          "point_relative_error": 3.6142418480267224e-07
+        }
+      ],
+      "svdvals_seconds": 0.009702707175165415
+    },
+    {
+      "snapshot": "step852_component177.pt",
+      "category": "large_cluster",
+      "q": 5,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 1,
+          "point_relative_error": 8.522235475538764e-06,
+          "master_output_elr": 0.004618463572114706,
+          "bf16_output_elr": 0.004914532415568829,
+          "spectral_elr": 0.0071750967763364315,
+          "momentum_work": -1.2004007658106275e-05,
+          "radius_error": 5.960464477539063e-08
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004618464037775993,
+          "bf16_output_elr": 0.0049157291650772095,
+          "spectral_elr": 0.00717488257214427,
+          "momentum_work": -1.2004922609776258e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 5,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004618464037775993,
+          "bf16_output_elr": 0.0049157291650772095,
+          "spectral_elr": 0.00717488257214427,
+          "momentum_work": -1.2004922609776258e-05,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.002003318164497614,
+          "radius_error": 1.0728836059570312e-06,
+          "gap_error": 1.0728836059570312e-06,
+          "point_relative_error": 1.0744349765445804e-06
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.003565778024494648,
+          "radius_error": 1.1920928955078125e-06,
+          "gap_error": 9.5367431640625e-07,
+          "point_relative_error": 1.19458093195135e-06
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0023018699139356613,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 5.960464477539063e-08,
+          "point_relative_error": 2.411707100691274e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.0042162127792835236,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 1.7881393432617188e-07,
+          "point_relative_error": 8.359912158084626e-07
+        }
+      ],
+      "svdvals_seconds": 0.0047110519371926785
+    },
+    {
+      "snapshot": "step897_component16.pt",
+      "category": "repeat",
+      "q": 3,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 3,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004920785780996084,
+          "bf16_output_elr": 0.005392946768552065,
+          "spectral_elr": 0.006194682326167822,
+          "momentum_work": -0.00013846550427842885,
+          "radius_error": 0.0
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 3,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004920785780996084,
+          "bf16_output_elr": 0.005392946768552065,
+          "spectral_elr": 0.006194682326167822,
+          "momentum_work": -0.00013846550427842885,
+          "radius_error": 0.0
+        },
+        {
+          "name": "full",
+          "capacity": 3,
+          "used": 3,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004920785780996084,
+          "bf16_output_elr": 0.005392946768552065,
+          "spectral_elr": 0.006194682326167822,
+          "momentum_work": -0.00013846550427842885,
+          "radius_error": 0.0
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.0020360671915113926,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 1.7881393432617188e-07,
+          "point_relative_error": 1.2687586092852143e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0036242399364709854,
+          "radius_error": 4.76837158203125e-07,
+          "gap_error": 2.3245811462402344e-06,
+          "point_relative_error": 4.814360750060587e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0022681569680571556,
+          "radius_error": 1.1920928955078125e-07,
+          "gap_error": 4.76837158203125e-07,
+          "point_relative_error": 1.2687586092852143e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004157153889536858,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 2.1457672119140625e-06,
+          "point_relative_error": 2.4299868073285324e-07
+        }
+      ],
+      "svdvals_seconds": 0.01093593193218112
+    },
+    {
+      "snapshot": "step897_component17.pt",
+      "category": "repeat",
+      "q": 3,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 3,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.002349839312955737,
+          "bf16_output_elr": 0.0026877482887357473,
+          "spectral_elr": 0.006545953452587128,
+          "momentum_work": -7.536576595157385e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 3,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.002349839312955737,
+          "bf16_output_elr": 0.0026877482887357473,
+          "spectral_elr": 0.006545953452587128,
+          "momentum_work": -7.536576595157385e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 3,
+          "used": 3,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.002349839312955737,
+          "bf16_output_elr": 0.0026877482887357473,
+          "spectral_elr": 0.006545953452587128,
+          "momentum_work": -7.536576595157385e-05,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.002138447016477585,
+          "radius_error": 1.1920928955078125e-07,
+          "gap_error": 1.1920928955078125e-07,
+          "point_relative_error": 6.988473444380361e-08
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.003576494287699461,
+          "radius_error": 9.5367431640625e-07,
+          "gap_error": 0.0,
+          "point_relative_error": 8.906359880711534e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0021838019602000713,
+          "radius_error": 7.152557373046875e-07,
+          "gap_error": 1.1324882507324219e-06,
+          "point_relative_error": 7.164717317209579e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.003958109300583601,
+          "radius_error": 1.1920928955078125e-07,
+          "gap_error": 4.76837158203125e-07,
+          "point_relative_error": 1.2413799765909062e-07
+        }
+      ],
+      "svdvals_seconds": 0.010814918205142021
+    },
+    {
+      "snapshot": "step897_component25.pt",
+      "category": "large_cluster",
+      "q": 5,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 1,
+          "point_relative_error": 2.762976691883523e-06,
+          "master_output_elr": 0.004715050105005503,
+          "bf16_output_elr": 0.00510693434625864,
+          "spectral_elr": 0.00629993062466383,
+          "momentum_work": -0.00012928945943713188,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.00471505569294095,
+          "bf16_output_elr": 0.005105720832943916,
+          "spectral_elr": 0.006299945060163736,
+          "momentum_work": -0.00012928887736052275,
+          "radius_error": 0.0
+        },
+        {
+          "name": "full",
+          "capacity": 5,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.00471505569294095,
+          "bf16_output_elr": 0.005105720832943916,
+          "spectral_elr": 0.006299945060163736,
+          "momentum_work": -0.00012928887736052275,
+          "radius_error": 0.0
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.002067185938358307,
+          "radius_error": 1.0728836059570312e-06,
+          "gap_error": 5.364418029785156e-07,
+          "point_relative_error": 1.0136404853255954e-06
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.003632626961916685,
+          "radius_error": 1.0728836059570312e-06,
+          "gap_error": 7.748603820800781e-07,
+          "point_relative_error": 1.0136404853255954e-06
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002265388146042824,
+          "radius_error": 9.5367431640625e-07,
+          "gap_error": 1.3113021850585938e-06,
+          "point_relative_error": 1.0136404853255954e-06
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004161337856203318,
+          "radius_error": 1.7881393432617188e-06,
+          "gap_error": 1.0132789611816406e-06,
+          "point_relative_error": 1.7306280142292962e-06
+        }
+      ],
+      "svdvals_seconds": 0.010951630305498838
+    },
+    {
+      "snapshot": "step897_component228.pt",
+      "category": "large_cluster",
+      "q": 5,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 1,
+          "point_relative_error": 4.5930883061373606e-05,
+          "master_output_elr": 0.005586246959865093,
+          "bf16_output_elr": 0.005963616538792849,
+          "spectral_elr": 0.00706113176420331,
+          "momentum_work": -1.0291234502801672e-05,
+          "radius_error": 1.7881393432617188e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.005584164522588253,
+          "bf16_output_elr": 0.005971961654722691,
+          "spectral_elr": 0.007055990863591433,
+          "momentum_work": -1.0319637112843338e-05,
+          "radius_error": 5.960464477539063e-08
+        },
+        {
+          "name": "full",
+          "capacity": 5,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.005584164522588253,
+          "bf16_output_elr": 0.005971961654722691,
+          "spectral_elr": 0.007055990863591433,
+          "momentum_work": -1.0319637112843338e-05,
+          "radius_error": 5.960464477539063e-08
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.001990864984691143,
+          "radius_error": 0.0,
+          "gap_error": 1.0132789611816406e-06,
+          "point_relative_error": 0.0
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035966462455689907,
+          "radius_error": 5.960464477539063e-08,
+          "gap_error": 4.172325134277344e-07,
+          "point_relative_error": 7.312178951224269e-08
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002300828695297241,
+          "radius_error": 0.0,
+          "gap_error": 8.940696716308594e-07,
+          "point_relative_error": 0.0
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004202026873826981,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 1.2516975402832031e-06,
+          "point_relative_error": 8.362504786418867e-07
+        }
+      ],
+      "svdvals_seconds": 0.004714536014944315
+    },
+    {
+      "snapshot": "step899_component85.pt",
+      "category": "entry",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.005089069250971079,
+          "bf16_output_elr": 0.005276407115161419,
+          "spectral_elr": 0.007073497865349054,
+          "momentum_work": -6.095037861086894e-06,
+          "radius_error": 1.7881393432617188e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.005089069250971079,
+          "bf16_output_elr": 0.005276407115161419,
+          "spectral_elr": 0.007073497865349054,
+          "momentum_work": -6.095037861086894e-06,
+          "radius_error": 1.7881393432617188e-07
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.005089069250971079,
+          "bf16_output_elr": 0.005276407115161419,
+          "spectral_elr": 0.007073497865349054,
+          "momentum_work": -6.095037861086894e-06,
+          "radius_error": 1.7881393432617188e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.0019901799969375134,
+          "radius_error": 3.5762786865234375e-07,
+          "gap_error": 5.364418029785156e-07,
+          "point_relative_error": 3.589011328131164e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035731890238821507,
+          "radius_error": 9.5367431640625e-07,
+          "gap_error": 1.0132789611816406e-06,
+          "point_relative_error": 1.0142301789528574e-06
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002303898334503174,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 5.960464477539062e-07,
+          "point_relative_error": 8.355176532859332e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004222740884870291,
+          "radius_error": 1.430511474609375e-06,
+          "gap_error": 2.980232238769531e-07,
+          "point_relative_error": 1.4314283589555998e-06
+        }
+      ],
+      "svdvals_seconds": 0.00472404807806015
+    },
+    {
+      "snapshot": "step900_component74.pt",
+      "category": "entry",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0023733130656182766,
+          "bf16_output_elr": 0.0027898673433810472,
+          "spectral_elr": 0.006678215693682432,
+          "momentum_work": -2.617592690512538e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0023733130656182766,
+          "bf16_output_elr": 0.0027898673433810472,
+          "spectral_elr": 0.006678215693682432,
+          "momentum_work": -2.617592690512538e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0023733130656182766,
+          "bf16_output_elr": 0.0027898673433810472,
+          "spectral_elr": 0.006678215693682432,
+          "momentum_work": -2.617592690512538e-05,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.0019794339314103127,
+          "radius_error": 1.0728836059570312e-06,
+          "gap_error": 2.0265579223632812e-06,
+          "point_relative_error": 1.0735520845628344e-06
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.003548592794686556,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 5.960464477539062e-07,
+          "point_relative_error": 8.354844567293185e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002306282054632902,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 1.1920928955078125e-06,
+          "point_relative_error": 8.354844567293185e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004219867289066315,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 5.960464477539062e-07,
+          "point_relative_error": 8.354844567293185e-07
+        }
+      ],
+      "svdvals_seconds": 0.00468127615749836
+    },
+    {
+      "snapshot": "step961_component16.pt",
+      "category": "entry",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004676851909607649,
+          "bf16_output_elr": 0.005067161284387112,
+          "spectral_elr": 0.005837112199515104,
+          "momentum_work": -0.00014226793427951634,
+          "radius_error": 0.0
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004676851909607649,
+          "bf16_output_elr": 0.005067161284387112,
+          "spectral_elr": 0.005837112199515104,
+          "momentum_work": -0.00014226793427951634,
+          "radius_error": 0.0
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004676851909607649,
+          "bf16_output_elr": 0.005067161284387112,
+          "spectral_elr": 0.005837112199515104,
+          "momentum_work": -0.00014226793427951634,
+          "radius_error": 0.0
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.002037404105067253,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 4.76837158203125e-07,
+          "point_relative_error": 2.4103383111651056e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.003620143048465252,
+          "radius_error": 1.7881393432617188e-07,
+          "gap_error": 2.384185791015625e-07,
+          "point_relative_error": 2.409075818832207e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0022535789757966995,
+          "radius_error": 0.0,
+          "gap_error": 2.384185791015625e-07,
+          "point_relative_error": 0.0
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004151122644543648,
+          "radius_error": 1.7881393432617188e-07,
+          "gap_error": 7.748603820800781e-07,
+          "point_relative_error": 2.409075818832207e-07
+        }
+      ],
+      "svdvals_seconds": 0.010943945962935686
+    },
+    {
+      "snapshot": "step961_component25.pt",
+      "category": "repeat",
+      "q": 4,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004439368378371,
+          "bf16_output_elr": 0.004853528458625078,
+          "spectral_elr": 0.005901655647903681,
+          "momentum_work": -0.0001338332222076133,
+          "radius_error": 0.0
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 4,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004439368378371,
+          "bf16_output_elr": 0.004853528458625078,
+          "spectral_elr": 0.005901655647903681,
+          "momentum_work": -0.0001338332222076133,
+          "radius_error": 0.0
+        },
+        {
+          "name": "full",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004439368378371,
+          "bf16_output_elr": 0.004853528458625078,
+          "spectral_elr": 0.005901655647903681,
+          "momentum_work": -0.0001338332222076133,
+          "radius_error": 0.0
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.0021637561731040478,
+          "radius_error": 9.5367431640625e-07,
+          "gap_error": 1.7881393432617188e-06,
+          "point_relative_error": 1.0735843716247473e-06
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.003642548806965351,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 9.5367431640625e-07,
+          "point_relative_error": 2.409076955700584e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0022681988775730133,
+          "radius_error": 3.5762786865234375e-07,
+          "gap_error": 1.9669532775878906e-06,
+          "point_relative_error": 3.5929488717556524e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.00415766891092062,
+          "radius_error": 1.1920928955078125e-07,
+          "gap_error": 1.7881393432617188e-07,
+          "point_relative_error": 2.41162297243136e-07
+        }
+      ],
+      "svdvals_seconds": 0.011034618131816387
+    },
+    {
+      "snapshot": "step961_component26.pt",
+      "category": "repeat",
+      "q": 3,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 3,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0024820207618176937,
+          "bf16_output_elr": 0.002919173100963235,
+          "spectral_elr": 0.005969832185655832,
+          "momentum_work": -7.037568866508082e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 3,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0024820207618176937,
+          "bf16_output_elr": 0.002919173100963235,
+          "spectral_elr": 0.005969832185655832,
+          "momentum_work": -7.037568866508082e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 3,
+          "used": 3,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0024820207618176937,
+          "bf16_output_elr": 0.002919173100963235,
+          "spectral_elr": 0.005969832185655832,
+          "momentum_work": -7.037568866508082e-05,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.0020215297117829323,
+          "radius_error": 1.7881393432617188e-07,
+          "gap_error": 2.384185791015625e-07,
+          "point_relative_error": 1.8247946798055636e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.00357864610850811,
+          "radius_error": 1.7881393432617188e-07,
+          "gap_error": 7.152557373046875e-07,
+          "point_relative_error": 1.8247946798055636e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002150224056094885,
+          "radius_error": 4.172325134277344e-07,
+          "gap_error": 5.960464477539063e-08,
+          "point_relative_error": 4.1870629274853854e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.003955785185098648,
+          "radius_error": 1.0132789611816406e-06,
+          "gap_error": 8.344650268554688e-07,
+          "point_relative_error": 1.0138861625819118e-06
+        }
+      ],
+      "svdvals_seconds": 0.010857497807592154
+    },
+    {
+      "snapshot": "step961_component70.pt",
+      "category": "entry",
+      "q": 2,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0032350660767406225,
+          "bf16_output_elr": 0.0036890902556478977,
+          "spectral_elr": 0.005922479555010796,
+          "momentum_work": -9.195123857352883e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0032350660767406225,
+          "bf16_output_elr": 0.0036890902556478977,
+          "spectral_elr": 0.005922479555010796,
+          "momentum_work": -9.195123857352883e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 2,
+          "used": 2,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0032350660767406225,
+          "bf16_output_elr": 0.0036890902556478977,
+          "spectral_elr": 0.005922479555010796,
+          "momentum_work": -9.195123857352883e-05,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.00203426880761981,
+          "radius_error": 4.76837158203125e-07,
+          "gap_error": 1.1920928955078125e-07,
+          "point_relative_error": 4.780745257448871e-07
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0036181649193167686,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 7.748603820800781e-07,
+          "point_relative_error": 3.0049196197978745e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.002254640217870474,
+          "radius_error": 2.384185791015625e-07,
+          "gap_error": 3.5762786865234375e-07,
+          "point_relative_error": 3.0049196197978745e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.00415585795417428,
+          "radius_error": 3.5762786865234375e-07,
+          "gap_error": 4.76837158203125e-07,
+          "point_relative_error": 3.594035717924271e-07
+        }
+      ],
+      "svdvals_seconds": 0.011084759142249823
+    },
+    {
+      "snapshot": "step961_component171.pt",
+      "category": "large_cluster",
+      "q": 5,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 1,
+          "point_relative_error": 1.9835566490655765e-05,
+          "master_output_elr": 0.0024029877968132496,
+          "bf16_output_elr": 0.002755029359832406,
+          "spectral_elr": 0.006942610256373882,
+          "momentum_work": -1.785963831935078e-05,
+          "radius_error": 0.0
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0024035084061324596,
+          "bf16_output_elr": 0.0027578657027333975,
+          "spectral_elr": 0.00694224564358592,
+          "momentum_work": -1.7869379007606767e-05,
+          "radius_error": 1.1920928955078125e-07
+        },
+        {
+          "name": "full",
+          "capacity": 5,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.0024035084061324596,
+          "bf16_output_elr": 0.0027578657027333975,
+          "spectral_elr": 0.00694224564358592,
+          "momentum_work": -1.7869379007606767e-05,
+          "radius_error": 1.1920928955078125e-07
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.0020433729514479637,
+          "radius_error": 1.5497207641601562e-06,
+          "gap_error": 1.1324882507324219e-06,
+          "point_relative_error": 1.4314643976831576e-06
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035918792709708214,
+          "radius_error": 5.960464477539062e-07,
+          "gap_error": 1.7881393432617188e-07,
+          "point_relative_error": 5.970467782390187e-07
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0020351209677755833,
+          "radius_error": 1.7881393432617188e-07,
+          "gap_error": 6.556510925292969e-07,
+          "point_relative_error": 2.4163202283489227e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.003705370705574751,
+          "radius_error": 2.980232238769531e-07,
+          "gap_error": 2.1457672119140625e-06,
+          "point_relative_error": 3.5999534020447754e-07
+        }
+      ],
+      "svdvals_seconds": 0.009732860140502453
+    },
+    {
+      "snapshot": "step961_component177.pt",
+      "category": "large_cluster",
+      "q": 5,
+      "capacities": [
+        {
+          "name": "top4",
+          "capacity": 4,
+          "used": 4,
+          "omitted": 1,
+          "point_relative_error": 1.5151033039728645e-05,
+          "master_output_elr": 0.004748874343931675,
+          "bf16_output_elr": 0.005051668267697096,
+          "spectral_elr": 0.006689190864562988,
+          "momentum_work": -1.402233920089202e-05,
+          "radius_error": 5.960464477539063e-08
+        },
+        {
+          "name": "top6",
+          "capacity": 6,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004748831503093243,
+          "bf16_output_elr": 0.0050578066147863865,
+          "spectral_elr": 0.006689181085675955,
+          "momentum_work": -1.4020909475220833e-05,
+          "radius_error": 0.0
+        },
+        {
+          "name": "full",
+          "capacity": 5,
+          "used": 5,
+          "omitted": 0,
+          "point_relative_error": 0.0,
+          "master_output_elr": 0.004748831503093243,
+          "bf16_output_elr": 0.0050578066147863865,
+          "spectral_elr": 0.006689181085675955,
+          "momentum_work": -1.4020909475220833e-05,
+          "radius_error": 0.0
+        }
+      ],
+      "approximate_returns": [
+        {
+          "block": 8,
+          "iterations": 10,
+          "seconds": 0.0020073018968105316,
+          "radius_error": 1.5497207641601562e-06,
+          "gap_error": 6.556510925292969e-07,
+          "point_relative_error": 1.5478098021048936e-06
+        },
+        {
+          "block": 8,
+          "iterations": 20,
+          "seconds": 0.0035481248050928116,
+          "radius_error": 1.430511474609375e-06,
+          "gap_error": 2.1457672119140625e-06,
+          "point_relative_error": 1.4310967344499659e-06
+        },
+        {
+          "block": 12,
+          "iterations": 10,
+          "seconds": 0.0023084101267158985,
+          "radius_error": 1.7881393432617188e-07,
+          "gap_error": 5.364418029785156e-07,
+          "point_relative_error": 1.8506491983316664e-07
+        },
+        {
+          "block": 12,
+          "iterations": 20,
+          "seconds": 0.004195883870124817,
+          "radius_error": 8.344650268554688e-07,
+          "gap_error": 1.3113021850585938e-06,
+          "point_relative_error": 8.962958872871241e-07
+        }
+      ],
+      "svdvals_seconds": 0.004708937834948301
+    }
+  ],
+  "initialization": "Oracle-warm: true current-X right subspace, not persistent approximate training cache",
+  "timing": "Single-call synchronized diagnostic, not end-to-end training speed",
+  "scope": "Geometric full-return comparisons on frozen inputs; momentum work is not LLM loss descent"
+}

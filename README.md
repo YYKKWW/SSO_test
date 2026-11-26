@@ -4,8 +4,7 @@ Research code and experiment records for **MCSD-TP**, near-region hybrids,
 and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
 [Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
-[Recovery batch](docs/experiments/p2gd_replication_recovery_20261125.md) ·
-[Latest replication status](docs/experiments/p2gd_later_replication_20261125.md) ·
+[Latest paired results](docs/experiments/p2gd_replication_recovery_20261125.md) ·
 [BF16-matched results](docs/experiments/p2gd_late_controls_20261122.md) ·
 [Independent short trajectories](docs/experiments/p2gd_trajectory_panel_20261122.md) ·
 [Six-control and local tests](docs/experiments/p2gd_local_and_six_results_20261122.md) ·
@@ -17,28 +16,44 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
 
-> **Recovery submitted November 25, 2026, 11:29 UTC+08:** jobs
-> **4506264 / 4506265 / 4506266** reuse step768 for the two-update restore
-> gate, four dependent short paths (at most two H20), and snapshot audit.
-> The restore gate has **passed**; half-D0/top-1 are running and the other
-> two paths wait on the concurrency limit. Final branch results are pending.
-> No repeated prefix training, new checkpoint copy or 3B sweep is launched.
-> This is a pending replication, not new algorithm-comparison evidence.
->
-> **Previous check, November 25, 2026, 11:02 UTC+08:** the later-start replication
-> stopped at a prefix-verifier bug. Prefix **4504395** finished its 256 training
-> updates but has scheduler status **FAILED**; four dependent branches
-> **4504396_0-3** and audit **4504397** were cancelled before running.
-> There are **no new branch results**. Corrected post-hoc checks exactly match
-> the previous half-D0 path; checkpoint restoration still needs its smoke test.
-> The earlier completed five-path signal below remains **unreplicated**.
-> The current 1B/3B ledger still contains 49 completed width-256 runs;
-> short replays and the separate Frobenius-band jobs are not added to it.
-> The verifier is fixed locally with regression tests; no H20 source was
-> overwritten and no jobs were resubmitted in this results-only update.
-> This is a research branch, not a frozen paper release.
+> **Checked November 26, 2026:** all four later-start paths **4506265_0-3**,
+> restore **4506264** and audit **4506266** COMPLETED, exit0:0. Cluster remains
+> better than top-1 and shrinkage controls under the BF16 matching rule, but
+> costs more. This is two starts of **one seed**, not independent-seed proof.
+> No new jobs were submitted. The 49-run 1B/3B ledger is unchanged.
+> Original failed jobs remain documented, not relabeled. This is a research
+> branch, not a frozen paper release.
 
-## Latest Completed Comparison: Independent Short Trajectories
+## Latest: Later-Start BF16-Matched Paths
+
+Width256, shared step768 checkpoint and optimizer state, same training
+batches, 256 updates per policy, 20 fresh fixed held-out batches.
+
+| Near-region policy | Final loss | Last-four mean | Near rate | H20 time |
+|---|---:|---:|---:|---:|
+| Half-D0 | 3.825426 | 3.843236 | 1.373% | 1:25:14 |
+| Top-1 | 3.800925 | 3.823121 | 8.177% | 1:50:58 |
+| **Cluster-cone, P2GD-type** | **3.791397** | **3.817367** | 14.738% | 2:17:50 |
+| Output-matched half-D0 | 3.812997 | 3.838130 | 2.313% | 1:37:23 |
+
+Cluster is lower at all eight post-update evaluations. Its maximum BF16
+budget error is **0.471%**, with strict-tolerance failures disclosed, and it
+costs **24.2% more than top-1**. Matching uses each path's own-state budget;
+absolute steps are not identical after divergence. This is not a comparison
+against MuonSphere/SSO or a full validation benchmark.
+
+Top6 covers all observed clusters in this panel; top4 misses directions in
+4.85% of near calls. Oracle-warm block8/K10 looks accurate in 23 snapshots,
+but persistent-cache training is untested and per-call speed is not training
+throughput. BF16 budget search still costs about31.5 norm SVDs per cluster call.
+
+**Next:** independent-seed exact controls; a32-step persistent block8/K10,
+top<=6 pilot with sparse audits; then separately replace expensive per-step
+budget search. No wider gap grid or3B expansion yet.
+
+[Curves, matching/capacity audits, raw evidence and next plan](docs/experiments/p2gd_replication_recovery_20261125.md)
+
+## Previous: Step512-Start Short Trajectories
 
 Width256; same step512 checkpoint, full optimizer state and training batches;
 256 updates per policy,20 fixed held-out microbatches. After divergence each
@@ -61,11 +76,9 @@ MuonSphere/SSO and is not a full validation or1B/3B comparison.
 
 [Curves, capacity audit, verified records and next tests](docs/experiments/p2gd_trajectory_panel_20261122.md)
 
-**Next:** reuse the saved step-768 checkpoint only after verifying restoration,
-then finish the already planned four-arm comparison and snapshot audit. Test
-top-4/top-6 capacity and warm-block cost offline before selecting a cheaper
-variant. Do not expand the gap grid or promote this single-panel result to a
-1B/3B claim.
+The step768-start follow-up above is now complete. It uses different held-out
+batches; do not concatenate these two curves or compare their absolute losses
+as one continuous validation trajectory.
 
 ## Previous BF16-Matched Single-Step Result
 

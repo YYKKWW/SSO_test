@@ -37,6 +37,11 @@ class GeometrySummaryTests(unittest.TestCase):
         self.assertEqual(result['near_components'],0)
         self.assertEqual(result['repeat_fraction'],0)
 
+    def test_later_window_label(self):
+        result=geometry_statistics([self.row(769,0),self.row(770,0)],769,1024)
+        self.assertEqual(result['streak_scope'],
+            'Truncated to steps 769--1024; not complete lifetime residence times')
+
 
 if __name__=='__main__':
     unittest.main()
