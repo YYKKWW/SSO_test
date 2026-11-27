@@ -14,6 +14,7 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 [Latest budget controls](docs/experiments/p2gd_budget_matching_20261120.md) ·
 [Returned-step replay](docs/experiments/p2gd_returned_elr_replay_20261119.md) ·
 [Spectral ELR confirmation](docs/experiments/spectral_elr_confirmation_20261119.md) ·
+[New shared-AUS ELR results](docs/experiments/spectral_elr_trajectory_20261127.md) ·
 [Algorithms](docs/algorithms/current_comparison_pseudocode.md) ·
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
@@ -173,14 +174,36 @@ the two evaluation sets or count the repeated states as new independent cases.
 [All eight directions, raw numerical records, figure and next tests](docs/experiments/p2gd_returned_elr_replay_20261119.md) ·
 [Verified H20 summary](docs/results/returned_step_repair_20261119/h20_summary.json)
 
+## ELR Track: Shared-AUS Results, November 27
+
+All six width256/64-update arms completed. Targets now come from the **same
+per-component Muon reference trajectory**, including the missing attenuated
+Muon controls. This is separate from the PGD/P2GD experiments above.
+
+| AUS multiplier | Muon final / last16 mean | MCSD-TP final / last16 mean |
+|---|---:|---:|
+| 1.000 | 4.499633 / 4.518949 | 4.502379 / 4.530159 |
+| 0.985 | 4.483395 / 4.515647 | 4.500671 / 4.528250 |
+| 0.950 | **4.476445 / 4.508469** | 4.511190 / 4.513379 |
+
+The earlier advantage did not persist under this protocol. At matched AUS,
+MCSD-TP visits narrower-gap states and has larger finite-return residuals;
+on the same sampled Muon states, all four directions have small residuals.
+Next priority: reciprocal state replay, then the missing MCSD/SSO short-path
+controls, not long training or a PGD gap grid. One checkpoint/seed only;
+common exact radial return, not native optimizer rankings.
+
+[Full report, curves, portable evidence and next plan](docs/experiments/spectral_elr_trajectory_20261127.md)
+
 ## Earlier 32-Step Confirmation: Actual Step Control
 
 All **13 width-256, 32-update** ELR confirmation arms completed. MCSD-TP with
 AUS calibration and a uniform 0.95 coefficient reached **4.550776**, versus
 4.561753 with local-output matching and 4.578351 for the common-return
 MuonSphere reference. Uncapped spectral matching degraded SSO/MCSD-TP;
-AUS/output caps recovered most of the loss. Missing attenuated Muon controls
-and later-checkpoint replication prevent a direction-superiority claim.
+AUS/output caps recovered most of the loss. That study lacked attenuated
+Muon controls; the separate shared-trajectory study above now supplies them.
+Later-checkpoint replication is still missing.
 These short interventions are separate from the 1B/3B results below.
 
 [Full table, curves, angle diagnostics and next tests](docs/experiments/spectral_elr_confirmation_20261119.md) ·

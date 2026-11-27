@@ -15,6 +15,7 @@ This directory is the documentation entry point for the H20 experiment repositor
 
 | Document | Purpose |
 |---|---|
+| [experiments/spectral_elr_trajectory_20261127.md](experiments/spectral_elr_trajectory_20261127.md) | ELR-only track: six completed shared-AUS trajectories, four-direction matrix replay, portable evidence and next tests. Separate from PGD/P2GD. |
 | [experiments/mcsd_p2gd_results_summary.md](experiments/mcsd_p2gd_results_summary.md) | 统一入口：18 组已完成 1B/3B 对比、耗时、精度及后续优先级。 |
 | [algorithms/current_comparison_pseudocode.md](algorithms/current_comparison_pseudocode.md) | 当前四类算法的中文流程、伪代码与可展开 Python 源码。 |
 | [experiments/cluster_results_20261028.md](experiments/cluster_results_20261028.md) | 六组 3B 最终结果、K10/K20 精度与耗时比较。 |

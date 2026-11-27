@@ -3,6 +3,11 @@
 **Updated November 19, 2026.** All 13 arms completed on November 18.
 This is a paired **mechanism diagnostic**, not a new 1B/3B optimizer leaderboard.
 
+**Follow-up checked November 27:** [shared-AUS trajectories and attenuated
+Muon controls](spectral_elr_trajectory_20261127.md) do not retain the earlier
+MCSD-TP advantage. The target rule and evaluation data differ; this historical
+table remains unchanged and should not be pooled with the new losses.
+
 [Numerical results](../results/spectral_elr_confirmation_20261119/summary.json) |
 [Loss figure (PDF)](../results/spectral_elr_confirmation_20261119/loss_confirmation.pdf) |
 [Analysis script](../../scripts/summarize_spectral_elr_confirmation.py) |
