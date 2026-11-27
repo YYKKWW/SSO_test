@@ -4,6 +4,7 @@ Research code and experiment records for **MCSD-TP**, near-region hybrids,
 and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
 [Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
+[Weekly summary](docs/experiments/weekly_summary_20261121_20261127.md) ·
 [November 27 update](docs/experiments/results_update_20261127.md) ·
 [New 3B transfer](docs/experiments/warm_p2gd_smallstep_3b_20261126.md) ·
 [Latest paired results](docs/experiments/p2gd_replication_recovery_20261125.md) ·
@@ -19,12 +20,12 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
 
-> **November 27:** network restored; three requested small-step warm K10
-> 3B arms submitted as **4519937_0--2**, max two concurrent H20s. Cluster/top-1
-> passed CUDA tests and four-step smokes; ambient queues. **No new 3B loss yet.**
-> The separate 64-update common-AUS study favors MuonSphere over MCSD-TP at
-> matched master-angle targets; it does not test P2GD. Existing 3B references
-> are reused, not rerun. [Results, status and next decisions](docs/experiments/results_update_20261127.md).
+> **November 27, 14:07 UTC+08:** warm K10 3B cluster/top-1 arms **4519937_0--1**
+> reached600/5723 updates, with step500 validation **4.185973 / 4.200569**.
+> Ambient **4519937_2** queues under the two-H20 cap. No completed new3B
+> result yet. The separate64-update common-AUS study favors the
+> Muon-direction/common-exact-return control over MCSD-TP, not native
+> MuonSphere versus P2GD. [Weekly conclusions and next steps](docs/experiments/weekly_summary_20261121_20261127.md).
 >
 > **Completed results checked November 26:** all four later-start paths **4506265_0-3**,
 > restore **4506264** and audit **4506266** COMPLETED, exit0:0. Cluster remains

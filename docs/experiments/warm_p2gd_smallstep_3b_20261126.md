@@ -15,8 +15,12 @@ new, and not a rerun of the old `c8` cluster experiment.
 **Update, November 27 at 12:11 UTC+08:** submitted as **4519937_0--2** after
 network recovery. Cluster and top-1 passed CUDA tests and separate four-step
 smokes; their fresh main-training processes started. Ambient is queued behind
-the two-concurrent-job cap. No new 3B validation loss is available yet.
+the two-concurrent-job cap.
 The independent ELR jobs were not changed.
+
+**Progress at14:07 UTC+08:** cluster/top1 reached600/5723; validation at500
+is4.185973/4.200569. Ambient is still queued. No full-budget result yet.
+[Weekly analysis](weekly_summary_20261121_20261127.md).
 
 [Latest analysis and next decisions](results_update_20261127.md) |
 [Submission receipt](../results/warm_p2gd_smallstep_3b_20261126/submission.json)

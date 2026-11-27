@@ -1,0 +1,10 @@
+{
+  "checked_local": "2026-11-27T14:07:37+08:00",
+  "arms": [
+    {"job": "4519937_0", "method": "cone", "state": "RUNNING", "step": 600, "total_steps": 5723, "train_loss": 4.101492, "milliseconds_per_iteration": 10942.7, "validation": [{"step": 250, "loss": 4.765940}, {"step": 500, "loss": 4.185973}], "near_calls": 17047, "all_component_decisions": 151200, "nan_iterations": 0, "skipped_iterations": 0, "exact_svd_solver_fallback_rate": 0.0},
+    {"job": "4519937_1", "method": "top1", "state": "RUNNING", "step": 600, "total_steps": 5723, "train_loss": 4.108822, "milliseconds_per_iteration": 10931.6, "validation": [{"step": 250, "loss": 4.840392}, {"step": 500, "loss": 4.200569}], "near_calls": 12329, "all_component_decisions": 151200, "nan_iterations": 0, "skipped_iterations": 0, "exact_svd_solver_fallback_rate": 0.0},
+    {"job": "4519937_2", "method": "ambient", "state": "PENDING", "reason": "JobArrayTaskLimit", "validation": []}
+  ],
+  "new_jobs_submitted_for_weekly_summary": false,
+  "notes": "Training losses are logged minibatch averages, not validation. Near fractions include zero-LR bootstrap decisions; historical log labels call these pgd branches, but all three current policies use approximate radial return. No completed new3B result."
+}
