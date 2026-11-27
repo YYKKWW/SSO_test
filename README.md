@@ -7,7 +7,8 @@ protocols and historical results are kept separate.
 | Start here | What it contains |
 |---|---|
 | **[Results overview](docs/experiments/FROBENIUS_3B_6B_SUMMARY.md)** | Key 3B/6B comparisons, curves and next tests |
-| **[Latest results, November 26](docs/experiments/FROBENIUS_BAND_AUS_RESULTS_20261126.md)** | Completed 3B B AUS replay; late loss nearly matches MuonH; train/validation curves, full trace verification and next direction control |
+| **[MCSD status, November 27](docs/experiments/MCSD_SPHERE_STATUS_20261127.md)** | Fixed-sphere 3B pair running after passed H20 gates; completed MCSD results and next decisions kept separate |
+| [Completed annulus control, November 26](docs/experiments/FROBENIUS_BAND_AUS_RESULTS_20261126.md) | Archived B AUS replay; late loss nearly matches MuonH, not an MCSD performance win |
 | [Full band A/B, November 25](docs/experiments/FROBENIUS_BAND_RESULTS_20261125.md) | Completed full 3B; pilot gains reverse late; norm/AUS and polar-angle diagnostics |
 | [Norm-band pilot, November 22](docs/experiments/FROBENIUS_BAND_RESULTS_20261122.md) | Earlier 3,000-step results, preserved separately from full-budget evidence |
 | [Momentum and projection, November 19](docs/experiments/FROBENIUS_RESULTS_20261119.md) | Factorial comparison, late held-out audit and full 3B endpoints |
@@ -18,12 +19,18 @@ protocols and historical results are kept separate.
 | [Complete history](docs/experiments/ALL_EXPERIMENTS.md) | LR/momentum/seed coverage, older protocols and cancellations |
 | [Related work](docs/experiments/FROBENIUS_RELATED_WORK.md) | Recent papers, applicability and testable hypotheses |
 
-**November 26:** B's MuonH-AUS replay completed full 3B (4504355).
+**November 27, 12:16 UTC+8:** the fixed-sphere **MCSD + unit-F (4519941)**
+and **post-only (4519942)** full 3B jobs are running, each on one H20.
+Both six-update CUDA/Megatron gates passed with master-AUS error below
+6.2e-8. There is no new validation endpoint yet. Norm-band expansion is
+paused. [Verified jobs, completed results and next decisions](docs/experiments/MCSD_SPHERE_STATUS_20261127.md).
+
+**Last completed annulus control, November 26:** B's MuonH-AUS replay completed full 3B (4504355).
 Final loss is **3.458382**, versus MuonH **3.458490**; the predeclared late
 mean is **3.464850**, versus MuonH **3.464835**. Thus the late gap nearly
 disappears, but this is not a stable performance win. All 2,243,220 matrix
-updates pass replay checks; NorMuon-Sphere remains lower. The account queue
-was empty at the check. [Final curves, analysis and next tests](docs/experiments/FROBENIUS_BAND_AUS_RESULTS_20261126.md).
+updates pass replay checks; NorMuon-Sphere remains lower.
+[Final curves and analysis](docs/experiments/FROBENIUS_BAND_AUS_RESULTS_20261126.md).
 
 **Completed full-budget evidence:** A ends at **3.460861**,
 B at **3.459655**, versus MuonH **3.458490** and NorMuon-Sphere **3.455796**.

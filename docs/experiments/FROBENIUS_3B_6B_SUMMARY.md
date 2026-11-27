@@ -1,13 +1,20 @@
 # Frobenius Sphere Experiments
 
-**Results and queue snapshot: November 26, 2026, 15:27 UTC+8**
+**Results and queue snapshot: November 27, 2026, 12:16 UTC+8**
 
-[Latest: completed full 3B B AUS replay](FROBENIUS_BAND_AUS_RESULTS_20261126.md).
+[Current MCSD tests](MCSD_SPHERE_STATUS_20261127.md): the two missing fixed-sphere
+3B arms are running: **4519941** (MCSD + unit-F, actual-ray AUS replay) and
+**4519942** (post-only, original tangent replay). Both H20 integration gates
+passed. Main logs reach step 10; there is **no new validation endpoint yet**.
+Each run uses one H20. The norm-band exploration is paused, and other-project
+ELR results are not mixed into this comparison.
+
+[Last completed annulus control: full 3B B AUS replay](FROBENIUS_BAND_AUS_RESULTS_20261126.md).
 Job 4504355 finishes at **3.458382**, versus MuonH **3.458490**. Its
 predeclared late mean is **3.464850**, versus MuonH **3.464835**: a near-match,
 not an established advantage. All **2,243,220** matrix updates pass AUS
-verification. NorMuon-Sphere remains lower at **3.455796**. The account queue
-was empty at the check; no new jobs were submitted for this readout.
+verification. NorMuon-Sphere remains lower at **3.455796**. These endpoints
+are historical results, not new outcomes from the two running MCSD tests.
 
 [Earlier: completed full 3B norm-band A/B](FROBENIUS_BAND_RESULTS_20261125.md).
 A reaches **3.460861**, B **3.459655**: both trail MuonH **3.458490**
@@ -46,6 +53,7 @@ at their respective endpoints.
 | Norm-band pilot | Four completed 3,000-step runs; 28,224 sampled matrix records | [Validation, norm saturation, AUS and measured msign angles](FROBENIUS_BAND_RESULTS_20261122.md) |
 | Full 3B norm-band A/B | Both complete; full every-matrix norm/AUS traces | [Pilot gains reverse; neither beats MuonH/NorMuon at full budget](FROBENIUS_BAND_RESULTS_20261125.md) |
 | B with MuonH AUS targets | Complete full 3B; 58 validation points | [Late loss nearly matches MuonH; all trace checks pass](FROBENIUS_BAND_AUS_RESULTS_20261126.md) |
+| Fixed-sphere MCSD and post-only AUS pair | Two main jobs running after passed gates | [Verified status, existing endpoints and planned contrasts](MCSD_SPHERE_STATUS_20261127.md) |
 
 This is a dated evidence summary, not a live dashboard. All losses are
 validation cross-entropy; lower is better. No historical results were removed:
@@ -214,7 +222,8 @@ under the tested recipes, which use different peak LRs.
 | Completed | Frobenius norm-band pilot | 4479797--4479800; best early endpoint 3.773680; [not full 3B](FROBENIUS_BAND_RESULTS_20261122.md) |
 | Completed | Full-budget narrow cone / wider ambient band | 4487882: 3.459655; 4487881: 3.460861; neither beats MuonH |
 | Completed mechanism test | B with matrix-wise MuonH AUS targets | 4504355; final 3.458382, late mean 3.464850; no stable late win vs. MuonH |
-| Next priority | Nesterov no-pre-projection arm through full 3B, same post-projection/AUS | Proposed, not submitted; always-projected full-budget reference already exists |
+| Running | MCSD + unit-F with general-ray AUS matching, full 3B | 4519941; gate 4519939 passed; fills the no-postprojection contrast |
+| Running | Nesterov no-pre-projection arm through full 3B, same post-projection/AUS | 4519942; gate 4519940 passed; always-projected reference 4427415 already complete |
 | Cheap mechanism diagnostic | Same-state radial-gradient contamination, matched sphere/AUS | Proposed; tests extension sensitivity before claiming practical gains |
 | Replication | Broader held-out samples, then a seed-specific matched-AUS pair if warranted | Endpoint-and-late-mean promotion condition not met; defer width/6B and band grids |
 
@@ -228,6 +237,8 @@ adds the norm-band pilot. The [November 25 readout](FROBENIUS_BAND_RESULTS_20261
 supersedes that pilot's provisional performance interpretation with full 3B endpoints.
 The [November 26 AUS control](FROBENIUS_BAND_AUS_RESULTS_20261126.md) adds the
 completed matched-angular-step comparison and its revised next-test priorities.
+The [November 27 status](MCSD_SPHERE_STATUS_20261127.md) records the return to
+fixed-sphere MCSD and the two newly started full-budget contrasts.
 [Submission details](FROBENIUS_POINT_LR_BATCH_20261102.md).
 
 **Current research priority:** distinguish direction quality from actual
