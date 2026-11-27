@@ -1,0 +1,21 @@
+{
+  "reference": "4453017_0",
+  "all_shared_recorded_training_fields_equal": true,
+  "new_modes": [
+    {
+      "KERNEL_WARM_P2GD_MODE": "cone",
+      "KERNEL_WARM_P2GD_RATIO": "0.075",
+      "KERNEL_WARM_P2GD_CAPACITY": "6"
+    },
+    {
+      "KERNEL_WARM_P2GD_MODE": "top1",
+      "KERNEL_WARM_P2GD_RATIO": "0.075",
+      "KERNEL_WARM_P2GD_CAPACITY": "6"
+    },
+    {
+      "KERNEL_WARM_P2GD_MODE": "ambient",
+      "KERNEL_WARM_P2GD_RATIO": "0.075",
+      "KERNEL_WARM_P2GD_CAPACITY": "6"
+    }
+  ]
+}

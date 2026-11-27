@@ -2,13 +2,18 @@
 
 [Overview](../../README.md) · [Algorithms and code](../algorithms/current_comparison_pseudocode.md) · [Reproduction](../runbooks/cluster_experiments_reproduction.md) · [Related work](../related_work.md)
 
-**Requested 3B extension:** [small-step warm transfer](warm_p2gd_smallstep_3b_20261126.md)
-adds cluster top<=6, top-1 and ambient at the same fixed raw-momentum ratio
-0.075. Persistent warm block8/K10 is an existing tested backend, not a new
-proposal. Forty local regression tests passed; files were uploaded, but SSH
-timeouts currently prevent H20 preparation/submission. No job ID or new loss
-is confirmed. Completed half-D0, control, MuonSphere/SSO references are reused.
-The 49 completed full-budget results below are unchanged.
+**November 27 update:** [results, launch status and next decisions](results_update_20261127.md).
+The separate common-AUS 64-update study is complete: MuonSphere/0.95 ends
+at4.476445, versus MCSD-TP/0.95 at4.511190; last16 means4.508469/4.513379.
+This is matched FP32-master angular movement, not BF16 spectral matching,
+and contains no P2GD arm. Do not merge it with the full-budget ledger.
+
+**Requested 3B extension now submitted:** [small-step warm transfer](warm_p2gd_smallstep_3b_20261126.md)
+**4519937_0--2**, cluster top<=6/top-1/ambient, common raw-momentum ratio0.075.
+Cluster/top-1 passed CUDA tests and separate four-step smokes; main processes
+started. Ambient queues under the two-H20 cap. No new3B loss yet. Existing
+warm block8/K10 and completed half-D0/MuonSphere/SSO results are reused.
+The49 completed full-budget results below are unchanged.
 
 **Latest completed, November 26:**
 [four later-start paths 4506265_0-3](p2gd_replication_recovery_20261125.md),

@@ -12,9 +12,14 @@ cluster direction, top<=6**, compared with top-1 and ambient at the same raw
 momentum coefficient. This is not another claim that the spectral backend is
 new, and not a rerun of the old `c8` cluster experiment.
 
-Status: local tests passed and the overlay was uploaded; H20 source
-preparation/submission awaits a successful SSH reconnection. No new job ID
-has been confirmed yet. The independent ELR jobs are left untouched.
+**Update, November 27 at 12:11 UTC+08:** submitted as **4519937_0--2** after
+network recovery. Cluster and top-1 passed CUDA tests and separate four-step
+smokes; their fresh main-training processes started. Ambient is queued behind
+the two-concurrent-job cap. No new 3B validation loss is available yet.
+The independent ELR jobs were not changed.
+
+[Latest analysis and next decisions](results_update_20261127.md) |
+[Submission receipt](../results/warm_p2gd_smallstep_3b_20261126/submission.json)
 
 ## Three New Arms
 
@@ -146,7 +151,13 @@ time is roughly 18--20 hours per arm from the completed warm controls, not a
 measured runtime for this new direction. With two concurrent slots, three
 arms need roughly two waves plus scheduler delay.
 
-Resume preparation and submission after connectivity returns (the preparer
+The first archive was rejected before preparation because macOS added
+AppleDouble metadata files. Repacking with `COPYFILE_DISABLE=1` and
+`--no-xattrs --no-mac-metadata` fixed packaging without changing algorithm
+source. Frozen manifest SHA256:
+`7f724f06ece727e871fad3c47c4ebb8ee51b9b9d073ccb760a99588cdc419614`.
+
+Preparation/submission command (already executed; the preparer
 is idempotent after a successful submission; never bypass an existing intent
 record after an ambiguous `sbatch` response):
 

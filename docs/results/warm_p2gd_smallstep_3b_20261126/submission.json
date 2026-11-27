@@ -1,0 +1,39 @@
+{
+  "base": "/home/u3013198/projects/warm-radial-controls-3b-20261117",
+  "target": "/home/u3013198/projects/warm-p2gd-smallstep-3b-20261126",
+  "overlay_sha256": "7ec3fbeb0e161830e509db4fd1d10dc73d85fd48a1e1a78af8474fddfa409d07",
+  "source_manifest_sha256": "7f724f06ece727e871fad3c47c4ebb8ee51b9b9d073ccb760a99588cdc419614",
+  "reference_job": "4453017_0",
+  "changed_files": [
+    "scripts/audit_warm_p2gd_transfer.py",
+    "scripts/prepare_warm_p2gd_transfer.py",
+    "scripts/pretrain_kernel_lmo_pilot.py",
+    "scripts/run_kernel_lmo_pilot.py",
+    "scripts/test_warm_p2gd_transfer.py",
+    "scripts/warm_p2gd_transfer.py",
+    "slurm/warm_p2gd_transfer_3b_20261126.sbatch"
+  ],
+  "job_id": "4519937",
+  "submitted_utc": "2026-11-27T04:11:54.755541+00:00",
+  "arms": [
+    "cone",
+    "top1",
+    "ambient"
+  ],
+  "max_concurrent_gpus": 2,
+  "gpus_per_arm": 1,
+  "width": 256,
+  "seed": 2345,
+  "iterations": 5723,
+  "processed_tokens": 3000500224,
+  "lr": 0.015,
+  "gap": 0.0002,
+  "ratio": 0.075,
+  "capacity": 6,
+  "block_size": 8,
+  "block_iterations": 10,
+  "checkpoints": false,
+  "actual_elr_matched": false,
+  "cpu_tests_passed": true,
+  "cuda_tests_and_four_step_smoke": "inside each allocation before fresh main training"
+}

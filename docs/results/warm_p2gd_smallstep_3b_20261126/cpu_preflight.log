@@ -1,0 +1,22 @@
+test_capacity_overflow_is_not_silently_certified (test_warm_p2gd_transfer.WarmTransferTests.test_capacity_overflow_is_not_silently_certified) ... ok
+test_cone_and_top1_formulas_same_raw_scale (test_warm_p2gd_transfer.WarmTransferTests.test_cone_and_top1_formulas_same_raw_scale) ... ok
+test_launches_are_paired_except_near_policy (test_warm_p2gd_transfer.WarmTransferTests.test_launches_are_paired_except_near_policy) ... ok
+test_persistent_cache_and_one_8x8_svd_per_trial_in_host (test_warm_p2gd_transfer.WarmTransferTests.test_persistent_cache_and_one_8x8_svd_per_trial_in_host) ... ok
+test_safe_updates_equal_completed_warm_control (test_warm_p2gd_transfer.WarmTransferTests.test_safe_updates_equal_completed_warm_control) ... ok
+test_3b_launch_changes_only_solver_fields (test_warm_radial_3b.WarmRadialTests.test_3b_launch_changes_only_solver_fields) ... ok
+test_host_keeps_approximate_cache (test_warm_radial_3b.WarmRadialTests.test_host_keeps_approximate_cache) ... ok
+test_offline_audit_uses_actual_states_without_radius_correction (test_warm_radial_3b.WarmRadialTests.test_offline_audit_uses_actual_states_without_radius_correction) ... ok
+test_only_small_fp32_ritz_no_full_svd_or_svdvals (test_warm_radial_3b.WarmRadialTests.test_only_small_fp32_ritz_no_full_svd_or_svdvals) ... ok
+test_projection_and_finite_repair_cannot_silently_become_truncated (test_warm_radial_3b.WarmRadialTests.test_projection_and_finite_repair_cannot_silently_become_truncated) ... ok
+test_returned_cache_contains_scaled_ritz_pairs (test_warm_radial_3b.WarmRadialTests.test_returned_cache_contains_scaled_ritz_pairs) ... ok
+test_safe_direction_matches_warm_control (test_warm_radial_3b.WarmRadialTests.test_safe_direction_matches_warm_control) ... ok
+test_half_control_requires_radial_return (test_warm_radial_controls.WarmControlTests.test_half_control_requires_radial_return) ... ok
+test_host_cache_and_only_one_small_trial_svd (test_warm_radial_controls.WarmControlTests.test_host_cache_and_only_one_small_trial_svd) ... ok
+test_launcher_changes_only_method_and_near_scale_metadata (test_warm_radial_controls.WarmControlTests.test_launcher_changes_only_method_and_near_scale_metadata) ... ok
+test_same_cache_d0_and_only_near_trial_is_halved (test_warm_radial_controls.WarmControlTests.test_same_cache_d0_and_only_near_trial_is_halved) ... ok
+test_zero_d0_stays_zero_without_ambient_reference_fallback (test_warm_radial_controls.WarmControlTests.test_zero_d0_stays_zero_without_ambient_reference_fallback) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.702s
+
+OK

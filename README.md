@@ -4,6 +4,7 @@ Research code and experiment records for **MCSD-TP**, near-region hybrids,
 and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 
 [Results ledger](docs/experiments/mcsd_p2gd_results_summary.md) ·
+[November 27 update](docs/experiments/results_update_20261127.md) ·
 [New 3B transfer](docs/experiments/warm_p2gd_smallstep_3b_20261126.md) ·
 [Latest paired results](docs/experiments/p2gd_replication_recovery_20261125.md) ·
 [BF16-matched results](docs/experiments/p2gd_late_controls_20261122.md) ·
@@ -17,10 +18,12 @@ and **MuonSphere / SSO** baselines in Megatron-LM pretraining.
 [Reproduction](docs/runbooks/cluster_experiments_reproduction.md) ·
 [Related work](docs/related_work.md)
 
-> **3B extension:** three small-step warm K10 arms are implemented and locally
-> tested; the overlay was uploaded, but H20 SSH timeouts currently block
-> preparation/submission. **No new job ID is confirmed.** Existing warm K10
-> 3B references are reused, not rerun. [Protocol and status](docs/experiments/warm_p2gd_smallstep_3b_20261126.md).
+> **November 27:** network restored; three requested small-step warm K10
+> 3B arms submitted as **4519937_0--2**, max two concurrent H20s. Cluster/top-1
+> passed CUDA tests and four-step smokes; ambient queues. **No new 3B loss yet.**
+> The separate 64-update common-AUS study favors MuonSphere over MCSD-TP at
+> matched master-angle targets; it does not test P2GD. Existing 3B references
+> are reused, not rerun. [Results, status and next decisions](docs/experiments/results_update_20261127.md).
 >
 > **Completed results checked November 26:** all four later-start paths **4506265_0-3**,
 > restore **4506264** and audit **4506266** COMPLETED, exit0:0. Cluster remains
